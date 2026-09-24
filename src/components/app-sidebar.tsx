@@ -29,28 +29,25 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <Link to="/" className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]">
-            <Icon name="construction" />
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">RenoTrack</span>
-              <span className="text-xs text-muted-foreground">Live progress</span>
-            </div>
-          )}
+      <SidebarHeader className="p-0">
+        <Link
+          to="/"
+          aria-label="RenoTrack home"
+          className="flex items-center gap-3 rounded-full px-4 pb-5 pt-4 focus-visible:outline-2 focus-visible:outline-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+        >
+          <Icon name="construction" className="text-primary" />
+          {!collapsed && <span className="text-title-sm text-on-surface-variant">RenoTrack</span>}
         </Link>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        <SidebarGroup className="p-0">
           <SidebarGroupLabel>Project</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={path === item.url}>
-                    <Link to={item.url} className="flex items-center gap-2">
+                    <Link to={item.url}>
                       <Icon name={item.icon} fill={path === item.url} />
                       {!collapsed && <span>{item.title}</span>}
                     </Link>

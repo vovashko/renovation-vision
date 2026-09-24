@@ -4,24 +4,36 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+// M3 common buttons. Height and padding live in the base so the `fab` variant can override them.
+// A leading Icon (first child) switches to the pl-4 pr-6 layout.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "state-layer inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 text-label-lg transition-shadow duration-150 ease-[cubic-bezier(0.2,0,0,1)] has-[>.material-symbols-outlined:first-child]:pl-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:text-on-surface/38 disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-[18px] [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        // Filled
+        default:
+          "bg-primary text-on-primary hover:shadow-el1 active:shadow-none disabled:bg-on-surface/12",
+        tonal:
+          "bg-secondary-container text-on-secondary-container hover:shadow-el1 active:shadow-none disabled:bg-on-surface/12",
+        // Kept for existing callers; same as tonal.
+        secondary:
+          "bg-secondary-container text-on-secondary-container hover:shadow-el1 active:shadow-none disabled:bg-on-surface/12",
+        outline: "border border-outline bg-transparent text-primary disabled:border-on-surface/12",
+        // Text buttons
+        ghost:
+          "bg-transparent px-3 text-primary has-[>.material-symbols-outlined:first-child]:pl-3",
+        link: "bg-transparent px-3 text-primary has-[>.material-symbols-outlined:first-child]:pl-3",
+        elevated:
+          "bg-surface-container-low text-primary shadow-el1 hover:shadow-el2 disabled:bg-on-surface/12",
+        destructive: "bg-error text-on-error hover:shadow-el1 disabled:bg-on-surface/12",
+        fab: "size-14 rounded-lg bg-primary-container px-0 text-on-primary-container shadow-el3 hover:shadow-el4 has-[>.material-symbols-outlined:first-child]:pl-0 disabled:bg-on-surface/12",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        default: "",
+        sm: "h-8 px-4 has-[>.material-symbols-outlined:first-child]:pl-3",
+        lg: "h-12 px-8 has-[>.material-symbols-outlined:first-child]:pl-6",
+        icon: "size-10 px-0 has-[>.material-symbols-outlined:first-child]:pl-0",
       },
     },
     defaultVariants: {
