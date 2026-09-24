@@ -71,7 +71,7 @@ function BudgetPage() {
         {expenses.length === 0 ? (
           <EmptyState icon={Receipt} text="No expenses yet. Spent stays at $0 until you add some." />
         ) : (
-          <div className="overflow-x-auto rounded-xl border bg-card shadow-[var(--shadow-soft)]">
+          <div className="relative overflow-x-auto rounded-xl border bg-card shadow-[var(--shadow-soft)]">
             <table className="w-full min-w-[720px] text-sm">
               <thead className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
