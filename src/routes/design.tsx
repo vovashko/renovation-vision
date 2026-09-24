@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Palette } from "lucide-react";
-import { rooms } from "@/lib/renovation-data";
+import { rooms, statusFill, statusLabel } from "@/lib/renovation-data";
 import { beforeAfter, renders } from "@/lib/media-data";
 import { FilterChips } from "@/components/filter-chips";
 import { Lightbox } from "@/components/lightbox";
@@ -14,7 +14,10 @@ export const Route = createFileRoute("/design")({
   head: () => ({
     meta: [
       { title: "Design renders — RenoTrack" },
-      { name: "description", content: "The planned finished look of every room, with before/after comparison." },
+      {
+        name: "description",
+        content: "The planned finished look of every room, with before/after comparison.",
+      },
       { property: "og:title", content: "Design renders — RenoTrack" },
       { property: "og:description", content: "See the planned finished look of your home." },
       { property: "og:type", content: "website" },
@@ -39,14 +42,28 @@ function DesignPage() {
       <p className="mt-1 text-muted-foreground">How each room will look when finished.</p>
 
       <div className="mt-5">
-        <FilterChips label="Room" value={room} onChange={setRoom} options={[{ value: "all", label: "All rooms" }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]} />
+        <FilterChips
+          label="Room"
+          value={room}
+          onChange={setRoom}
+          options={[
+            { value: "all", label: "All rooms" },
+            ...rooms.map((r) => ({ value: r.id, label: r.name })),
+          ]}
+        />
       </div>
 
       {showCompare && (
         <section className="mt-6">
           <h2 className="text-lg font-semibold">{baRoom.name}: now vs. planned</h2>
           <p className="mb-3 text-sm text-muted-foreground">Drag the handle to compare.</p>
-          <div className="max-w-3xl"><BeforeAfter before={beforeAfter.before} after={beforeAfter.after} label={baRoom.name} /></div>
+          <div className="max-w-3xl">
+            <BeforeAfter
+              before={beforeAfter.before}
+              after={beforeAfter.after}
+              label={baRoom.name}
+            />
+          </div>
         </section>
       )}
 
@@ -55,16 +72,46 @@ function DesignPage() {
           const list = renders.filter((x) => x.roomId === r.id);
           return (
             <section key={r.id} aria-label={r.name}>
-              <h2 className="mb-3 text-lg font-semibold">{r.name}</h2>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3">
+                <h2 className="flex items-center gap-2 text-lg font-semibold">
+                  {r.name}
+                  <span
+                    className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+                    style={{ background: statusFill[r.status] }}
+                  >
+                    {statusLabel[r.status]} · {r.progress}%
+                  </span>
+                </h2>
+                <Link
+                  to="/plan"
+                  search={{ room: r.id }}
+                  className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
+                >
+                  See on plan →
+                </Link>
+              </div>
               {list.length === 0 ? (
                 <div className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-5 text-sm text-muted-foreground">
-                  <Palette className="h-5 w-5 shrink-0" /> Renders for {r.name} are still being prepared by the designer.
+                  <Palette className="h-5 w-5 shrink-0" /> Renders for {r.name} are still being
+                  prepared by the designer.
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {list.map((x) => (
-                    <button key={x.id} onClick={() => setOpen(flat.indexOf(x))} className="overflow-hidden rounded-xl border bg-card text-left shadow-[var(--shadow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`Open render: ${x.title}`}>
-                      <img src={x.src} alt={x.alt} loading="lazy" width={1024} height={768} className="aspect-[4/3] w-full object-cover" />
+                    <button
+                      key={x.id}
+                      onClick={() => setOpen(flat.indexOf(x))}
+                      className="overflow-hidden rounded-xl border bg-card text-left shadow-[var(--shadow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={`Open render: ${x.title}`}
+                    >
+                      <img
+                        src={x.src}
+                        alt={x.alt}
+                        loading="lazy"
+                        width={1024}
+                        height={768}
+                        className="aspect-[4/3] w-full object-cover"
+                      />
                       <div className="p-4">
                         <div className="font-medium">{x.title}</div>
                         <p className="mt-1 text-sm text-muted-foreground">{x.description}</p>
@@ -78,7 +125,13 @@ function DesignPage() {
         })}
       </div>
       <Lightbox
-        items={flat.map((x) => ({ src: x.src, alt: x.alt, title: x.title, subtitle: x.description, tags: [rooms.find((r) => r.id === x.roomId)!.name] }))}
+        items={flat.map((x) => ({
+          src: x.src,
+          alt: x.alt,
+          title: x.title,
+          subtitle: x.description,
+          tags: [rooms.find((r) => r.id === x.roomId)!.name],
+        }))}
         index={open}
         onClose={() => setOpen(null)}
       />

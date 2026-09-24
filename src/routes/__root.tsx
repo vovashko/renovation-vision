@@ -11,6 +11,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileTabBar } from "@/components/mobile-nav";
 import { PhotoProvider } from "@/lib/photo-store";
+import { overallProgress, project } from "@/lib/renovation-data";
 
 import appCss from "../styles.css?url";
 
@@ -62,7 +63,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        content:
+          "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
+      },
       { title: "RenoTrack — Renovation Progress" },
       {
         name: "description",
@@ -100,15 +105,20 @@ function RootComponent() {
         <SidebarProvider>
           <div className="flex min-h-screen w-full bg-[image:var(--gradient-surface)]">
             <AppSidebar />
-            <div className="flex flex-1 flex-col">
-              <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur">
-                <SidebarTrigger />
-                <div className="flex flex-col leading-tight">
-                  <span className="text-sm font-semibold">Maple Street Apartment</span>
-                  <span className="text-xs text-muted-foreground">42 Maple Street, Apt 5B</span>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <header className="sticky top-0 z-30 border-b bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur">
+                <div className="flex h-14 items-center gap-3 px-4">
+                  <SidebarTrigger className="hidden md:inline-flex" />
+                  <div className="flex min-w-0 flex-1 flex-col leading-tight">
+                    <span className="truncate text-sm font-semibold">{project.name}</span>
+                    <span className="hidden text-xs text-muted-foreground md:block">
+                      {project.address}
+                    </span>
+                    <HeaderProgress className="md:hidden" />
+                  </div>
                 </div>
               </header>
-              <main className="flex-1 p-4 pb-24 md:p-8">
+              <main className="min-w-0 flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-8">
                 <Outlet />
               </main>
             </div>
@@ -117,5 +127,27 @@ function RootComponent() {
         </SidebarProvider>
       </PhotoProvider>
     </QueryClientProvider>
+  );
+}
+
+function HeaderProgress({ className = "" }: { className?: string }) {
+  const progress = overallProgress();
+  return (
+    <div
+      className={`mt-1 flex items-center gap-2 ${className}`}
+      role="progressbar"
+      aria-label="Overall progress"
+      aria-valuenow={progress}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${progress}%`, background: "var(--gradient-primary)" }}
+        />
+      </div>
+      <span className="text-xs font-medium tabular-nums text-muted-foreground">{progress}%</span>
+    </div>
   );
 }

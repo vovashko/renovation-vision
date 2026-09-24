@@ -7,7 +7,10 @@ import { initialPhotos, PROJECT_TODAY, type SitePhoto } from "@/lib/media-data";
  */
 type PhotoStore = {
   photos: SitePhoto[];
-  addPhotos: (files: File[], meta: { stageId: string; roomId: string; caption: string }) => Promise<void>;
+  addPhotos: (
+    files: File[],
+    meta: { stageId: string; roomId: string; caption: string },
+  ) => Promise<void>;
 };
 
 const Ctx = createContext<PhotoStore | null>(null);

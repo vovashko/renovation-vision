@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Camera } from "lucide-react";
 import { usePhotos } from "@/lib/photo-store";
 import { rooms, stages } from "@/lib/renovation-data";
 import { dayLabel, timeLabel, type SitePhoto } from "@/lib/media-data";
+import { roomName, stageName, toLightbox } from "@/lib/photo-helpers";
 import { FilterChips } from "@/components/filter-chips";
-import { Lightbox, type LightboxItem } from "@/components/lightbox";
+import { Lightbox } from "@/components/lightbox";
+import { EmptyPhotos } from "@/components/photo-thumbs";
 import { PhotoUploadSheet } from "@/components/photo-upload-sheet";
 
 export const Route = createFileRoute("/photos")({
@@ -16,7 +17,10 @@ export const Route = createFileRoute("/photos")({
   head: () => ({
     meta: [
       { title: "Site photos — RenoTrack" },
-      { name: "description", content: "Daily site photos of your renovation, grouped by date, stage and room." },
+      {
+        name: "description",
+        content: "Daily site photos of your renovation, grouped by date, stage and room.",
+      },
       { property: "og:title", content: "Site photos — RenoTrack" },
       { property: "og:description", content: "See your renovation without being there." },
       { property: "og:type", content: "website" },
@@ -26,23 +30,21 @@ export const Route = createFileRoute("/photos")({
   component: PhotosPage,
 });
 
-export const stageName = (id: string) => stages.find((s) => s.id === id)?.name ?? id;
-export const roomName = (id: string) => rooms.find((r) => r.id === id)?.name ?? id;
-
-export function toLightbox(p: SitePhoto): LightboxItem {
-  return { src: p.src, alt: p.alt, title: p.caption, subtitle: `${dayLabel(p.takenAt)}, ${timeLabel(p.takenAt)} · ${p.uploadedBy}`, tags: [stageName(p.stageId), roomName(p.roomId)] };
-}
-
 function PhotosPage() {
   const search = Route.useSearch();
   const { photos } = usePhotos();
-  const [mode, setMode] = useState<"latest" | "stage" | "room">(search.room ? "room" : search.stage ? "stage" : "latest");
+  const [mode, setMode] = useState<"latest" | "stage" | "room">(
+    search.room ? "room" : search.stage ? "stage" : "latest",
+  );
   const [stage, setStage] = useState(search.stage ?? stages[2].id);
   const [room, setRoom] = useState(search.room ?? rooms[0].id);
   const [open, setOpen] = useState<number | null>(null);
 
   const filtered = useMemo(
-    () => photos.filter((p) => (mode === "stage" ? p.stageId === stage : mode === "room" ? p.roomId === room : true)),
+    () =>
+      photos.filter((p) =>
+        mode === "stage" ? p.stageId === stage : mode === "room" ? p.roomId === room : true,
+      ),
     [photos, mode, stage, room],
   );
   const groups = useMemo(() => {
@@ -67,32 +69,78 @@ function PhotosPage() {
       </div>
 
       <div className="mt-5 space-y-3">
-        <FilterChips label="Filter photos by" value={mode} onChange={(v) => setMode(v as typeof mode)}
-          options={[{ value: "latest", label: "Latest updates" }, { value: "stage", label: "By stage" }, { value: "room", label: "By room" }]} />
-        {mode === "stage" && <FilterChips label="Stage" value={stage} onChange={setStage} options={stages.map((s) => ({ value: s.id, label: s.name }))} />}
-        {mode === "room" && <FilterChips label="Room" value={room} onChange={setRoom} options={rooms.map((r) => ({ value: r.id, label: r.name }))} />}
+        <FilterChips
+          label="Filter photos by"
+          value={mode}
+          onChange={(v) => setMode(v as typeof mode)}
+          options={[
+            { value: "latest", label: "Latest updates" },
+            { value: "stage", label: "By stage" },
+            { value: "room", label: "By room" },
+          ]}
+        />
+        {mode === "stage" && (
+          <FilterChips
+            label="Stage"
+            value={stage}
+            onChange={setStage}
+            options={stages.map((s) => ({ value: s.id, label: s.name }))}
+          />
+        )}
+        {mode === "room" && (
+          <FilterChips
+            label="Room"
+            value={room}
+            onChange={setRoom}
+            options={rooms.map((r) => ({ value: r.id, label: r.name }))}
+          />
+        )}
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyPhotos text={`No photos yet for ${mode === "stage" ? stageName(stage) : roomName(room)}. ${stages.find((s) => s.id === stage)?.status === "pending" && mode === "stage" ? "This stage hasn't started." : "Jonas will add some soon."}`} />
+        <EmptyPhotos
+          text={`No photos yet for ${mode === "stage" ? stageName(stage) : roomName(room)}. ${stages.find((s) => s.id === stage)?.status === "pending" && mode === "stage" ? "This stage hasn't started." : "Jonas will add some soon."}`}
+        />
       ) : (
         <div className="mt-6 space-y-8">
           {groups.map((g) => (
             <section key={g.label} aria-label={g.label}>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{g.label}</h2>
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {g.label}
+              </h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {g.items.map(({ p, i }) => (
-                  <article key={p.id} className="overflow-hidden rounded-xl border bg-card shadow-[var(--shadow-soft)]">
-                    <button onClick={() => setOpen(i)} className="block w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`Open photo: ${p.caption}`}>
-                      <img src={p.src} alt={p.alt} loading="lazy" width={1024} height={768} className="aspect-[4/3] w-full object-cover" />
+                  <article
+                    key={p.id}
+                    className="overflow-hidden rounded-xl border bg-card shadow-[var(--shadow-soft)]"
+                  >
+                    <button
+                      onClick={() => setOpen(i)}
+                      className="block w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={`Open photo: ${p.caption}`}
+                    >
+                      <img
+                        src={p.src}
+                        alt={p.alt}
+                        loading="lazy"
+                        width={1024}
+                        height={768}
+                        className="aspect-[4/3] w-full object-cover"
+                      />
                     </button>
                     <div className="p-4">
                       <p className="text-sm">{p.caption}</p>
                       <div className="mt-2 flex flex-wrap gap-1.5">
-                        <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">{stageName(p.stageId)}</span>
-                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">{roomName(p.roomId)}</span>
+                        <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
+                          {stageName(p.stageId)}
+                        </span>
+                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
+                          {roomName(p.roomId)}
+                        </span>
                       </div>
-                      <div className="mt-2 text-xs text-muted-foreground">{timeLabel(p.takenAt)} · {p.uploadedBy}</div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {timeLabel(p.takenAt)} · {p.uploadedBy}
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -102,15 +150,6 @@ function PhotosPage() {
         </div>
       )}
       <Lightbox items={filtered.map(toLightbox)} index={open} onClose={() => setOpen(null)} />
-    </div>
-  );
-}
-
-export function EmptyPhotos({ text }: { text: string }) {
-  return (
-    <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed bg-card p-8 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted"><Camera className="h-6 w-6 text-muted-foreground" /></div>
-      <p className="mt-3 max-w-xs text-sm text-muted-foreground">{text}</p>
     </div>
   );
 }

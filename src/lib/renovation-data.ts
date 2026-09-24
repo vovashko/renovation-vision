@@ -135,12 +135,48 @@ export type Room = {
 };
 
 export const rooms: Room[] = [
-  { id: "living", name: "Living Room", status: "progress", progress: 60, x: 20, y: 20, w: 320, h: 220 },
-  { id: "kitchen", name: "Kitchen", status: "pending", progress: 10, x: 340, y: 20, w: 240, h: 140 },
+  {
+    id: "living",
+    name: "Living Room",
+    status: "progress",
+    progress: 60,
+    x: 20,
+    y: 20,
+    w: 320,
+    h: 220,
+  },
+  {
+    id: "kitchen",
+    name: "Kitchen",
+    status: "pending",
+    progress: 10,
+    x: 340,
+    y: 20,
+    w: 240,
+    h: 140,
+  },
   { id: "dining", name: "Dining", status: "progress", progress: 45, x: 340, y: 160, w: 240, h: 80 },
   { id: "bath", name: "Bathroom", status: "done", progress: 100, x: 20, y: 240, w: 160, h: 160 },
-  { id: "bed1", name: "Bedroom 1", status: "progress", progress: 35, x: 180, y: 240, w: 200, h: 160 },
-  { id: "bed2", name: "Bedroom 2", status: "blocked", progress: 15, x: 380, y: 240, w: 200, h: 160 },
+  {
+    id: "bed1",
+    name: "Bedroom 1",
+    status: "progress",
+    progress: 35,
+    x: 180,
+    y: 240,
+    w: 200,
+    h: 160,
+  },
+  {
+    id: "bed2",
+    name: "Bedroom 2",
+    status: "blocked",
+    progress: 15,
+    x: 380,
+    y: 240,
+    w: 200,
+    h: 160,
+  },
 ];
 
 export const project = {
