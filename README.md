@@ -1,124 +1,244 @@
-# Handoff: RenoTrack → Material 3 design system
+# Handoff: RenoVision design system v5 ("Sage")
 
 ## Overview
-Re-theme the RenoTrack app (`vovashko/renovation-vision`, TanStack Start + Tailwind v4 + shadcn/ui) to Material 3. Colors come from the attached Material Theme Builder export (seed `#E4E9EB`, neutral slate), the font is Inter, and there are custom status colors. This covers tokens, shared UI primitives, and the RenoTrack-specific components (project header, stage timeline, floor plan, room panel, chat).
+Re-theme the RenoVision app (`vovashko/renovation-vision`: TanStack Start, Tailwind v4, shadcn/ui) to the v5 design system. It keeps Material 3 structure (color roles, type scale, state layers) with a flat sage and forest-green look: white cards with hairline borders on a soft sage-gray page, tinted panels to group controls, and forest green reserved for the primary action and active states. The font is Inter; icons are Material Symbols Outlined at weight 300.
 
 ## About the design files
-`reference/RenoTrack Design System (Material 3) v2.dc.html` is a **design reference built in HTML**. It is not production code. Open it in a browser (keep `support.js` next to it) to see the target look and hover states. Recreate it inside the existing codebase using its patterns: Tailwind utility classes, `cva` variants in `src/components/ui/*`, and Radix primitives. Do not copy inline styles.
+`reference/RenoVision Design System v5.dc.html` is a **design reference built in HTML**. Open it in a browser, with `support.js` and `assets/` next to it. Recreate it with the codebase's own patterns: Tailwind utilities, `cva` variants in `src/components/ui/*`, and Radix primitives. Don't copy the inline styles.
 
 ## Fidelity
-**High-fidelity.** Colors, type, radii, elevation, spacing and states are final. Match them exactly.
+**High-fidelity.** Colors, type, radii, spacing and states are final.
 
 ---
 
 ## Step 1: Tokens (drop-in)
-Replace `src/styles.css` with `src/styles.css` from this bundle. It:
-- Defines raw M3 roles as `--m3-*` (light + `.dark`, oklch with hex in comments), generated from `material-theme.json`.
-- Re-points every shadcn variable (`--primary`, `--card`, `--muted`, `--border`, `--sidebar-*`, `--status-*`…) at M3 roles, so existing components re-theme with no code changes.
-- Registers M3 names as Tailwind colors: `bg-surface-container-low`, `text-on-surface-variant`, `bg-secondary-container`, `bg-success-container`, `text-on-warning-container`, `border-outline-variant`, etc.
-- Adds status container pairs: `bg-status-{done|progress|pending|blocked}-container` + `text-on-status-…-container`.
-- Adds type utilities `text-display-lg` … `text-label-sm`, the `state-layer` utility, elevation `shadow-el1…el5`, and the M3 radius scale.
-- Neutralises `--gradient-primary`, `--gradient-surface`, `--shadow-soft` and `--shadow-elegant` (M3 has no gradients). Remove their usages when touching each file.
+Replace `src/styles.css` with `src/styles.css` from this bundle. It contains:
+- The `--m3-*` roles, light and `.dark`, in oklch.
+- The shadcn variables (`--primary`, `--card`, `--border`, `--sidebar-*`, `--status-*`…) aliased to those roles, so existing components re-theme with no code changes.
+- Tailwind color names:
+  - shadcn: `bg-primary`, `bg-card`, `text-muted-foreground`, …
+  - M3: `bg-surface-container-high`, `text-on-surface-variant`, `bg-primary-container`, `bg-tertiary-container`
+  - Status: `bg-success`, `bg-success-container`, `text-on-success-container`, `bg-progress`, `bg-progress-container`, `text-on-progress-container`, `bg-attention`, `text-attention-text`, `bg-attention-container`, `text-on-attention-container`, `border-attention-outline`
+  - shadcn-style status aliases: `bg-status-{done|progress|pending|blocked}`, `bg-status-…-container`, `text-on-status-…-container`
+- Type utilities: `text-display`, `text-headline-lg`, `text-headline-md`, `text-title-lg`, `text-title-md`, `text-body-lg`, `text-body-md`, `text-body-sm`, `text-label-lg`, `text-label-md`, `text-label-sm`.
+- The `state-layer` utility (8% on hover, 12% on focus and press), `shadow-float`, and the radius scale.
+- Neutralised legacy tokens: `--gradient-*` are now solid, and `--shadow-soft` and `--shadow-elegant` are `none`. Remove their usages as you touch each file.
 
-**Fonts.** Add to the root route `head()` (`src/routes/__root.tsx`):
+**Fonts.** Add to the root route `head()` in `src/routes/__root.tsx`, with a preconnect to `fonts.googleapis.com` and `fonts.gstatic.com`:
 ```
-https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap
-https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block
+https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap
+https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..400,0..1,0&display=block
 ```
-Add a `preconnect` to `fonts.googleapis.com` and `fonts.gstatic.com` as well.
 
-## Step 2: Icons
-Switch from `lucide-react` to Material Symbols Outlined. Create `src/components/ui/icon.tsx`:
+## Step 2: Logo
+Copy `assets/renovision-logo.svg` (the full lockup) and `assets/renovision-mark.svg` (the sign only) into `src/assets/`.
+- Use the mark at the top of the nav rail (40px), and as the favicon (`<link rel="icon" type="image/svg+xml">`).
+- Use the lockup wherever there's room: auth screens and headers wider than 120px.
+- Colors: wordmark `#1F2420`, sign tile `#E6EAE3`, house `#5E665D`. Use it on light surfaces only.
+
+## Step 3: Icons
+Replace `lucide-react` with Material Symbols Outlined. Create `src/components/ui/icon.tsx`:
 ```tsx
-export function Icon({ name, size = 24, fill = false, className }: { name: string; size?: 18|20|24; fill?: boolean; className?: string }) {
+export function Icon({ name, size = 24, fill = false, className }: { name: string; size?: 16|18|20|22|24; fill?: boolean; className?: string }) {
   return <span aria-hidden className={cn("material-symbols-outlined", className)}
-    style={{ fontSize: size, fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' ${size}` }}>{name}</span>;
+    style={{ fontSize: size, fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' 300, 'GRAD' 0, 'opsz' ${size}` }}>{name}</span>;
 }
 ```
-Mapping: `LayoutDashboard→dashboard`, `ListChecks→checklist`, `Map→map`, `MessageCircle→chat`, `Hammer→construction`, `Calendar→calendar_month`, `TrendingUp→trending_up`, `DollarSign→payments`, `User→person`, `Plus→add`, `Check→check`, `CheckCircle→check_circle`, `Clock→schedule`, `Ban/AlertCircle→block`. The active nav item uses `fill`. Sizes: 24 for nav, list items and FAB; 20 for card labels; 18 for chip and button leading icons.
+Mapping:
+- `LayoutDashboard`→`grid_view`, `ListChecks`→`checklist`, `Map`→`floor`, `MessageCircle`→`chat_bubble`, `Settings`→`settings`
+- `Bell`→`notifications`, `Search`→`search`, `Plus`→`add`, `Minus`→`remove`, `Check`→`check`, `ChevronRight`→`chevron_right`, `Info`→`info`
+- `User`→`person`, `Calendar`→`calendar_month`, `Clock`→`schedule`, `Euro`/`DollarSign`→`euro`
+- Rooms: `chair`, `countertops`, `bathtub`, `bed`
 
-## Step 3: Primitives (`src/components/ui/*`)
+Sizes: 24 in the nav rail, 22 in buttons and tiles, 20 in inline icons.
+
+## Step 4: Primitives (`src/components/ui/*`)
 
 ### Button (`button.tsx`)
-All buttons: `h-10 rounded-full px-6 text-label-lg state-layer inline-flex items-center gap-2 transition-shadow`. With a leading icon: `pl-4 pr-6`. Icon size 18.
+Base classes: `h-11 rounded-md px-5 text-label-lg inline-flex items-center gap-2 transition-colors`. A leading icon is 20px.
+
 | variant | classes |
 |---|---|
-| `default` (Filled) | `bg-primary text-on-primary hover:shadow-el1 active:shadow-none` |
-| `tonal` (new) | `bg-secondary-container text-on-secondary-container hover:shadow-el1` |
-| `outline` | `border border-outline text-primary bg-transparent` |
-| `ghost` / `link` → Text | `px-3 text-primary bg-transparent` |
-| `elevated` (new) | `bg-surface-container-low text-primary shadow-el1 hover:shadow-el2` |
+| `default` | `bg-primary text-on-primary hover:bg-primary/92 active:bg-primary/88` |
+| `tonal` (new) | `bg-secondary-container text-on-secondary-container state-layer` |
+| `outline` | `bg-surface-container-lowest border border-outline-variant text-on-surface state-layer` |
+| `ghost` / `link` | `px-3 text-primary bg-transparent state-layer` |
 | `destructive` | `bg-error text-on-error` |
-FAB (new `fab` variant or component): `size-14 rounded-lg bg-primary-container text-on-primary-container shadow-el3 hover:shadow-el4`, with a 24px icon.
-Focus: `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`. Disabled: container at 12% of on-surface, content at 38%.
+| size `lg` | `h-14 w-full text-title-md` (full-width primary action, e.g. "Add room") |
+| size `icon` | `size-11 rounded-full` with a 22px icon; white `bg-surface-container-lowest` on panels, `bg-secondary-container` on white |
+
+Notification badge on an icon button: `absolute top-1.5 right-1.5 min-w-4 h-4 rounded-full bg-success text-white text-[10px] font-semibold ring-2 ring-white`.
+
+Focus ring on every variant: `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`.
 
 ### Chip / Badge (`badge.tsx`)
-`h-8 rounded-sm px-4 text-label-lg inline-flex items-center gap-2`. With a leading icon: `pl-2`, icon size 18.
-- assist: `border border-outline-variant text-on-surface state-layer`
-- filter selected: `bg-secondary-container text-on-secondary-container`, leading `check` icon
-- status variants use `bg-status-X-container text-on-status-X-container`, with icons: done=`check_circle`, progress=`construction`, pending=`schedule`, blocked=`block`
+Base classes: `h-8 rounded-full px-3.5 text-label-lg inline-flex items-center gap-2`, with a leading dot `size-2 rounded-full`.
+- **Status chips.** Pattern: `bg-status-X-container text-on-status-X-container`, with a dot in `bg-status-X`. The compact 28px version (`h-7 px-3 text-label-md`) is used inside cards.
+  - done: success
+  - in progress: progress (blue)
+  - pending: outline dot on `surface-container-high`
+  - blocked: error
+- **On tinted panels** (anything `bg-surface-container-high` or darker), status chips switch to `bg-surface-container-lowest`, i.e. white, so they stay visible against the panel.
+- **Attention chip:** `bg-attention-container text-on-attention-container`, with a leading 18px icon in `text-attention` (`euro` for over budget, `schedule` for late). Examples: "Over budget · 4%", "3 days late".
+- **Live / assist chip:** `bg-surface-container-lowest border border-outline-variant`, with a red dot for live.
+- **Selected filter:** `bg-primary text-on-primary`, with a leading `check` icon.
 
-### Progress (`progress.tsx`): M3 linear
-Height 4px (`h-1`). Layout is a flex row with `gap-1` (4px): the indicator is `rounded-full bg-{color}` at `width:{v}%`, and the track `flex-1 rounded-full bg-{container}` has a 4px stop dot (`size-1 rounded-full bg-{color}`) absolutely positioned at its right end. At 100% there is no track and no gap. Colors: default `primary` on `secondary-container`. For a status bar, use `status-X` on `status-X-container`; pending uses `outline` on `surface-container-highest`.
+### Progress (`progress.tsx`)
+The track is `h-2 rounded-full` with overflow hidden; the indicator is `h-full rounded-full`.
+- Default: indicator `bg-primary` on track `bg-surface-container-highest`. Inside a tinted panel, the track is `bg-surface-container-lowest`.
+- Status bars: indicator `bg-status-X` on track `bg-status-X-container`. Done is a solid `bg-success` bar with no visible track.
 
 ### Card (`card.tsx`)
-Radius `rounded-md` (12px), padding 16px (`p-4`), 24px for large headers. Variants:
-- `elevated`: `bg-surface-container-low shadow-el1`
-- `filled`: `bg-surface-container-highest` (stat cards)
-- `outlined` (default for stage/room cards): `bg-surface border border-outline-variant`
-Clickable cards add `state-layer cursor-pointer`.
+- **Default:** `rounded-xl bg-card border border-outline-variant`, with **no shadow**. Padding is `px-5 py-4` for stat cards and `p-5` to `px-7 py-6` for larger ones.
+- **`tinted` variant:** `rounded-xl bg-surface-container-high`, with no border. Used for the selected room panel, control groups and chat.
+- **`deep` variant:** `rounded-xl bg-tertiary-container text-on-tertiary-container`. Used for chart panels.
+- **Attention variant:** add `border-attention-outline`, plus an 8px `bg-attention` dot at the top right.
+- **Clickable cards:** hover `bg-surface-container-low`.
 
-### Navigation drawer (`app-sidebar.tsx` / `sidebar.tsx`)
-Standard drawer: width 360px (`--sidebar-width: 22.5rem`), `bg-surface-container-low`, **no shadow and no border**, `p-3`, `rounded-r-lg` if floating. Header: `construction` icon (24, `text-primary`) + "RenoTrack" in `text-title-sm text-on-surface-variant`, padded `px-4 pt-4 pb-5`. Item: `h-14 rounded-full pl-4 pr-6 gap-3 text-label-lg text-on-surface-variant state-layer`, 24px icon. Active: `bg-secondary-container text-on-secondary-container` with a filled icon. Badge count sits right-aligned in `text-label-lg`.
+### Navigation rail (`app-sidebar.tsx`, replaces the wide sidebar)
+- **Rail:** `w-24 rounded-2xl bg-card border border-outline-variant py-5 flex flex-col items-center gap-2`.
+- **Top:** the mark (40px), with `mb-4`.
+- **Items:** `size-14 rounded-lg grid place-items-center text-on-surface`, with a 24px icon at weight 300. Each item gets a tooltip with its label and an `aria-label`.
+- **Active item:** `bg-surface-container-high`. **Hover:** `bg-surface`.
+- **Bottom:** Settings, pushed down with `mt-auto`.
 
-## Step 4: RenoTrack components
-The reference file has a section for each.
+### Inputs
+- **Search field:** `h-12 rounded-lg bg-surface-container-low border border-outline-variant px-4 gap-2.5 text-body-md`, with a 22px `search` icon in `text-on-surface`. The placeholder is `text-on-surface-variant`.
+- **Switch:** track `w-13 h-7.5 rounded-full`; on `bg-primary`, off `bg-surface-container-highest`. The thumb is 24px: white when on, `bg-outline` when off.
+- **Segmented control** (Week / Month / Year): the container is `p-0.5 rounded-full bg-on-surface/12`; each segment is `h-7.5 px-3.5 rounded-full text-[13px]`; the selected segment is `bg-surface-container font-medium`.
+- **Stepper:** two `size-11 rounded-full bg-surface-container-lowest` buttons (`remove` and `add`) under a `text-display` value.
 
-**Project header** (`routes/index.tsx`): elevated card, `px-8 py-6`, flex row that wraps, `justify-between`, gap 48px.
-- Left side, top to bottom: "Active project" in `text-label-md text-on-surface-variant` (sentence case, not uppercase); name in `text-display-sm`; address in `text-body-lg text-on-surface-variant`; then the manager row (`person` icon 20, "Manager:" in on-surface-variant, name `font-medium text-on-surface`).
-- Right side, 380px column: a row with "Overall progress" `text-label-md` and `41%` in `text-headline-md`, then the primary linear progress (mt-3), then "Currently working on **Stage**" in `text-body-md`.
+## Step 5: RenoVision components (`routes/*`, `components/*`)
 
-**Stat card**: filled card containing icon 20 + label (`text-label-md text-on-surface-variant`), then the value in `text-headline-sm` (mt-3), then the sub-line in `text-body-md text-on-surface-variant`. Dates use the format "Mar 02, 2026".
+**Project header** (`routes/index.tsx`). Default card, `px-7 py-6`, laid out as a wrapping flex with `justify-between` and `gap-x-12`.
+- **Left side, top to bottom:**
+  - "Active project" in `text-body-md text-on-surface-variant`
+  - The name in `text-headline-lg`
+  - The address in `text-body-lg text-on-surface-variant`
+  - A manager row: a 28px `rounded-full bg-surface-container-high` avatar holding the `person` icon, then "Manager", then the name in `font-medium text-on-surface`
+- **Right side, a 380px column, top to bottom:**
+  - A row with "Overall progress" on the left and `41%` in `text-headline-md` on the right
+  - The default progress bar
+  - "Currently working on **Stage**"
 
-**Room card**: outlined, clickable. A row with the room name (`text-title-md`) and a status chip, then the status progress bar (mt-4), then the percentage right-aligned in `text-body-sm text-on-surface-variant`.
+**Stat card.** Default card, `px-5 py-4`.
+- **Content, top to bottom:**
+  - The label in `text-body-md`.
+  - The value in `text-headline-md`, with its unit in `text-title-md` (grayed with `text-on-surface-variant` for "/ 7").
+  - A change line in `text-body-sm text-on-surface-variant`, starting with the delta (`font-medium`).
+- **Delta colors:** `text-success-text` when the change is good; `text-attention-text` when it's over budget or late. Use `text-error` only for a real failure.
+- **Over budget:** the card uses the attention variant. Example: "88.1 k€", "↑ 4% over", "plan of 84.5 k€".
 
-**Stage list item** (compact list): an M3 two-line list item, `min-h-18 (72px) pl-4 pr-6 gap-4`, with rows separated by a 1px `outline-variant` divider inset 72px. Leading element is a 40px circle: `status-X-container` background with a `check` icon when done, otherwise the stage number in `text-label-lg`. Headline is `text-body-lg`, supporting text (dates) is `text-body-md text-on-surface-variant`. Trailing: a 240px status progress bar plus the % in `text-label-md`.
+**Room card.** Default card, `px-5 py-4.5`, clickable.
+- **Content, top to bottom:**
+  - A header row: the name (`text-title-md`) on the left and a compact status chip on the right.
+  - The status progress bar (`mt-4`).
+  - The percentage, right-aligned, in `text-body-sm text-on-surface-variant`.
+- **Late:** an extra line under the name: a 6px `bg-attention` dot and "3 days late" in `text-body-sm font-medium text-attention-text`.
 
-**Stage card, expanded** (`routes/stages.tsx`): timeline with a 56px left gutter, a 2px `outline-variant` vertical line at x=19, and a 40px number marker on `status-X-container`. The card is outlined, `px-6 pt-4 pb-5`.
-- Header row: title `text-title-lg`, dates `text-body-md text-on-surface-variant`, status chip on the right.
-- Progress block (mt-5): a row with "Progress" and % in `text-body-sm text-on-surface-variant`, then the status bar.
-- Checklist: 48px rows, gap 16px. Icon is `check_box` 24 in `text-success` when done, otherwise `check_box_outline_blank` in `text-on-surface-variant`. Text is `text-body-lg`; done items get `line-through text-on-surface-variant`.
+**Room list** (the Rooms panel).
+- **Panel:** `rounded-xl bg-surface-container-low border border-outline-variant p-5`. The header row is "Rooms" in `text-title-md` with an `info` icon on the right.
+- **Rows:** 8px apart. Each row is `rounded-lg bg-card border border-outline-variant py-2 pl-2 pr-3.5 gap-3`, with hover `bg-surface-container-low`.
+- **Inside each row:**
+  - A 44px `rounded-md bg-surface-container-high` icon tile.
+  - The name in `text-label-lg` and a supporting line in `text-body-sm text-on-surface-variant`.
+  - On the right: a `chevron_right` icon, or a 20px `rounded-full bg-success` circle with a white `check` when the room is done.
+- **Footer:** the `lg` "Add room" button.
 
-**Floor plan** (`components/floor-plan.tsx`): outer panel `rounded-md bg-surface-container-low p-4`; plan frame `rounded-md bg-surface-container-high p-2`; rooms separated by 4px gaps.
-- Each room tile: `rounded-sm` (8px), `bg-status-X-container text-on-status-X-container state-layer`, centred name in `text-title-sm` and % in `text-body-sm`.
-- The selected room gets `outline outline-3 -outline-offset-3 outline-status-X`.
-- Legend below (mt-4): 12px `rounded-xs` swatches in `status-X`, labels in `text-body-md text-on-surface-variant`, gap 8px/20px.
+**Stage list item.** Default card, `py-3.5 pl-3.5 pr-5 gap-3.5`.
+- **Left:** a 44px `rounded-md` tile on `status-X-container`, showing a `check` icon or the stage number.
+- **Middle:** the title in `text-title-md` and the dates in `text-body-sm text-on-surface-variant`.
+- **Right:** a 140px status bar, then the % in `text-label-lg`.
 
-**Selected room panel**: `rounded-md bg-surface-container-low p-5`. Contents, top to bottom: "Selected room" in `text-label-md`; the room name in `text-title-lg`; a status chip (mt-3); a Progress row (mt-5, % in `font-medium text-on-surface`); the status bar; a hint line in `text-body-md text-on-surface-variant` (mt-5).
+**Stage card, expanded** (`routes/stages.tsx`).
+- **Timeline:** a 60px left gutter with a 2px `bg-outline-variant` line at x=21. The marker is a 44px circle in `bg-status-X` with `text-white` and a `font-semibold` number.
+- **Card:** default, `px-6 py-5`.
+- **Header row:** the title (`text-title-lg`) and dates (`text-body-md text-on-surface-variant`) on the left, a compact status chip on the right.
+- **Progress block** (`mt-4.5`): a "Progress" row with the % in `font-medium text-on-surface`, then the status bar.
+- **Checklist:** 40px rows with 12px gaps.
+  - Done: a 22px `rounded-[7px] bg-primary text-on-primary` box with a `check` icon (16px), and the text in `line-through text-on-surface-variant`.
+  - Open: a 22px `rounded-[7px] border-[1.5px] border-outline` box.
 
-**Chat** (`routes/chat.tsx`): the panel is `rounded-lg bg-surface-container p-4`, with bubbles spaced 8px apart.
-- Received bubbles: `bg-surface-container-highest text-on-surface`, `rounded-[20px_20px_20px_4px]`.
-- Sent bubbles: `bg-primary text-on-primary`, `rounded-[20px_20px_4px_20px]`.
-- All bubbles use `px-4 py-2.5 text-body-md` with a max width of 75%, and a timestamp in `text-label-sm` (sent: `inverse-on-surface`; received: `on-surface-variant`).
+**Floor plan** (`components/floor-plan.tsx`).
+- **Outer:** a default card, `p-4`. **Inner frame:** `rounded-lg bg-surface-container p-2 gap-1.5`.
+- **Room tiles:** `rounded-md bg-status-X-container text-on-status-X-container`, with the name in `text-label-lg` and the % in `text-body-sm`.
+- **Selected room:** `outline-2 -outline-offset-2 outline-primary`.
+- **Legend** (`mt-3.5`): 8px round dots in `bg-status-X`, labels in `text-[13px] text-on-surface-variant`.
+
+**Selected room panel.** A tinted card, `p-5`. Content, top to bottom:
+- "Selected room" in `text-body-md text-on-surface-variant`.
+- The name in `text-title-lg`.
+- A compact status chip with a **white fill** (`mt-3`).
+- A progress row (`mt-5`).
+- The bar: `bg-primary` on a `bg-surface-container-lowest` track.
+- A hint in `text-body-md text-on-surface-variant` (`mt-5`).
+
+**Bar chart** (budget or progress over time). A deep card, `p-5`.
+- **Header:** the title in `text-title-md` and a segmented control on the right.
+- **Bars:** `flex-1 rounded-full bg-surface-container`, 10px apart.
+- **Highlighted bar:** `bg-primary`, with a value bubble above it (`h-5.5 px-2 rounded-full bg-secondary text-on-secondary text-[11px]`).
+
+**Chat** (`routes/chat.tsx`). A tinted card, `p-4`, with bubbles 8px apart.
+- **Received:** `bg-card rounded-[18px_18px_18px_6px]`.
+- **Sent:** `bg-primary text-on-primary rounded-[18px_18px_6px_18px]`.
+- **All bubbles:** `px-3.5 py-2.5 text-body-md`, max width 75%.
+- **Timestamp:** `text-[11px]`; `text-on-surface-variant` on received, `text-primary-container` on sent.
+
+## Status model
+- **Progress state**, exactly one per stage or room:
+  - `done` (moss green)
+  - `progress` (calm blue)
+  - `pending` (sage gray)
+  - `blocked` (red)
+- **Attention flag**, orange, optional. It's computed, not stored as a state: over budget when `spent > budget`, late when `today > endDate && state !== 'done'`. It is shown *in addition to* the state, using the attention chip, the late line, or the attention card variant. Orange is never used for anything else.
 
 ## Interactions & behavior
-- **State layers** (M3): hover 8%, focus 10%, pressed 10% of the content color, via the `state-layer` utility. Transition 150ms, `cubic-bezier(0.2,0,0,1)`.
-- **Elevation changes:** filled and tonal buttons go to el1 on hover, elevated buttons el1→el2, FAB el3→el4.
-- **Floor plan:** clicking a room selects it (outline) and updates the Selected room panel. Use the existing state in `floor-plan.tsx`.
-- **Uppercase:** remove all `uppercase tracking-wider` eyebrow styles and use `text-label-md` in sentence case.
+- **Hover and press:** state layer (8% / 12%) with a 150ms `cubic-bezier(0.2,0,0,1)` transition. Cards and list rows use `hover:bg-surface-container-low`.
+- **Floor plan:** clicking a room selects it (outline) and updates the Selected room panel. Keep the existing state.
+- **No shadows** on cards; use `shadow-float` only for popovers, dropdowns and toasts.
+- **No all-caps** eyebrow labels anywhere; use sentence case.
+- **Accessibility:** body text uses `on-surface` or `on-surface-variant` only. Colored text uses the `*-text` / `on-*-container` tokens, never the dot or bar colors. Chips on tinted panels use a white fill.
 
-## Design tokens (light)
-primary `#5A5F61` / on `#FFFFFF`; primary-container `#E4E9EB` / on `#63696B`; secondary `#5D5F5F`; secondary-container `#E2E2E3` / on `#636465`; tertiary `#625D63`; error `#BA1A1A` / container `#FFDAD6` / on `#93000A`; surface `#FCF9F8`; on-surface `#1C1B1C`; on-surface-variant `#434749`; surface containers lowest→highest `#FFFFFF #F6F3F2 #F0EDED #EBE7E7 #E5E2E1`; outline `#747879`; outline-variant `#C4C7C8`; inverse-surface `#313030`.
-Status (custom): success `#3B6939` / container `#BCF0B4` / on `#23501F`; warning `#7C5800` / container `#FFDEA6` / on `#5E4200`; pending = outline + surface-container-highest; blocked = error roles. Dark values are in `styles.css`.
-Type (Inter; size/line/weight/tracking px): display 57/64/400/-0.25, 45/52/400/0, 36/44/400/0 · headline 32/40, 28/36, 24/32 (400) · title-lg 22/28/400/0, title-md 16/24/500/0.15, title-sm 14/20/500/0.1 · body 16/24/0.5, 14/20/0.25, 12/16/0.4 (400) · label 14/20/0.1, 12/16/0.5, 11/16/0.5 (500).
-Shape: 0, 4, 8, 12, 16, 28, full. Spacing: 4px grid (4, 8, 12, 16, 20, 24, 32, 48, 56).
-Elevation: see `--m3-el1…el5`.
+## Design tokens (light, hex)
+**Core roles**
+- primary `#37453A` / on `#FFFFFF`; primary-container `#DCE3D8` / on `#253028`
+- secondary `#5E665D`; secondary-container `#E6EAE3` / on `#2E352E`
+- tertiary `#6F786D`; tertiary-container `#A9B0A6` / on `#1F2420`
+- error `#D93A30`; error-container `#FBDCD8` / on `#7A1510`
 
-## Assets
-- Fonts: Inter and Material Symbols Outlined (Google Fonts).
-- `material-theme.json`: the source Theme Builder export. To regenerate the colors, re-export it and re-run the conversion to oklch.
+**Surfaces and lines**
+- surface (page) `#F4F5F2`; on-surface `#1F2420`; on-surface-variant `#646B63`
+- containers, lowest→highest: `#FFFFFF`, `#F9FAF8`, `#EEF0EB`, `#E6EAE3`, `#DDE2DA`
+- outline `#A3AAA1`; outline-variant `#E3E6E0`; inverse-surface `#2C332D`
+
+**Status**
+- success `#6E9A6C` (bar/dot) / text `#4E7A4B` / container `#DFE9DB` / on `#24391F`
+- progress `#3F7391` / container `#DDE8EE` / on `#1E3A4C`
+- pending: dot `#A3AAA1`, container `#E6EAE3`, on `#2E352E`
+- attention `#E08A1E` (dot/icon) / text `#9A6A00` / container `#FBE7CC` / on `#5A3500` / outline `#F0C98E`
+
+Dark values are in `styles.css`.
+
+**Type (Inter).** Format: size/line-height in px, then weight and tracking.
+
+| style | size/line | weight | tracking |
+|---|---|---|---|
+| display | 45/52 | 500 | -0.5 |
+| headline-lg | 32/40 | 500 | -0.25 |
+| headline-md | 28/36 | 500 | -0.25 |
+| title-lg | 22/28 | 500 | 0 |
+| title-md | 16/24 | 500 | 0 |
+| body-lg | 16/24 | 400 | 0 |
+| body-md | 14/20 | 400 | 0 |
+| body-sm | 12/16 | 400 | 0 |
+| label-lg | 14/20 | 500 | 0 |
+| label-md | 13/16 | 500 | 0 |
+| label-sm | 11/16 | 500 | 0 |
+
+**Radius:** 8 (tooltip), 12 (button, input, tile), 16 (list item, nav item, search), 20 (card), 28 (shell, rail), and full (chip, switch, bars).
+**Spacing:** 4px grid.
 
 ## Files
-- `src/styles.css`: drop-in replacement for the repo's `src/styles.css`
-- `material-theme.json`: Theme Builder export (light, dark, and medium/high contrast)
-- `reference/RenoTrack Design System (Material 3) v2.dc.html` (+ `support.js`): visual reference
+- `src/styles.css`: drop-in replacement for the repo's `src/styles.css`.
+- `assets/renovision-logo.svg`, `assets/renovision-mark.svg`: the logo lockup and the mark.
+- `reference/RenoVision Design System v5.dc.html` (+ `support.js`, `assets/`): the visual reference.
