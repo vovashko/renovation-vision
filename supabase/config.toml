@@ -1,0 +1,20 @@
+# Supabase CLI config for the shared RenoTrack backend (client app + manager portal).
+# `supabase start` runs it locally; `supabase db push` applies the migrations to the hosted project.
+project_id = "renotrack"
+
+[api]
+schemas = ["public"]
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3001"]
+
+[auth.email]
+enable_confirmations = false
