@@ -1,5 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ListChecks, Map, MessageCircle, Hammer } from "lucide-react";
+import {
+  Camera,
+  LayoutDashboard,
+  ListChecks,
+  Map,
+  MessageCircle,
+  Hammer,
+  Palette,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +24,9 @@ import {
 const items = [
   { title: "Overview", url: "/", icon: LayoutDashboard },
   { title: "Stages", url: "/stages", icon: ListChecks },
+  { title: "Photos", url: "/photos", icon: Camera },
   { title: "Plan", url: "/plan", icon: Map },
+  { title: "Design", url: "/design", icon: Palette },
   { title: "Chat", url: "/chat", icon: MessageCircle },
 ];
 
