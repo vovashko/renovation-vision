@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Overview", url: "/", icon: "dashboard" },
+  { title: "Overview", url: "/", icon: "grid_view" },
   { title: "Stages", url: "/stages", icon: "checklist" },
   { title: "Photos", url: "/photos", icon: "photo_camera" },
-  { title: "Plan", url: "/plan", icon: "map" },
+  { title: "Plan", url: "/plan", icon: "floor" },
   { title: "Design", url: "/design", icon: "palette" },
-  { title: "Chat", url: "/chat", icon: "chat" },
+  { title: "Chat", url: "/chat", icon: "chat_bubble" },
 ];
 
 export function AppSidebar() {

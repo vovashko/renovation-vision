@@ -6,13 +6,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 
 const tabs = [
-  { title: "Overview", url: "/", icon: "dashboard" },
+  { title: "Overview", url: "/", icon: "grid_view" },
   { title: "Stages", url: "/stages", icon: "checklist" },
   { title: "Photos", url: "/photos", icon: "photo_camera" },
-  { title: "Chat", url: "/chat", icon: "chat" },
+  { title: "Chat", url: "/chat", icon: "chat_bubble" },
 ] as const;
 const more = [
-  { title: "Plan", url: "/plan", icon: "map" },
+  { title: "Plan", url: "/plan", icon: "floor" },
   { title: "Design", url: "/design", icon: "palette" },
 ] as const;
 

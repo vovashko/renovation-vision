@@ -126,7 +126,7 @@ function Overview() {
           sub="On schedule"
         />
         <Stat
-          icon="payments"
+          icon="attach_money"
           label="Budget"
           value={`$${project.budget.toLocaleString()}`}
           sub={`Spent $${project.spent.toLocaleString()}`}
