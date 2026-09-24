@@ -62,10 +62,13 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 space-y-3 overflow-y-auto overscroll-contain p-4" aria-live="polite">
+      <div
+        className="flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 py-2"
+        aria-live="polite"
+      >
         {messages.length === 0 && (
           <div className="mx-auto max-w-md py-6 text-center">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-surface-container-lowest text-on-surface">
               <Icon name="smart_toy" />
             </div>
             <h2 className="mt-3 text-title-md">Ask about your renovation</h2>
@@ -77,13 +80,15 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
         {messages.map((m) =>
           m.role === "user" ? (
             <div key={m.id} className="flex justify-end">
-              <div className="max-w-[75%] rounded-[20px_20px_4px_20px] bg-primary px-4 py-2.5 text-body-md text-on-primary">
+              <div className="max-w-[75%] rounded-[18px_18px_6px_18px] bg-primary px-3.5 py-2.5 text-body-md text-on-primary">
                 {m.text}
               </div>
             </div>
           ) : (
             <div key={m.id} className="max-w-[92%]">
-              <div className="whitespace-pre-wrap text-body-lg">{m.text}</div>
+              <div className="w-fit whitespace-pre-wrap rounded-[18px_18px_18px_6px] bg-card px-3.5 py-2.5 text-body-md">
+                {m.text}
+              </div>
               {m.answer && (
                 <div className="mt-2 space-y-2">
                   <div className="text-body-sm text-on-surface-variant">
@@ -100,7 +105,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
                         )}
                       >
                         {l.label}
-                        <Icon name="arrow_forward" size={18} />
+                        <Icon name="arrow_forward" size={16} />
                       </Link>
                     ))}
                     <button
@@ -110,7 +115,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
                         "after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']",
                       )}
                     >
-                      <Icon name="person" size={18} /> Ask {project.manager.split(" ")[0]} about
+                      <Icon name="person" size={16} /> Ask {project.manager.split(" ")[0]} about
                       this
                     </button>
                   </div>
@@ -133,9 +138,9 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
         <div ref={endRef} />
       </div>
 
-      <div className="border-t border-outline-variant">
+      <div>
         <div
-          className="flex gap-2 overflow-x-auto px-3 py-2 [scrollbar-width:none]"
+          className="flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]"
           aria-label="Suggested questions"
         >
           {suggestedQuestions.map((s) => (
@@ -152,11 +157,11 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
             </button>
           ))}
         </div>
-        <p className="px-3 text-body-sm text-on-surface-variant">
+        <p className="px-4 text-body-sm text-on-surface-variant">
           AI answers are based on project data. For decisions, confirm with your site manager.
         </p>
         <form
-          className="flex items-center gap-2 p-3"
+          className="flex items-center gap-2 p-4 pt-2"
           onSubmit={(e) => {
             e.preventDefault();
             ask(input, true);
@@ -165,13 +170,12 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
           {messages.length > 0 && (
             <Button
               type="button"
-              variant="ghost"
+              variant="surface"
               size="icon"
               onClick={() => setMessages([])}
               aria-label="Clear chat"
-              className="size-11 text-on-surface-variant"
             >
-              <Icon name="delete" />
+              <Icon name="delete" size={22} />
             </Button>
           )}
           <input
@@ -180,16 +184,15 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about your project…"
             aria-label="Ask the AI assistant"
-            className="h-11 min-w-0 flex-1 rounded-full bg-surface-container-highest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:outline-primary md:text-body-md"
+            className="h-12 min-w-0 flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary md:text-body-md"
           />
           <Button
             type="submit"
             size="icon"
             disabled={!input.trim() || busy}
             aria-label="Send question"
-            className="size-11"
           >
-            <Icon name="send" size={20} />
+            <Icon name="send" size={22} />
           </Button>
         </form>
       </div>

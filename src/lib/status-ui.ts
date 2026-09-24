@@ -17,20 +17,28 @@ export const statusTone: Record<Status, ProgressTone> = {
   blocked: "blocked",
 };
 
-/** Solid status color (legend swatches, dots). Pending uses outline. */
+/** Solid status color (legend dots, chip dots). */
 export const statusBg: Record<Status, string> = {
   done: "bg-status-done",
   progress: "bg-status-progress",
-  pending: "bg-outline",
+  pending: "bg-status-pending",
   blocked: "bg-status-blocked",
 };
 
-/** Container + on-container pair (markers, tiles). */
+/** Container + on-container pair (stage tiles, plan tiles). */
 export const statusContainer: Record<Status, string> = {
   done: "bg-status-done-container text-on-status-done-container",
   progress: "bg-status-progress-container text-on-status-progress-container",
   pending: "bg-status-pending-container text-on-status-pending-container",
   blocked: "bg-status-blocked-container text-on-status-blocked-container",
+};
+
+/** Timeline marker: solid status color with white text, as specified for the stage timeline. */
+export const statusMarker: Record<Status, string> = {
+  done: "bg-status-done text-white",
+  progress: "bg-status-progress text-white",
+  pending: "bg-status-pending text-white",
+  blocked: "bg-status-blocked text-white",
 };
 
 /** SVG fill + text color for floor-plan tiles. */
@@ -39,12 +47,4 @@ export const statusTileSvg: Record<Status, string> = {
   progress: "fill-status-progress-container text-on-status-progress-container",
   pending: "fill-status-pending-container text-on-status-pending-container",
   blocked: "fill-status-blocked-container text-on-status-blocked-container",
-};
-
-/** Selected-tile outline color (SVG stroke). */
-export const statusStroke: Record<Status, string> = {
-  done: "stroke-status-done",
-  progress: "stroke-status-progress",
-  pending: "stroke-outline",
-  blocked: "stroke-status-blocked",
 };

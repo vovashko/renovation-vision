@@ -31,7 +31,7 @@ export function BeforeAfter({
       </div>
       <div className="pointer-events-none absolute inset-y-0 left-(--pos)">
         <div className="h-full w-0.5 -translate-x-1/2 bg-surface" />
-        <div className="absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-on-primary shadow-el2">
+        <div className="absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-on-primary">
           <Icon name="code" size={20} />
         </div>
       </div>

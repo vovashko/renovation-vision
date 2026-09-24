@@ -108,7 +108,7 @@ function PhotosPage() {
         <div className="mt-6 space-y-8">
           {groups.map((g) => (
             <section key={g.label} aria-label={g.label}>
-              <h2 className="mb-3 text-title-sm text-on-surface-variant">{g.label}</h2>
+              <h2 className="mb-3 text-label-lg text-on-surface-variant">{g.label}</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {g.items.map(({ p, i }) => (
                   <article key={p.id} className={cn(cardVariants(), "overflow-hidden p-0")}>

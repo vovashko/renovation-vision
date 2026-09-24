@@ -8,17 +8,19 @@ import { rooms, statusLabel, type Room, type Status } from "@/lib/renovation-dat
 import { renders } from "@/lib/media-data";
 import { usePhotos } from "@/lib/photo-store";
 import { EmptyPhotos, PhotoThumbs } from "@/components/photo-thumbs";
-import { statusBg, statusChip, statusStroke, statusTileSvg, statusTone } from "@/lib/status-ui";
+import { statusBg, statusChip, statusTileSvg } from "@/lib/status-ui";
+import { Card, cardVariants } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 // Plan geometry: rooms live on a 600x420 grid starting at (20,20); tiles are inset by
-// GAP/2 so neighbours are separated by a 4-unit gap.
+// GAP/2 so neighbours are separated by a 6-unit gap (v5 gap-1.5). Tiles use 12-unit corners.
 const VIEW = "20 20 560 380";
-const GAP = 4;
+const GAP = 6;
+const RADIUS = 12;
 const LEGEND: Status[] = ["done", "progress", "pending", "blocked"];
 
 // The SVG scales with its container, so text sizes step down as the container widens
-// to render at roughly title-sm (14px) / body-sm (12px) at every width.
+// to render at roughly label-lg (14px) / body-sm (12px) at every width.
 const nameSize =
   "text-[28px] @xs:text-[24px] @sm:text-[20px] @md:text-[17px] @lg:text-[15px] @xl:text-[14px] @2xl:text-[12px] @3xl:text-[10px]";
 const pctSize =
@@ -40,9 +42,9 @@ export function FloorPlan({
   const select = (id: string) => (onSelect ? onSelect(id) : setOwnId(id));
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
-      <div className="rounded-md bg-surface-container-low p-4">
-        <div className="@container rounded-md bg-surface-container-high p-2">
+    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <Card className="p-4">
+        <div className="@container rounded-lg bg-surface-container p-2">
           <svg
             viewBox={VIEW}
             className="block h-auto w-full"
@@ -71,24 +73,24 @@ export function FloorPlan({
                   }}
                   className={cn("group cursor-pointer outline-none", statusTileSvg[r.status])}
                 >
-                  <rect x={x} y={y} width={w} height={h} rx={8} />
+                  <rect x={x} y={y} width={w} height={h} rx={RADIUS} />
                   {/* State layer: 8% hover, 10% focus/pressed of the content color */}
                   <rect
                     x={x}
                     y={y}
                     width={w}
                     height={h}
-                    rx={8}
-                    className="fill-current opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.2,0,0,1)] group-hover:opacity-8 group-focus-visible:opacity-10 group-active:opacity-10"
+                    rx={RADIUS}
+                    className="fill-current opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.2,0,0,1)] group-hover:opacity-8 group-focus-visible:opacity-12 group-active:opacity-12"
                   />
                   {isActive && (
                     <rect
-                      x={x + 1.5}
-                      y={y + 1.5}
-                      width={w - 3}
-                      height={h - 3}
-                      rx={6.5}
-                      className={cn("fill-none stroke-3", statusStroke[r.status])}
+                      x={x + 1}
+                      y={y + 1}
+                      width={w - 2}
+                      height={h - 2}
+                      rx={RADIUS - 1}
+                      className="fill-none stroke-primary stroke-2"
                     />
                   )}
                   <rect
@@ -96,7 +98,7 @@ export function FloorPlan({
                     y={y - 3}
                     width={w + 6}
                     height={h + 6}
-                    rx={10}
+                    rx={RADIUS + 3}
                     className="pointer-events-none fill-none stroke-primary stroke-2 opacity-0 group-focus-visible:opacity-100"
                   />
                   <text
@@ -121,15 +123,15 @@ export function FloorPlan({
             })}
           </svg>
         </div>
-        <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label="Legend">
+        <ul className="mt-3.5 flex flex-wrap gap-x-5 gap-y-2" aria-label="Legend">
           {LEGEND.map((s) => (
-            <li key={s} className="flex items-center gap-2 text-body-md text-on-surface-variant">
-              <span className={cn("size-3 rounded-xs", statusBg[s])} aria-hidden />
+            <li key={s} className="flex items-center gap-2 text-[13px] text-on-surface-variant">
+              <span className={cn("size-2 rounded-full", statusBg[s])} aria-hidden />
               {statusLabel[s]}
             </li>
           ))}
         </ul>
-      </div>
+      </Card>
       <RoomDetails room={active} detailed={detailed} />
     </div>
   );
@@ -144,13 +146,13 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
     <section
       aria-live="polite"
       aria-label={`Selected room: ${room.name}`}
-      className="rounded-md bg-surface-container-low p-5"
+      className={cn(cardVariants({ variant: "tinted" }), "p-5")}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-label-md text-on-surface-variant">Selected room</div>
+          <div className="text-body-md text-on-surface-variant">Selected room</div>
           <h3 className="text-title-lg">{room.name}</h3>
-          <Badge variant={statusChip[room.status]} className="mt-3">
+          <Badge variant={statusChip[room.status]} size="sm" onPanel className="mt-3">
             {statusLabel[room.status]}
           </Badge>
         </div>
@@ -158,7 +160,7 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
           <Link
             to="/design"
             search={{ room: room.id }}
-            className="group w-24 shrink-0 rounded-sm text-center text-label-md text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:w-28"
+            className="group w-24 shrink-0 rounded-md text-center text-label-md text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:w-28"
             aria-label={
               render ? `Planned look for ${room.name}` : `Design renders for ${room.name}`
             }
@@ -169,10 +171,10 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
                 alt=""
                 width={224}
                 height={168}
-                className="aspect-[4/3] w-full rounded-sm object-cover"
+                className="aspect-[4/3] w-full rounded-md object-cover"
               />
             ) : (
-              <span className="flex aspect-[4/3] w-full items-center justify-center rounded-sm border border-dashed border-outline-variant bg-surface-container-high text-on-surface-variant">
+              <span className="flex aspect-[4/3] w-full items-center justify-center rounded-md border border-dashed border-outline bg-surface-container-lowest text-on-surface-variant">
                 <Icon name="palette" size={20} />
               </span>
             )}
@@ -187,25 +189,21 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
           <span className="text-on-surface-variant">Progress</span>
           <span className="font-medium text-on-surface">{room.progress}%</span>
         </div>
-        <Progress
-          value={room.progress}
-          tone={statusTone[room.status]}
-          aria-label={`${room.name} progress`}
-        />
+        <Progress value={room.progress} onPanel aria-label={`${room.name} progress`} />
       </div>
 
       {detailed ? (
-        <div className="mt-5 border-t border-outline-variant pt-4">
+        <div className="mt-5 border-t border-outline pt-4">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h4 className="text-title-sm">Photos of this room</h4>
+            <h4 className="text-label-lg">Photos of this room</h4>
             {roomPhotos.length > 0 && (
               <Link
                 to="/photos"
                 search={{ room: room.id }}
-                className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11")}
+                className={cn(buttonVariants({ variant: "ghost" }), "-mr-3")}
               >
                 All {roomPhotos.length}
-                <Icon name="arrow_forward" size={18} />
+                <Icon name="arrow_forward" size={20} />
               </Link>
             )}
           </div>

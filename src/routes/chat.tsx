@@ -96,20 +96,23 @@ function ChatPage() {
 
   const tabCls = (active: boolean) =>
     cn(
-      "state-layer flex h-11 flex-1 items-center justify-center gap-2 text-label-lg first:rounded-l-full last:rounded-r-full [&+&]:border-l [&+&]:border-outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
-      active ? "bg-secondary-container text-on-secondary-container" : "text-on-surface",
+      // v5 segmented control segment; the ::after extends the tap target to 44px.
+      "relative flex h-7.5 flex-1 items-center justify-center rounded-full px-3.5 text-[13px] transition-colors duration-150 after:absolute after:inset-x-0 after:-inset-y-2 after:content-[''] after:-inset-y-[7px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      active
+        ? "bg-surface-container font-medium text-on-surface"
+        : "text-on-surface hover:bg-on-surface/8",
     );
 
   return (
     <div
       style={{ "--chat-bottom": mobileBottom } as React.CSSProperties}
-      className="fixed inset-x-0 bottom-(--chat-bottom) top-[calc(3.5rem+1px+env(safe-area-inset-top))] z-20 flex flex-col overflow-hidden bg-surface-container text-on-surface md:static md:mx-auto md:h-[calc(100dvh-8.5rem)] md:w-full md:max-w-3xl md:rounded-lg"
+      className="fixed inset-x-0 bottom-(--chat-bottom) top-[calc(3.5rem+1px+env(safe-area-inset-top))] z-20 flex flex-col overflow-hidden bg-surface-container-high text-on-surface md:static md:mx-auto md:h-[calc(100dvh-8.5rem)] md:w-full md:max-w-3xl md:rounded-xl"
     >
-      <div className="border-b border-outline-variant p-3">
+      <div className="px-4 pb-2 pt-4">
         <div
           role="tablist"
           aria-label="Chat mode"
-          className="flex rounded-full border border-outline"
+          className="flex rounded-full bg-on-surface/12 p-0.5"
           onKeyDown={(e) => {
             if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
             const nextTab = tab === "manager" ? "ai" : "manager";
@@ -126,7 +129,7 @@ function ChatPage() {
             onClick={() => setTab("manager")}
             className={tabCls(tab === "manager")}
           >
-            <Icon name={tab === "manager" ? "check" : "person"} size={18} /> Site manager
+            Site manager
           </button>
           <button
             id="chat-tab-ai"
@@ -137,7 +140,7 @@ function ChatPage() {
             onClick={() => setTab("ai")}
             className={tabCls(tab === "ai")}
           >
-            <Icon name={tab === "ai" ? "check" : "smart_toy"} size={18} /> Ask AI
+            Ask AI
           </button>
         </div>
       </div>
@@ -152,9 +155,9 @@ function ChatPage() {
           <AiChat onAskManager={handOver} />
         ) : (
           <>
-            <div className="flex items-center gap-3 border-b border-outline-variant p-4">
+            <div className="flex items-center gap-3 px-4 py-3">
               <div
-                className="flex size-10 items-center justify-center rounded-full bg-primary-container text-title-md text-on-primary-container"
+                className="flex size-10 items-center justify-center rounded-full bg-surface-container-lowest text-title-md text-on-surface"
                 aria-hidden
               >
                 {project.manager
@@ -172,7 +175,7 @@ function ChatPage() {
             </div>
 
             <div
-              className="flex-1 space-y-2 overflow-y-auto overscroll-contain p-4"
+              className="flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 py-2"
               aria-live="polite"
             >
               {messages.map((m) => (
@@ -182,17 +185,17 @@ function ChatPage() {
                 >
                   <div
                     className={cn(
-                      "max-w-[75%] px-4 py-2.5 text-body-md",
+                      "max-w-[75%] px-3.5 py-2.5 text-body-md",
                       m.from === "me"
-                        ? "rounded-[20px_20px_4px_20px] bg-primary text-on-primary"
-                        : "rounded-[20px_20px_20px_4px] bg-surface-container-highest text-on-surface",
+                        ? "rounded-[18px_18px_6px_18px] bg-primary text-on-primary"
+                        : "rounded-[18px_18px_18px_6px] bg-card text-on-surface",
                     )}
                   >
                     <div>{m.text}</div>
                     <div
                       className={cn(
-                        "mt-1 text-label-sm",
-                        m.from === "me" ? "text-inverse-on-surface" : "text-on-surface-variant",
+                        "mt-1 text-[11px]",
+                        m.from === "me" ? "text-primary-container" : "text-on-surface-variant",
                       )}
                     >
                       {m.time}
@@ -203,14 +206,9 @@ function ChatPage() {
               <div ref={endRef} />
             </div>
 
-            <div className="flex items-center gap-2 border-t border-outline-variant p-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-11 text-on-surface-variant"
-                aria-label="Attach"
-              >
-                <Icon name="attach_file" />
+            <div className="flex items-center gap-2 p-4 pt-2">
+              <Button variant="surface" size="icon" aria-label="Attach">
+                <Icon name="attach_file" size={22} />
               </Button>
               <input
                 ref={inputRef}
@@ -219,10 +217,10 @@ function ChatPage() {
                 onKeyDown={(e) => e.key === "Enter" && send()}
                 placeholder="Message your manager…"
                 aria-label="Message your manager"
-                className="h-11 min-w-0 flex-1 rounded-full bg-surface-container-highest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:outline-primary md:text-body-md"
+                className="h-12 min-w-0 flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary md:text-body-md"
               />
-              <Button onClick={send} size="icon" className="size-11" aria-label="Send">
-                <Icon name="send" size={20} />
+              <Button onClick={send} size="icon" aria-label="Send">
+                <Icon name="send" size={22} />
               </Button>
             </div>
           </>

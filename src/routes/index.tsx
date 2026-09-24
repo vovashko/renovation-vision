@@ -5,6 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
 import { project, stages, overallProgress } from "@/lib/renovation-data";
 import { statusContainer, statusTone } from "@/lib/status-ui";
+import { budgetStatus, daysLate, lateLabel } from "@/lib/attention";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { FloorPlan } from "@/components/floor-plan";
 import { PhotoThumbs } from "@/components/photo-thumbs";
@@ -21,25 +23,52 @@ export const Route = createFileRoute("/")({
   component: Overview,
 });
 
+/** Compact money figure: 51200 -> "$51.2" + "k". Keeps the project's dollar data. */
+function kUsd(n: number) {
+  return { value: `$${(n / 1000).toFixed(1)}`, unit: "k" };
+}
+
 function Stat({
-  icon,
   label,
   value,
-  sub,
+  unit,
+  delta,
+  deltaTone = "neutral",
+  note,
+  attention = false,
 }: {
-  icon: string;
   label: string;
   value: string;
-  sub?: string;
+  unit?: string;
+  delta?: string;
+  deltaTone?: "good" | "attention" | "neutral";
+  note?: string;
+  attention?: boolean;
 }) {
   return (
-    <Card variant="filled">
-      <div className="flex items-center gap-2 text-label-md text-on-surface-variant">
-        <Icon name={icon} size={20} />
-        {label}
+    <Card attention={attention} className="px-5 py-4">
+      <div className="text-body-md">{label}</div>
+      <div className="mt-1 text-title-lg sm:text-headline-md">
+        {value}
+        {unit && <span className="ml-1 text-title-md text-on-surface-variant">{unit}</span>}
       </div>
-      <div className="mt-3 text-title-lg sm:text-headline-sm">{value}</div>
-      {sub && <div className="text-body-md text-on-surface-variant">{sub}</div>}
+      {(delta || note) && (
+        <div className="mt-1 text-body-sm text-on-surface-variant">
+          {delta && (
+            <span
+              className={cn(
+                "font-medium",
+                deltaTone === "good" && "text-success-text",
+                deltaTone === "attention" && "text-attention-text",
+              )}
+            >
+              {delta}
+            </span>
+          )}
+          {delta && note && " "}
+          {note}
+        </div>
+      )}
     </Card>
   );
 }
@@ -66,9 +95,9 @@ function SectionHeader({
         </h2>
         {sub && <p className="text-body-md text-on-surface-variant">{sub}</p>}
       </div>
-      <Link to={to} className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11 shrink-0")}>
+      <Link to={to} className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 shrink-0")}>
         {linkLabel}
-        <Icon name="arrow_forward" size={18} />
+        <Icon name="arrow_forward" size={20} />
       </Link>
     </div>
   );
@@ -78,28 +107,32 @@ function Overview() {
   const progress = overallProgress();
   const current = stages.find((s) => s.status === "progress");
   const { photos } = usePhotos();
+  const budget = budgetStatus(project);
+  const spent = kUsd(project.spent);
+  const plan = kUsd(project.budget);
+  const lateStages = stages.filter((s) => daysLate(s) > 0).length;
+  const done = stages.filter((s) => s.status === "done").length;
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
-      <Card
-        variant="elevated"
-        className="flex flex-wrap items-start justify-between gap-x-12 gap-y-6 px-5 py-5 md:px-8 md:py-6"
-      >
+      <Card className="flex flex-wrap items-start justify-between gap-x-12 gap-y-6 px-5 py-5 md:px-7 md:py-6">
         <div className="min-w-0">
-          <div className="text-label-md text-on-surface-variant">Active project</div>
-          <h1 className="mt-1 text-headline-md sm:text-display-sm">{project.name}</h1>
-          <p className="mt-1 text-body-lg text-on-surface-variant">{project.address}</p>
+          <div className="text-body-md text-on-surface-variant">Active project</div>
+          <h1 className="text-headline-md sm:text-headline-lg">{project.name}</h1>
+          <p className="text-body-lg text-on-surface-variant">{project.address}</p>
           <div className="mt-3 flex items-center gap-2 text-body-md text-on-surface-variant">
-            <Icon name="person" size={20} /> Manager:{" "}
-            <span className="font-medium text-on-surface">{project.manager}</span>
+            <span className="grid size-7 place-items-center rounded-full bg-surface-container-high">
+              <Icon name="person" size={18} />
+            </span>
+            Manager <span className="font-medium text-on-surface">{project.manager}</span>
           </div>
         </div>
         <div className="w-full md:w-[380px]">
           <div className="flex items-end justify-between">
-            <span className="text-label-md text-on-surface-variant">Overall progress</span>
+            <span className="text-body-md text-on-surface-variant">Overall progress</span>
             <span className="text-headline-md">{progress}%</span>
           </div>
-          <Progress value={progress} className="mt-3" aria-label="Overall progress" />
+          <Progress value={progress} className="mt-2" aria-label="Overall progress" />
           {current && (
             <div className="mt-3 text-body-md text-on-surface-variant">
               Currently working on{" "}
@@ -109,29 +142,29 @@ function Overview() {
         </div>
       </Card>
 
-      <section
-        className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4"
-        aria-label="Project facts"
-      >
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Project facts">
         <Stat
-          icon="calendar_month"
           label="Started"
-          value={project.startDate}
-          sub={`Target: ${project.targetDate}`}
+          value={project.startDate.split(",")[0]}
+          note={`Target: ${project.targetDate}`}
         />
         <Stat
-          icon="trending_up"
           label="Stages done"
-          value={`${stages.filter((s) => s.status === "done").length}/${stages.length}`}
-          sub="On schedule"
+          value={String(done)}
+          unit={`/ ${stages.length}`}
+          delta={lateStages ? `${lateStages} late` : "On schedule"}
+          deltaTone={lateStages ? "attention" : "good"}
         />
         <Stat
-          icon="attach_money"
-          label="Budget"
-          value={`$${project.budget.toLocaleString()}`}
-          sub={`Spent $${project.spent.toLocaleString()}`}
+          label="Budget spent"
+          value={spent.value}
+          unit={spent.unit}
+          attention={budget.over}
+          delta={budget.over ? `↑ ${budget.overPct}% over` : `${budget.usedPct}% used`}
+          deltaTone={budget.over ? "attention" : "good"}
+          note={`of the ${plan.value}${plan.unit} plan`}
         />
-        <Stat icon="person" label="Client" value={project.client} sub="Primary contact" />
+        <Stat label="Client" value={project.client} note="Primary contact" />
       </section>
 
       <section aria-labelledby="latest-photos">
@@ -160,41 +193,48 @@ function Overview() {
           to="/stages"
           linkLabel="View all stages"
         />
-        <Card className="p-0 py-2">
-          <ul>
-            {stages.map((s, i) => (
-              <li
-                key={s.id}
-                className="relative flex min-h-18 items-center gap-4 py-2 pl-4 pr-4 sm:pr-6 [&+&]:before:absolute [&+&]:before:left-[72px] [&+&]:before:right-0 [&+&]:before:top-0 [&+&]:before:h-px [&+&]:before:bg-outline-variant"
-              >
-                <span
-                  className={cn(
-                    "flex size-10 shrink-0 items-center justify-center rounded-full text-label-lg",
-                    statusContainer[s.status],
-                  )}
-                  aria-hidden
-                >
-                  {s.status === "done" ? <Icon name="check" size={20} /> : i + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-body-lg">{s.name}</div>
-                  <div className="text-body-md text-on-surface-variant">
-                    {s.start} – {s.end}
+        <ul className="space-y-2">
+          {stages.map((s, i) => {
+            const late = daysLate(s);
+            return (
+              <li key={s.id}>
+                <Card className="flex items-center gap-3.5 py-3.5 pl-3.5 pr-4 sm:pr-5">
+                  <span
+                    className={cn(
+                      "grid size-11 shrink-0 place-items-center rounded-md text-label-lg",
+                      statusContainer[s.status],
+                    )}
+                    aria-hidden
+                  >
+                    {s.status === "done" ? <Icon name="check" size={22} /> : i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-title-md">{s.name}</div>
+                    <div className="text-body-sm text-on-surface-variant">
+                      {s.start} – {s.end}
+                    </div>
+                    {late > 0 && (
+                      <Badge variant="attention" size="sm" icon="schedule" className="mt-1.5">
+                        {lateLabel(late)}
+                      </Badge>
+                    )}
                   </div>
-                </div>
-                <div className="flex w-24 shrink-0 items-center gap-3 sm:w-auto">
-                  <Progress
-                    value={s.progress}
-                    tone={statusTone[s.status]}
-                    className="flex-1 sm:w-60 sm:flex-none"
-                    aria-label={`${s.name} progress`}
-                  />
-                  <span className="w-9 text-right text-label-md tabular-nums">{s.progress}%</span>
-                </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <Progress
+                      value={s.progress}
+                      tone={statusTone[s.status]}
+                      className="w-16 sm:w-[140px]"
+                      aria-label={`${s.name} progress`}
+                    />
+                    <span className="w-10 text-right text-label-lg tabular-nums">
+                      {s.progress}%
+                    </span>
+                  </div>
+                </Card>
               </li>
-            ))}
-          </ul>
-        </Card>
+            );
+          })}
+        </ul>
       </section>
 
       <section aria-labelledby="floor-plan">
