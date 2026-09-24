@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StagesRouteImport } from './routes/stages'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as PhotosRouteImport } from './routes/photos'
+import { Route as DesignRouteImport } from './routes/design'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +24,16 @@ const StagesRoute = StagesRouteImport.update({
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PhotosRoute = PhotosRouteImport.update({
+  id: '/photos',
+  path: '/photos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignRoute = DesignRouteImport.update({
+  id: '/design',
+  path: '/design',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -38,12 +50,16 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
+  '/design': typeof DesignRoute
+  '/photos': typeof PhotosRoute
   '/plan': typeof PlanRoute
   '/stages': typeof StagesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
+  '/design': typeof DesignRoute
+  '/photos': typeof PhotosRoute
   '/plan': typeof PlanRoute
   '/stages': typeof StagesRoute
 }
@@ -51,20 +67,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
+  '/design': typeof DesignRoute
+  '/photos': typeof PhotosRoute
   '/plan': typeof PlanRoute
   '/stages': typeof StagesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat' | '/plan' | '/stages'
+  fullPaths: '/' | '/chat' | '/design' | '/photos' | '/plan' | '/stages'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat' | '/plan' | '/stages'
-  id: '__root__' | '/' | '/chat' | '/plan' | '/stages'
+  to: '/' | '/chat' | '/design' | '/photos' | '/plan' | '/stages'
+  id: '__root__' | '/' | '/chat' | '/design' | '/photos' | '/plan' | '/stages'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChatRoute: typeof ChatRoute
+  DesignRoute: typeof DesignRoute
+  PhotosRoute: typeof PhotosRoute
   PlanRoute: typeof PlanRoute
   StagesRoute: typeof StagesRoute
 }
@@ -83,6 +103,20 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/plan'
       preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/photos': {
+      id: '/photos'
+      path: '/photos'
+      fullPath: '/photos'
+      preLoaderRoute: typeof PhotosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design': {
+      id: '/design'
+      path: '/design'
+      fullPath: '/design'
+      preLoaderRoute: typeof DesignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -105,9 +139,21 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
+  DesignRoute: DesignRoute,
+  PhotosRoute: PhotosRoute,
   PlanRoute: PlanRoute,
   StagesRoute: StagesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

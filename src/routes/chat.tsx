@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip } from "lucide-react";
+import { Send, Paperclip, Bot, UserRound } from "lucide-react";
 import { project } from "@/lib/renovation-data";
+import { AiChat } from "@/components/ai-chat";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
     meta: [
       { title: "Chat — RenoTrack" },
-      { name: "description", content: "Chat with your renovation manager." },
+      { name: "description", content: "Chat with your renovation manager or ask the AI assistant about your project." },
+      { property: "og:title", content: "Chat — RenoTrack" },
+      { property: "og:description", content: "Chat with your renovation manager or ask the AI assistant." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ChatPage,
@@ -24,13 +29,15 @@ const initial: Msg[] = [
 ];
 
 function ChatPage() {
+  const [tab, setTab] = useState<"manager" | "ai">("manager");
   const [messages, setMessages] = useState<Msg[]>(initial);
   const [text, setText] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (tab === "manager") endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, tab]);
 
   const send = () => {
     if (!text.trim()) return;
@@ -47,55 +54,83 @@ function ChatPage() {
     }, 1200);
   };
 
+  const handOver = (q: string) => {
+    setText(q ? `Hi Jonas, question: ${q}` : "");
+    setTab("manager");
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const tabCls = (active: boolean) =>
+    `flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "bg-card text-foreground shadow-[var(--shadow-soft)]" : "text-muted-foreground"}`;
+
   return (
-    <div className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border bg-card shadow-[var(--shadow-elegant)]">
-      <div className="flex items-center gap-3 border-b bg-background/60 p-4 backdrop-blur">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] font-semibold text-primary-foreground">
-          {project.manager.split(" ").map(n => n[0]).join("")}
-        </div>
-        <div>
-          <div className="font-semibold">{project.manager}</div>
-          <div className="text-xs text-status-done">● Online — Site manager</div>
+    <div className="-mx-4 -my-4 flex h-[calc(100dvh-7.5rem-env(safe-area-inset-bottom))] flex-col overflow-hidden bg-card md:mx-auto md:my-0 md:h-[calc(100dvh-8rem)] md:w-full md:max-w-3xl md:rounded-2xl md:border md:shadow-[var(--shadow-elegant)]">
+      <div className="border-b bg-background/60 p-3 backdrop-blur">
+        <div role="tablist" aria-label="Chat mode" className="flex gap-1 rounded-full bg-muted p-1">
+          <button role="tab" aria-selected={tab === "manager"} onClick={() => setTab("manager")} className={tabCls(tab === "manager")}>
+            <UserRound className="h-4 w-4" /> Site manager
+          </button>
+          <button role="tab" aria-selected={tab === "ai"} onClick={() => setTab("ai")} className={tabCls(tab === "ai")}>
+            <Bot className="h-4 w-4" /> Ask AI
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto p-4">
-        {messages.map((m) => (
-          <div key={m.id} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-[var(--shadow-soft)] ${
-                m.from === "me"
-                  ? "rounded-br-sm bg-[image:var(--gradient-primary)] text-primary-foreground"
-                  : "rounded-bl-sm bg-muted text-foreground"
-              }`}
-            >
-              <div>{m.text}</div>
-              <div className={`mt-1 text-[10px] ${m.from === "me" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{m.time}</div>
+      {tab === "ai" ? (
+        <AiChat onAskManager={handOver} />
+      ) : (
+        <>
+          <div className="flex items-center gap-3 border-b p-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] font-semibold text-primary-foreground">
+              {project.manager.split(" ").map(n => n[0]).join("")}
+            </div>
+            <div>
+              <div className="font-semibold">{project.manager}</div>
+              <div className="text-xs text-status-done">● Online — Site manager</div>
             </div>
           </div>
-        ))}
-        <div ref={endRef} />
-      </div>
 
-      <div className="flex items-center gap-2 border-t bg-background/60 p-3 backdrop-blur">
-        <button className="rounded-full p-2 text-muted-foreground hover:bg-muted" aria-label="Attach">
-          <Paperclip className="h-5 w-5" />
-        </button>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Message your manager…"
-          className="flex-1 rounded-full border bg-background px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-        />
-        <button
-          onClick={send}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]"
-          aria-label="Send"
-        >
-          <Send className="h-4 w-4" />
-        </button>
-      </div>
+          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+            {messages.map((m) => (
+              <div key={m.id} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-[var(--shadow-soft)] ${
+                    m.from === "me"
+                      ? "rounded-br-sm bg-[image:var(--gradient-primary)] text-primary-foreground"
+                      : "rounded-bl-sm bg-muted text-foreground"
+                  }`}
+                >
+                  <div>{m.text}</div>
+                  <div className={`mt-1 text-[11px] ${m.from === "me" ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{m.time}</div>
+                </div>
+              </div>
+            ))}
+            <div ref={endRef} />
+          </div>
+
+          <div className="flex items-center gap-2 border-t bg-background/60 p-3 backdrop-blur">
+            <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach">
+              <Paperclip className="h-5 w-5" />
+            </button>
+            <input
+              ref={inputRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && send()}
+              placeholder="Message your manager…"
+              aria-label="Message your manager"
+              className="h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm"
+            />
+            <button
+              onClick={send}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]"
+              aria-label="Send"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
