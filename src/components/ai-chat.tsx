@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bot, Send, Trash2, UserRound } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   defaultProjectData,
   getAiAnswer,
@@ -63,7 +63,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
         {messages.length === 0 && (
           <div className="mx-auto max-w-md py-6 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground">
-              <Bot className="h-6 w-6" />
+              <Icon name="smart_toy" />
             </div>
             <h2 className="mt-3 font-semibold">Ask about your renovation</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -100,8 +100,8 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
                       onClick={() => onAskManager(m.question ?? "")}
                       className="inline-flex min-h-11 items-center gap-1 rounded-full border px-3 text-xs font-medium hover:bg-muted"
                     >
-                      <UserRound className="h-3.5 w-3.5" /> Ask {project.manager.split(" ")[0]}{" "}
-                      about this
+                      <Icon name="person" size={18} /> Ask {project.manager.split(" ")[0]} about
+                      this
                     </button>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
               aria-label="Clear chat"
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
             >
-              <Trash2 className="h-5 w-5" />
+              <Icon name="delete" />
             </button>
           )}
           <input
@@ -173,7 +173,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
             aria-label="Send question"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground disabled:opacity-50"
           >
-            <Send className="h-4 w-4" />
+            <Icon name="send" size={20} />
           </button>
         </form>
       </div>

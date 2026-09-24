@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Bot, UserRound } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { project } from "@/lib/renovation-data";
 import { AiChat } from "@/components/ai-chat";
 import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
@@ -121,7 +121,7 @@ function ChatPage() {
             onClick={() => setTab("manager")}
             className={tabCls(tab === "manager")}
           >
-            <UserRound className="h-4 w-4" /> Site manager
+            <Icon name="person" size={18} /> Site manager
           </button>
           <button
             id="chat-tab-ai"
@@ -132,7 +132,7 @@ function ChatPage() {
             onClick={() => setTab("ai")}
             className={tabCls(tab === "ai")}
           >
-            <Bot className="h-4 w-4" /> Ask AI
+            <Icon name="smart_toy" size={18} /> Ask AI
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@ function ChatPage() {
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
                 aria-label="Attach"
               >
-                <Paperclip className="h-5 w-5" />
+                <Icon name="attach_file" />
               </button>
               <input
                 ref={inputRef}
@@ -209,7 +209,7 @@ function ChatPage() {
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]"
                 aria-label="Send"
               >
-                <Send className="h-4 w-4" />
+                <Icon name="send" size={20} />
               </button>
             </div>
           </>

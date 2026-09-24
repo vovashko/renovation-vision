@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, Check, Circle } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { stages, statusFill, statusLabel } from "@/lib/renovation-data";
 import { usePhotos } from "@/lib/photo-store";
 import { EmptyPhotos, PhotoThumbs } from "@/components/photo-thumbs";
@@ -63,9 +63,13 @@ function StagesPage() {
                   {s.tasks.map((t) => (
                     <li key={t.name} className="flex items-center gap-2 text-sm">
                       {t.done ? (
-                        <Check className="h-4 w-4 text-status-done" />
+                        <Icon name="check" size={18} className="text-status-done" />
                       ) : (
-                        <Circle className="h-4 w-4 text-muted-foreground" />
+                        <Icon
+                          name="radio_button_unchecked"
+                          size={18}
+                          className="text-muted-foreground"
+                        />
                       )}
                       <span className={t.done ? "text-muted-foreground line-through" : ""}>
                         {t.name}
@@ -76,7 +80,7 @@ function StagesPage() {
                 <div className="mt-5 border-t pt-4">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <h3 className="flex items-center gap-2 text-sm font-medium">
-                      <Camera className="h-4 w-4 text-muted-foreground" />
+                      <Icon name="photo_camera" size={18} className="text-muted-foreground" />
                       {stagePhotos.length} {stagePhotos.length === 1 ? "photo" : "photos"}
                     </h3>
                     {stagePhotos.length > 0 && (

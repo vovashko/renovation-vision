@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Palette } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { rooms, statusFill, statusLabel, type Room } from "@/lib/renovation-data";
 import { renders } from "@/lib/media-data";
 import { usePhotos } from "@/lib/photo-store";
@@ -138,7 +138,7 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
               />
             ) : (
               <span className="flex aspect-[4/3] w-full items-center justify-center rounded-lg border border-dashed bg-muted text-muted-foreground">
-                <Palette className="h-5 w-5" />
+                <Icon name="palette" size={20} />
               </span>
             )}
             <span className="mt-1 block">{render ? "Planned look →" : "Renders coming"}</span>

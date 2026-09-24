@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import type { SitePhoto } from "@/lib/media-data";
 import { toLightbox } from "@/lib/photo-helpers";
 import { Lightbox } from "@/components/lightbox";
@@ -9,7 +9,7 @@ export function EmptyPhotos({ text, compact = false }: { text: string; compact?:
   if (compact) {
     return (
       <div className="flex items-center gap-3 rounded-lg border border-dashed bg-card p-3 text-sm text-muted-foreground">
-        <Camera className="h-5 w-5 shrink-0" />
+        <Icon name="photo_camera" size={20} />
         {text}
       </div>
     );
@@ -17,7 +17,7 @@ export function EmptyPhotos({ text, compact = false }: { text: string; compact?:
   return (
     <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed bg-card p-8 text-center">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-        <Camera className="h-6 w-6 text-muted-foreground" />
+        <Icon name="photo_camera" className="text-muted-foreground" />
       </div>
       <p className="mt-3 max-w-xs text-sm text-muted-foreground">{text}</p>
     </div>

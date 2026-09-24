@@ -1,26 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-  Camera,
-  LayoutDashboard,
-  ListChecks,
-  Map,
-  MessageCircle,
-  MoreHorizontal,
-  Palette,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 
 const tabs = [
-  { title: "Overview", url: "/", icon: LayoutDashboard },
-  { title: "Stages", url: "/stages", icon: ListChecks },
-  { title: "Photos", url: "/photos", icon: Camera },
-  { title: "Chat", url: "/chat", icon: MessageCircle },
+  { title: "Overview", url: "/", icon: "dashboard" },
+  { title: "Stages", url: "/stages", icon: "checklist" },
+  { title: "Photos", url: "/photos", icon: "photo_camera" },
+  { title: "Chat", url: "/chat", icon: "chat" },
 ] as const;
 const more = [
-  { title: "Plan", url: "/plan", icon: Map },
-  { title: "Design", url: "/design", icon: Palette },
+  { title: "Plan", url: "/plan", icon: "map" },
+  { title: "Design", url: "/design", icon: "palette" },
 ] as const;
 
 export function MobileTabBar() {
@@ -45,7 +37,7 @@ export function MobileTabBar() {
             className={cls(path === t.url)}
             aria-current={path === t.url ? "page" : undefined}
           >
-            <t.icon className="h-5 w-5" />
+            <Icon name={t.icon} fill={path === t.url} />
             {t.title}
           </Link>
         ))}
@@ -55,7 +47,7 @@ export function MobileTabBar() {
           aria-label="More pages"
           aria-haspopup="dialog"
         >
-          <MoreHorizontal className="h-5 w-5" />
+          <Icon name="more_horiz" fill={moreActive} />
           More
         </button>
       </nav>
@@ -75,7 +67,7 @@ export function MobileTabBar() {
                 onClick={() => setOpen(false)}
                 className={`flex min-h-12 items-center gap-3 rounded-xl border px-4 text-base font-medium ${path === m.url ? "border-primary text-primary" : ""}`}
               >
-                <m.icon className="h-5 w-5" />
+                <Icon name={m.icon} fill={path === m.url} />
                 {m.title}
               </Link>
             ))}

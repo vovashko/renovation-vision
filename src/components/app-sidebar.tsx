@@ -1,13 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Camera,
-  LayoutDashboard,
-  ListChecks,
-  Map,
-  MessageCircle,
-  Hammer,
-  Palette,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   Sidebar,
   SidebarContent,
@@ -22,12 +14,12 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Overview", url: "/", icon: LayoutDashboard },
-  { title: "Stages", url: "/stages", icon: ListChecks },
-  { title: "Photos", url: "/photos", icon: Camera },
-  { title: "Plan", url: "/plan", icon: Map },
-  { title: "Design", url: "/design", icon: Palette },
-  { title: "Chat", url: "/chat", icon: MessageCircle },
+  { title: "Overview", url: "/", icon: "dashboard" },
+  { title: "Stages", url: "/stages", icon: "checklist" },
+  { title: "Photos", url: "/photos", icon: "photo_camera" },
+  { title: "Plan", url: "/plan", icon: "map" },
+  { title: "Design", url: "/design", icon: "palette" },
+  { title: "Chat", url: "/chat", icon: "chat" },
 ];
 
 export function AppSidebar() {
@@ -40,7 +32,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <Link to="/" className="flex items-center gap-2 px-2 py-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]">
-            <Hammer className="h-5 w-5" />
+            <Icon name="construction" />
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
@@ -59,7 +51,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={path === item.url}>
                     <Link to={item.url} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
+                      <Icon name={item.icon} fill={path === item.url} />
                       {!collapsed && <span>{item.title}</span>}
                     </Link>
                   </SidebarMenuButton>

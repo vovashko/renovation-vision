@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Calendar, DollarSign, TrendingUp, User, type LucideIcon } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { project, stages, overallProgress, statusFill } from "@/lib/renovation-data";
 import { FloorPlan } from "@/components/floor-plan";
 import { PhotoThumbs } from "@/components/photo-thumbs";
@@ -17,12 +17,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Stat({
-  icon: Icon,
+  icon,
   label,
   value,
   sub,
 }: {
-  icon: LucideIcon;
+  icon: string;
   label: string;
   value: string;
   sub?: string;
@@ -30,7 +30,7 @@ function Stat({
   return (
     <div className="rounded-xl border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
       <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-        <Icon className="h-4 w-4 shrink-0" />
+        <Icon name={icon} size={20} />
         {label}
       </div>
       <div className="mt-2 text-lg font-semibold leading-tight sm:text-2xl">{value}</div>
@@ -55,7 +55,7 @@ function Overview() {
             <h1 className="mt-1 text-3xl font-semibold md:text-4xl">{project.name}</h1>
             <p className="mt-1 text-muted-foreground">{project.address}</p>
             <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="h-4 w-4" /> Manager:{" "}
+              <Icon name="person" size={20} /> Manager:{" "}
               <span className="font-medium text-foreground">{project.manager}</span>
             </div>
           </div>
@@ -84,24 +84,24 @@ function Overview() {
 
       <section className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <Stat
-          icon={Calendar}
+          icon="calendar_month"
           label="Started"
           value={project.startDate}
           sub={`Target: ${project.targetDate}`}
         />
         <Stat
-          icon={TrendingUp}
+          icon="trending_up"
           label="Stages done"
           value={`${stages.filter((s) => s.status === "done").length}/${stages.length}`}
           sub="On schedule"
         />
         <Stat
-          icon={DollarSign}
+          icon="payments"
           label="Budget"
           value={`$${project.budget.toLocaleString()}`}
           sub={`Spent $${project.spent.toLocaleString()}`}
         />
-        <Stat icon={User} label="Client" value={project.client} sub="Primary contact" />
+        <Stat icon="person" label="Client" value={project.client} sub="Primary contact" />
       </section>
 
       <section aria-labelledby="latest-photos">

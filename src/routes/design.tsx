@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Palette } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { rooms, statusFill, statusLabel } from "@/lib/renovation-data";
 import { beforeAfter, renders } from "@/lib/media-data";
 import { FilterChips } from "@/components/filter-chips";
@@ -92,8 +92,8 @@ function DesignPage() {
               </div>
               {list.length === 0 ? (
                 <div className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-5 text-sm text-muted-foreground">
-                  <Palette className="h-5 w-5 shrink-0" /> Renders for {r.name} are still being
-                  prepared by the designer.
+                  <Icon name="palette" size={20} /> Renders for {r.name} are still being prepared by
+                  the designer.
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
