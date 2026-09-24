@@ -5,34 +5,27 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * RenoTrack design system: Material 3 (Theme Builder seed #E4E9EB) + Inter.
- *
- * Layers:
- *  1. --m3-* : raw M3 color roles, light + dark (oklch; hex in comments).
- *  2. shadcn aliases (--primary, --card, ...) point at M3 roles so every
- *     existing src/components/ui/* component re-themes with no code change.
- *  3. @theme inline registers both as Tailwind colors:
- *       bg-primary, bg-card, ...           (shadcn names)
- *       bg-surface-container-low, text-on-surface-variant,
- *       bg-success-container, text-on-warning-container, ... (M3 names)
+ * RenoVision design system v5 ("Sage"): Material 3 structure, flat sage/forest palette, Inter.
+ *  --m3-*        raw roles, light + .dark (oklch, hex in comments)
+ *  shadcn vars   (--primary, --card, ...) alias the M3 roles, so existing ui/* components re-theme
+ *  Tailwind      bg-primary, bg-card ... plus M3 names: bg-surface-container-high, text-on-surface-variant,
+ *                bg-success-container, bg-progress, text-attention-text, border-attention-outline, ...
+ * Status = progress state (done / progress / pending / blocked).
+ * Attention = separate orange flag for over budget / past deadline; can combine with any state.
  * All colors MUST stay in oklch.
  */
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --radius-xs: 4px;   /* M3 extra-small */
-  --radius-sm: 8px;   /* M3 small: chips */
-  --radius-md: 12px;  /* M3 medium: cards */
-  --radius-lg: 16px;  /* M3 large: FAB, drawer, panels */
-  --radius-xl: 28px;  /* M3 extra-large: dialogs */
-  --radius-2xl: 28px;
+  --radius-xs: 8px;   /* tooltip, value bubble */
+  --radius-sm: 8px;
+  --radius-md: 12px;  /* buttons, inputs, icon tiles, floor-plan rooms */
+  --radius-lg: 16px;  /* list items, nav items, search field, inner panels */
+  --radius-xl: 20px;  /* cards (shadcn Card uses rounded-xl) */
+  --radius-2xl: 28px; /* app shell, nav rail */
   --radius-3xl: 28px;
   --radius-4xl: 28px;
-  --shadow-el1: var(--m3-el1);
-  --shadow-el2: var(--m3-el2);
-  --shadow-el3: var(--m3-el3);
-  --shadow-el4: var(--m3-el4);
-  --shadow-el5: var(--m3-el5);
+  --shadow-float: 0 2px 8px oklch(0.23 0.01 150 / 0.08), 0 1px 2px oklch(0.23 0.01 150 / 0.06);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -66,22 +59,20 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-status-done: var(--status-done);
-  --color-status-progress: var(--status-progress);
-  --color-status-pending: var(--status-pending);
-  --color-status-blocked: var(--status-blocked);
   --color-status-done-container: var(--status-done-container);
   --color-on-status-done-container: var(--on-status-done-container);
+  --color-status-progress: var(--status-progress);
   --color-status-progress-container: var(--status-progress-container);
   --color-on-status-progress-container: var(--on-status-progress-container);
+  --color-status-pending: var(--status-pending);
   --color-status-pending-container: var(--status-pending-container);
   --color-on-status-pending-container: var(--on-status-pending-container);
+  --color-status-blocked: var(--status-blocked);
   --color-status-blocked-container: var(--status-blocked-container);
   --color-on-status-blocked-container: var(--on-status-blocked-container);
-  --color-primary: var(--m3-primary);
   --color-on-primary: var(--m3-on-primary);
   --color-primary-container: var(--m3-primary-container);
   --color-on-primary-container: var(--m3-on-primary-container);
-  --color-secondary: var(--m3-secondary);
   --color-on-secondary: var(--m3-on-secondary);
   --color-secondary-container: var(--m3-secondary-container);
   --color-on-secondary-container: var(--m3-on-secondary-container);
@@ -106,295 +97,228 @@
   --color-outline: var(--m3-outline);
   --color-outline-variant: var(--m3-outline-variant);
   --color-success: var(--m3-success);
-  --color-on-success: var(--m3-on-success);
+  --color-success-text: var(--m3-success-text);
   --color-success-container: var(--m3-success-container);
   --color-on-success-container: var(--m3-on-success-container);
-  --color-warning: var(--m3-warning);
-  --color-on-warning: var(--m3-on-warning);
-  --color-warning-container: var(--m3-warning-container);
-  --color-on-warning-container: var(--m3-on-warning-container);
+  --color-progress: var(--m3-progress);
+  --color-progress-container: var(--m3-progress-container);
+  --color-on-progress-container: var(--m3-on-progress-container);
+  --color-attention: var(--m3-attention);
+  --color-attention-text: var(--m3-attention-text);
+  --color-attention-container: var(--m3-attention-container);
+  --color-on-attention-container: var(--m3-on-attention-container);
+  --color-attention-outline: var(--m3-attention-outline);
 }
 
 :root {
   --radius: 0.75rem;
-  /* ---- M3 roles (from material-theme.json) ---- */
-  --m3-primary: oklch(0.482 0.007 223.5); /* #5A5F61 */
+  --m3-primary: oklch(0.374 0.026 151.4); /* #37453A */
   --m3-on-primary: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-primary-container: oklch(0.931 0.006 223.5); /* #E4E9EB */
-  --m3-on-primary-container: oklch(0.516 0.008 219.6); /* #63696B */
-  --m3-secondary: oklch(0.484 0.003 197.1); /* #5D5F5F */
+  --m3-primary-container: oklch(0.907 0.017 133.8); /* #DCE3D8 */
+  --m3-on-primary-container: oklch(0.296 0.021 153.4); /* #253028 */
+  --m3-secondary: oklch(0.500 0.017 142.2); /* #5E665D */
   --m3-on-secondary: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-secondary-container: oklch(0.913 0.001 0); /* #E2E2E3 */
-  --m3-on-secondary-container: oklch(0.503 0.002 247.9); /* #636465 */
-  --m3-tertiary: oklch(0.485 0.011 320.6); /* #625D63 */
+  --m3-secondary-container: oklch(0.932 0.010 131.4); /* #E6EAE3 */
+  --m3-on-secondary-container: oklch(0.320 0.016 145.2); /* #2E352E */
+  --m3-tertiary: oklch(0.562 0.020 140.0); /* #6F786D */
   --m3-on-tertiary: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-tertiary-container: oklch(0.933 0.013 329.6); /* #EEE6ED */
-  --m3-on-tertiary-container: oklch(0.517 0.011 320.6); /* #6B666C */
-  --m3-error: oklch(0.506 0.193 27.7); /* #BA1A1A */
+  --m3-tertiary-container: oklch(0.749 0.016 136.1); /* #A9B0A6 */
+  --m3-on-tertiary-container: oklch(0.254 0.010 151.4); /* #1F2420 */
+  --m3-error: oklch(0.588 0.197 28.4); /* #D93A30 */
   --m3-on-error: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-error-container: oklch(0.918 0.042 25.2); /* #FFDAD6 */
-  --m3-on-error-container: oklch(0.417 0.170 27.4); /* #93000A */
-  --m3-surface: oklch(0.984 0.003 39.5); /* #FCF9F8 */
-  --m3-on-surface: oklch(0.224 0.002 325.7); /* #1C1B1C */
-  --m3-on-surface-variant: oklch(0.395 0.006 229.0); /* #434749 */
+  --m3-error-container: oklch(0.919 0.035 26.5); /* #FBDCD8 */
+  --m3-on-error-container: oklch(0.377 0.136 28.6); /* #7A1510 */
+  --m3-surface: oklch(0.969 0.004 121.6); /* #F4F5F2 */
+  --m3-on-surface: oklch(0.254 0.010 151.4); /* #1F2420 */
+  --m3-on-surface-variant: oklch(0.519 0.015 141.8); /* #646B63 */
   --m3-surface-container-lowest: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-surface-container-low: oklch(0.966 0.003 39.5); /* #F6F3F2 */
-  --m3-surface-container: oklch(0.948 0.003 17.2); /* #F0EDED */
-  --m3-surface-container-high: oklch(0.931 0.004 17.2); /* #EBE7E7 */
-  --m3-surface-container-highest: oklch(0.915 0.004 39.5); /* #E5E2E1 */
-  --m3-inverse-surface: oklch(0.310 0.001 0); /* #313030 */
-  --m3-inverse-on-surface: oklch(0.957 0.004 39.5); /* #F3F0EF */
-  --m3-outline: oklch(0.570 0.005 214.3); /* #747879 */
-  --m3-outline-variant: oklch(0.828 0.004 219.5); /* #C4C7C8 */
-  /* ---- Custom color groups: status ---- */
-  --m3-success: oklch(0.475 0.091 143.1); /* #3B6939 */
-  --m3-on-success: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-success-container: oklch(0.904 0.097 141.3); /* #BCF0B4 */
-  --m3-on-success-container: oklch(0.387 0.092 142.1); /* #23501F */
-  --m3-warning: oklch(0.486 0.100 81.0); /* #7C5800 */
-  --m3-on-warning: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-warning-container: oklch(0.915 0.080 80.6); /* #FFDEA6 */
-  --m3-on-warning-container: oklch(0.400 0.083 81.2); /* #5E4200 */
+  --m3-surface-container-low: oklch(0.984 0.003 128.5); /* #F9FAF8 */
+  --m3-surface-container: oklch(0.952 0.007 124.4); /* #EEF0EB */
+  --m3-surface-container-high: oklch(0.932 0.010 131.4); /* #E6EAE3 */
+  --m3-surface-container-highest: oklch(0.907 0.012 133.4); /* #DDE2DA */
+  --m3-inverse-surface: oklch(0.312 0.014 149.4); /* #2C332D */
+  --m3-inverse-on-surface: oklch(0.962 0.006 128.5); /* #F1F3EF */
+  --m3-outline: oklch(0.730 0.015 138.7); /* #A3AAA1 */
+  --m3-outline-variant: oklch(0.921 0.009 128.6); /* #E3E6E0 */
+  --m3-success: oklch(0.642 0.083 143.5); /* #6E9A6C */
+  --m3-success-text: oklch(0.535 0.087 142.8); /* #4E7A4B */
+  --m3-success-container: oklch(0.923 0.022 136.6); /* #DFE9DB */
+  --m3-on-success-container: oklch(0.319 0.052 139.7); /* #24391F */
+  --m3-progress: oklch(0.532 0.073 235.7); /* #3F7391 */
+  --m3-progress-container: oklch(0.924 0.014 231.2); /* #DDE8EE */
+  --m3-on-progress-container: oklch(0.335 0.047 238.5); /* #1E3A4C */
+  --m3-attention: oklch(0.708 0.151 64.9); /* #E08A1E */
+  --m3-attention-text: oklch(0.560 0.117 77.5); /* #9A6A00 */
+  --m3-attention-container: oklch(0.937 0.042 75.4); /* #FBE7CC */
+  --m3-on-attention-container: oklch(0.366 0.080 67.7); /* #5A3500 */
+  --m3-attention-outline: oklch(0.856 0.088 77.5); /* #F0C98E */
 
-  /* ---- shadcn semantic aliases -> M3 roles (keeps existing components working) ---- */
+  /* shadcn aliases -> M3 roles (existing src/components/ui/* re-theme automatically) */
   --background: var(--m3-surface);
   --foreground: var(--m3-on-surface);
-  --card: var(--m3-surface-container-low);
+  --card: var(--m3-surface-container-lowest);
   --card-foreground: var(--m3-on-surface);
-  --popover: var(--m3-surface-container);
+  --popover: var(--m3-surface-container-lowest);
   --popover-foreground: var(--m3-on-surface);
   --primary: var(--m3-primary);
   --primary-foreground: var(--m3-on-primary);
   --primary-glow: var(--m3-primary);
   --secondary: var(--m3-secondary-container);
   --secondary-foreground: var(--m3-on-secondary-container);
-  --muted: var(--m3-surface-container-highest);
+  --muted: var(--m3-surface-container-high);
   --muted-foreground: var(--m3-on-surface-variant);
-  --accent: var(--m3-secondary-container);
-  --accent-foreground: var(--m3-on-secondary-container);
+  --accent: var(--m3-surface-container-high);
+  --accent-foreground: var(--m3-on-surface);
   --destructive: var(--m3-error);
   --destructive-foreground: var(--m3-on-error);
   --border: var(--m3-outline-variant);
-  --input: var(--m3-outline);
+  --input: var(--m3-outline-variant);
   --ring: var(--m3-primary);
   --status-done: var(--m3-success);
-  --status-progress: var(--m3-warning);
-  --status-pending: var(--m3-outline);
-  --status-blocked: var(--m3-error);
   --status-done-container: var(--m3-success-container);
   --on-status-done-container: var(--m3-on-success-container);
-  --status-progress-container: var(--m3-warning-container);
-  --on-status-progress-container: var(--m3-on-warning-container);
-  --status-pending-container: var(--m3-surface-container-highest);
-  --on-status-pending-container: var(--m3-on-surface-variant);
+  --status-progress: var(--m3-progress);
+  --status-progress-container: var(--m3-progress-container);
+  --on-status-progress-container: var(--m3-on-progress-container);
+  --status-pending: var(--m3-outline);
+  --status-pending-container: var(--m3-surface-container-high);
+  --on-status-pending-container: var(--m3-on-secondary-container);
+  --status-blocked: var(--m3-error);
   --status-blocked-container: var(--m3-error-container);
   --on-status-blocked-container: var(--m3-on-error-container);
-  --sidebar: var(--m3-surface-container-low);
-  --sidebar-foreground: var(--m3-on-surface-variant);
+  --sidebar: var(--m3-surface-container-lowest);
+  --sidebar-foreground: var(--m3-on-surface);
   --sidebar-primary: var(--m3-primary);
   --sidebar-primary-foreground: var(--m3-on-primary);
-  --sidebar-accent: var(--m3-secondary-container);
-  --sidebar-accent-foreground: var(--m3-on-secondary-container);
+  --sidebar-accent: var(--m3-surface-container-high);
+  --sidebar-accent-foreground: var(--m3-on-surface);
   --sidebar-border: var(--m3-outline-variant);
   --sidebar-ring: var(--m3-primary);
-
-  /* Charts: keep distinguishable hues, harmonized to the neutral palette */
   --chart-1: var(--m3-primary);
-  --chart-2: var(--m3-success);
-  --chart-3: var(--m3-warning);
-  --chart-4: var(--m3-error);
-  --chart-5: var(--m3-tertiary);
+  --chart-2: var(--m3-tertiary-container);
+  --chart-3: var(--m3-progress);
+  --chart-4: var(--m3-success);
+  --chart-5: var(--m3-attention);
 
-  /* Legacy tokens: gradients removed in M3; kept as solids so old classes don't break */
+  /* Legacy tokens: no gradients or card shadows in v5 */
   --gradient-primary: linear-gradient(var(--m3-primary), var(--m3-primary));
   --gradient-surface: linear-gradient(var(--m3-surface), var(--m3-surface));
-  --shadow-soft: var(--m3-el1);
-  --shadow-elegant: var(--m3-el3);
-
-  /* M3 elevation levels 1-5 */
-  --m3-el1: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 3px 1px oklch(0 0 0 / 0.15);
-  --m3-el2: 0 1px 2px oklch(0 0 0 / 0.3), 0 2px 6px 2px oklch(0 0 0 / 0.15);
-  --m3-el3: 0 1px 3px oklch(0 0 0 / 0.3), 0 4px 8px 3px oklch(0 0 0 / 0.15);
-  --m3-el4: 0 2px 3px oklch(0 0 0 / 0.3), 0 6px 10px 4px oklch(0 0 0 / 0.15);
-  --m3-el5: 0 4px 4px oklch(0 0 0 / 0.3), 0 8px 12px 6px oklch(0 0 0 / 0.15);
+  --shadow-soft: none;
+  --shadow-elegant: none;
 }
 
 .dark {
-  /* ---- M3 roles (from material-theme.json) ---- */
-  --m3-primary: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-on-primary: oklch(0.309 0.008 223.7); /* #2C3133 */
-  --m3-primary-container: oklch(0.913 0.006 223.5); /* #DEE3E5 */
-  --m3-on-primary-container: oklch(0.503 0.007 223.5); /* #606567 */
-  --m3-secondary: oklch(0.827 0.001 0); /* #C6C6C7 */
-  --m3-on-secondary: oklch(0.311 0.003 197.0); /* #2F3131 */
-  --m3-secondary-container: oklch(0.396 0.003 228.9); /* #454748 */
-  --m3-on-secondary-container: oklch(0.773 0.002 0); /* #B4B5B6 */
-  --m3-tertiary: oklch(1.000 0.000 0); /* #FFFFFF */
-  --m3-on-tertiary: oklch(0.311 0.010 319.5); /* #332F34 */
-  --m3-tertiary-container: oklch(0.915 0.013 329.6); /* #E8E0E7 */
-  --m3-on-tertiary-container: oklch(0.506 0.011 320.6); /* #686369 */
+  --m3-primary: oklch(0.823 0.035 141.2); /* #B9CBB6 */
+  --m3-on-primary: oklch(0.306 0.033 148.0); /* #243426 */
+  --m3-primary-container: oklch(0.374 0.026 151.4); /* #37453A */
+  --m3-on-primary-container: oklch(0.902 0.030 139.1); /* #D5E4D1 */
+  --m3-secondary: oklch(0.828 0.016 136.1); /* #C2C9BF */
+  --m3-on-secondary: oklch(0.309 0.015 141.2); /* #2C322B */
+  --m3-secondary-container: oklch(0.370 0.018 138.7); /* #3B4239 */
+  --m3-on-secondary-container: oklch(0.914 0.017 133.8); /* #DEE5DA */
+  --m3-tertiary: oklch(0.820 0.017 137.0); /* #BFC7BC */
+  --m3-on-tertiary: oklch(0.301 0.016 137.9); /* #2A3028 */
+  --m3-tertiary-container: oklch(0.490 0.019 139.4); /* #5B6359 */
+  --m3-on-tertiary-container: oklch(0.916 0.007 124.5); /* #E2E4DF */
   --m3-error: oklch(0.838 0.089 26.8); /* #FFB4AB */
   --m3-on-error: oklch(0.328 0.134 27.3); /* #690005 */
   --m3-error-container: oklch(0.417 0.170 27.4); /* #93000A */
   --m3-on-error-container: oklch(0.918 0.042 25.2); /* #FFDAD6 */
-  --m3-surface: oklch(0.187 0.000 0); /* #131313 */
-  --m3-on-surface: oklch(0.915 0.004 39.5); /* #E5E2E1 */
-  --m3-on-surface-variant: oklch(0.828 0.004 219.5); /* #C4C7C8 */
-  --m3-surface-container-lowest: oklch(0.164 0.000 0); /* #0E0E0E */
-  --m3-surface-container-low: oklch(0.224 0.002 325.7); /* #1C1B1C */
-  --m3-surface-container: oklch(0.241 0.002 325.7); /* #201F20 */
-  --m3-surface-container-high: oklch(0.285 0.000 0); /* #2A2A2A */
-  --m3-surface-container-highest: oklch(0.329 0.000 0); /* #353535 */
-  --m3-inverse-surface: oklch(0.915 0.004 39.5); /* #E5E2E1 */
-  --m3-inverse-on-surface: oklch(0.310 0.001 0); /* #313030 */
-  --m3-outline: oklch(0.654 0.006 228.9); /* #8D9193 */
-  --m3-outline-variant: oklch(0.395 0.006 229.0); /* #434749 */
-  /* ---- Custom color groups: status ---- */
-  --m3-success: oklch(0.817 0.094 141.6); /* #A1D39A */
-  --m3-on-success: oklch(0.303 0.085 144.6); /* #0A390F */
-  --m3-success-container: oklch(0.387 0.092 142.1); /* #23501F */
-  --m3-on-success-container: oklch(0.904 0.097 141.3); /* #BCF0B4 */
-  --m3-warning: oklch(0.831 0.145 81.5); /* #F7BD48 */
-  --m3-on-warning: oklch(0.312 0.064 82.0); /* #412D00 */
-  --m3-warning-container: oklch(0.400 0.083 81.2); /* #5E4200 */
-  --m3-on-warning-container: oklch(0.915 0.080 80.6); /* #FFDEA6 */
-
-  /* ---- shadcn semantic aliases -> M3 roles (keeps existing components working) ---- */
-  --background: var(--m3-surface);
-  --foreground: var(--m3-on-surface);
-  --card: var(--m3-surface-container-low);
-  --card-foreground: var(--m3-on-surface);
-  --popover: var(--m3-surface-container);
-  --popover-foreground: var(--m3-on-surface);
-  --primary: var(--m3-primary);
-  --primary-foreground: var(--m3-on-primary);
-  --primary-glow: var(--m3-primary);
-  --secondary: var(--m3-secondary-container);
-  --secondary-foreground: var(--m3-on-secondary-container);
-  --muted: var(--m3-surface-container-highest);
-  --muted-foreground: var(--m3-on-surface-variant);
-  --accent: var(--m3-secondary-container);
-  --accent-foreground: var(--m3-on-secondary-container);
-  --destructive: var(--m3-error);
-  --destructive-foreground: var(--m3-on-error);
-  --border: var(--m3-outline-variant);
-  --input: var(--m3-outline);
-  --ring: var(--m3-primary);
-  --status-done: var(--m3-success);
-  --status-progress: var(--m3-warning);
-  --status-pending: var(--m3-outline);
-  --status-blocked: var(--m3-error);
-  --status-done-container: var(--m3-success-container);
-  --on-status-done-container: var(--m3-on-success-container);
-  --status-progress-container: var(--m3-warning-container);
-  --on-status-progress-container: var(--m3-on-warning-container);
-  --status-pending-container: var(--m3-surface-container-highest);
-  --on-status-pending-container: var(--m3-on-surface-variant);
-  --status-blocked-container: var(--m3-error-container);
-  --on-status-blocked-container: var(--m3-on-error-container);
-  --sidebar: var(--m3-surface-container-low);
-  --sidebar-foreground: var(--m3-on-surface-variant);
-  --sidebar-primary: var(--m3-primary);
-  --sidebar-primary-foreground: var(--m3-on-primary);
-  --sidebar-accent: var(--m3-secondary-container);
-  --sidebar-accent-foreground: var(--m3-on-secondary-container);
-  --sidebar-border: var(--m3-outline-variant);
-  --sidebar-ring: var(--m3-primary);
+  --m3-surface: oklch(0.191 0.008 145.3); /* #121512 */
+  --m3-on-surface: oklch(0.916 0.007 124.5); /* #E2E4DF */
+  --m3-on-surface-variant: oklch(0.818 0.016 136.1); /* #BFC6BC */
+  --m3-surface-container-lowest: oklch(0.164 0.008 145.2); /* #0C0F0C */
+  --m3-surface-container-low: oklch(0.218 0.007 145.3); /* #181B18 */
+  --m3-surface-container: oklch(0.238 0.010 145.3); /* #1C201C */
+  --m3-surface-container-high: oklch(0.280 0.009 145.3); /* #262A26 */
+  --m3-surface-container-highest: oklch(0.324 0.009 145.4); /* #313531 */
+  --m3-inverse-surface: oklch(0.916 0.007 124.5); /* #E2E4DF */
+  --m3-inverse-on-surface: oklch(0.309 0.008 137.8); /* #2E312D */
+  --m3-outline: oklch(0.557 0.016 138.7); /* #6F766D */
+  --m3-outline-variant: oklch(0.364 0.013 145.3); /* #3A403A */
+  --m3-success: oklch(0.780 0.075 142.5); /* #9CC498 */
+  --m3-success-text: oklch(0.820 0.074 142.5); /* #A9D1A5 */
+  --m3-success-container: oklch(0.353 0.051 141.5); /* #2C4229 */
+  --m3-on-success-container: oklch(0.922 0.028 138.7); /* #DCEAD8 */
+  --m3-progress: oklch(0.761 0.061 237.2); /* #8DB8D4 */
+  --m3-progress-container: oklch(0.335 0.046 239.3); /* #1F3A4C */
+  --m3-on-progress-container: oklch(0.916 0.022 235.0); /* #D6E6F0 */
+  --m3-attention: oklch(0.780 0.144 69.4); /* #F2A541 */
+  --m3-attention-text: oklch(0.846 0.108 74.0); /* #F7C27A */
+  --m3-attention-container: oklch(0.328 0.070 73.0); /* #4A2E00 */
+  --m3-on-attention-container: oklch(0.920 0.056 74.9); /* #FBE0BC */
+  --m3-attention-outline: oklch(0.471 0.099 76.3); /* #7A5200 */
 }
 
-/* ---- M3 type scale: text-display-lg ... text-label-sm ---- */
-@utility text-display-lg {
-  font-size: 3.5625rem;
-  line-height: 4rem;
-  font-weight: 400;
-  letter-spacing: -0.25px;
-}
-@utility text-display-md {
+/* ---- Type scale: text-display ... text-label-sm ---- */
+@utility text-display {
   font-size: 2.8125rem;
   line-height: 3.25rem;
-  font-weight: 400;
-  letter-spacing: 0px;
-}
-@utility text-display-sm {
-  font-size: 2.25rem;
-  line-height: 2.75rem;
-  font-weight: 400;
-  letter-spacing: 0px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
 }
 @utility text-headline-lg {
   font-size: 2rem;
   line-height: 2.5rem;
-  font-weight: 400;
-  letter-spacing: 0px;
+  font-weight: 500;
+  letter-spacing: -0.25px;
 }
 @utility text-headline-md {
   font-size: 1.75rem;
   line-height: 2.25rem;
-  font-weight: 400;
-  letter-spacing: 0px;
-}
-@utility text-headline-sm {
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 400;
-  letter-spacing: 0px;
+  font-weight: 500;
+  letter-spacing: -0.25px;
 }
 @utility text-title-lg {
   font-size: 1.375rem;
   line-height: 1.75rem;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0px;
 }
 @utility text-title-md {
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 500;
-  letter-spacing: 0.15px;
-}
-@utility text-title-sm {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  letter-spacing: 0.1px;
+  letter-spacing: 0px;
 }
 @utility text-body-lg {
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 400;
-  letter-spacing: 0.5px;
+  letter-spacing: 0px;
 }
 @utility text-body-md {
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  letter-spacing: 0.25px;
+  letter-spacing: 0px;
 }
 @utility text-body-sm {
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: 400;
-  letter-spacing: 0.4px;
+  letter-spacing: 0px;
 }
 @utility text-label-lg {
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
-  letter-spacing: 0.1px;
+  letter-spacing: 0px;
 }
 @utility text-label-md {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   line-height: 1rem;
   font-weight: 500;
-  letter-spacing: 0.5px;
+  letter-spacing: 0px;
 }
 @utility text-label-sm {
   font-size: 0.6875rem;
   line-height: 1rem;
   font-weight: 500;
-  letter-spacing: 0.5px;
+  letter-spacing: 0px;
 }
 
-/* ---- M3 state layer: hover 8%, focus 10%, pressed 10% of the content color ---- */
+/* ---- State layer: hover 8%, focus/pressed 12% of the content color ---- */
 @utility state-layer {
   position: relative;
   isolation: isolate;
@@ -410,8 +334,8 @@
     z-index: -1;
   }
   &:hover::before { opacity: 0.08; }
-  &:focus-visible::before { opacity: 0.1; }
-  &:active::before { opacity: 0.1; }
+  &:focus-visible::before { opacity: 0.12; }
+  &:active::before { opacity: 0.12; }
 }
 
 @layer base {
@@ -422,7 +346,6 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
   }
   .material-symbols-outlined {
     font-family: "Material Symbols Outlined";
@@ -434,7 +357,7 @@
     direction: ltr;
     font-feature-settings: "liga";
     -webkit-font-smoothing: antialiased;
-    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
     user-select: none;
   }
 }
