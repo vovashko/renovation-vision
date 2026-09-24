@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileTabBar } from "@/components/mobile-nav";
 import { PhotoProvider } from "@/lib/photo-store";
@@ -116,13 +116,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <PhotoProvider>
-        <SidebarProvider>
+        <TooltipProvider delayDuration={300}>
           <div className="flex min-h-screen w-full bg-surface text-on-surface">
             <AppSidebar />
             <div className="flex min-w-0 flex-1 flex-col">
               <header className="sticky top-0 z-30 border-b border-outline-variant bg-surface pt-[env(safe-area-inset-top)]">
                 <div className="flex h-14 items-center gap-3 px-4">
-                  <SidebarTrigger className="hidden md:inline-flex" />
                   <div className="flex min-w-0 flex-1 flex-col leading-tight">
                     <span className="truncate text-title-md">{project.name}</span>
                     <span className="hidden text-body-sm text-on-surface-variant md:block">
@@ -138,7 +137,7 @@ function RootComponent() {
             </div>
           </div>
           <MobileTabBar />
-        </SidebarProvider>
+        </TooltipProvider>
       </PhotoProvider>
     </QueryClientProvider>
   );

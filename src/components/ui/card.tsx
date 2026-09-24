@@ -3,29 +3,42 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// M3 cards: 12px corners, 16px padding. Outlined is the default (stage/room cards),
-// filled is for stats, elevated for headers. `interactive` adds the state layer.
-const cardVariants = cva("rounded-md p-4 text-on-surface", {
+// v5 cards: 20px corners, no shadow. Default is white with a hairline border; `tinted` groups
+// controls (selected room, chat); `deep` holds charts. `attention` adds the orange outline and
+// dot for over budget / late. Padding defaults to p-5; override per use.
+const cardVariants = cva("relative rounded-xl p-5 text-on-surface", {
   variants: {
     variant: {
-      outlined: "border border-outline-variant bg-surface",
-      filled: "bg-surface-container-highest",
-      elevated: "bg-surface-container-low shadow-el1",
+      default: "border border-outline-variant bg-card",
+      tinted: "bg-surface-container-high",
+      deep: "bg-tertiary-container text-on-tertiary-container",
+      // v2 names kept for existing callers
+      outlined: "border border-outline-variant bg-card",
+      filled: "border border-outline-variant bg-card",
+      elevated: "border border-outline-variant bg-card",
+    },
+    attention: {
+      true: "border border-attention-outline after:absolute after:right-4 after:top-4 after:size-2 after:rounded-full after:bg-attention after:content-['']",
+      false: "",
     },
     interactive: {
-      true: "state-layer cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      true: "cursor-pointer transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
       false: "",
     },
   },
-  defaultVariants: { variant: "outlined", interactive: false },
+  defaultVariants: { variant: "default", attention: false, interactive: false },
 });
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {}
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, interactive, ...props }, ref) => (
-    <div ref={ref} className={cn(cardVariants({ variant, interactive }), className)} {...props} />
+  ({ className, variant, attention, interactive, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(cardVariants({ variant, attention, interactive }), className)}
+      {...props}
+    />
   ),
 );
 Card.displayName = "Card";
