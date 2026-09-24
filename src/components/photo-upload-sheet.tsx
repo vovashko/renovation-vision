@@ -16,7 +16,7 @@ import { usePhotos } from "@/lib/photo-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const selectCls =
-  "h-11 w-full rounded-md border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "h-14 w-full rounded-xs border border-outline bg-transparent px-4 text-body-lg text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary";
 
 export function PhotoUploadSheet() {
   const { addPhotos } = usePhotos();
@@ -43,13 +43,13 @@ export function PhotoUploadSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button className="min-h-11 gap-2">
+        <Button className="min-h-11">
           <Icon name="add_photo_alternate" size={18} /> Add photos
         </Button>
       </SheetTrigger>
       <SheetContent
         side={isMobile ? "bottom" : "right"}
-        className="max-h-[90dvh] overflow-y-auto rounded-t-2xl md:rounded-none"
+        className="max-h-[90dvh] overflow-y-auto rounded-t-xl border-0 bg-surface-container-low md:rounded-none"
       >
         <SheetHeader>
           <SheetTitle>Add site photos</SheetTitle>
@@ -66,7 +66,7 @@ export function PhotoUploadSheet() {
               accept="image/*"
               multiple
               onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-              className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
+              className="block w-full text-body-md text-on-surface-variant file:mr-3 file:h-10 file:rounded-full file:border-0 file:bg-secondary-container file:px-6 file:text-label-lg file:text-on-secondary-container"
             />
             {files.length > 0 && (
               <div className="grid grid-cols-4 gap-2">
@@ -75,7 +75,7 @@ export function PhotoUploadSheet() {
                     key={f.name}
                     src={URL.createObjectURL(f)}
                     alt={f.name}
-                    className="aspect-square w-full rounded-md object-cover"
+                    className="aspect-square w-full rounded-sm object-cover"
                   />
                 ))}
               </div>

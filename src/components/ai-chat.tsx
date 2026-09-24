@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
+import { badgeVariants } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   defaultProjectData,
   getAiAnswer,
@@ -59,14 +62,14 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-4" aria-live="polite">
+      <div className="flex-1 space-y-3 overflow-y-auto overscroll-contain p-4" aria-live="polite">
         {messages.length === 0 && (
           <div className="mx-auto max-w-md py-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
               <Icon name="smart_toy" />
             </div>
-            <h2 className="mt-3 font-semibold">Ask about your renovation</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h2 className="mt-3 text-title-md">Ask about your renovation</h2>
+            <p className="mt-1 text-body-md text-on-surface-variant">
               Answers come from your project's stages, plan, budget and photos.
             </p>
           </div>
@@ -74,16 +77,16 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
         {messages.map((m) =>
           m.role === "user" ? (
             <div key={m.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-[image:var(--gradient-primary)] px-4 py-2 text-sm text-primary-foreground">
+              <div className="max-w-[75%] rounded-[20px_20px_4px_20px] bg-primary px-4 py-2.5 text-body-md text-on-primary">
                 {m.text}
               </div>
             </div>
           ) : (
-            <div key={m.id} className="max-w-[92%] text-sm">
-              <div className="whitespace-pre-wrap leading-relaxed">{m.text}</div>
+            <div key={m.id} className="max-w-[92%]">
+              <div className="whitespace-pre-wrap text-body-lg">{m.text}</div>
               {m.answer && (
                 <div className="mt-2 space-y-2">
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-body-sm text-on-surface-variant">
                     Based on: {m.answer.sources.join(" · ")}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -91,14 +94,21 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
                       <Link
                         key={l.label}
                         to={l.to}
-                        className="inline-flex min-h-11 items-center rounded-full border px-3 text-xs font-medium text-primary hover:bg-muted"
+                        className={cn(
+                          badgeVariants({ variant: "assist" }),
+                          "after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']",
+                        )}
                       >
-                        {l.label} →
+                        {l.label}
+                        <Icon name="arrow_forward" size={18} />
                       </Link>
                     ))}
                     <button
                       onClick={() => onAskManager(m.question ?? "")}
-                      className="inline-flex min-h-11 items-center gap-1 rounded-full border px-3 text-xs font-medium hover:bg-muted"
+                      className={cn(
+                        badgeVariants({ variant: "assist" }),
+                        "after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']",
+                      )}
                     >
                       <Icon name="person" size={18} /> Ask {project.manager.split(" ")[0]} about
                       this
@@ -111,7 +121,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
         )}
         {thinking && (
           <div
-            className="flex items-center gap-1.5 text-sm text-muted-foreground"
+            className="flex items-center gap-1.5 text-body-md text-on-surface-variant"
             aria-label="Assistant is thinking"
           >
             <span className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
@@ -123,9 +133,9 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
         <div ref={endRef} />
       </div>
 
-      <div className="border-t bg-background/60 backdrop-blur">
+      <div className="border-t border-outline-variant">
         <div
-          className="flex gap-2 overflow-x-auto px-3 pt-3 [scrollbar-width:none]"
+          className="flex gap-2 overflow-x-auto px-3 py-2 [scrollbar-width:none]"
           aria-label="Suggested questions"
         >
           {suggestedQuestions.map((s) => (
@@ -133,13 +143,16 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
               key={s}
               onClick={() => ask(s)}
               disabled={busy}
-              className="min-h-11 shrink-0 whitespace-nowrap rounded-full border bg-card px-3 text-sm hover:bg-muted disabled:opacity-50"
+              className={cn(
+                badgeVariants({ variant: "assist" }),
+                "relative shrink-0 after:absolute after:inset-x-0 after:-inset-y-2 after:content-[''] disabled:opacity-38",
+              )}
             >
               {s}
             </button>
           ))}
         </div>
-        <p className="px-3 pt-2 text-xs text-muted-foreground">
+        <p className="px-3 text-body-sm text-on-surface-variant">
           AI answers are based on project data. For decisions, confirm with your site manager.
         </p>
         <form
@@ -150,14 +163,16 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
           }}
         >
           {messages.length > 0 && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => setMessages([])}
               aria-label="Clear chat"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+              className="size-11 text-on-surface-variant"
             >
               <Icon name="delete" />
-            </button>
+            </Button>
           )}
           <input
             ref={inputRef}
@@ -165,16 +180,17 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about your project…"
             aria-label="Ask the AI assistant"
-            className="h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm"
+            className="h-11 min-w-0 flex-1 rounded-full bg-surface-container-highest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:outline-primary md:text-body-md"
           />
-          <button
+          <Button
             type="submit"
+            size="icon"
             disabled={!input.trim() || busy}
             aria-label="Send question"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground disabled:opacity-50"
+            className="size-11"
           >
             <Icon name="send" size={20} />
-          </button>
+          </Button>
         </form>
       </div>
     </div>

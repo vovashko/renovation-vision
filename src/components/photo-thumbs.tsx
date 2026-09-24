@@ -8,18 +8,18 @@ import { Lightbox } from "@/components/lightbox";
 export function EmptyPhotos({ text, compact = false }: { text: string; compact?: boolean }) {
   if (compact) {
     return (
-      <div className="flex items-center gap-3 rounded-lg border border-dashed bg-card p-3 text-sm text-muted-foreground">
+      <div className="flex items-center gap-3 rounded-md border border-dashed border-outline-variant bg-surface-container-low p-3 text-body-md text-on-surface-variant">
         <Icon name="photo_camera" size={20} />
         {text}
       </div>
     );
   }
   return (
-    <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed bg-card p-8 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-        <Icon name="photo_camera" className="text-muted-foreground" />
+    <div className="mt-6 flex flex-col items-center rounded-md border border-dashed border-outline-variant bg-surface-container-low p-8 text-center">
+      <div className="flex size-12 items-center justify-center rounded-full bg-surface-container-highest">
+        <Icon name="photo_camera" className="text-on-surface-variant" />
       </div>
-      <p className="mt-3 max-w-xs text-sm text-muted-foreground">{text}</p>
+      <p className="mt-3 max-w-xs text-body-md text-on-surface-variant">{text}</p>
     </div>
   );
 }
@@ -46,7 +46,7 @@ export function PhotoThumbs({
             <button
               onClick={() => setOpen(i)}
               aria-label={`Open photo: ${p.caption}`}
-              className="block w-full overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="block w-full overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <img
                 src={p.src}
@@ -54,10 +54,10 @@ export function PhotoThumbs({
                 loading="lazy"
                 width={256}
                 height={256}
-                className="aspect-square w-full object-cover transition-transform hover:scale-105"
+                className="aspect-square w-full object-cover"
               />
               {extra > 0 && i === shown.length - 1 && (
-                <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-foreground/55 text-sm font-semibold text-background">
+                <span className="absolute inset-0 flex items-center justify-center rounded-sm bg-inverse-surface/60 text-title-md text-inverse-on-surface">
                   +{extra}
                 </span>
               )}

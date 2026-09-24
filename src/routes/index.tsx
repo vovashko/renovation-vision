@@ -1,6 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Icon } from "@/components/ui/icon";
-import { project, stages, overallProgress, statusFill } from "@/lib/renovation-data";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { buttonVariants } from "@/components/ui/button";
+import { project, stages, overallProgress } from "@/lib/renovation-data";
+import { statusContainer, statusTone } from "@/lib/status-ui";
+import { cn } from "@/lib/utils";
 import { FloorPlan } from "@/components/floor-plan";
 import { PhotoThumbs } from "@/components/photo-thumbs";
 import { usePhotos } from "@/lib/photo-store";
@@ -28,13 +33,43 @@ function Stat({
   sub?: string;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+    <Card variant="filled">
+      <div className="flex items-center gap-2 text-label-md text-on-surface-variant">
         <Icon name={icon} size={20} />
         {label}
       </div>
-      <div className="mt-2 text-lg font-semibold leading-tight sm:text-2xl">{value}</div>
-      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+      <div className="mt-3 text-title-lg sm:text-headline-sm">{value}</div>
+      {sub && <div className="text-body-md text-on-surface-variant">{sub}</div>}
+    </Card>
+  );
+}
+
+/** Section heading with a trailing text-button link. */
+function SectionHeader({
+  id,
+  title,
+  sub,
+  to,
+  linkLabel,
+}: {
+  id?: string;
+  title: string;
+  sub?: string;
+  to: "/photos" | "/stages" | "/plan";
+  linkLabel: string;
+}) {
+  return (
+    <div className="mb-3 flex items-end justify-between gap-3">
+      <div>
+        <h2 id={id} className="text-title-lg">
+          {title}
+        </h2>
+        {sub && <p className="text-body-md text-on-surface-variant">{sub}</p>}
+      </div>
+      <Link to={to} className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11 shrink-0")}>
+        {linkLabel}
+        <Icon name="arrow_forward" size={18} />
+      </Link>
     </div>
   );
 }
@@ -46,43 +81,38 @@ function Overview() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
-      <section className="overflow-hidden rounded-2xl border bg-card p-6 shadow-[var(--shadow-elegant)] md:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">
-              Active project
-            </div>
-            <h1 className="mt-1 text-3xl font-semibold md:text-4xl">{project.name}</h1>
-            <p className="mt-1 text-muted-foreground">{project.address}</p>
-            <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="person" size={20} /> Manager:{" "}
-              <span className="font-medium text-foreground">{project.manager}</span>
-            </div>
-          </div>
-          <div className="w-full sm:w-auto sm:min-w-[220px]">
-            <div className="flex items-end justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                Overall progress
-              </span>
-              <span className="text-2xl font-semibold">{progress}%</span>
-            </div>
-            <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${progress}%`, background: "var(--gradient-primary)" }}
-              />
-            </div>
-            {current && (
-              <div className="mt-3 text-sm text-muted-foreground">
-                Currently working on{" "}
-                <span className="font-medium text-foreground">{current.name}</span>
-              </div>
-            )}
+      <Card
+        variant="elevated"
+        className="flex flex-wrap items-start justify-between gap-x-12 gap-y-6 px-5 py-5 md:px-8 md:py-6"
+      >
+        <div className="min-w-0">
+          <div className="text-label-md text-on-surface-variant">Active project</div>
+          <h1 className="mt-1 text-headline-md sm:text-display-sm">{project.name}</h1>
+          <p className="mt-1 text-body-lg text-on-surface-variant">{project.address}</p>
+          <div className="mt-3 flex items-center gap-2 text-body-md text-on-surface-variant">
+            <Icon name="person" size={20} /> Manager:{" "}
+            <span className="font-medium text-on-surface">{project.manager}</span>
           </div>
         </div>
-      </section>
+        <div className="w-full md:w-[380px]">
+          <div className="flex items-end justify-between">
+            <span className="text-label-md text-on-surface-variant">Overall progress</span>
+            <span className="text-headline-md">{progress}%</span>
+          </div>
+          <Progress value={progress} className="mt-3" aria-label="Overall progress" />
+          {current && (
+            <div className="mt-3 text-body-md text-on-surface-variant">
+              Currently working on{" "}
+              <span className="font-medium text-on-surface">{current.name}</span>
+            </div>
+          )}
+        </div>
+      </Card>
 
-      <section className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+      <section
+        className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4"
+        aria-label="Project facts"
+      >
         <Stat
           icon="calendar_month"
           label="Started"
@@ -105,24 +135,17 @@ function Overview() {
       </section>
 
       <section aria-labelledby="latest-photos">
-        <div className="mb-2 flex items-end justify-between gap-3">
-          <div>
-            <h2 id="latest-photos" className="text-xl font-semibold">
-              Latest photos
-            </h2>
-            {photos[0] && (
-              <p className="text-sm text-muted-foreground">
-                Latest from {photos[0].uploadedBy} · {dayLabel(photos[0].takenAt)}
-              </p>
-            )}
-          </div>
-          <Link
-            to="/photos"
-            className="inline-flex min-h-11 shrink-0 items-center text-sm text-primary hover:underline"
-          >
-            All photos →
-          </Link>
-        </div>
+        <SectionHeader
+          id="latest-photos"
+          title="Latest photos"
+          sub={
+            photos[0]
+              ? `Latest from ${photos[0].uploadedBy} · ${dayLabel(photos[0].takenAt)}`
+              : undefined
+          }
+          to="/photos"
+          linkLabel="All photos"
+        />
         <PhotoThumbs
           photos={photos}
           max={4}
@@ -130,57 +153,57 @@ function Overview() {
         />
       </section>
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Stage timeline</h2>
-          <Link
-            to="/stages"
-            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
-          >
-            View all stages →
-          </Link>
-        </div>
-        <div className="space-y-3">
-          {stages.map((s) => (
-            <div key={s.id} className="rounded-xl border bg-card p-4 shadow-[var(--shadow-soft)]">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span
-                    className="inline-block h-3 w-3 rounded-full"
-                    style={{ background: statusFill[s.status] }}
+      <section aria-labelledby="stage-timeline">
+        <SectionHeader
+          id="stage-timeline"
+          title="Stage timeline"
+          to="/stages"
+          linkLabel="View all stages"
+        />
+        <Card className="p-0 py-2">
+          <ul>
+            {stages.map((s, i) => (
+              <li
+                key={s.id}
+                className="relative flex min-h-18 items-center gap-4 py-2 pl-4 pr-4 sm:pr-6 [&+&]:before:absolute [&+&]:before:left-[72px] [&+&]:before:right-0 [&+&]:before:top-0 [&+&]:before:h-px [&+&]:before:bg-outline-variant"
+              >
+                <span
+                  className={cn(
+                    "flex size-10 shrink-0 items-center justify-center rounded-full text-label-lg",
+                    statusContainer[s.status],
+                  )}
+                  aria-hidden
+                >
+                  {s.status === "done" ? <Icon name="check" size={20} /> : i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-body-lg">{s.name}</div>
+                  <div className="text-body-md text-on-surface-variant">
+                    {s.start} – {s.end}
+                  </div>
+                </div>
+                <div className="flex w-24 shrink-0 items-center gap-3 sm:w-auto">
+                  <Progress
+                    value={s.progress}
+                    tone={statusTone[s.status]}
+                    className="flex-1 sm:w-60 sm:flex-none"
+                    aria-label={`${s.name} progress`}
                   />
-                  <div>
-                    <div className="font-medium">{s.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {s.start} – {s.end}
-                    </div>
-                  </div>
+                  <span className="w-9 text-right text-label-md tabular-nums">{s.progress}%</span>
                 </div>
-                <div className="flex w-full items-center gap-3 sm:w-auto sm:min-w-[200px]">
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${s.progress}%`, background: statusFill[s.status] }}
-                    />
-                  </div>
-                  <span className="w-10 text-right text-sm font-medium">{s.progress}%</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
       </section>
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Floor plan visualisation</h2>
-          <Link
-            to="/plan"
-            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
-          >
-            Open full plan →
-          </Link>
-        </div>
+      <section aria-labelledby="floor-plan">
+        <SectionHeader
+          id="floor-plan"
+          title="Floor plan visualisation"
+          to="/plan"
+          linkLabel="Open full plan"
+        />
         <FloorPlan />
       </section>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import { Badge } from "@/components/ui/badge";
 
 export type LightboxItem = {
   src: string;
@@ -73,7 +74,7 @@ export function Lightbox({
       role="dialog"
       aria-modal="true"
       aria-label={`Photo viewer: ${item.title}`}
-      className="fixed inset-0 z-50 flex flex-col bg-foreground/95 text-background"
+      className="fixed inset-0 z-50 flex flex-col bg-black/95 text-white"
       onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={(e) => {
         if (touchX.current === null) return;
@@ -86,14 +87,14 @@ export function Lightbox({
       }}
     >
       <div className="flex items-center justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <span className="text-sm opacity-80" aria-live="polite">
+        <span className="text-label-lg text-white/80" aria-live="polite">
           {i + 1} / {items.length}
         </span>
         <button
           ref={closeRef}
           onClick={onClose}
           aria-label="Close viewer"
-          className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="state-layer flex size-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           <Icon name="close" />
         </button>
@@ -102,7 +103,7 @@ export function Lightbox({
         <img
           src={item.src}
           alt={item.alt}
-          className="max-h-full max-w-full select-none rounded-lg object-contain"
+          className="max-h-full max-w-full select-none rounded-md object-contain"
           draggable={false}
         />
         {items.length > 1 && (
@@ -110,14 +111,14 @@ export function Lightbox({
             <button
               onClick={prev}
               aria-label="Previous photo"
-              className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="state-layer flex size-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white absolute left-2 bg-black/50"
             >
               <Icon name="chevron_left" />
             </button>
             <button
               onClick={next}
               aria-label="Next photo"
-              className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="state-layer flex size-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white absolute right-2 bg-black/50"
             >
               <Icon name="chevron_right" />
             </button>
@@ -125,17 +126,14 @@ export function Lightbox({
         )}
       </div>
       <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div className="font-semibold">{item.title}</div>
-        {item.subtitle && <div className="mt-1 text-sm opacity-80">{item.subtitle}</div>}
+        <div className="text-title-md">{item.title}</div>
+        {item.subtitle && <div className="mt-1 text-body-md text-white/70">{item.subtitle}</div>}
         {item.tags && (
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {item.tags.map((t) => (
-              <span
-                key={t}
-                className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground"
-              >
+              <Badge key={t} variant="secondary">
                 {t}
-              </span>
+              </Badge>
             ))}
           </div>
         )}

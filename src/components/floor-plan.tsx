@@ -1,10 +1,28 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Icon } from "@/components/ui/icon";
-import { rooms, statusFill, statusLabel, type Room } from "@/lib/renovation-data";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { buttonVariants } from "@/components/ui/button";
+import { rooms, statusLabel, type Room, type Status } from "@/lib/renovation-data";
 import { renders } from "@/lib/media-data";
 import { usePhotos } from "@/lib/photo-store";
 import { EmptyPhotos, PhotoThumbs } from "@/components/photo-thumbs";
+import { statusBg, statusChip, statusStroke, statusTileSvg, statusTone } from "@/lib/status-ui";
+import { cn } from "@/lib/utils";
+
+// Plan geometry: rooms live on a 600x420 grid starting at (20,20); tiles are inset by
+// GAP/2 so neighbours are separated by a 4-unit gap.
+const VIEW = "20 20 560 380";
+const GAP = 4;
+const LEGEND: Status[] = ["done", "progress", "pending", "blocked"];
+
+// The SVG scales with its container, so text sizes step down as the container widens
+// to render at roughly title-sm (14px) / body-sm (12px) at every width.
+const nameSize =
+  "text-[28px] @xs:text-[24px] @sm:text-[20px] @md:text-[17px] @lg:text-[15px] @xl:text-[14px] @2xl:text-[12px] @3xl:text-[10px]";
+const pctSize =
+  "text-[24px] @xs:text-[21px] @sm:text-[17px] @md:text-[15px] @lg:text-[13px] @xl:text-[12px] @2xl:text-[10px] @3xl:text-[9px]";
 
 export function FloorPlan({
   detailed = false,
@@ -22,75 +40,95 @@ export function FloorPlan({
   const select = (id: string) => (onSelect ? onSelect(id) : setOwnId(id));
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-      <div className="rounded-xl border bg-card p-3 shadow-[var(--shadow-soft)] md:p-4">
-        <svg
-          viewBox="0 0 600 420"
-          className="h-auto w-full"
-          role="group"
-          aria-label="Floor plan. Select a room to see its status."
-        >
-          <rect x="0" y="0" width="600" height="420" fill="var(--muted)" rx="12" />
-          {rooms.map((r) => {
-            const isActive = active.id === r.id;
-            return (
-              <g
-                key={r.id}
-                role="button"
-                tabIndex={0}
-                aria-pressed={isActive}
-                aria-label={`${r.name}: ${statusLabel[r.status]}, ${r.progress}%`}
-                onClick={() => select(r.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    select(r.id);
-                  }
-                }}
-                className="cursor-pointer outline-none transition-opacity hover:opacity-90 [&:focus-visible>rect]:stroke-[var(--ring)] [&:focus-visible>rect]:[stroke-width:4]"
-              >
-                <rect
-                  x={r.x}
-                  y={r.y}
-                  width={r.w}
-                  height={r.h}
-                  fill={statusFill[r.status]}
-                  fillOpacity={isActive ? 0.85 : 0.55}
-                  stroke={isActive ? "var(--primary)" : "var(--border)"}
-                  strokeWidth={isActive ? 3 : 1.5}
-                  rx="6"
-                />
-                <text
-                  x={r.x + r.w / 2}
-                  y={r.y + r.h / 2 - 4}
-                  textAnchor="middle"
-                  className="pointer-events-none fill-foreground text-[26px] font-semibold md:text-sm"
+    <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+      <div className="rounded-md bg-surface-container-low p-4">
+        <div className="@container rounded-md bg-surface-container-high p-2">
+          <svg
+            viewBox={VIEW}
+            className="block h-auto w-full"
+            role="group"
+            aria-label="Floor plan. Select a room to see its status."
+          >
+            {rooms.map((r) => {
+              const isActive = active.id === r.id;
+              const x = r.x + GAP / 2;
+              const y = r.y + GAP / 2;
+              const w = r.w - GAP;
+              const h = r.h - GAP;
+              return (
+                <g
+                  key={r.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isActive}
+                  aria-label={`${r.name}: ${statusLabel[r.status]}, ${r.progress}%`}
+                  onClick={() => select(r.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      select(r.id);
+                    }
+                  }}
+                  className={cn("group cursor-pointer outline-none", statusTileSvg[r.status])}
                 >
-                  {r.name}
-                </text>
-                <text
-                  x={r.x + r.w / 2}
-                  y={r.y + r.h / 2 + 24}
-                  textAnchor="middle"
-                  className="pointer-events-none fill-foreground/70 text-[22px] md:text-xs"
-                >
-                  {r.progress}%
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-        <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-          {(["done", "progress", "pending", "blocked"] as const).map((s) => (
-            <div key={s} className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-3 w-3 rounded"
-                style={{ background: statusFill[s] }}
-              />
-              {statusLabel[s]}
-            </div>
-          ))}
+                  <rect x={x} y={y} width={w} height={h} rx={8} />
+                  {/* State layer: 8% hover, 10% focus/pressed of the content color */}
+                  <rect
+                    x={x}
+                    y={y}
+                    width={w}
+                    height={h}
+                    rx={8}
+                    className="fill-current opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.2,0,0,1)] group-hover:opacity-8 group-focus-visible:opacity-10 group-active:opacity-10"
+                  />
+                  {isActive && (
+                    <rect
+                      x={x + 1.5}
+                      y={y + 1.5}
+                      width={w - 3}
+                      height={h - 3}
+                      rx={6.5}
+                      className={cn("fill-none stroke-3", statusStroke[r.status])}
+                    />
+                  )}
+                  <rect
+                    x={x - 3}
+                    y={y - 3}
+                    width={w + 6}
+                    height={h + 6}
+                    rx={10}
+                    className="pointer-events-none fill-none stroke-primary stroke-2 opacity-0 group-focus-visible:opacity-100"
+                  />
+                  <text
+                    x={r.x + r.w / 2}
+                    y={r.y + r.h / 2}
+                    textAnchor="middle"
+                    className={cn("pointer-events-none fill-current font-medium", nameSize)}
+                  >
+                    {r.name}
+                  </text>
+                  <text
+                    x={r.x + r.w / 2}
+                    y={r.y + r.h / 2}
+                    dy="1.4em"
+                    textAnchor="middle"
+                    className={cn("pointer-events-none fill-current", pctSize)}
+                  >
+                    {r.progress}%
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
         </div>
+        <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label="Legend">
+          {LEGEND.map((s) => (
+            <li key={s} className="flex items-center gap-2 text-body-md text-on-surface-variant">
+              <span className={cn("size-3 rounded-xs", statusBg[s])} aria-hidden />
+              {statusLabel[s]}
+            </li>
+          ))}
+        </ul>
       </div>
       <RoomDetails room={active} detailed={detailed} />
     </div>
@@ -106,24 +144,21 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
     <section
       aria-live="polite"
       aria-label={`Selected room: ${room.name}`}
-      className="rounded-xl border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5"
+      className="rounded-md bg-surface-container-low p-5"
     >
-      <div className="text-xs uppercase tracking-wide text-muted-foreground">Selected room</div>
-      <div className="mt-1 flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-xl font-semibold">{room.name}</h3>
-          <div
-            className="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-white"
-            style={{ background: statusFill[room.status] }}
-          >
+          <div className="text-label-md text-on-surface-variant">Selected room</div>
+          <h3 className="text-title-lg">{room.name}</h3>
+          <Badge variant={statusChip[room.status]} className="mt-3">
             {statusLabel[room.status]}
-          </div>
+          </Badge>
         </div>
         {detailed && (
           <Link
             to="/design"
             search={{ room: room.id }}
-            className="group w-24 shrink-0 text-center text-xs font-medium text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-28"
+            className="group w-24 shrink-0 rounded-sm text-center text-label-md text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:w-28"
             aria-label={
               render ? `Planned look for ${room.name}` : `Design renders for ${room.name}`
             }
@@ -134,41 +169,43 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
                 alt=""
                 width={224}
                 height={168}
-                className="aspect-[4/3] w-full rounded-lg border object-cover transition-transform group-hover:scale-105"
+                className="aspect-[4/3] w-full rounded-sm object-cover"
               />
             ) : (
-              <span className="flex aspect-[4/3] w-full items-center justify-center rounded-lg border border-dashed bg-muted text-muted-foreground">
+              <span className="flex aspect-[4/3] w-full items-center justify-center rounded-sm border border-dashed border-outline-variant bg-surface-container-high text-on-surface-variant">
                 <Icon name="palette" size={20} />
               </span>
             )}
-            <span className="mt-1 block">{render ? "Planned look →" : "Renders coming"}</span>
+            <span className="mt-1 block group-hover:underline">
+              {render ? "Planned look" : "Renders coming"}
+            </span>
           </Link>
         )}
       </div>
       <div className="mt-5">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium">{room.progress}%</span>
+        <div className="mb-2 flex justify-between text-body-md">
+          <span className="text-on-surface-variant">Progress</span>
+          <span className="font-medium text-on-surface">{room.progress}%</span>
         </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full"
-            style={{ width: `${room.progress}%`, background: "var(--gradient-primary)" }}
-          />
-        </div>
+        <Progress
+          value={room.progress}
+          tone={statusTone[room.status]}
+          aria-label={`${room.name} progress`}
+        />
       </div>
 
       {detailed ? (
-        <div className="mt-5 border-t pt-4">
+        <div className="mt-5 border-t border-outline-variant pt-4">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h4 className="text-sm font-medium">Photos of this room</h4>
+            <h4 className="text-title-sm">Photos of this room</h4>
             {roomPhotos.length > 0 && (
               <Link
                 to="/photos"
                 search={{ room: room.id }}
-                className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
+                className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11")}
               >
-                All {roomPhotos.length} →
+                All {roomPhotos.length}
+                <Icon name="arrow_forward" size={18} />
               </Link>
             )}
           </div>
@@ -179,7 +216,7 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
           )}
         </div>
       ) : (
-        <p className="mt-5 text-sm text-muted-foreground">
+        <p className="mt-5 text-body-md text-on-surface-variant">
           Tap any room on the floor plan to view its current renovation status.
         </p>
       )}

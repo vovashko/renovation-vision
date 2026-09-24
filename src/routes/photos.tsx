@@ -6,6 +6,9 @@ import { dayLabel, timeLabel, type SitePhoto } from "@/lib/media-data";
 import { roomName, stageName, toLightbox } from "@/lib/photo-helpers";
 import { FilterChips } from "@/components/filter-chips";
 import { Lightbox } from "@/components/lightbox";
+import { cardVariants } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { EmptyPhotos } from "@/components/photo-thumbs";
 import { PhotoUploadSheet } from "@/components/photo-upload-sheet";
 
@@ -62,13 +65,13 @@ function PhotosPage() {
     <div className="mx-auto w-full max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold md:text-3xl">Site photos</h1>
-          <p className="mt-1 text-muted-foreground">See it without being there.</p>
+          <h1 className="text-headline-md">Site photos</h1>
+          <p className="mt-1 text-body-lg text-on-surface-variant">See it without being there.</p>
         </div>
         <PhotoUploadSheet />
       </div>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-4 space-y-1">
         <FilterChips
           label="Filter photos by"
           value={mode}
@@ -105,18 +108,13 @@ function PhotosPage() {
         <div className="mt-6 space-y-8">
           {groups.map((g) => (
             <section key={g.label} aria-label={g.label}>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                {g.label}
-              </h2>
+              <h2 className="mb-3 text-title-sm text-on-surface-variant">{g.label}</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {g.items.map(({ p, i }) => (
-                  <article
-                    key={p.id}
-                    className="overflow-hidden rounded-xl border bg-card shadow-[var(--shadow-soft)]"
-                  >
+                  <article key={p.id} className={cn(cardVariants(), "overflow-hidden p-0")}>
                     <button
                       onClick={() => setOpen(i)}
-                      className="block w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="block w-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
                       aria-label={`Open photo: ${p.caption}`}
                     >
                       <img
@@ -129,16 +127,16 @@ function PhotosPage() {
                       />
                     </button>
                     <div className="p-4">
-                      <p className="text-sm">{p.caption}</p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
+                      <p className="text-body-md">{p.caption}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Badge variant="secondary" icon="construction">
                           {stageName(p.stageId)}
-                        </span>
-                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
+                        </Badge>
+                        <Badge variant="outline" icon="meeting_room">
                           {roomName(p.roomId)}
-                        </span>
+                        </Badge>
                       </div>
-                      <div className="mt-2 text-xs text-muted-foreground">
+                      <div className="mt-3 text-body-sm text-on-surface-variant">
                         {timeLabel(p.takenAt)} · {p.uploadedBy}
                       </div>
                     </div>

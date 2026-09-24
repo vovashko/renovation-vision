@@ -1,6 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FloorPlan } from "@/components/floor-plan";
-import { rooms, statusFill, statusLabel } from "@/lib/renovation-data";
+import { rooms, statusLabel } from "@/lib/renovation-data";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cardVariants } from "@/components/ui/card";
+import { statusChip, statusTone } from "@/lib/status-ui";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/plan")({
   validateSearch: (s: Record<string, unknown>): { room?: string } => ({
@@ -24,8 +29,8 @@ function PlanPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <h1 className="text-2xl font-semibold md:text-3xl">Floor plan</h1>
-      <p className="mt-1 text-muted-foreground">
+      <h1 className="text-headline-md">Floor plan</h1>
+      <p className="mt-1 text-body-lg text-on-surface-variant">
         Tap a room to inspect its current renovation status.
       </p>
 
@@ -33,7 +38,7 @@ function PlanPage() {
         <FloorPlan detailed activeId={activeId} onSelect={select} />
       </div>
 
-      <h2 className="mt-10 text-xl font-semibold">Rooms</h2>
+      <h2 className="mt-10 text-title-lg">Rooms</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rooms.map((r) => (
           <button
@@ -43,24 +48,25 @@ function PlanPage() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             aria-pressed={r.id === activeId}
-            className={`rounded-xl border bg-card p-4 text-left shadow-[var(--shadow-soft)] transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${r.id === activeId ? "border-primary" : ""}`}
+            className={cn(
+              cardVariants({ interactive: true }),
+              "text-left",
+              r.id === activeId && "border-2 border-primary",
+            )}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{r.name}</span>
-              <span
-                className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-                style={{ background: statusFill[r.status] }}
-              >
-                {statusLabel[r.status]}
-              </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-title-md">{r.name}</span>
+              <Badge variant={statusChip[r.status]}>{statusLabel[r.status]}</Badge>
             </div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${r.progress}%`, background: statusFill[r.status] }}
-              />
+            <Progress
+              value={r.progress}
+              tone={statusTone[r.status]}
+              className="mt-4"
+              aria-label={`${r.name} progress`}
+            />
+            <div className="mt-1 text-right text-body-sm text-on-surface-variant">
+              {r.progress}%
             </div>
-            <div className="mt-1 text-right text-xs text-muted-foreground">{r.progress}%</div>
           </button>
         ))}
       </div>

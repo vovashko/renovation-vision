@@ -1,4 +1,7 @@
 import type { KeyboardEvent } from "react";
+import { badgeVariants } from "@/components/ui/badge";
+import { Icon } from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
 
 export function FilterChips({
   label,
@@ -36,7 +39,7 @@ export function FilterChips({
       role="radiogroup"
       aria-label={label}
       onKeyDown={onKeyDown}
-      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0 [scrollbar-width:none]"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 py-2 md:mx-0 md:flex-wrap md:px-0 [scrollbar-width:none]"
     >
       {options.map((o) => {
         const active = o.value === value;
@@ -48,12 +51,12 @@ export function FilterChips({
             aria-checked={active}
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(o.value)}
-            className={`min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-              active
-                ? "border-primary bg-primary text-primary-foreground"
-                : "bg-card text-foreground hover:bg-muted"
-            }`}
+            className={cn(
+              badgeVariants({ variant: active ? "filter-selected" : "filter" }),
+              "shrink-0 after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']",
+            )}
           >
+            {active && <Icon name="check" size={18} />}
             {o.label}
           </button>
         );

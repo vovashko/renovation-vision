@@ -1,11 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
-import { rooms, statusFill, statusLabel } from "@/lib/renovation-data";
+import { rooms, statusLabel } from "@/lib/renovation-data";
 import { beforeAfter, renders } from "@/lib/media-data";
 import { FilterChips } from "@/components/filter-chips";
 import { Lightbox } from "@/components/lightbox";
 import { BeforeAfter } from "@/components/before-after";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cardVariants } from "@/components/ui/card";
+import { statusChip } from "@/lib/status-ui";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/design")({
   validateSearch: (s: Record<string, unknown>): { room?: string } => ({
@@ -38,10 +43,12 @@ function DesignPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <h1 className="text-2xl font-semibold md:text-3xl">Planned design</h1>
-      <p className="mt-1 text-muted-foreground">How each room will look when finished.</p>
+      <h1 className="text-headline-md">Planned design</h1>
+      <p className="mt-1 text-body-lg text-on-surface-variant">
+        How each room will look when finished.
+      </p>
 
-      <div className="mt-5">
+      <div className="mt-4">
         <FilterChips
           label="Room"
           value={room}
@@ -55,8 +62,8 @@ function DesignPage() {
 
       {showCompare && (
         <section className="mt-6">
-          <h2 className="text-lg font-semibold">{baRoom.name}: now vs. planned</h2>
-          <p className="mb-3 text-sm text-muted-foreground">Drag the handle to compare.</p>
+          <h2 className="text-title-lg">{baRoom.name}: now vs. planned</h2>
+          <p className="mb-3 text-body-md text-on-surface-variant">Drag the handle to compare.</p>
           <div className="max-w-3xl">
             <BeforeAfter
               before={beforeAfter.before}
@@ -73,25 +80,23 @@ function DesignPage() {
           return (
             <section key={r.id} aria-label={r.name}>
               <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3">
-                <h2 className="flex items-center gap-2 text-lg font-semibold">
+                <h2 className="flex flex-wrap items-center gap-3 text-title-lg">
                   {r.name}
-                  <span
-                    className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-                    style={{ background: statusFill[r.status] }}
-                  >
+                  <Badge variant={statusChip[r.status]}>
                     {statusLabel[r.status]} · {r.progress}%
-                  </span>
+                  </Badge>
                 </h2>
                 <Link
                   to="/plan"
                   search={{ room: r.id }}
-                  className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
+                  className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11")}
                 >
-                  See on plan →
+                  See on plan
+                  <Icon name="arrow_forward" size={18} />
                 </Link>
               </div>
               {list.length === 0 ? (
-                <div className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-5 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3 rounded-md border border-dashed border-outline-variant bg-surface-container-low p-5 text-body-md text-on-surface-variant">
                   <Icon name="palette" size={20} /> Renders for {r.name} are still being prepared by
                   the designer.
                 </div>
@@ -101,7 +106,10 @@ function DesignPage() {
                     <button
                       key={x.id}
                       onClick={() => setOpen(flat.indexOf(x))}
-                      className="overflow-hidden rounded-xl border bg-card text-left shadow-[var(--shadow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className={cn(
+                        cardVariants({ interactive: true }),
+                        "overflow-hidden p-0 text-left",
+                      )}
                       aria-label={`Open render: ${x.title}`}
                     >
                       <img
@@ -113,8 +121,8 @@ function DesignPage() {
                         className="aspect-[4/3] w-full object-cover"
                       />
                       <div className="p-4">
-                        <div className="font-medium">{x.title}</div>
-                        <p className="mt-1 text-sm text-muted-foreground">{x.description}</p>
+                        <div className="text-title-md">{x.title}</div>
+                        <p className="mt-1 text-body-md text-on-surface-variant">{x.description}</p>
                       </div>
                     </button>
                   ))}

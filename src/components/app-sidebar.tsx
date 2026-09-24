@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -23,7 +24,19 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
+
+  // M3: the standard drawer is for expanded widths; between md and lg start as a rail.
+  // Runs on mount and when crossing into that range, so a manual expand is kept.
+  const setOpenRef = useRef(setOpen);
+  setOpenRef.current = setOpen;
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px) and (max-width: 1023px)");
+    const apply = () => mq.matches && setOpenRef.current(false);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
 

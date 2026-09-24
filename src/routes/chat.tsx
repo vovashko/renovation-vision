@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { Icon } from "@/components/ui/icon";
 import { project } from "@/lib/renovation-data";
 import { AiChat } from "@/components/ai-chat";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 
 export const Route = createFileRoute("/chat")({
@@ -62,7 +64,7 @@ function ChatPage() {
     ? `${keyboard.inset}px`
     : keyboard.open
       ? "0px"
-      : "calc(3.5rem + 1px + env(safe-area-inset-bottom))";
+      : "calc(5rem + env(safe-area-inset-bottom))";
 
   useEffect(() => {
     if (tab === "manager") endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -93,18 +95,21 @@ function ChatPage() {
   };
 
   const tabCls = (active: boolean) =>
-    `flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "bg-card text-foreground shadow-[var(--shadow-soft)]" : "text-muted-foreground"}`;
+    cn(
+      "state-layer flex h-11 flex-1 items-center justify-center gap-2 text-label-lg first:rounded-l-full last:rounded-r-full [&+&]:border-l [&+&]:border-outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
+      active ? "bg-secondary-container text-on-secondary-container" : "text-on-surface",
+    );
 
   return (
     <div
       style={{ "--chat-bottom": mobileBottom } as React.CSSProperties}
-      className="fixed inset-x-0 bottom-[var(--chat-bottom)] top-[calc(3.5rem+1px+env(safe-area-inset-top))] z-20 flex flex-col overflow-hidden bg-card md:static md:mx-auto md:h-[calc(100dvh-8.5rem)] md:w-full md:max-w-3xl md:rounded-2xl md:border md:shadow-[var(--shadow-elegant)]"
+      className="fixed inset-x-0 bottom-(--chat-bottom) top-[calc(3.5rem+1px+env(safe-area-inset-top))] z-20 flex flex-col overflow-hidden bg-surface-container text-on-surface md:static md:mx-auto md:h-[calc(100dvh-8.5rem)] md:w-full md:max-w-3xl md:rounded-lg"
     >
-      <div className="border-b bg-background/60 p-3 backdrop-blur">
+      <div className="border-b border-outline-variant p-3">
         <div
           role="tablist"
           aria-label="Chat mode"
-          className="flex gap-1 rounded-full bg-muted p-1"
+          className="flex rounded-full border border-outline"
           onKeyDown={(e) => {
             if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
             const nextTab = tab === "manager" ? "ai" : "manager";
@@ -121,7 +126,7 @@ function ChatPage() {
             onClick={() => setTab("manager")}
             className={tabCls(tab === "manager")}
           >
-            <Icon name="person" size={18} /> Site manager
+            <Icon name={tab === "manager" ? "check" : "person"} size={18} /> Site manager
           </button>
           <button
             id="chat-tab-ai"
@@ -132,7 +137,7 @@ function ChatPage() {
             onClick={() => setTab("ai")}
             className={tabCls(tab === "ai")}
           >
-            <Icon name="smart_toy" size={18} /> Ask AI
+            <Icon name={tab === "ai" ? "check" : "smart_toy"} size={18} /> Ask AI
           </button>
         </div>
       </div>
@@ -147,21 +152,27 @@ function ChatPage() {
           <AiChat onAskManager={handOver} />
         ) : (
           <>
-            <div className="flex items-center gap-3 border-b p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] font-semibold text-primary-foreground">
+            <div className="flex items-center gap-3 border-b border-outline-variant p-4">
+              <div
+                className="flex size-10 items-center justify-center rounded-full bg-primary-container text-title-md text-on-primary-container"
+                aria-hidden
+              >
                 {project.manager
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
               </div>
               <div>
-                <div className="font-semibold">{project.manager}</div>
-                <div className="text-xs text-status-done">● Online — Site manager</div>
+                <div className="text-title-md">{project.manager}</div>
+                <div className="flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+                  <span className="size-2 rounded-full bg-success" aria-hidden />
+                  Online · Site manager
+                </div>
               </div>
             </div>
 
             <div
-              className="flex-1 space-y-3 overflow-y-auto overscroll-contain p-4"
+              className="flex-1 space-y-2 overflow-y-auto overscroll-contain p-4"
               aria-live="polite"
             >
               {messages.map((m) => (
@@ -170,15 +181,19 @@ function ChatPage() {
                   className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-[var(--shadow-soft)] ${
+                    className={cn(
+                      "max-w-[75%] px-4 py-2.5 text-body-md",
                       m.from === "me"
-                        ? "rounded-br-sm bg-[image:var(--gradient-primary)] text-primary-foreground"
-                        : "rounded-bl-sm bg-muted text-foreground"
-                    }`}
+                        ? "rounded-[20px_20px_4px_20px] bg-primary text-on-primary"
+                        : "rounded-[20px_20px_20px_4px] bg-surface-container-highest text-on-surface",
+                    )}
                   >
                     <div>{m.text}</div>
                     <div
-                      className={`mt-1 text-[11px] ${m.from === "me" ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+                      className={cn(
+                        "mt-1 text-label-sm",
+                        m.from === "me" ? "text-inverse-on-surface" : "text-on-surface-variant",
+                      )}
                     >
                       {m.time}
                     </div>
@@ -188,13 +203,15 @@ function ChatPage() {
               <div ref={endRef} />
             </div>
 
-            <div className="flex items-center gap-2 border-t bg-background/60 p-3 backdrop-blur">
-              <button
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+            <div className="flex items-center gap-2 border-t border-outline-variant p-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-11 text-on-surface-variant"
                 aria-label="Attach"
               >
                 <Icon name="attach_file" />
-              </button>
+              </Button>
               <input
                 ref={inputRef}
                 value={text}
@@ -202,15 +219,11 @@ function ChatPage() {
                 onKeyDown={(e) => e.key === "Enter" && send()}
                 placeholder="Message your manager…"
                 aria-label="Message your manager"
-                className="h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm"
+                className="h-11 min-w-0 flex-1 rounded-full bg-surface-container-highest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:outline-primary md:text-body-md"
               />
-              <button
-                onClick={send}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]"
-                aria-label="Send"
-              >
+              <Button onClick={send} size="icon" className="size-11" aria-label="Send">
                 <Icon name="send" size={20} />
-              </button>
+              </Button>
             </div>
           </>
         )}
