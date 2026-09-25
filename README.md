@@ -76,7 +76,7 @@ Base classes: `h-8 rounded-full px-3.5 text-label-lg inline-flex items-center ga
 - **Status chips.** Pattern: `bg-status-X-container text-on-status-X-container`, with a dot in `bg-status-X`. The compact 28px version (`h-7 px-3 text-label-md`) is used inside cards.
   - done: success
   - in progress: progress (blue)
-  - pending: outline dot on `surface-container-high`
+  - pending: **not filled**. White fill with `border border-dashed border-outline`, and a hollow dot (`size-2 rounded-full border-2 border-status-pending bg-transparent`). "Not started yet" should read as empty, never as a pale green.
   - blocked: error
 - **On tinted panels** (anything `bg-surface-container-high` or darker), status chips switch to `bg-surface-container-lowest`, i.e. white, so they stay visible against the panel.
 - **Attention chip:** `bg-attention-container text-on-attention-container`, with a leading 18px icon in `text-attention` (`euro` for over budget, `schedule` for late). Examples: "Over budget · 4%", "3 days late".
@@ -86,7 +86,7 @@ Base classes: `h-8 rounded-full px-3.5 text-label-lg inline-flex items-center ga
 ### Progress (`progress.tsx`)
 The track is `h-2 rounded-full` with overflow hidden; the indicator is `h-full rounded-full`.
 - Default: indicator `bg-primary` on track `bg-surface-container-highest`. Inside a tinted panel, the track is `bg-surface-container-lowest`.
-- Status bars: indicator `bg-status-X` on track `bg-status-X-container`. Done is a solid `bg-success` bar with no visible track.
+- Status bars: indicator `bg-status-X` on track `bg-status-X-container`. Done is a solid `bg-success` bar with no visible track. Pending has no indicator: an empty white track, `bg-surface-container-lowest border border-dashed border-outline`.
 
 ### Card (`card.tsx`)
 - **Default:** `rounded-xl bg-card border border-outline-variant`, with **no shadow**. Padding is `px-5 py-4` for stat cards and `p-5` to `px-7 py-6` for larger ones.
@@ -101,6 +101,11 @@ The track is `h-2 rounded-full` with overflow hidden; the indicator is `h-full r
 - **Items:** `size-14 rounded-lg grid place-items-center text-on-surface`, with a 24px icon at weight 300. Each item gets a tooltip with its label and an `aria-label`.
 - **Active item:** `bg-surface-container-high`. **Hover:** `bg-surface`.
 - **Bottom:** Settings, pushed down with `mt-auto`.
+- **Expand on hover:** the rail sits in a fixed 96px slot (`relative w-24`) and is itself `absolute inset-y-0 left-0 z-20 overflow-hidden`, so expanding overlays the page instead of pushing it.
+  - Collapsed: `w-24`. Expanded on `mouseenter` or `focus-within`: `w-60` (240px) plus `shadow-float`. Transition `width 220ms cubic-bezier(0.2,0,0,1)`.
+  - Items become full-width rows (`h-14 rounded-lg flex items-center whitespace-nowrap`): a fixed `w-14` icon cell, then the label in `text-label-lg`. The label goes from `opacity-0` to `opacity-100` (150ms) when expanded.
+  - Top: the full logo lockup at `h-10` in an `overflow-hidden` box, so only the mark shows when collapsed and the wordmark appears as the rail widens.
+  - Collapse on `mouseleave` / blur. Keep `aria-label` on every item, since labels are hidden while collapsed.
 
 ### Inputs
 - **Search field:** `h-12 rounded-lg bg-surface-container-low border border-outline-variant px-4 gap-2.5 text-body-md`, with a 22px `search` icon in `text-on-surface`. The placeholder is `text-on-surface-variant`.
@@ -161,8 +166,8 @@ The track is `h-2 rounded-full` with overflow hidden; the indicator is `h-full r
 
 **Floor plan** (`components/floor-plan.tsx`).
 - **Outer:** a default card, `p-4`. **Inner frame:** `rounded-lg bg-surface-container p-2 gap-1.5`.
-- **Room tiles:** `rounded-md bg-status-X-container text-on-status-X-container`, with the name in `text-label-lg` and the % in `text-body-sm`.
-- **Selected room:** `outline-2 -outline-offset-2 outline-primary`.
+- **Room tiles:** `rounded-md bg-status-X-container text-on-status-X-container`, with the name in `text-label-lg` and the % in `text-body-sm`. Pending tiles are white with `border border-dashed border-outline`.
+- **Selected room:** a darker outline in the room's own status color: `outline-2 -outline-offset-2 outline-status-X` (e.g. `outline-progress` on an in-progress room). A pending room's selected outline is solid `outline-outline`, replacing the dashed border.
 - **Legend** (`mt-3.5`): 8px round dots in `bg-status-X`, labels in `text-[13px] text-on-surface-variant`.
 
 **Selected room panel.** A tinted card, `p-5`. Content, top to bottom:
@@ -186,10 +191,11 @@ The track is `h-2 rounded-full` with overflow hidden; the indicator is `h-full r
 
 ## Status model
 - **Progress state**, exactly one per stage or room:
-  - `done` (moss green)
+  - `done` (green)
   - `progress` (calm blue)
-  - `pending` (sage gray)
+  - `pending` (hollow: white with dashed outline)
   - `blocked` (red)
+- **State follows progress**: `pending` is always 0%. When progress becomes greater than 0, the state switches to `progress`; at 100% it becomes `done`. `blocked` keeps whatever progress was reached when the work stopped.
 - **Attention flag**, orange, optional. It's computed, not stored as a state: over budget when `spent > budget`, late when `today > endDate && state !== 'done'`. It is shown *in addition to* the state, using the attention chip, the late line, or the attention card variant. Orange is never used for anything else.
 
 ## Interactions & behavior
@@ -212,9 +218,9 @@ The track is `h-2 rounded-full` with overflow hidden; the indicator is `h-full r
 - outline `#A3AAA1`; outline-variant `#E3E6E0`; inverse-surface `#2C332D`
 
 **Status**
-- success `#6E9A6C` (bar/dot) / text `#4E7A4B` / container `#DFE9DB` / on `#24391F`
+- success `#4C8B56` (bar/dot) / text `#3F7A48` / container `#D3E9D2` / on `#1D4424`
 - progress `#3F7391` / container `#DDE8EE` / on `#1E3A4C`
-- pending: dot `#A3AAA1`, container `#E6EAE3`, on `#2E352E`
+- pending: hollow ring `#8A918A`, white container with a dashed `#A3AAA1` border, on `#2E352E`
 - attention `#E08A1E` (dot/icon) / text `#9A6A00` / container `#FBE7CC` / on `#5A3500` / outline `#F0C98E`
 
 Dark values are in `styles.css`.
