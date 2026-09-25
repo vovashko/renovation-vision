@@ -9,13 +9,11 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { Badge } from "@/components/ui/badge";
 import { cardVariants } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { AppSidebar, MobileTabBar } from "@/components/app-sidebar";
-import { ManagerBadge } from "@/components/manager-badge";
 import { LoginScreen, NotAManagerScreen } from "@/components/login-screen";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { useProject } from "@/lib/queries";
@@ -126,7 +124,6 @@ function AuthGate() {
 }
 
 function Shell() {
-  const { isDemo } = useAuth();
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const { data: project } = useProject(projectId);
@@ -162,12 +159,6 @@ function Shell() {
                   </div>
                 )}
               </div>
-              {isDemo && (
-                <Badge variant="assist" size="compact" className="hidden lg:inline-flex" title="Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to connect">
-                  Demo data
-                </Badge>
-              )}
-              <ManagerBadge onPanel />
             </div>
           </header>
         )}

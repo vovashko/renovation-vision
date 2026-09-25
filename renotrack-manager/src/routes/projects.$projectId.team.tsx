@@ -3,12 +3,10 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ChatAvatar } from "@/components/ui/chat";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field } from "@/components/form-sheet";
-import { Segmented } from "@/components/ui/segmented";
+import { Field, NativeSelect } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -44,7 +42,7 @@ function TeamPage() {
 
       <Card className="p-5">
         <form
-          className="grid gap-3 sm:grid-cols-[1fr_220px_auto] sm:items-end"
+          className="grid gap-3 sm:grid-cols-[1fr_200px_auto] sm:items-end"
           onSubmit={(e) => {
             e.preventDefault();
             add.mutate(undefined, { onSuccess: () => setEmail("") });
@@ -53,22 +51,13 @@ function TeamPage() {
           <Field id="tm-email" label="Add by email">
             <Input id="tm-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} aria-describedby="tm-email-hint" />
           </Field>
-          <div className="space-y-2">
-            <Label id="tm-role-label" asChild>
-              <span>Role</span>
-            </Label>
-            <Segmented
-              aria-labelledby="tm-role-label"
-              size="field"
-              className="flex w-full"
-              value={role}
-              onValueChange={setRole}
-              options={[
-                { value: "client", label: "Client" },
-                { value: "manager", label: "Manager" },
-              ]}
-            />
-          </div>
+          {/* A dropdown so more roles can be added later. */}
+          <Field id="tm-role" label="Role">
+            <NativeSelect id="tm-role" value={role} onChange={(e) => setRole(e.target.value as ProjectRole)}>
+              <option value="client">Client</option>
+              <option value="manager">Manager</option>
+            </NativeSelect>
+          </Field>
           <Button type="submit" disabled={!email.trim() || add.isPending}>
             <Icon name="person_add" size={20} /> Add
           </Button>
