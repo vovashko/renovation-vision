@@ -8,7 +8,7 @@ import { rooms, statusLabel, type Room, type Status } from "@/lib/renovation-dat
 import { renders } from "@/lib/media-data";
 import { usePhotos } from "@/lib/photo-store";
 import { EmptyPhotos, PhotoThumbs } from "@/components/photo-thumbs";
-import { statusBg, statusChip, statusStroke, statusTileSvg } from "@/lib/status-ui";
+import { statusBg, statusChip, statusStroke, statusTileSvg, statusTone } from "@/lib/status-ui";
 import { Card, cardVariants } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -214,7 +214,12 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
           <span className="text-on-surface-variant">Progress</span>
           <span className="font-medium text-on-surface">{room.progress}%</span>
         </div>
-        <Progress value={room.progress} onPanel aria-label={`${room.name} progress`} />
+        <Progress
+          value={room.progress}
+          tone={statusTone[room.status]}
+          onPanel
+          aria-label={`${room.name} progress`}
+        />
       </div>
 
       {detailed ? (
