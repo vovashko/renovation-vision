@@ -46,7 +46,7 @@ function Stat({
   attention?: boolean;
 }) {
   return (
-    <Card attention={attention} className="px-5 py-4">
+    <Card variant="tinted" attention={attention} className="px-5 py-4">
       <div className="text-body-md">{label}</div>
       <div className="mt-1 text-title-lg sm:text-headline-md">
         {value}
