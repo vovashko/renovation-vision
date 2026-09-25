@@ -1,12 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FormSheet, selectCls } from "@/components/form-sheet";
 import { PageLoading } from "@/components/page-header";
-import { ManagerBadge } from "@/components/manager-badge";
 import { UploadSheet } from "@/components/photo-upload-sheet";
 import { ExpenseSheet } from "@/components/expense-sheet";
 import {
@@ -82,19 +80,9 @@ function Overview() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-headline-md sm:text-headline-lg">{project.name}</h1>
-          <p className="text-body-lg text-on-surface-variant">{project.address}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <ManagerBadge />
-          {!onTrack && (
-            <Badge variant="attention" icon="schedule">
-              {scheduleLabel[project.schedule_status]}
-            </Badge>
-          )}
-        </div>
+      <header className="min-w-0">
+        <h1 className="text-headline-md sm:text-headline-lg">{project.name}</h1>
+        <p className="text-body-lg text-on-surface-variant">{project.address}</p>
       </header>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
