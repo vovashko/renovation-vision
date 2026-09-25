@@ -106,7 +106,7 @@ function ChatPage() {
   return (
     <div
       style={{ "--chat-bottom": mobileBottom } as React.CSSProperties}
-      className="fixed inset-x-0 bottom-(--chat-bottom) top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)] z-20 flex flex-col overflow-hidden bg-surface-container-high text-on-surface md:static md:mx-auto md:h-[calc(100dvh-9rem)] md:w-full md:max-w-7xl md:rounded-xl"
+      className="fixed inset-x-0 bottom-(--chat-bottom) top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)] z-20 flex flex-col overflow-hidden bg-surface-container-high text-on-surface md:static md:mx-auto md:h-[calc(100dvh-9rem)] md:w-full md:max-w-3xl md:rounded-xl"
     >
       <div className="px-4 pb-2 pt-4">
         <div
