@@ -13,6 +13,7 @@ import { MobileTabBar } from "@/components/mobile-nav";
 import { PhotoProvider } from "@/lib/photo-store";
 import { overallProgress, project } from "@/lib/renovation-data";
 import { Progress } from "@/components/ui/progress";
+import { cardVariants } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -120,18 +121,23 @@ function RootComponent() {
           <div className="flex min-h-screen w-full bg-surface text-on-surface">
             <AppSidebar />
             <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-30 border-b border-outline-variant bg-surface pt-[env(safe-area-inset-top)]">
-                <div className="flex h-14 items-center gap-3 px-4">
+              {/* Deep panel: a full-width rounded card, top-aligned with the rail. The sticky
+                  wrapper keeps the page surface behind it so content never shows above it. */}
+              <header className="sticky top-0 z-30 bg-surface px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
+                <div
+                  className={cn(
+                    cardVariants({ variant: "deep" }),
+                    "flex h-16 items-center gap-3 px-5 py-0",
+                  )}
+                >
                   <div className="flex min-w-0 flex-1 flex-col leading-tight">
                     <span className="truncate text-title-md">{project.name}</span>
-                    <span className="hidden text-body-sm text-on-surface-variant md:block">
-                      {project.address}
-                    </span>
+                    <span className="hidden text-body-sm md:block">{project.address}</span>
                     <HeaderProgress className="md:hidden" />
                   </div>
                 </div>
               </header>
-              <main className="min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:p-8">
+              <main className="min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-8 md:pt-6 md:pb-8">
                 <Outlet />
               </main>
             </div>
@@ -147,8 +153,8 @@ function HeaderProgress({ className = "" }: { className?: string }) {
   const progress = overallProgress();
   return (
     <div className={cn("mt-1 flex items-center gap-2", className)}>
-      <Progress value={progress} aria-label="Overall progress" className="flex-1" />
-      <span className="text-label-sm tabular-nums text-on-surface-variant">{progress}%</span>
+      <Progress value={progress} onPanel aria-label="Overall progress" className="flex-1" />
+      <span className="text-label-sm tabular-nums">{progress}%</span>
     </div>
   );
 }
