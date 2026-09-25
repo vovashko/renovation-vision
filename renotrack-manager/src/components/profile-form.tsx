@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Field, FormSheet } from "@/components/form-sheet";
@@ -13,13 +12,10 @@ function splitName(full: string) {
   return { first, last: rest.join(" ") };
 }
 
-/**
- * Name, photo, email and password with one Save. Used on the Settings page (in a card) and in the
- * profile side panel opened from the rail avatar (bare, so the sheet's surface shows through).
- */
-export function ProfileForm({ inSheet = false, onSaved }: { inSheet?: boolean; onSaved?: () => void }) {
+/** Name, photo, email and password with one Save (the profile side panel's body). */
+function ProfileForm({ onSaved }: { onSaved?: () => void }) {
   const { profile, email, isDemo, saveProfile, changeEmail, changePassword, signOut } = useAuth();
-  const idp = inSheet ? "ps" : "st";
+  const idp = "ps";
   const fileRef = useRef<HTMLInputElement>(null);
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
@@ -78,11 +74,9 @@ export function ProfileForm({ inSheet = false, onSaved }: { inSheet?: boolean; o
     }
   };
 
-  const Fields = inSheet ? "div" : Card;
-
   return (
     <form onSubmit={submit} className="space-y-6">
-      <Fields className={inSheet ? "space-y-6" : "space-y-6 p-5 md:p-6"}>
+      <div className="space-y-6">
           <section aria-labelledby={`${idp}-profile-heading`} className="space-y-4">
             <h2 id={`${idp}-profile-heading`} className="text-title-md">Profile</h2>
             <div className="flex flex-wrap items-center gap-4">
@@ -137,7 +131,7 @@ export function ProfileForm({ inSheet = false, onSaved }: { inSheet?: boolean; o
               </p>
             )}
           </section>
-      </Fields>
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button type="submit" disabled={!canSave}>
@@ -158,7 +152,7 @@ export function ProfileForm({ inSheet = false, onSaved }: { inSheet?: boolean; o
 export function ProfileSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   return (
     <FormSheet open={open} onOpenChange={onOpenChange} title="Your profile" description="Your name, photo and sign-in details.">
-      <ProfileForm inSheet onSaved={() => onOpenChange(false)} />
+      <ProfileForm onSaved={() => onOpenChange(false)} />
     </FormSheet>
   );
 }

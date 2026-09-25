@@ -122,7 +122,7 @@ export function AppSidebar() {
         <Link
           to="/"
           aria-label="RenoVision Manager, all projects"
-          className="mb-4 ml-2 block h-10 w-10 shrink-0 overflow-hidden rounded-md transition-[width] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover/rail:w-[146px] group-has-[:focus-visible]/rail:w-[146px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+          className="mb-4 ml-2 block h-10 w-10 shrink-0 overflow-hidden rounded-md transition-[width] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover/rail:w-[158px] group-has-[:focus-visible]/rail:w-[158px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
         >
           <RenovisionLogo className="h-10" />
         </Link>
