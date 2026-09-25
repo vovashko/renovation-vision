@@ -140,10 +140,10 @@
   --m3-inverse-on-surface: oklch(0.962 0.006 128.5); /* #F1F3EF */
   --m3-outline: oklch(0.730 0.015 138.7); /* #A3AAA1 */
   --m3-outline-variant: oklch(0.921 0.009 128.6); /* #E3E6E0 */
-  --m3-success: oklch(0.642 0.083 143.5); /* #6E9A6C */
-  --m3-success-text: oklch(0.535 0.087 142.8); /* #4E7A4B */
-  --m3-success-container: oklch(0.923 0.022 136.6); /* #DFE9DB */
-  --m3-on-success-container: oklch(0.319 0.052 139.7); /* #24391F */
+  --m3-success: oklch(0.580 0.104 147.8); /* #4C8B56 */
+  --m3-success-text: oklch(0.526 0.099 147.4); /* #3F7A48 */
+  --m3-success-container: oklch(0.911 0.039 144.1); /* #D3E9D2 */
+  --m3-on-success-container: oklch(0.349 0.071 147.8); /* #1D4424 */
   --m3-progress: oklch(0.532 0.073 235.7); /* #3F7391 */
   --m3-progress-container: oklch(0.924 0.014 231.2); /* #DDE8EE */
   --m3-on-progress-container: oklch(0.335 0.047 238.5); /* #1E3A4C */
@@ -180,8 +180,8 @@
   --status-progress: var(--m3-progress);
   --status-progress-container: var(--m3-progress-container);
   --on-status-progress-container: var(--m3-on-progress-container);
-  --status-pending: var(--m3-outline);
-  --status-pending-container: var(--m3-surface-container-high);
+  --status-pending: oklch(0.645 0.008 145); /* #8A918A: render as a 2px ring, not a filled dot */
+  --status-pending-container: var(--m3-surface-container-lowest); /* white + 1px dashed outline border */
   --on-status-pending-container: var(--m3-on-secondary-container);
   --status-blocked: var(--m3-error);
   --status-blocked-container: var(--m3-error-container);
