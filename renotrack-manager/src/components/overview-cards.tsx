@@ -223,7 +223,9 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
   );
 }
 
-const onPanelButton = cn(buttonVariants({ variant: "tonal" }), "bg-surface-container-lowest text-on-surface");
+// White on the tinted panel. The hairline keeps the edge visible when the state layer greys the
+// fill on hover/press (the panel and a greyed white are nearly the same tone); pressed tints sage.
+const onPanelButton = cn(buttonVariants({ variant: "outline" }), "active:bg-primary-container");
 
 export function ClientCard({
   projectId,

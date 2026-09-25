@@ -42,8 +42,9 @@ export function Field({ id, label, hint, children }: { id: string; label: string
   );
 }
 
+// Same box as <Input> so selects and text fields line up.
 export const selectCls =
-  "h-11 w-full rounded-md border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "h-11 w-full rounded-md border border-outline-variant bg-surface-container-lowest px-4 text-body-md text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary";
 
 export function VisibleSwitch({ id, checked, onChange, label = "Visible to client" }: { id: string; checked: boolean; onChange: (v: boolean) => void; label?: string }) {
   return (

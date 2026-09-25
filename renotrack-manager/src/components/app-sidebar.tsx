@@ -113,6 +113,7 @@ function ProfileItem({ expanded }: { expanded: boolean }) {
  * keyboard focus overlays the page instead of pushing it. Labels and the wordmark fade in.
  */
 export function AppSidebar() {
+  const { projectId } = useParams({ strict: false }) as { projectId?: string };
   return (
     <div className="sticky top-4 z-40 m-4 mr-0 hidden h-[calc(100dvh-2rem)] w-24 shrink-0 md:block">
       <nav
@@ -128,10 +129,12 @@ export function AppSidebar() {
         </Link>
         <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-5 [scrollbar-width:none]">
           <NavItems expanded={false} />
-          {/* Pushed to the bottom, just above the divider; scrolls with the list when it overflows. */}
-          <div className="mt-auto">
-            <SettingsItem expanded={false} />
-          </div>
+          {/* Outside a project only. Pushed to the bottom, just above the divider; scrolls with the list when it overflows. */}
+          {!projectId && (
+            <div className="mt-auto">
+              <SettingsItem expanded={false} />
+            </div>
+          )}
         </div>
         <div className="mt-2 shrink-0 border-t border-outline-variant pt-2">
           <ProfileItem expanded={false} />

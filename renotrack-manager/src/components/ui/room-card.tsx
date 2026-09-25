@@ -30,7 +30,8 @@ export function RoomCard({
         "block w-full rounded-xl border border-outline-variant bg-card px-5 py-4.5 text-left text-on-surface",
         onClick &&
           "cursor-pointer transition-colors duration-150 hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-        active && "border-primary outline-1 -outline-offset-2 outline-primary",
+        // Selected: one 2px line (1px border + a 1px inset ring flush against it), no layout shift.
+        active && "border-primary ring-1 ring-primary ring-inset",
         muted && "border-dashed opacity-70",
       )}
     >
