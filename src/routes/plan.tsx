@@ -4,7 +4,7 @@ import { rooms, statusLabel } from "@/lib/renovation-data";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cardVariants } from "@/components/ui/card";
-import { statusChip, statusTone } from "@/lib/status-ui";
+import { statusChip, statusOutline, statusTone } from "@/lib/status-ui";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/plan")({
@@ -50,13 +50,16 @@ function PlanPage() {
             aria-pressed={r.id === activeId}
             className={cn(
               cardVariants({ interactive: true }),
-              "text-left",
-              r.id === activeId && "border-2 border-primary",
+              "px-5 py-4.5 text-left",
+              // Selected: a darker outline in the room's own status color, never primary.
+              r.id === activeId && ["outline-2 -outline-offset-2", statusOutline[r.status]],
             )}
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-title-md">{r.name}</span>
-              <Badge variant={statusChip[r.status]}>{statusLabel[r.status]}</Badge>
+              <Badge variant={statusChip[r.status]} size="sm">
+                {statusLabel[r.status]}
+              </Badge>
             </div>
             <Progress
               value={r.progress}

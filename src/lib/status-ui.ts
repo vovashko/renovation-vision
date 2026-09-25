@@ -17,19 +17,20 @@ export const statusTone: Record<Status, ProgressTone> = {
   blocked: "blocked",
 };
 
-/** Solid status color (legend dots, chip dots). */
+/** Status dot (legend). Pending is a hollow ring, never a filled dot. */
 export const statusBg: Record<Status, string> = {
   done: "bg-status-done",
   progress: "bg-status-progress",
-  pending: "bg-status-pending",
+  pending: "border-2 border-status-pending bg-transparent",
   blocked: "bg-status-blocked",
 };
 
-/** Container + on-container pair (stage tiles, plan tiles). */
+/** Container + on-container pair (stage tiles). Pending is white with a dashed outline. */
 export const statusContainer: Record<Status, string> = {
   done: "bg-status-done-container text-on-status-done-container",
   progress: "bg-status-progress-container text-on-status-progress-container",
-  pending: "bg-status-pending-container text-on-status-pending-container",
+  pending:
+    "border border-dashed border-outline bg-status-pending-container text-on-status-pending-container",
   blocked: "bg-status-blocked-container text-on-status-blocked-container",
 };
 
@@ -47,4 +48,23 @@ export const statusTileSvg: Record<Status, string> = {
   progress: "fill-status-progress-container text-on-status-progress-container",
   pending: "fill-status-pending-container text-on-status-pending-container",
   blocked: "fill-status-blocked-container text-on-status-blocked-container",
+};
+
+/**
+ * Selected-item outline in the item's own status color (never primary).
+ * Pending uses a solid outline-colored ring, replacing its dashed border.
+ */
+export const statusStroke: Record<Status, string> = {
+  done: "stroke-status-done",
+  progress: "stroke-status-progress",
+  pending: "stroke-outline",
+  blocked: "stroke-status-blocked",
+};
+
+/** Same as statusStroke, for HTML elements (CSS outline). */
+export const statusOutline: Record<Status, string> = {
+  done: "outline-status-done",
+  progress: "outline-status-progress",
+  pending: "outline-outline",
+  blocked: "outline-status-blocked",
 };

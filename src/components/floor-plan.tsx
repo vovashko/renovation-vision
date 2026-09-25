@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { rooms, statusLabel, type Room, type Status } from "@/lib/renovation-dat
 import { renders } from "@/lib/media-data";
 import { usePhotos } from "@/lib/photo-store";
 import { EmptyPhotos, PhotoThumbs } from "@/components/photo-thumbs";
-import { statusBg, statusChip, statusTileSvg } from "@/lib/status-ui";
+import { statusBg, statusChip, statusStroke, statusTileSvg } from "@/lib/status-ui";
 import { Card, cardVariants } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +40,8 @@ export function FloorPlan({
   const currentId = activeId ?? ownId;
   const active: Room = rooms.find((r) => r.id === currentId) ?? rooms[0];
   const select = (id: string) => (onSelect ? onSelect(id) : setOwnId(id));
+  // useId() can contain ":" or "«»", which break url(#...) references; keep letters and digits.
+  const clipPrefix = `plan${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -73,8 +75,13 @@ export function FloorPlan({
                   }}
                   className={cn("group cursor-pointer outline-none", statusTileSvg[r.status])}
                 >
+                  <defs>
+                    <clipPath id={`${clipPrefix}-${r.id}`}>
+                      <rect x={x} y={y} width={w} height={h} rx={RADIUS} />
+                    </clipPath>
+                  </defs>
                   <rect x={x} y={y} width={w} height={h} rx={RADIUS} />
-                  {/* State layer: 8% hover, 10% focus/pressed of the content color */}
+                  {/* State layer: 8% hover, 12% focus/pressed of the content color */}
                   <rect
                     x={x}
                     y={y}
@@ -83,14 +90,32 @@ export function FloorPlan({
                     rx={RADIUS}
                     className="fill-current opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.2,0,0,1)] group-hover:opacity-8 group-focus-visible:opacity-12 group-active:opacity-12"
                   />
+                  {/* Borders are clipped to the tile, so a stroke of 2n screen px draws an n px
+                      inside border at any plan scale (non-scaling stroke). */}
+                  {r.status === "pending" && !isActive && (
+                    <rect
+                      x={x}
+                      y={y}
+                      width={w}
+                      height={h}
+                      rx={RADIUS}
+                      clipPath={`url(#${clipPrefix}-${r.id})`}
+                      strokeDasharray="4 3"
+                      className="pointer-events-none fill-none stroke-outline stroke-2 [vector-effect:non-scaling-stroke]"
+                    />
+                  )}
                   {isActive && (
                     <rect
-                      x={x + 1}
-                      y={y + 1}
-                      width={w - 2}
-                      height={h - 2}
-                      rx={RADIUS - 1}
-                      className="fill-none stroke-primary stroke-2"
+                      x={x}
+                      y={y}
+                      width={w}
+                      height={h}
+                      rx={RADIUS}
+                      clipPath={`url(#${clipPrefix}-${r.id})`}
+                      className={cn(
+                        "pointer-events-none fill-none stroke-4 [vector-effect:non-scaling-stroke]",
+                        statusStroke[r.status],
+                      )}
                     />
                   )}
                   <rect
@@ -99,7 +124,7 @@ export function FloorPlan({
                     width={w + 6}
                     height={h + 6}
                     rx={RADIUS + 3}
-                    className="pointer-events-none fill-none stroke-primary stroke-2 opacity-0 group-focus-visible:opacity-100"
+                    className="pointer-events-none fill-none stroke-primary stroke-2 opacity-0 [vector-effect:non-scaling-stroke] group-focus-visible:opacity-100"
                   />
                   <text
                     x={r.x + r.w / 2}
