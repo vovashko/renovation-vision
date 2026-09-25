@@ -21,6 +21,21 @@ export const statusFill: Record<Status, string> = {
   blocked: "var(--status-blocked)",
 };
 
+/**
+ * v5 status model: the state follows progress. Pending is always 0%; above 0 it is in progress,
+ * and at 100 it is done. Blocked is the one stored state kept as-is, with the progress reached
+ * when work stopped. The attention flag (late / over budget) is separate, see `@/lib/attention`.
+ */
+export function deriveStatus(stored: Status, progress: number): Status {
+  if (stored === "blocked") return "blocked";
+  if (progress >= 100) return "done";
+  if (progress > 0) return "progress";
+  return "pending";
+}
+
+const withDerivedStatus = <T extends { status: Status; progress: number }>(items: T[]): T[] =>
+  items.map((it) => ({ ...it, status: deriveStatus(it.status, it.progress) }));
+
 export type Stage = {
   id: string;
   name: string;
@@ -31,7 +46,7 @@ export type Stage = {
   tasks: { name: string; done: boolean }[];
 };
 
-export const stages: Stage[] = [
+export const stages: Stage[] = withDerivedStatus([
   {
     id: "demo",
     name: "Demolition",
@@ -120,7 +135,7 @@ export const stages: Stage[] = [
     end: "Jun 10",
     tasks: [{ name: "Walkthrough with client", done: false }],
   },
-];
+]);
 
 export type Room = {
   id: string;
@@ -134,7 +149,7 @@ export type Room = {
   h: number;
 };
 
-export const rooms: Room[] = [
+export const rooms: Room[] = withDerivedStatus([
   {
     id: "living",
     name: "Living Room",
@@ -177,7 +192,7 @@ export const rooms: Room[] = [
     w: 200,
     h: 160,
   },
-];
+]);
 
 export const project = {
   name: "Maple Street Apartment",
