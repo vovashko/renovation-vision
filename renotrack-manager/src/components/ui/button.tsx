@@ -4,24 +4,29 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+// v5 buttons: 44px tall, 12px corners, label-lg. A leading <Icon> is 20px (22px in icon buttons).
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-md px-5 text-label-lg transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: "bg-primary text-on-primary hover:bg-primary/92 active:bg-primary/88",
+        tonal: "state-layer bg-secondary-container text-on-secondary-container",
+        // Kept for existing callers; same as tonal.
+        secondary: "state-layer bg-secondary-container text-on-secondary-container",
+        outline: "state-layer border border-outline-variant bg-surface-container-lowest text-on-surface",
+        ghost: "state-layer bg-transparent px-3 text-primary",
+        link: "state-layer bg-transparent px-3 text-primary",
+        destructive: "bg-error text-on-error hover:bg-error/92 active:bg-error/88",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        default: "",
+        sm: "h-9 px-4",
+        // Full-width primary action, e.g. "Add room".
+        lg: "h-14 w-full text-title-md",
+        // Round icon button with a 22px icon. Use variant "outline" on tinted panels
+        // (white fill) and "tonal" on white surfaces.
+        icon: "size-11 rounded-full px-0",
       },
     },
     defaultVariants: {
@@ -39,11 +44,22 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
-    );
+    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
   },
 );
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+/** Count badge for an icon button (the button needs `relative`). */
+function ButtonBadge({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span
+      className={cn(
+        "absolute top-1.5 right-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-success px-1 text-[10px] font-semibold text-white ring-2 ring-white",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Button, ButtonBadge, buttonVariants };
