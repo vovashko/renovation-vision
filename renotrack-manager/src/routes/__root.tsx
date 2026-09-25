@@ -9,9 +9,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Icon } from "@/components/ui/icon";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar, MobileNav } from "@/components/app-sidebar";
 import { ManagerBadge } from "@/components/manager-badge";
 import { LoginScreen, NotAManagerScreen } from "@/components/login-screen";
 import { AuthProvider, useAuth } from "@/lib/auth";
@@ -128,12 +127,11 @@ function Shell() {
   const { data: project } = useProject(projectId);
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[image:var(--gradient-surface)]">
+    <div className="flex min-h-screen w-full gap-3 bg-surface text-on-surface md:pl-3">
         <AppSidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur">
-            <SidebarTrigger />
+            <MobileNav />
             <div className="flex min-w-0 flex-col leading-tight">
               <span className="truncate text-sm font-semibold">{projectId ? project?.name ?? "…" : "All projects"}</span>
               <span className="truncate text-xs text-muted-foreground">{projectId ? project?.address : "Projects you manage"}</span>
@@ -155,7 +153,6 @@ function Shell() {
           </header>
           <main className="flex-1 p-4 md:p-8"><Outlet /></main>
         </div>
-      </div>
-    </SidebarProvider>
+    </div>
   );
 }
