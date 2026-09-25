@@ -13,7 +13,9 @@ const badgeVariants = cva(
       variant: {
         "status-done": "bg-status-done-container text-on-status-done-container",
         "status-progress": "bg-status-progress-container text-on-status-progress-container",
-        "status-pending": "bg-status-pending-container text-on-status-pending-container",
+        // Pending reads as "not started": white with a dashed outline, never a pale fill.
+        "status-pending":
+          "border border-dashed border-outline bg-status-pending-container text-on-status-pending-container",
         "status-blocked": "bg-status-blocked-container text-on-status-blocked-container",
         attention: "bg-attention-container text-on-attention-container",
         assist:
@@ -54,7 +56,8 @@ type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 const dotClass: Partial<Record<BadgeVariant, string>> = {
   "status-done": "bg-status-done",
   "status-progress": "bg-status-progress",
-  "status-pending": "bg-status-pending",
+  // Hollow ring for pending.
+  "status-pending": "border-2 border-status-pending bg-transparent",
   "status-blocked": "bg-status-blocked",
   live: "bg-error",
 };
