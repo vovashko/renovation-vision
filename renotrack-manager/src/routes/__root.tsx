@@ -175,7 +175,11 @@ function Shell() {
           className={cn(
             "min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-8 md:pb-8",
             // Without the top bar, content starts level with the rail's top edge.
-            showTopBar ? "md:pt-6" : "pt-[max(1rem,env(safe-area-inset-top))] md:pt-4",
+            showTopBar
+              ? "md:pt-6"
+              : isOverview
+                ? "pt-[max(calc(var(--spacing)*10),env(safe-area-inset-top))]"
+                : "pt-[max(1rem,env(safe-area-inset-top))] md:pt-4",
           )}
         >
           <Outlet />

@@ -117,7 +117,10 @@ export function AppSidebar() {
         </Link>
         <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-5 [scrollbar-width:none]">
           <NavItems expanded={false} />
-          <SettingsItem expanded={false} />
+          {/* Pushed to the bottom, just above the divider; scrolls with the list when it overflows. */}
+          <div className="mt-auto">
+            <SettingsItem expanded={false} />
+          </div>
         </div>
         <div className="mt-2 shrink-0 border-t border-outline-variant pt-2">
           <ProfileItem expanded={false} />
