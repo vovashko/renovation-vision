@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/form-sheet";
 import { PageHeader } from "@/components/page-header";
-import { UserAvatar } from "@/components/user-chip";
+import { UserAvatar } from "@/components/user-avatar";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/settings")({

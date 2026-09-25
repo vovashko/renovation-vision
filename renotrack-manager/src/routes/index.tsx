@@ -14,7 +14,6 @@ import { budgetStatus } from "@/lib/attention";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { cardVariants } from "@/components/ui/card";
-import { UserChip } from "@/components/user-chip";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,9 +33,6 @@ function ProjectsPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-      <div className="mb-6 flex justify-end">
-        <UserChip />
-      </div>
       <PageHeader
         title="Your projects"
         description="Everything you update here appears in the client's RenoTrack app."

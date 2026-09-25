@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { RenovisionLogo } from "@/components/renovision-logo";
+import { UserAvatar } from "@/components/user-avatar";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const projectItems = [
@@ -80,6 +82,20 @@ function SettingsItem({ expanded }: { expanded: boolean }) {
   );
 }
 
+/** Your avatar and name under Settings; opens Settings. */
+function ProfileItem({ expanded, onNavigate }: { expanded: boolean; onNavigate?: () => void }) {
+  const { profile } = useAuth();
+  const name = profile?.full_name ?? "";
+  return (
+    <Link to="/settings" onClick={onNavigate} aria-label={`${name || "Your profile"}, open settings`} className={itemClass(false)}>
+      <span className="grid w-14 shrink-0 place-items-center">
+        <UserAvatar name={name} src={profile?.avatar_url} />
+      </span>
+      <span className={cn(labelClass(expanded), "min-w-0 truncate")}>{name}</span>
+    </Link>
+  );
+}
+
 /**
  * Navigation rail (768px and up; phones use the bottom navigation bar). Sits in a fixed 96px
  * slot; the rail itself is absolutely positioned inside it, so expanding to 240px on hover or
@@ -101,9 +117,10 @@ export function AppSidebar() {
         </Link>
         <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-5 [scrollbar-width:none]">
           <NavItems expanded={false} />
+          <SettingsItem expanded={false} />
         </div>
         <div className="mt-2 shrink-0 border-t border-outline-variant pt-2">
-          <SettingsItem expanded={false} />
+          <ProfileItem expanded={false} />
         </div>
       </nav>
     </div>
@@ -198,9 +215,27 @@ export function MobileTabBar() {
               <Icon name="settings" size={24} fill={path === "/settings"} />
               Settings
             </Link>
+            <ProfileRow onNavigate={() => setOpen(false)} />
           </div>
         </SheetContent>
       </Sheet>
     </>
+  );
+}
+
+/** Phone "More" sheet: avatar + name row under Settings. */
+function ProfileRow({ onNavigate }: { onNavigate: () => void }) {
+  const { profile } = useAuth();
+  const name = profile?.full_name ?? "";
+  return (
+    <Link
+      to="/settings"
+      onClick={onNavigate}
+      aria-label={`${name || "Your profile"}, open settings`}
+      className="state-layer flex h-14 items-center gap-3 rounded-full pr-6 pl-2.5 text-label-lg text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+    >
+      <UserAvatar name={name} src={profile?.avatar_url} />
+      <span className="min-w-0 truncate">{name}</span>
+    </Link>
   );
 }
