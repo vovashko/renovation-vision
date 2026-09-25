@@ -171,13 +171,13 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
     <section
       aria-live="polite"
       aria-label={`Selected room: ${room.name}`}
-      className={cn(cardVariants({ variant: "tinted" }), "p-5")}
+      className={cn(cardVariants(), "p-5")}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-body-md text-on-surface-variant">Selected room</div>
           <h3 className="text-title-lg">{room.name}</h3>
-          <Badge variant={statusChip[room.status]} size="sm" onPanel className="mt-3">
+          <Badge variant={statusChip[room.status]} size="sm" className="mt-3">
             {statusLabel[room.status]}
           </Badge>
         </div>
@@ -217,13 +217,12 @@ function RoomDetails({ room, detailed }: { room: Room; detailed: boolean }) {
         <Progress
           value={room.progress}
           tone={statusTone[room.status]}
-          onPanel
           aria-label={`${room.name} progress`}
         />
       </div>
 
       {detailed ? (
-        <div className="mt-5 border-t border-outline pt-4">
+        <div className="mt-5 border-t border-outline-variant pt-4">
           <div className="mb-2 flex items-center justify-between gap-3">
             <h4 className="text-label-lg">Photos of this room</h4>
             {roomPhotos.length > 0 && (
