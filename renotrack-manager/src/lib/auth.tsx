@@ -12,6 +12,11 @@ type AuthState = {
   signIn: (email: string, password: string) => Promise<void>;
   sendMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Save first + last name (stored as profiles.full_name) and optionally a new or removed photo. */
+  saveProfile: (input: { firstName: string; lastName: string; photo?: File | null }) => Promise<void>;
+  /** Supabase sends a confirmation link; the new address applies once it is confirmed. */
+  changeEmail: (email: string) => Promise<void>;
+  changePassword: (password: string) => Promise<void>;
 };
 
 const Ctx = createContext<AuthState | null>(null);
@@ -69,9 +74,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (supabase) await supabase.auth.signOut();
   }, []);
 
+  const saveProfile = useCallback<AuthState["saveProfile"]>(
+    async ({ firstName, lastName, photo }) => {
+      if (!userId) throw new Error("Not signed in");
+      const full_name = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
+      let avatar_url = profile?.avatar_url ?? null;
+      if (photo === null) avatar_url = null;
+      if (!supabase) {
+        if (photo) avatar_url = URL.createObjectURL(photo);
+        setProfile((p) => (p ? { ...p, full_name, avatar_url } : p));
+        return;
+      }
+      if (photo) {
+        const ext = /\.([a-z0-9]+)$/i.exec(photo.name)?.[1]?.toLowerCase() ?? "jpg";
+        const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+        const up = await supabase.storage.from("avatars").upload(path, photo, { contentType: photo.type || undefined });
+        if (up.error) throw new Error(up.error.message);
+        avatar_url = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      }
+      const { error } = await supabase.from("profiles").update({ full_name, avatar_url }).eq("id", userId);
+      if (error) throw new Error(error.message);
+      setProfile((p) => (p ? { ...p, full_name, avatar_url } : p));
+    },
+    [userId, profile?.avatar_url],
+  );
+
+  const changeEmail = useCallback(async (mail: string) => {
+    if (!supabase) throw new Error("The demo can't change sign-in details.");
+    const { error } = await supabase.auth.updateUser({ email: mail }, { emailRedirectTo: window.location.origin });
+    if (error) throw new Error(error.message);
+  }, []);
+
+  const changePassword = useCallback(async (password: string) => {
+    if (!supabase) throw new Error("The demo can't change sign-in details.");
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw new Error(error.message);
+  }, []);
+
   const value = useMemo(
-    () => ({ status, userId, email, profile, isDemo, signIn, sendMagicLink, signOut }),
-    [status, userId, email, profile, signIn, sendMagicLink, signOut],
+    () => ({ status, userId, email, profile, isDemo, signIn, sendMagicLink, signOut, saveProfile, changeEmail, changePassword }),
+    [status, userId, email, profile, signIn, sendMagicLink, signOut, saveProfile, changeEmail, changePassword],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

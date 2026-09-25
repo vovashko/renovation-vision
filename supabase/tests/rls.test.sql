@@ -169,6 +169,19 @@ select pg_temp.check(public.create_project('Elm Road House') is not null, 'manag
 select pg_temp.check((select count(*) from public.projects) = 1, 'creator becomes manager of the new project');
 
 -- ===========================================================================
+-- Avatars: users write only inside their own folder
+-- ===========================================================================
+select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
+insert into storage.objects (bucket_id, name) values ('avatars', 'a0000000-0000-4000-8000-000000000002/me.png');
+do $$
+begin
+  insert into storage.objects (bucket_id, name) values ('avatars', 'a0000000-0000-4000-8000-000000000001/not-mine.png');
+  raise exception 'FAILED: user uploaded into another user''s avatar folder';
+exception when insufficient_privilege then null;
+end $$;
+select pg_temp.check((select count(*) from storage.objects where bucket_id = 'avatars') = 1, 'user sees only their own avatar files');
+
+-- ===========================================================================
 -- Anonymous
 -- ===========================================================================
 select pg_temp.as_admin();

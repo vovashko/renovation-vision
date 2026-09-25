@@ -21,7 +21,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { useProject } from "@/lib/queries";
 
 import appCss from "../styles.css?url";
-import markUrl from "../assets/renovision-mark.svg?url";
+import markUrl from "../assets/renovision-manager-mark.svg?url";
 
 function NotFoundComponent() {
   return (
@@ -133,12 +133,14 @@ function Shell() {
   // The Overview has no top bar: its project card already shows the same information.
   const isOverview = !!projectId && path.replace(/\/$/, "") === `/projects/${projectId}`;
   const isChat = path.endsWith("/chat");
+  // Top bar only inside a project (not on its Overview). Projects and Settings start at the top.
+  const showTopBar = !!projectId && !isOverview;
 
   return (
     <div className="flex min-h-screen w-full bg-surface text-on-surface">
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        {!isOverview && (
+        {showTopBar && (
           <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
             {/* Tinted panel as wide as the page content below it; scrolls with the page. */}
             <div
@@ -149,11 +151,11 @@ function Shell() {
               )}
             >
               <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                <span className="truncate text-title-md">{projectId ? (project?.name ?? "…") : "All projects"}</span>
+                <span className="truncate text-title-md">{project?.name ?? "…"}</span>
                 <span className="hidden truncate text-body-sm text-on-surface-variant md:block">
-                  {projectId ? project?.address : "Projects you manage"}
+                  {project?.address}
                 </span>
-                {projectId && project && (
+                {project && (
                   <div className="mt-1 flex items-center gap-2 md:hidden">
                     <Progress value={project.overall_progress} onPanel aria-label="Overall progress" className="flex-1" />
                     <span className="text-label-sm tabular-nums text-on-surface-variant">{project.overall_progress}%</span>
@@ -173,7 +175,7 @@ function Shell() {
           className={cn(
             "min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-8 md:pb-8",
             // Without the top bar, content starts level with the rail's top edge.
-            isOverview ? "pt-[max(1rem,env(safe-area-inset-top))] md:pt-4" : "md:pt-6",
+            showTopBar ? "md:pt-6" : "pt-[max(1rem,env(safe-area-inset-top))] md:pt-4",
           )}
         >
           <Outlet />

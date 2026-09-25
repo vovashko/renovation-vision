@@ -21,12 +21,12 @@ export function FormSheet({
   const isMobile = useIsMobile();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side={isMobile ? "bottom" : "right"} className="max-h-[90dvh] overflow-y-auto rounded-t-2xl md:max-h-none md:rounded-none">
+      <SheetContent side={isMobile ? "bottom" : "right"} className="max-h-[90dvh] overflow-y-auto md:max-h-none">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           {description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
-        <div className="p-4 pt-0">{children}</div>
+        <div>{children}</div>
       </SheetContent>
     </Sheet>
   );

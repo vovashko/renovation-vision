@@ -36,11 +36,6 @@ export const scheduleLabel: Record<ScheduleStatus, string> = {
   delayed: "Delayed",
 };
 
-export const scheduleFill: Record<ScheduleStatus, string> = {
-  on_schedule: "var(--status-done)",
-  at_risk: "var(--status-progress)",
-  delayed: "var(--status-blocked)",
-};
 
 export function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 24) || "item";

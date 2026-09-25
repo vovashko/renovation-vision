@@ -9,7 +9,12 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useProjects } from "@/lib/queries";
-import { longDate, money, scheduleFill, scheduleLabel } from "@/lib/format";
+import { longDate, money, scheduleLabel } from "@/lib/format";
+import { budgetStatus } from "@/lib/attention";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cardVariants } from "@/components/ui/card";
+import { UserChip } from "@/components/user-chip";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -29,10 +34,18 @@ function ProjectsPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
+      <div className="mb-6 flex justify-end">
+        <UserChip />
+      </div>
       <PageHeader
         title="Your projects"
         description="Everything you update here appears in the client's RenoTrack app."
-        actions={<Button onClick={() => setOpen(true)} className="min-h-11 gap-2"><Icon name="add" size={20} /> New project</Button>}
+        actions={
+          <Button onClick={() => setOpen(true)}>
+            <Icon name="add" size={20} />
+            New project
+          </Button>
+        }
       />
       {isLoading ? (
         <PageLoading />
@@ -45,26 +58,35 @@ function ProjectsPage() {
               key={p.id}
               to="/projects/$projectId"
               params={{ projectId: p.id }}
-              className="rounded-2xl border bg-card p-6 shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-elegant)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className={cn(cardVariants({ interactive: true, attention: budgetStatus(p).over }), "block min-w-0 px-5 py-5 md:px-6")}
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold">{p.name}</h2>
-                  <p className="text-sm text-muted-foreground">{p.address}</p>
+                <div className="min-w-0">
+                  <h2 className="truncate text-title-lg">{p.name}</h2>
+                  <p className="text-body-md text-on-surface-variant">{p.address}</p>
                 </div>
-                <span className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-white" style={{ background: scheduleFill[p.schedule_status] }}>
-                  {scheduleLabel[p.schedule_status]}
-                </span>
+                <div className="flex shrink-0 flex-wrap justify-end gap-2 pr-3">
+                  {p.schedule_status !== "on_schedule" && (
+                    <Badge variant="attention" size="compact" icon="schedule">
+                      {scheduleLabel[p.schedule_status]}
+                    </Badge>
+                  )}
+                  {budgetStatus(p).over && (
+                    <Badge variant="attention" size="compact" icon="attach_money">
+                      Over budget
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <div className="mt-5 flex items-end justify-between text-sm">
-                <span className="text-muted-foreground">{p.current_stage ? `Now: ${p.current_stage}` : "Overall progress"}</span>
-                <span className="font-semibold">{p.overall_progress}%</span>
+              <div className="mt-5 flex items-end justify-between text-body-md">
+                <span className="text-on-surface-variant">{p.current_stage ? `Now: ${p.current_stage}` : "Overall progress"}</span>
+                <span className="text-title-md tabular-nums">{p.overall_progress}%</span>
               </div>
               <ProgressBar value={p.overall_progress} className="mt-2" />
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                <span>Client: <span className="text-foreground">{p.client_name || "—"}</span></span>
-                <span>Target: <span className="text-foreground">{longDate(p.target_date)}</span></span>
-                <span>Spent: <span className="text-foreground">{money(p.spent)} / {money(p.budget)}</span></span>
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-body-sm text-on-surface-variant">
+                <span>Client <span className="text-on-surface">{p.client_name || "—"}</span></span>
+                <span>Target <span className="text-on-surface">{longDate(p.target_date)}</span></span>
+                <span>Spent <span className="text-on-surface">{money(p.spent)} / {money(p.budget)}</span></span>
               </div>
             </Link>
           ))}

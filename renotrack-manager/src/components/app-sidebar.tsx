@@ -1,11 +1,8 @@
 import { Link, useParams, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { RenovisionLogo } from "@/components/renovision-logo";
-import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const projectItems = [
@@ -69,30 +66,17 @@ function NavItems({ expanded, onNavigate }: { expanded: boolean; onNavigate?: ()
   );
 }
 
-/** There is no settings page yet: Settings opens the account panel. */
+/** Settings: profile, photo, email and password (and sign out). */
 function SettingsItem({ expanded }: { expanded: boolean }) {
-  const { profile, email, isDemo, signOut } = useAuth();
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  const active = path === "/settings";
   return (
-    <Popover>
-      <PopoverTrigger aria-label="Settings" className={itemClass(false)}>
-        <span className="grid w-14 shrink-0 place-items-center">
-          <Icon name="settings" size={24} />
-        </span>
-        <span className={labelClass(expanded)}>Settings</span>
-      </PopoverTrigger>
-      <PopoverContent side="right" align="end" className="w-64">
-        <div className="text-title-md">{profile?.full_name}</div>
-        <div className="text-body-md text-on-surface-variant">{email}</div>
-        {isDemo ? (
-          <p className="mt-3 text-body-sm text-on-surface-variant">Demo data. Changes aren't saved and reset when you reload.</p>
-        ) : (
-          <Button variant="outline" onClick={signOut} className="mt-4 w-full">
-            <Icon name="logout" size={20} />
-            Sign out
-          </Button>
-        )}
-      </PopoverContent>
-    </Popover>
+    <Link to="/settings" aria-label="Settings" aria-current={active ? "page" : undefined} className={itemClass(active)}>
+      <span className="grid w-14 shrink-0 place-items-center">
+        <Icon name="settings" size={24} />
+      </span>
+      <span className={labelClass(expanded)}>Settings</span>
+    </Link>
   );
 }
 
@@ -110,8 +94,8 @@ export function AppSidebar() {
       >
         <Link
           to="/"
-          aria-label="RenoVision, all projects"
-          className="mb-4 ml-2 block h-10 w-10 shrink-0 overflow-hidden rounded-md transition-[width] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover/rail:w-[151px] group-has-[:focus-visible]/rail:w-[151px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+          aria-label="RenoVision Manager, all projects"
+          className="mb-4 ml-2 block h-10 w-10 shrink-0 overflow-hidden rounded-md transition-[width] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover/rail:w-[146px] group-has-[:focus-visible]/rail:w-[146px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
         >
           <RenovisionLogo className="h-10" />
         </Link>
@@ -149,11 +133,10 @@ const pillClass = (active: boolean) =>
 export function MobileTabBar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
-  const { profile, email, isDemo, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const tabHrefs = projectId ? tabs.map((t) => t.to.replace("$projectId", projectId)) : [];
   const moreItems = projectId ? projectItems.filter((i) => !tabs.some((t) => t.to === i.to)) : [];
-  const moreActive = moreItems.some((i) => path === i.to.replace("$projectId", projectId ?? "")) || (!!projectId && path === "/");
+  const moreActive = moreItems.some((i) => path === i.to.replace("$projectId", projectId ?? "")) || path === "/settings";
   const moreRow = (active: boolean) =>
     cn(
       "state-layer flex h-14 items-center gap-3 rounded-full pr-6 pl-4 text-label-lg focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
@@ -191,7 +174,7 @@ export function MobileTabBar() {
         </button>
       </nav>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-xl border-0 bg-surface-container-low pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <SheetContent side="bottom" className="max-h-[85dvh] gap-2 overflow-y-auto bg-surface-container-low px-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <SheetTitle className="px-4 pt-2 text-title-lg">More</SheetTitle>
           <div className="mt-2 grid gap-1 px-3">
             {projectId && (
@@ -210,17 +193,11 @@ export function MobileTabBar() {
               );
             })}
           </div>
-          <div className="mx-4 mt-3 border-t border-outline-variant pt-4">
-            <div className="text-title-md">{profile?.full_name}</div>
-            <div className="text-body-md text-on-surface-variant">{email}</div>
-            {isDemo ? (
-              <p className="mt-2 text-body-sm text-on-surface-variant">Demo data. Changes aren't saved and reset when you reload.</p>
-            ) : (
-              <Button variant="outline" onClick={signOut} className="mt-3 w-full">
-                <Icon name="logout" size={20} />
-                Sign out
-              </Button>
-            )}
+          <div className="mx-1 mt-2 border-t border-outline-variant pt-2">
+            <Link to="/settings" onClick={() => setOpen(false)} className={moreRow(path === "/settings")}>
+              <Icon name="settings" size={24} fill={path === "/settings"} />
+              Settings
+            </Link>
           </div>
         </SheetContent>
       </Sheet>
