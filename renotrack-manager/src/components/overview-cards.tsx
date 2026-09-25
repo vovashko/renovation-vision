@@ -152,19 +152,24 @@ export function StatusCard({
 
 export type Shortcut = { label: string; icon: string; onClick?: () => void; link?: Pick<LinkProps, "to" | "params"> };
 
+/**
+ * Deep panel, styled like the design system's chart card: light, very rounded tiles
+ * (surface-container, like the chart bars) and one dark accent tile (primary, like the
+ * highlighted bar) for the most-used action, which comes first.
+ */
 export function ShortcutsCard({ shortcuts }: { shortcuts: Shortcut[] }) {
-  const cls = cn(
-    buttonVariants({ variant: "tonal" }),
-    // Deep-panel tiles on the tinted card.
-    "h-auto min-h-20 flex-col items-start justify-between gap-3 bg-tertiary-container px-4 py-3 text-left whitespace-normal text-on-tertiary-container",
-  );
+  const tile = (accent: boolean) =>
+    cn(
+      "state-layer flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl p-4 text-left text-label-lg transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-tertiary-container",
+      accent ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface",
+    );
   return (
-    <Card variant="tinted" className="p-5 md:p-6" aria-labelledby="shortcuts-heading">
-      <h2 id="shortcuts-heading" className="text-title-lg">
+    <Card variant="deep" className="flex flex-col gap-5 p-5" aria-labelledby="shortcuts-heading">
+      <h2 id="shortcuts-heading" className="text-title-md">
         Shortcuts
       </h2>
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
-        {shortcuts.map((s) => {
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
+        {shortcuts.map((s, i) => {
           const body = (
             <>
               <Icon name={s.icon} size={24} />
@@ -172,11 +177,11 @@ export function ShortcutsCard({ shortcuts }: { shortcuts: Shortcut[] }) {
             </>
           );
           return s.link ? (
-            <Link key={s.label} {...s.link} className={cls}>
+            <Link key={s.label} {...s.link} className={tile(i === 0)}>
               {body}
             </Link>
           ) : (
-            <button key={s.label} type="button" onClick={s.onClick} className={cls}>
+            <button key={s.label} type="button" onClick={s.onClick} className={tile(i === 0)}>
               {body}
             </button>
           );
@@ -205,17 +210,20 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
   const inner = (
     <>
       <Icon name={icon} size={20} className="shrink-0 text-on-surface-variant" />
-      <span className="min-w-0 truncate">{children}</span>
+      <span className="min-w-0 flex-1 truncate">{children}</span>
     </>
   );
+  const row = "flex min-h-12 items-center gap-3 px-4 text-body-lg";
   return href ? (
-    <a href={href} className="flex min-h-11 items-center gap-3 rounded-md text-body-lg text-on-surface hover:underline focus-visible:outline-2 focus-visible:outline-primary">
+    <a href={href} className={cn(row, "state-layer text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary")}>
       {inner}
     </a>
   ) : (
-    <div className="flex min-h-11 items-center gap-3 text-body-lg text-on-surface-variant">{inner}</div>
+    <div className={cn(row, "text-on-surface-variant")}>{inner}</div>
   );
 }
+
+const onPanelButton = cn(buttonVariants({ variant: "tonal" }), "bg-surface-container-lowest text-on-surface");
 
 export function ClientCard({
   projectId,
@@ -232,7 +240,7 @@ export function ClientCard({
 }) {
   const name = clientName || appUsers.map((m) => m.profile.full_name).join(" & ") || "Client";
   return (
-    <Card className="flex flex-col gap-4 p-5 md:p-6" aria-labelledby="client-heading">
+    <Card variant="tinted" className="flex flex-col gap-4 p-5 md:p-6" aria-labelledby="client-heading">
       <div className="flex items-center justify-between gap-3">
         <h2 id="client-heading" className="text-title-lg">
           Client
@@ -250,7 +258,8 @@ export function ClientCard({
           </div>
         </div>
       </div>
-      <div>
+      {/* On the tinted panel: a white inner list and white buttons. */}
+      <div className="divide-y divide-outline-variant overflow-hidden rounded-lg bg-surface-container-lowest">
         {contact?.client_phone ? (
           <ContactLine icon="call" href={tel(contact.client_phone)}>
             {contact.client_phone}
@@ -266,19 +275,19 @@ export function ClientCard({
           <ContactLine icon="mail">No email yet</ContactLine>
         )}
       </div>
-      <div className="mt-auto flex flex-wrap gap-2">
-        <Link to="/projects/$projectId/chat" params={{ projectId }} className={buttonVariants({ variant: "tonal" })}>
+      <div className="grid grid-cols-2 gap-2">
+        <Link to="/projects/$projectId/chat" params={{ projectId }} className={cn(onPanelButton, "col-span-2")}>
           <Icon name="chat_bubble" size={20} />
           Message
         </Link>
         {contact?.client_phone && (
-          <a href={tel(contact.client_phone)} className={buttonVariants({ variant: "outline" })}>
+          <a href={tel(contact.client_phone)} className={onPanelButton}>
             <Icon name="call" size={20} />
             Call
           </a>
         )}
         {contact?.client_email && (
-          <a href={`mailto:${contact.client_email}`} className={buttonVariants({ variant: "outline" })}>
+          <a href={`mailto:${contact.client_email}`} className={onPanelButton}>
             <Icon name="mail" size={20} />
             Email
           </a>
@@ -329,7 +338,10 @@ export function TeamCard({
             <div className="min-w-0 flex-1">
               <div className="truncate text-body-lg">{c.name}</div>
               <div className="truncate text-body-md text-on-surface-variant">
-                {[c.trade, c.phone].filter(Boolean).join(" · ") || "No contact details"}
+                {c.trade}
+                {/* Phones show the call button instead of the number. */}
+                {c.phone && <span className="hidden sm:inline">{c.trade ? " · " : ""}{c.phone}</span>}
+                {!c.trade && !c.phone && "No contact details"}
               </div>
             </div>
             <div className="flex shrink-0 gap-1">
