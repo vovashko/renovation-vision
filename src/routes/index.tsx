@@ -164,7 +164,7 @@ function Overview() {
           deltaTone={budget.over ? "attention" : "good"}
           note={`of the ${plan.value}${plan.unit} plan`}
         />
-        <Stat label="Client" value={project.client} note="Primary contact" />
+        <Stat label="Project manager" value={project.manager} note="Primary contact" />
       </section>
 
       <section aria-labelledby="latest-photos">

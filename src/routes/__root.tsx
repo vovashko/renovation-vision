@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -112,8 +113,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+// The header card matches the content width of the page below it, so their edges line up.
+const pageWidth: Record<string, string> = {
+  "/": "max-w-7xl",
+  "/plan": "max-w-6xl",
+  "/design": "max-w-6xl",
+  "/stages": "max-w-5xl",
+  "/photos": "max-w-5xl",
+  "/chat": "max-w-3xl",
+};
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  const isHome = path === "/";
   return (
     <QueryClientProvider client={queryClient}>
       <PhotoProvider>
@@ -121,23 +134,34 @@ function RootComponent() {
           <div className="flex min-h-screen w-full bg-surface text-on-surface">
             <AppSidebar />
             <div className="flex min-w-0 flex-1 flex-col">
-              {/* Deep panel: a full-width rounded card, top-aligned with the rail. The sticky
-                  wrapper keeps the page surface behind it so content never shows above it. */}
-              <header className="sticky top-0 z-30 bg-surface px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
-                <div
-                  className={cn(
-                    cardVariants({ variant: "deep" }),
-                    "flex h-16 items-center gap-3 px-5 py-0",
-                  )}
-                >
-                  <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                    <span className="truncate text-title-md">{project.name}</span>
-                    <span className="hidden text-body-sm md:block">{project.address}</span>
-                    <HeaderProgress className="md:hidden" />
+              {/* Tinted panel as wide as the page content, top-aligned with the rail. Scrolls with
+                  the page. Hidden on the Overview, whose project card already says the same. */}
+              {!isHome && (
+                <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
+                  <div
+                    className={cn(
+                      cardVariants({ variant: "tinted" }),
+                      "mx-auto flex h-16 w-full items-center gap-3 px-5 py-0",
+                      pageWidth[path] ?? "max-w-7xl",
+                    )}
+                  >
+                    <div className="flex min-w-0 flex-1 flex-col leading-tight">
+                      <span className="truncate text-title-md">{project.name}</span>
+                      <span className="hidden text-body-sm text-on-surface-variant md:block">
+                        {project.address}
+                      </span>
+                      <HeaderProgress className="md:hidden" />
+                    </div>
                   </div>
-                </div>
-              </header>
-              <main className="min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-8 md:pt-6 md:pb-8">
+                </header>
+              )}
+              <main
+                className={cn(
+                  "min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-8 md:pb-8",
+                  // Without the header, content starts level with the rail's top edge.
+                  isHome ? "pt-[max(1rem,env(safe-area-inset-top))] md:pt-4" : "md:pt-6",
+                )}
+              >
                 <Outlet />
               </main>
             </div>
@@ -154,7 +178,7 @@ function HeaderProgress({ className = "" }: { className?: string }) {
   return (
     <div className={cn("mt-1 flex items-center gap-2", className)}>
       <Progress value={progress} onPanel aria-label="Overall progress" className="flex-1" />
-      <span className="text-label-sm tabular-nums">{progress}%</span>
+      <span className="text-label-sm tabular-nums text-on-surface-variant">{progress}%</span>
     </div>
   );
 }
