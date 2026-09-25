@@ -378,7 +378,7 @@ begin
   end if;
   select u.id into v_user from auth.users u where lower(u.email) = lower(trim(p_email));
   if v_user is null then
-    raise exception 'No RenoTrack account uses %. Ask them to sign up first.', p_email using errcode = 'P0002';
+    raise exception 'No Renovision account uses %. Ask them to sign up first.', p_email using errcode = 'P0002';
   end if;
   insert into public.project_members (project_id, user_id, role)
   values (p_project, v_user, p_role)

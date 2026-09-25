@@ -1,6 +1,6 @@
 import type { ProgressTone } from "./progress";
 
-// Status vocabulary shared with the RenoTrack client app (src/lib/renovation-data.ts there).
+// Status vocabulary shared with the Renovision client app (src/lib/renovation-data.ts there).
 // State follows progress: pending is always 0%, above 0% it is in progress, 100% is done;
 // blocked keeps the progress reached when work stopped.
 export type Status = "done" | "progress" | "pending" | "blocked";

@@ -4,7 +4,7 @@ const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
 
 /**
- * Same Supabase project as the RenoTrack client app. When the env vars are
+ * Same Supabase project as the Renovision client app. When the env vars are
  * missing the portal runs in demo mode against an in-memory copy of the seed.
  */
 export const supabase: SupabaseClient | null =

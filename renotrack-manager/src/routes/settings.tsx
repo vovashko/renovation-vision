@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — RenoTrack Manager" },
+      { title: "Settings — Renovision Manager" },
       { name: "description", content: "App settings." },
     ],
   }),

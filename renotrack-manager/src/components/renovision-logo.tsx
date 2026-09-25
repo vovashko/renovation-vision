@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  */
 export function RenovisionLogo({
   className,
-  title = "RenoVision Manager",
+  title = "Renovision Manager",
 }: {
   className?: string;
   title?: string;

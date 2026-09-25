@@ -1,7 +1,7 @@
-# RenoTrack Manager
+# Renovision Manager
 
 The admin portal where site managers enter and update everything clients see in the
-**RenoTrack** client app (the app in the repository root). It's a separate app with its own
+**Renovision** client app (the app in the repository root). It's a separate app with its own
 `package.json`, build and deployment (`wrangler.jsonc` → `renotrack-manager`). The client
 app's code was not changed.
 
@@ -31,8 +31,8 @@ SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node supabase/scripts/upload-seed
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql   # prints "RLS tests passed"
 ```
 
-Demo logins (password `renotrack-demo`): `jonas@renotrack.demo` (manager),
-`sarah@renotrack.demo` and `tom@renotrack.demo` (clients). Client accounts that sign in here
+Demo logins (password `renovision-demo`): `jonas@renovision.demo` (manager),
+`sarah@renovision.demo` and `tom@renovision.demo` (clients). Client accounts that sign in here
 get a "This portal is for site managers" screen.
 
 ## Pages

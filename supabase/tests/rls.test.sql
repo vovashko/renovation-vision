@@ -1,4 +1,4 @@
--- RLS regression tests for the shared RenoTrack backend.
+-- RLS regression tests for the shared Renovision backend.
 -- Run against a freshly seeded database (everything is rolled back):
 --   psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql
 -- Prints "RLS tests passed" on success; any failed assertion aborts with an error.
@@ -32,7 +32,7 @@ insert into storage.objects (bucket_id, name) values
 
 -- An unrelated manager account with its own project.
 insert into auth.users (id, email, aud, role) values
-  ('a0000000-0000-4000-8000-0000000000ff', 'other@renotrack.demo', 'authenticated', 'authenticated');
+  ('a0000000-0000-4000-8000-0000000000ff', 'other@renovision.demo', 'authenticated', 'authenticated');
 insert into public.profiles (id, full_name, account_type)
 values ('a0000000-0000-4000-8000-0000000000ff', 'Other Manager', 'manager')
 on conflict (id) do update set account_type = 'manager';
@@ -174,7 +174,7 @@ begin
   get diagnostics n = row_count;
   perform pg_temp.check(n = 0, 'other manager cannot edit stages');
   begin
-    perform public.add_project_member('b0000000-0000-4000-8000-000000000001', 'other@renotrack.demo', 'manager');
+    perform public.add_project_member('b0000000-0000-4000-8000-000000000001', 'other@renovision.demo', 'manager');
     raise exception 'FAILED: other manager joined a project they do not manage';
   exception when insufficient_privilege then null;
   end;

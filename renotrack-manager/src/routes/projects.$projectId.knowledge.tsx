@@ -16,7 +16,7 @@ import type { Knowledge } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/knowledge")({
   head: () => ({
     meta: [
-      { title: "AI knowledge — RenoTrack Manager" },
+      { title: "AI knowledge — Renovision Manager" },
       { name: "description", content: "Facts the client's AI assistant can use when answering questions." },
     ],
   }),

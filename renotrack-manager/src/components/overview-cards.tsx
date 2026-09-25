@@ -152,13 +152,13 @@ export function StatusCard({
 
 export type Shortcut = { label: string; icon: string; onClick?: () => void; link?: Pick<LinkProps, "to" | "params"> };
 
-/** Deep panel, styled like the design system's chart card: light, very rounded tiles (like the chart bars). */
+/** Tinted panel with white, very rounded tiles; hover/press go to surface (like the stepper buttons). */
 export function ShortcutsCard({ shortcuts }: { shortcuts: Shortcut[] }) {
   const tile =
-    "state-layer flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl bg-surface-container p-4 text-left text-label-lg text-on-surface transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-tertiary-container";
+    "flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl bg-surface-container-lowest p-4 text-left text-label-lg text-on-surface transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-surface active:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
   return (
-    <Card variant="deep" className="flex flex-col gap-5 p-5" aria-labelledby="shortcuts-heading">
-      <h2 id="shortcuts-heading" className="text-title-md">
+    <Card variant="tinted" className="flex flex-col gap-4 p-5 md:p-6" aria-labelledby="shortcuts-heading">
+      <h2 id="shortcuts-heading" className="text-title-lg">
         Shortcuts
       </h2>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
@@ -208,7 +208,7 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
   );
   const row = "flex min-h-12 items-center gap-3 px-4 text-body-lg";
   return href ? (
-    <a href={href} className={cn(row, "state-layer text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary")}>
+    <a href={href} className={cn(row, "text-on-surface transition-colors duration-150 hover:bg-surface active:bg-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary")}>
       {inner}
     </a>
   ) : (
@@ -216,9 +216,7 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
   );
 }
 
-// White on the tinted panel. The hairline keeps the edge visible when the state layer greys the
-// fill on hover/press (the panel and a greyed white are nearly the same tone); pressed tints sage.
-const onPanelButton = cn(buttonVariants({ variant: "outline" }), "active:bg-primary-container");
+const onPanelButton = buttonVariants({ variant: "panel" });
 
 export function ClientCard({
   projectId,

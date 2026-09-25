@@ -43,13 +43,13 @@ export function LoginScreen() {
             <Icon name="construction" size={22} />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="font-semibold">RenoTrack</span>
+            <span className="font-semibold">Renovision</span>
             <span className="text-xs text-muted-foreground">Site admin portal</span>
           </div>
           <div className="ml-auto"><ManagerBadge /></div>
         </div>
         <h1 className="mt-6 text-xl font-semibold">Sign in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">For site managers. Clients use the RenoTrack app.</p>
+        <p className="mt-1 text-sm text-muted-foreground">For site managers. Clients use the Renovision app.</p>
         <div className="mt-5 space-y-3">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -78,7 +78,7 @@ export function NotAManagerScreen() {
       <div className="max-w-sm rounded-2xl border bg-card p-6 text-center shadow-[var(--shadow-elegant)]">
         <h1 className="text-xl font-semibold">This portal is for site managers</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {email} is a client account. Open the RenoTrack app to follow your renovation.
+          {email} is a client account. Open the Renovision app to follow your renovation.
         </p>
         <Button onClick={signOut} variant="outline" className="mt-5 min-h-11">Sign out</Button>
       </div>

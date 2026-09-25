@@ -3,10 +3,12 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ChatAvatar } from "@/components/ui/chat";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, selectCls } from "@/components/form-sheet";
+import { Field } from "@/components/form-sheet";
+import { Segmented } from "@/components/ui/segmented";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -17,7 +19,7 @@ import type { Member, ProjectRole } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/team")({
   head: () => ({
     meta: [
-      { title: "Team — RenoTrack Manager" },
+      { title: "Team — Renovision Manager" },
       { name: "description", content: "Who can see and manage this project." },
     ],
   }),
@@ -38,11 +40,11 @@ function TeamPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
-      <PageHeader title="Team" description="Clients see visible project data in the RenoTrack app. Managers can edit everything here." />
+      <PageHeader title="Team" description="Clients see visible project data in the Renovision app. Managers can edit everything here." />
 
       <Card className="p-5">
         <form
-          className="grid gap-3 sm:grid-cols-[1fr_160px_auto] sm:items-end"
+          className="grid gap-3 sm:grid-cols-[1fr_220px_auto] sm:items-end"
           onSubmit={(e) => {
             e.preventDefault();
             add.mutate(undefined, { onSuccess: () => setEmail("") });
@@ -51,19 +53,29 @@ function TeamPage() {
           <Field id="tm-email" label="Add by email">
             <Input id="tm-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} aria-describedby="tm-email-hint" />
           </Field>
-          <Field id="tm-role" label="Role">
-            <select id="tm-role" value={role} onChange={(e) => setRole(e.target.value as ProjectRole)} className={selectCls}>
-              <option value="client">Client</option>
-              <option value="manager">Manager</option>
-            </select>
-          </Field>
+          <div className="space-y-2">
+            <Label id="tm-role-label" asChild>
+              <span>Role</span>
+            </Label>
+            <Segmented
+              aria-labelledby="tm-role-label"
+              size="field"
+              className="flex w-full"
+              value={role}
+              onValueChange={setRole}
+              options={[
+                { value: "client", label: "Client" },
+                { value: "manager", label: "Manager" },
+              ]}
+            />
+          </div>
           <Button type="submit" disabled={!email.trim() || add.isPending}>
             <Icon name="person_add" size={20} /> Add
           </Button>
         </form>
         {/* Below the whole row so the fields and the button share one baseline. */}
         <p id="tm-email-hint" className="mt-2 text-body-sm text-on-surface-variant">
-          They need a RenoTrack account first.
+          They need a Renovision account first.
         </p>
       </Card>
 

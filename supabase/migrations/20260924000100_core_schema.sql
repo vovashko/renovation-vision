@@ -1,8 +1,8 @@
--- RenoTrack shared backend — core schema.
+-- Renovision shared backend — core schema.
 --
 -- One Supabase project serves both apps:
---   * RenoTrack (client app)          — reads visible, client-safe rows.
---   * RenoTrack Manager (admin portal) — reads and writes everything for assigned projects.
+--   * Renovision (client app)          — reads visible, client-safe rows.
+--   * Renovision Manager (admin portal) — reads and writes everything for assigned projects.
 --
 -- Internal fields never live on client-readable tables. They are kept in
 -- manager-only tables (project_internal, expenses, activity_log) or are hidden

@@ -69,8 +69,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "RenoTrack Manager" },
-      { name: "description", content: "Admin portal for site managers: update the stages, plan, photos, budget and chat your clients see in RenoTrack." },
+      { title: "Renovision Manager" },
+      { name: "description", content: "Admin portal for site managers: update the stages, plan, photos, budget and chat your clients see in Renovision." },
       { name: "robots", content: "noindex" },
     ],
     links: [

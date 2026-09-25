@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, selectCls } from "@/components/form-sheet";
+import { Field, NativeSelect } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { InternalBadge } from "@/components/visibility-badge";
 import { api } from "@/lib/api";
@@ -17,7 +17,7 @@ import type { Notification } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/updates")({
   head: () => ({
     meta: [
-      { title: "Updates — RenoTrack Manager" },
+      { title: "Updates — Renovision Manager" },
       { name: "description", content: "Notifications sent to the client and the internal activity log." },
     ],
   }),
@@ -76,9 +76,9 @@ function UpdatesPage() {
           <Field id="nt-title" label="Title"><Input id="nt-title" required maxLength={80} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Water off on Thursday" className="h-11" /></Field>
           <Field id="nt-body" label="Message"><Textarea id="nt-body" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></Field>
           <Field id="nt-link" label="Opens in the client app">
-            <select id="nt-link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className={selectCls}>
+            <NativeSelect id="nt-link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })}>
               {links.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
-            </select>
+            </NativeSelect>
           </Field>
           <Button type="submit" disabled={!form.title.trim() || send.isPending || clientIds.size === 0} className="min-h-11 w-full">
             {clientIds.size === 0 ? "Invite a client first" : `Send to ${clientIds.size} client${clientIds.size > 1 ? "s" : ""}`}

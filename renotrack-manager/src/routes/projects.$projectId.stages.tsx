@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { StageCard, StageList } from "@/components/ui/stage-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { progressForStatus, statusForProgress, statusLabel, statuses, type Status } from "@/components/ui/status";
-import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/form-sheet";
+import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { api, type StageInput } from "@/lib/api";
@@ -20,7 +20,7 @@ import type { Room, Stage, Task } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/stages")({
   head: () => ({
     meta: [
-      { title: "Stages — RenoTrack Manager" },
+      { title: "Stages — Renovision Manager" },
       { name: "description", content: "Edit renovation stages, dates, progress and task checklists." },
     ],
   }),
@@ -123,10 +123,10 @@ function AddTask({ rooms, onAdd }: { rooms: Room[]; onAdd: (name: string, roomId
       }}
     >
       <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Add a task…" aria-label="New task name" className="h-10" />
-      <select value={roomId} onChange={(e) => setRoomId(e.target.value)} aria-label="Room this task affects" className="h-10 w-32 shrink-0 rounded-md border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <NativeSelect value={roomId} onChange={(e) => setRoomId(e.target.value)} aria-label="Room this task affects" wrapperClassName="w-36 shrink-0">
         <option value="">No room</option>
         {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-      </select>
+      </NativeSelect>
       <Button type="submit" variant="outline" disabled={!name.trim()} className="h-10">Add</Button>
     </form>
   );
@@ -172,9 +172,9 @@ function StageSheet({ projectId, stage, rooms, count, onClose }: { projectId: st
         </div>
         {invalidDates && <p className="text-sm text-destructive">End date must be on or after the start date.</p>}
         <Field id="st-status" label="Status">
-          <select id="st-status" value={form.status} onChange={(e) => setStatus(e.target.value as Status)} className={selectCls}>
+          <NativeSelect id="st-status" value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
             {statuses.map((s) => <option key={s} value={s}>{statusLabel[s]}</option>)}
-          </select>
+          </NativeSelect>
         </Field>
         <Field id="st-progress" label={`Progress — ${form.progress}%`}>
           <Slider id="st-progress" min={0} max={100} step={5} value={[form.progress]} onValueChange={([v]) => setProgress(v)} className="py-3" />

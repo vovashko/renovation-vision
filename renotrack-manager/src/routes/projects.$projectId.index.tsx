@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FormSheet, selectCls } from "@/components/form-sheet";
+import { Field, FormSheet, NativeSelect } from "@/components/form-sheet";
 import { PageLoading } from "@/components/page-header";
 import { UploadSheet } from "@/components/photo-upload-sheet";
 import { ExpenseSheet } from "@/components/expense-sheet";
@@ -26,7 +26,7 @@ import type { CrewMember, ProjectSummary, ScheduleStatus } from "@/lib/database.
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
     meta: [
-      { title: "Overview — RenoTrack Manager" },
+      { title: "Overview — Renovision Manager" },
       { name: "description", content: "Is the project on track, who to call, and one-click shortcuts." },
     ],
   }),
@@ -171,9 +171,9 @@ function ProjectDetailsSheet({ project, open, onOpenChange }: { project: Project
           <Input id="pd-budget" type="number" min={0} step={100} value={form.budget ?? 0} onChange={(e) => set("budget", Number(e.target.value))} className="h-11" />
         </Field>
         <Field id="pd-schedule" label="Schedule status" hint="Shown on the client's overview. Changing it notifies the client.">
-          <select id="pd-schedule" value={form.schedule_status} onChange={(e) => set("schedule_status", e.target.value as ScheduleStatus)} className={selectCls}>
+          <NativeSelect id="pd-schedule" value={form.schedule_status} onChange={(e) => set("schedule_status", e.target.value as ScheduleStatus)}>
             {(Object.keys(scheduleLabel) as ScheduleStatus[]).map((s) => <option key={s} value={s}>{scheduleLabel[s]}</option>)}
-          </select>
+          </NativeSelect>
         </Field>
         <Field id="pd-note" label="Schedule note for the client">
           <Textarea id="pd-note" value={form.schedule_note ?? ""} onChange={(e) => set("schedule_note", e.target.value)} placeholder="Why the schedule is what it is, in plain words." />

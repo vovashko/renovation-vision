@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { BeforeAfter } from "@/components/ui/before-after";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/form-sheet";
+import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { api, type RenderInput } from "@/lib/api";
@@ -18,7 +18,7 @@ import type { Photo, Render, Room } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/design")({
   head: () => ({
     meta: [
-      { title: "Design renders — RenoTrack Manager" },
+      { title: "Design renders — Renovision Manager" },
       { name: "description", content: "Upload design renders and before/after pairs for each room." },
     ],
   }),
@@ -146,16 +146,16 @@ function RenderSheet({ projectId, render, rooms, photos, onClose }: { projectId:
           <Field id="rn-desc" label="Description"><Textarea id="rn-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Materials, colours, fixtures." /></Field>
           <Field id="rn-alt" label="Image description (for screen readers)"><Input id="rn-alt" value={form.alt} onChange={(e) => setForm({ ...form, alt: e.target.value })} className="h-11" /></Field>
           <Field id="rn-room" label="Room">
-            <select id="rn-room" value={form.room_id} onChange={(e) => setForm({ ...form, room_id: e.target.value, compare_photo_id: "" })} className={selectCls}>
+            <NativeSelect id="rn-room" value={form.room_id} onChange={(e) => setForm({ ...form, room_id: e.target.value, compare_photo_id: "" })}>
               <option value="">—</option>
               {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
+            </NativeSelect>
           </Field>
           <Field id="rn-compare" label="Before/after: current site photo (optional)" hint="Adds a slider comparing this photo with the render.">
-            <select id="rn-compare" value={form.compare_photo_id} onChange={(e) => setForm({ ...form, compare_photo_id: e.target.value })} className={selectCls}>
+            <NativeSelect id="rn-compare" value={form.compare_photo_id} onChange={(e) => setForm({ ...form, compare_photo_id: e.target.value })}>
               <option value="">None</option>
               {roomPhotos.map((p) => <option key={p.id} value={p.id}>{p.caption.slice(0, 60) || p.id}{p.status === "draft" ? " (draft)" : ""}</option>)}
-            </select>
+            </NativeSelect>
           </Field>
           <VisibleSwitch id="rn-visible" checked={form.is_visible} onChange={(v) => setForm({ ...form, is_visible: v })} label="Share with client" />
           <Button type="submit" disabled={save.isPending || !form.title.trim() || (isNew && !form.file)} className="min-h-11 w-full">{save.isPending ? "Saving…" : "Save render"}</Button>

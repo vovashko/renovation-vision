@@ -1,4 +1,4 @@
--- Demo seed: "Maple Street Apartment", exactly as the RenoTrack client app shows it,
+-- Demo seed: "Maple Street Apartment", exactly as the Renovision client app shows it,
 -- with two data inconsistencies fixed:
 --
 --   1. Bedroom 2 is Blocked, but the project said "On schedule".
@@ -9,10 +9,10 @@
 --   3. Kitchen was Pending at 10%, but pending always means 0% (state follows progress).
 --      -> Kitchen is In progress at 10%.
 --
--- Demo logins (password for all: renotrack-demo)
---   jonas@renotrack.demo  manager (Jonas Weber)
---   sarah@renotrack.demo  client  (Sarah Bennett)
---   tom@renotrack.demo    client  (Tom Bennett)
+-- Demo logins (password for all: renovision-demo)
+--   jonas@renovision.demo  manager (Jonas Weber)
+--   sarah@renovision.demo  client  (Sarah Bennett)
+--   tom@renovision.demo    client  (Tom Bennett)
 --
 -- Image files are uploaded separately: `node supabase/scripts/upload-seed-media.mjs`.
 -- Triggers are disabled while seeding so the audit trail and notifications below are curated.
@@ -29,13 +29,13 @@ insert into auth.users (
 )
 select
   '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
-  extensions.crypt('renotrack-demo', extensions.gen_salt('bf')), now(),
+  extensions.crypt('renovision-demo', extensions.gen_salt('bf')), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
   jsonb_build_object('full_name', u.full_name), now(), now(), '', '', '', ''
 from (values
-  ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renotrack.demo', 'Jonas Weber'),
-  ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renotrack.demo', 'Sarah Bennett'),
-  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renotrack.demo', 'Tom Bennett')
+  ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renovision.demo', 'Jonas Weber'),
+  ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renovision.demo', 'Sarah Bennett'),
+  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renovision.demo', 'Tom Bennett')
 ) as u (id, email, full_name)
 on conflict (id) do nothing;
 
@@ -44,7 +44,7 @@ select gen_random_uuid(), u.id, u.id::text,
        jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
        'email', now(), now(), now()
 from auth.users u
-where u.email like '%@renotrack.demo'
+where u.email like '%@renovision.demo'
   and not exists (select 1 from auth.identities i where i.user_id = u.id and i.provider = 'email');
 
 insert into public.profiles (id, full_name, account_type) values

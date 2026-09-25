@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FormSheet, selectCls } from "@/components/form-sheet";
+import { Field, FormSheet, NativeSelect } from "@/components/form-sheet";
 import { api, type ExpenseInput } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Expense, Stage } from "@/lib/database.types";
@@ -55,15 +55,15 @@ export function ExpenseSheet({ projectId, expense, stages, onClose }: { projectI
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field id="ex-cat" label="Category">
-              <select id="ex-cat" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={selectCls}>
+              <NativeSelect id="ex-cat" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 {categories.map((c) => <option key={c}>{c}</option>)}
-              </select>
+              </NativeSelect>
             </Field>
             <Field id="ex-stage" label="Stage">
-              <select id="ex-stage" value={form.stage_id} onChange={(e) => setForm({ ...form, stage_id: e.target.value })} className={selectCls}>
+              <NativeSelect id="ex-stage" value={form.stage_id} onChange={(e) => setForm({ ...form, stage_id: e.target.value })}>
                 <option value="">—</option>
                 {stages.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              </NativeSelect>
             </Field>
           </div>
           <Field id="ex-vendor" label="Vendor"><Input id="ex-vendor" value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} className="h-11" /></Field>

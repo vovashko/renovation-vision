@@ -20,7 +20,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Projects — RenoTrack Manager" },
+      { title: "Projects — Renovision Manager" },
       { name: "description", content: "All renovation projects you manage." },
     ],
   }),
@@ -35,7 +35,7 @@ function ProjectsPage() {
     <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="Your projects"
-        description="Everything you update here appears in the client's RenoTrack app."
+        description="Everything you update here appears in the client's Renovision app."
         actions={
           <Button onClick={() => setOpen(true)}>
             <Icon name="add" size={20} />

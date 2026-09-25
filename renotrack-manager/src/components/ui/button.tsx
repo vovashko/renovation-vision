@@ -15,6 +15,9 @@ const buttonVariants = cva(
         // Kept for existing callers; same as tonal.
         secondary: "state-layer bg-secondary-container text-on-secondary-container",
         outline: "state-layer border border-outline-variant bg-surface-container-lowest text-on-surface",
+        // Buttons on a tinted panel (the design system's stepper card): white, no border, and hover /
+        // pressed go to surface instead of a dark state layer, so they stay lighter than the panel.
+        panel: "bg-surface-container-lowest text-on-surface hover:bg-surface active:bg-surface",
         ghost: "state-layer bg-transparent px-3 text-primary",
         link: "state-layer bg-transparent px-3 text-primary",
         destructive: "bg-error text-on-error hover:bg-error/92 active:bg-error/88",

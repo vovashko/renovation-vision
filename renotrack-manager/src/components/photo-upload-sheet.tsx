@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FormSheet, selectCls } from "@/components/form-sheet";
+import { Field, FormSheet, NativeSelect } from "@/components/form-sheet";
 import { api, type PhotoMeta } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Room, Stage } from "@/lib/database.types";
@@ -12,16 +12,16 @@ export function StageRoomFields({ prefix, stages, rooms, stageId, roomId, onStag
   return (
     <div className="grid grid-cols-2 gap-3">
       <Field id={`${prefix}-stage`} label="Stage">
-        <select id={`${prefix}-stage`} value={stageId} onChange={(e) => onStage(e.target.value)} className={selectCls}>
+        <NativeSelect id={`${prefix}-stage`} value={stageId} onChange={(e) => onStage(e.target.value)}>
           <option value="">—</option>
           {stages.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        </NativeSelect>
       </Field>
       <Field id={`${prefix}-room`} label="Room">
-        <select id={`${prefix}-room`} value={roomId} onChange={(e) => onRoom(e.target.value)} className={selectCls}>
+        <NativeSelect id={`${prefix}-room`} value={roomId} onChange={(e) => onRoom(e.target.value)}>
           <option value="">—</option>
           {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-        </select>
+        </NativeSelect>
       </Field>
     </div>
   );

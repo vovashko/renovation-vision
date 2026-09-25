@@ -9,7 +9,7 @@ import { FloorPlan } from "@/components/ui/floor-plan";
 import { RoomCard } from "@/components/ui/room-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { progressForStatus, statusForProgress, statusLabel, statuses, type Status } from "@/components/ui/status";
-import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/form-sheet";
+import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { api, type RoomInput } from "@/lib/api";
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/projects/$projectId/plan")({
   }),
   head: () => ({
     meta: [
-      { title: "Plan — RenoTrack Manager" },
+      { title: "Plan — Renovision Manager" },
       { name: "description", content: "Update room status and progress on the floor plan." },
     ],
   }),
@@ -158,9 +158,9 @@ function RoomFields({
     >
       {!compact && <Field id={`${pre}-name`} label="Room name"><Input id={`${pre}-name`} required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-11" /></Field>}
       <Field id={`${pre}-status`} label="Status">
-        <select id={`${pre}-status`} value={form.status} onChange={(e) => setStatus(e.target.value as Status)} className={selectCls}>
+        <NativeSelect id={`${pre}-status`} value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
           {statuses.map((s) => <option key={s} value={s}>{statusLabel[s]}</option>)}
-        </select>
+        </NativeSelect>
       </Field>
       {blockedByTasks && (
         <p className="rounded-md bg-muted p-2 text-xs text-status-blocked" role="alert">

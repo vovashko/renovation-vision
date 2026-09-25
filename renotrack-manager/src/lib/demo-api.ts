@@ -31,7 +31,7 @@ import type {
   Task,
 } from "./database.types";
 
-export const DEMO_USER = { id: "a0000000-0000-4000-8000-000000000001", full_name: "Jonas Weber", email: "jonas@renotrack.demo" };
+export const DEMO_USER = { id: "a0000000-0000-4000-8000-000000000001", full_name: "Jonas Weber", email: "jonas@renovision.demo" };
 const SARAH = "a0000000-0000-4000-8000-000000000002";
 const TOM = "a0000000-0000-4000-8000-000000000003";
 const PID = "b0000000-0000-4000-8000-000000000001";
