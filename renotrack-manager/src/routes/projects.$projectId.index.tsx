@@ -103,9 +103,10 @@ function Overview() {
           <Link to="/projects/$projectId/stages" params={{ projectId }} className="text-sm text-primary hover:underline">Edit stages →</Link>
         </div>
         <div className="space-y-3">
-          {stages.map((s) => (
+          {stages.map((s, i) => (
             <StageTimelineRow
               key={s.id}
+              index={i + 1}
               name={s.name}
               status={s.status}
               start={shortDate(s.start_date)}

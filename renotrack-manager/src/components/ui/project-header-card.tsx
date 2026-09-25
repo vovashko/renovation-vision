@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { Icon } from "@/components/ui/icon";
+import { Card } from "./card";
+import { Icon } from "./icon";
 import { ProgressBar } from "./progress-bar";
 
 export function ProjectHeaderCard({
@@ -22,33 +23,34 @@ export function ProjectHeaderCard({
   actions?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card p-6 shadow-[var(--shadow-elegant)] md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-6">
-        <div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">{eyebrow}</div>
-          <h1 className="mt-1 text-3xl font-semibold md:text-4xl">{name}</h1>
-          <p className="mt-1 text-muted-foreground">{address}</p>
-          {managerName && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="person" size={20} /> Manager: <span className="font-medium text-foreground">{managerName}</span>
-            </div>
-          )}
-          {badges && <div className="mt-3 flex flex-wrap items-center gap-2">{badges}</div>}
-        </div>
-        <div className="min-w-[220px]">
-          <div className="flex items-end justify-between">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Overall progress</span>
-            <span className="text-2xl font-semibold">{progress}%</span>
+    <Card className="flex flex-wrap justify-between gap-x-12 gap-y-6 px-7 py-6">
+      <div className="min-w-0">
+        <div className="text-body-md text-on-surface-variant">{eyebrow}</div>
+        <h1 className="mt-1 text-headline-lg">{name}</h1>
+        <p className="mt-1 text-body-lg text-on-surface-variant">{address}</p>
+        {managerName && (
+          <div className="mt-3 flex items-center gap-2 text-body-md text-on-surface-variant">
+            <span className="grid size-7 place-items-center rounded-full bg-surface-container-high text-on-surface">
+              <Icon name="person" size={18} />
+            </span>
+            Manager <span className="font-medium text-on-surface">{managerName}</span>
           </div>
-          <ProgressBar value={progress} size="lg" className="mt-2" />
-          {currentStage && (
-            <div className="mt-3 text-sm text-muted-foreground">
-              Currently working on <span className="font-medium text-foreground">{currentStage}</span>
-            </div>
-          )}
-          {actions && <div className="mt-4 flex flex-wrap gap-2">{actions}</div>}
-        </div>
+        )}
+        {badges && <div className="mt-3 flex flex-wrap items-center gap-2">{badges}</div>}
       </div>
-    </section>
+      <div className="w-full sm:w-[380px]">
+        <div className="flex items-end justify-between gap-3">
+          <span className="text-body-md text-on-surface">Overall progress</span>
+          <span className="text-headline-md">{progress}%</span>
+        </div>
+        <ProgressBar value={progress} className="mt-3" />
+        {currentStage && (
+          <div className="mt-3 text-body-md text-on-surface-variant">
+            Currently working on <span className="font-medium text-on-surface">{currentStage}</span>
+          </div>
+        )}
+        {actions && <div className="mt-4 flex flex-wrap gap-2">{actions}</div>}
+      </div>
+    </Card>
   );
 }

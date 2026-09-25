@@ -1,18 +1,29 @@
 import type { ReactNode } from "react";
-import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
-import { statusFill, type Status } from "./status";
-import { StatusPill } from "./status-pill";
+import { Icon } from "./icon";
+import { LateLine } from "./late-line";
 import { ProgressBar } from "./progress-bar";
+import { statusMarker, statusTone, type Status } from "./status";
+import { StatusPill } from "./status-pill";
 
 export type StageCardTask = { id?: string; name: string; done: boolean; muted?: boolean };
 
-/** Vertical timeline container for StageCards (the connecting line). */
+/** Vertical timeline for StageCards: a 2px line at x=21 in a 60px gutter. */
 export function StageList({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("relative space-y-6 before:absolute before:left-4 before:top-2 before:bottom-2 before:w-px before:bg-border md:before:left-5", className)}>
+    <div className={cn("relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[21px] before:w-0.5 before:bg-outline-variant", className)}>
       {children}
     </div>
+  );
+}
+
+function CheckBox({ done }: { done: boolean }) {
+  return done ? (
+    <span className="grid size-[22px] shrink-0 place-items-center rounded-[7px] bg-primary text-on-primary">
+      <Icon name="check" size={16} />
+    </span>
+  ) : (
+    <span className="size-[22px] shrink-0 rounded-[7px] border-[1.5px] border-outline" />
   );
 }
 
@@ -27,6 +38,7 @@ export function StageCard({
   onToggleTask,
   onRemoveTask,
   headerExtra,
+  lateDays,
   children,
   dimmed,
 }: {
@@ -41,57 +53,62 @@ export function StageCard({
   onToggleTask?: (task: StageCardTask, i: number) => void;
   onRemoveTask?: (task: StageCardTask, i: number) => void;
   headerExtra?: ReactNode;
+  lateDays?: number;
   children?: ReactNode;
   dimmed?: boolean;
 }) {
   return (
-    <div className="relative pl-12 md:pl-14">
-      <div
-        className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-background text-xs font-semibold text-white shadow-[var(--shadow-soft)] md:h-10 md:w-10"
-        style={{ background: statusFill[status] }}
-      >
+    <div className="relative pl-15">
+      <div className={cn("absolute top-0 left-0 grid size-11 place-items-center rounded-full font-semibold", statusMarker[status])}>
         {index}
       </div>
-      <div className={cn("rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)]", dimmed && "border-dashed opacity-70")}>
+      <div className={cn("rounded-xl border border-outline-variant bg-card px-6 py-5 text-on-surface", dimmed && "border-dashed opacity-70")}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">{name}</h2>
-            <div className="mt-1 text-xs text-muted-foreground">{start} – {end}</div>
+          <div className="min-w-0">
+            <h2 className="text-title-lg">{name}</h2>
+            <div className="mt-1 text-body-md text-on-surface-variant">
+              {start} – {end}
+            </div>
+            {lateDays ? <LateLine days={lateDays} className="mt-1" /> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {headerExtra}
-            <StatusPill status={status} />
+            <StatusPill status={status} size="sm" />
           </div>
         </div>
-        <div className="mt-4">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Progress</span><span>{progress}%</span>
+        <div className="mt-4.5">
+          <div className="flex justify-between text-body-md text-on-surface-variant">
+            <span>Progress</span>
+            <span className="font-medium text-on-surface">{progress}%</span>
           </div>
-          <ProgressBar value={progress} className="mt-1.5" />
+          <ProgressBar value={progress} tone={statusTone[status]} className="mt-2" />
         </div>
-        <ul className="mt-4 space-y-2">
+        <ul className="mt-4 space-y-3">
           {tasks.map((t, i) => {
-            const icon = t.done ? <Icon name="check" size={20} className="text-status-done" /> : <Icon name="circle" size={20} className="text-muted-foreground" />;
-            const label = <span className={t.done ? "text-muted-foreground line-through" : ""}>{t.name}</span>;
+            const label = <span className={cn("text-body-lg", t.done && "text-on-surface-variant line-through")}>{t.name}</span>;
             return (
-              <li key={t.id ?? t.name} className={cn("group flex items-center gap-2 text-sm", t.muted && "opacity-60")}>
+              <li key={t.id ?? t.name} className={cn("group flex min-h-10 items-center gap-3", t.muted && "opacity-60")}>
                 {onToggleTask ? (
                   <button
                     role="checkbox"
                     aria-checked={t.done}
                     onClick={() => onToggleTask(t, i)}
-                    className="flex min-h-8 flex-1 items-center gap-2 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex min-h-10 flex-1 items-center gap-3 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
-                    {icon}{label}
+                    <CheckBox done={t.done} />
+                    {label}
                   </button>
                 ) : (
-                  <>{icon}{label}</>
+                  <>
+                    <CheckBox done={t.done} />
+                    {label}
+                  </>
                 )}
                 {onRemoveTask && (
                   <button
                     onClick={() => onRemoveTask(t, i)}
                     aria-label={`Remove task ${t.name}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground opacity-0 hover:bg-muted focus-visible:opacity-100 group-hover:opacity-100"
+                    className="state-layer grid size-10 place-items-center rounded-full text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-primary"
                   >
                     <Icon name="close" size={20} />
                   </button>

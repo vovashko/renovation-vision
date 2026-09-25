@@ -6,6 +6,8 @@
 --   2. Bathroom was Completed at 100% while the "Bathroom tiling" task was unchecked.
 --      -> Bathroom is In progress at 80%; "Bathroom tiling" is linked to the Bathroom room.
 --         The guard_room_done trigger now prevents this state from recurring.
+--   3. Kitchen was Pending at 10%, but pending always means 0% (state follows progress).
+--      -> Kitchen is In progress at 10%.
 --
 -- Demo logins (password for all: renotrack-demo)
 --   jonas@renotrack.demo  manager (Jonas Weber)
@@ -80,7 +82,7 @@ insert into public.project_members (project_id, user_id, role, last_read_at) val
 -- ---------------------------------------------------------------------------
 insert into public.rooms (id, project_id, key, name, status, progress, x, y, w, h, sort_order, client_note) values
   ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'living', 'Living Room', 'progress', 60, 20, 20, 320, 220, 1, 'Drywall finished; taping and priming this week.'),
-  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'pending', 10, 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
+  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'progress', 10, 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
   ('d0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'dining', 'Dining', 'progress', 45, 340, 160, 240, 80, 3, 'Walls boarded and insulated.'),
   ('d0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'bath', 'Bathroom', 'progress', 80, 20, 240, 160, 160, 4, 'Plumbing re-routed and signed off. Tiling follows with the flooring stage.'),
   ('d0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'bed1', 'Bedroom 1', 'progress', 35, 180, 240, 200, 160, 5, 'Subfloor levelled; oak planks acclimatising.'),

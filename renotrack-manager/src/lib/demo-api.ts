@@ -130,7 +130,7 @@ function seed(): State {
     ],
     rooms: [
       room(1, "living", "Living Room", "progress", 60, 20, 20, 320, 220, "Drywall finished; taping and priming this week."),
-      room(2, "kitchen", "Kitchen", "pending", 10, 340, 20, 240, 140, "New circuit panel in place. Cabinets arrive for the Kitchen Install stage."),
+      room(2, "kitchen", "Kitchen", "progress", 10, 340, 20, 240, 140, "New circuit panel in place. Cabinets arrive for the Kitchen Install stage."),
       room(3, "dining", "Dining", "progress", 45, 340, 160, 240, 80, "Walls boarded and insulated."),
       room(4, "bath", "Bathroom", "progress", 80, 20, 240, 160, 160, "Plumbing re-routed and signed off. Tiling follows with the flooring stage."),
       room(5, "bed1", "Bedroom 1", "progress", 35, 180, 240, 200, 160, "Subfloor levelled; oak planks acclimatising."),

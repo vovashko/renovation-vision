@@ -1,40 +1,56 @@
-import { statusFill, statusLabel, type Status } from "./status";
+import { cn } from "@/lib/utils";
+import { Icon } from "./icon";
+import { LateLine } from "./late-line";
 import { ProgressBar } from "./progress-bar";
+import { statusContainer, statusLabel, statusTone, type Status } from "./status";
 
+/** Compact stage list item: status tile (check or number), name + dates, status bar + %. */
 export function StageTimelineRow({
+  index,
   name,
   status,
   start,
   end,
   progress,
+  lateDays,
   onClick,
 }: {
+  index?: number;
   name: string;
   status: Status;
   start: string;
   end: string;
   progress: number;
+  lateDays?: number;
   onClick?: () => void;
 }) {
   const Wrapper = onClick ? "button" : "div";
   return (
     <Wrapper
       onClick={onClick}
-      className="block w-full rounded-xl border bg-card p-4 text-left shadow-[var(--shadow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring enabled:hover:border-primary/50"
+      className={cn(
+        "flex w-full items-center gap-3.5 rounded-xl border border-outline-variant bg-card py-3.5 pr-5 pl-3.5 text-left text-on-surface",
+        onClick &&
+          "cursor-pointer transition-colors duration-150 hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="inline-block h-3 w-3 rounded-full" style={{ background: statusFill[status] }} aria-label={statusLabel[status]} />
-          <div>
-            <div className="font-medium">{name}</div>
-            <div className="text-xs text-muted-foreground">{start} – {end}</div>
-          </div>
-        </div>
-        <div className="flex min-w-[200px] items-center gap-3">
-          <ProgressBar value={progress} fill={statusFill[status]} className="flex-1" />
-          <span className="w-10 text-right text-sm font-medium">{progress}%</span>
-        </div>
-      </div>
+      <span
+        className={cn("grid size-11 shrink-0 place-items-center rounded-md text-label-lg", statusContainer[status])}
+        aria-label={statusLabel[status]}
+      >
+        {status === "done" ? <Icon name="check" size={22} /> : (index ?? "")}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-title-md">{name}</span>
+        <span className="block text-body-sm text-on-surface-variant">
+          {start} – {end}
+        </span>
+        {lateDays ? <LateLine days={lateDays} className="mt-0.5" /> : null}
+      </span>
+      <span className="flex shrink-0 items-center gap-3">
+        <ProgressBar value={progress} tone={statusTone[status]} className="w-16 sm:w-[140px]" />
+        <span className="w-10 text-right text-label-lg">{progress}%</span>
+      </span>
     </Wrapper>
   );
 }

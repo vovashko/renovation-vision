@@ -62,7 +62,7 @@ function BudgetPage() {
         <Stat icon="savings" label="Remaining" value={money(project.budget - project.spent)} sub={project.spent > project.budget ? "Over budget" : "Left to spend"} />
         <Stat icon="trending_up" label="Used" value={`${pct}%`} sub={`Project ${project.overall_progress}% complete`} />
       </section>
-      <ProgressBar value={pct} size="lg" fill={pct > project.overall_progress + 20 ? "var(--status-blocked)" : "var(--gradient-primary)"} />
+      <ProgressBar value={pct} tone={pct > project.overall_progress + 20 ? "blocked" : "primary"} />
 
       <InternalNotes projectId={projectId} />
 

@@ -65,14 +65,14 @@ function ChatPage() {
 
   let lastDay = "";
   return (
-    <div className="-mx-4 -my-4 flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-card md:mx-auto md:my-0 md:h-[calc(100dvh-8rem)] md:w-full md:max-w-3xl md:rounded-2xl md:border md:shadow-[var(--shadow-elegant)]">
+    <div className="-mx-4 -my-4 flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-surface-container-high p-4 text-on-surface md:mx-auto md:my-0 md:h-[calc(100dvh-8rem)] md:w-full md:max-w-3xl md:rounded-xl">
       <ChatHeader
         name={project?.client_name || clients.map((c) => c.profile.full_name).join(" & ") || "Client"}
         roleLabel={clients.length ? `Client · ${clients.length} member${clients.length > 1 ? "s" : ""}` : "No client invited yet"}
         online={clientOnline}
       />
 
-      <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+      <div className="flex-1 space-y-2 overflow-y-auto py-4" aria-live="polite">
         {messages.length === 0 && <EmptyState icon="chat_bubble" text="No messages yet. Say hello — your client gets a notification." className="border-0" />}
         {messages.map((m) => {
           const day = dayLabel(m.created_at);
@@ -81,7 +81,7 @@ function ChatPage() {
           const mine = m.sender_id === userId;
           return (
             <div key={m.id}>
-              {showDay && <div className="my-2 text-center text-xs font-medium text-muted-foreground">{day}</div>}
+              {showDay && <div className="my-3 text-center text-label-md text-on-surface-variant">{day}</div>}
               <ChatBubble
                 mine={mine}
                 author={mine ? undefined : nameOf(m.sender_id)}
@@ -103,9 +103,9 @@ function ChatPage() {
       <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       <ChatComposer value={text} onChange={setText} onSend={submit} onAttach={() => fileRef.current?.click()} placeholder="Message your client…" disabled={send.isPending || (!text.trim() && !file)}>
         {file && (
-          <div className="flex items-center gap-2 px-3 pt-3 text-sm">
-            <span className="truncate rounded-full bg-muted px-3 py-1">{file.name}</span>
-            <button onClick={() => setFile(null)} aria-label="Remove attachment" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted"><Icon name="close" size={20} /></button>
+          <div className="flex items-center gap-2 pt-3 text-body-md">
+            <span className="truncate rounded-full bg-surface-container-lowest px-3 py-1">{file.name}</span>
+            <button onClick={() => setFile(null)} aria-label="Remove attachment" className="state-layer grid size-10 place-items-center rounded-full text-on-surface-variant focus-visible:outline-2 focus-visible:outline-primary"><Icon name="close" size={20} /></button>
           </div>
         )}
       </ChatComposer>

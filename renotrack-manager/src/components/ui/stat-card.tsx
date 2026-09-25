@@ -1,15 +1,37 @@
-import { Icon } from "./icon";
 import type { ReactNode } from "react";
+import { Card } from "./card";
+import { Icon } from "./icon";
 
-/** `icon` is a Material Symbols name, e.g. "calendar_month". */
-export function Stat({ icon, label, value, sub }: { icon: string; label: string; value: string; sub?: ReactNode }) {
+/**
+ * Stat card: label, value (+ optional unit), supporting line. `icon` is a Material Symbols name.
+ * `attention` switches to the orange attention card (over budget / late).
+ */
+export function Stat({
+  icon,
+  label,
+  value,
+  unit,
+  sub,
+  attention,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  unit?: string;
+  sub?: ReactNode;
+  attention?: boolean;
+}) {
   return (
-    <div className="rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)]">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-        <Icon name={icon} size={20} />{label}
+    <Card attention={attention} className="px-5 py-4">
+      <div className="flex items-center gap-2 text-body-md text-on-surface">
+        <Icon name={icon} size={20} className="text-on-surface-variant" />
+        {label}
       </div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
-      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
-    </div>
+      <div className="mt-2 text-headline-md">
+        {value}
+        {unit && <span className="ml-1 text-title-md text-on-surface-variant">{unit}</span>}
+      </div>
+      {sub && <div className="mt-1 text-body-sm text-on-surface-variant">{sub}</div>}
+    </Card>
   );
 }

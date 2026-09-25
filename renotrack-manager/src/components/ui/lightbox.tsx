@@ -45,7 +45,7 @@ export function Lightbox({
       role="dialog"
       aria-modal="true"
       aria-label={`Photo viewer: ${item.title}`}
-      className="fixed inset-0 z-50 flex flex-col bg-foreground/95 text-background"
+      className="fixed inset-0 z-50 flex flex-col bg-inverse-surface text-inverse-on-surface"
       onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={(e) => {
         if (touchX.current === null) return;
@@ -58,8 +58,8 @@ export function Lightbox({
       }}
     >
       <div className="flex items-center justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <span className="text-sm opacity-80">{i + 1} / {items.length}</span>
-        <button ref={closeRef} onClick={onClose} aria-label="Close viewer" className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        <span className="text-body-md opacity-80">{i + 1} / {items.length}</span>
+        <button ref={closeRef} onClick={onClose} aria-label="Close viewer" className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-inverse-on-surface/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverse-on-surface">
           <Icon name="close" size={24} />
         </button>
       </div>
@@ -67,22 +67,22 @@ export function Lightbox({
         <img src={item.src} alt={item.alt} className="max-h-full max-w-full rounded-lg object-contain" />
         {items.length > 1 && (
           <>
-            <button onClick={prev} aria-label="Previous photo" className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <button onClick={prev} aria-label="Previous photo" className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-inverse-on-surface/15 hover:bg-inverse-on-surface/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverse-on-surface">
               <Icon name="chevron_left" size={24} />
             </button>
-            <button onClick={next} aria-label="Next photo" className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <button onClick={next} aria-label="Next photo" className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-inverse-on-surface/15 hover:bg-inverse-on-surface/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverse-on-surface">
               <Icon name="chevron_right" size={24} />
             </button>
           </>
         )}
       </div>
       <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div className="font-semibold">{item.title}</div>
-        {item.subtitle && <div className="mt-1 text-sm opacity-80">{item.subtitle}</div>}
+        <div className="text-title-md">{item.title}</div>
+        {item.subtitle && <div className="mt-1 text-body-md opacity-80">{item.subtitle}</div>}
         {item.tags && (
           <div className="mt-2 flex flex-wrap gap-2">
             {item.tags.map((t) => (
-              <span key={t} className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">{t}</span>
+              <span key={t} className="rounded-full bg-surface-container-lowest px-3 py-1 text-label-md text-on-surface">{t}</span>
             ))}
           </div>
         )}

@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { statusFill, type Status } from "./status";
-import { StatusPill } from "./status-pill";
+import { LateLine } from "./late-line";
 import { ProgressBar } from "./progress-bar";
+import { statusTone, type Status } from "./status";
+import { StatusPill } from "./status-pill";
 
 export function RoomCard({
   name,
@@ -10,6 +11,7 @@ export function RoomCard({
   progress,
   active,
   muted,
+  lateDays,
   onClick,
   children,
 }: {
@@ -18,6 +20,7 @@ export function RoomCard({
   progress: number;
   active?: boolean;
   muted?: boolean;
+  lateDays?: number;
   onClick?: () => void;
   children?: ReactNode;
 }) {
@@ -25,18 +28,22 @@ export function RoomCard({
   return (
     <Wrapper
       onClick={onClick}
+      aria-pressed={onClick ? !!active : undefined}
       className={cn(
-        "block w-full rounded-xl border bg-card p-4 text-left shadow-[var(--shadow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active && "border-primary ring-1 ring-primary",
+        "block w-full rounded-xl border border-outline-variant bg-card px-5 py-4.5 text-left text-on-surface",
+        onClick &&
+          "cursor-pointer transition-colors duration-150 hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        active && "border-primary outline-1 -outline-offset-2 outline-primary",
         muted && "border-dashed opacity-70",
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-medium">{name}</span>
+        <span className="min-w-0 truncate text-title-md">{name}</span>
         <StatusPill status={status} size="sm" />
       </div>
-      <ProgressBar value={progress} fill={statusFill[status]} className="mt-3" />
-      <div className="mt-1 text-right text-xs text-muted-foreground">{progress}%</div>
+      {lateDays ? <LateLine days={lateDays} className="mt-1" /> : null}
+      <ProgressBar value={progress} tone={statusTone[status]} className="mt-4" />
+      <div className="mt-1.5 text-right text-body-sm text-on-surface-variant">{progress}%</div>
       {children}
     </Wrapper>
   );

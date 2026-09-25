@@ -1,10 +1,6 @@
-import { cn } from "@/lib/utils";
+import { Progress, type ProgressTone } from "./progress";
 
-/** Rounded progress track used across RenoTrack. `fill` defaults to the primary gradient. */
-export function ProgressBar({ value, fill = "var(--gradient-primary)", size = "md", className }: { value: number; fill?: string; size?: "md" | "lg"; className?: string }) {
-  return (
-    <div className={cn("overflow-hidden rounded-full bg-muted", size === "lg" ? "h-3" : "h-2", className)}>
-      <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, value))}%`, background: fill }} />
-    </div>
-  );
+/** 8px RenoTrack progress bar. `tone` picks a status color; the default is primary. */
+export function ProgressBar({ value, tone = "primary", onPanel, className }: { value: number; tone?: ProgressTone; onPanel?: boolean; className?: string }) {
+  return <Progress value={value} tone={tone} onPanel={onPanel} className={className} aria-label={`${Math.round(value)}%`} />;
 }
