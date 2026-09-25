@@ -17,6 +17,7 @@ export const keys = {
   notifications: (id: string) => ["notifications", id] as const,
   activity: (id: string) => ["activity", id] as const,
   knowledge: (id: string) => ["knowledge", id] as const,
+  crew: (id: string) => ["crew", id] as const,
 };
 
 export const useProjects = () => useQuery({ queryKey: keys.projects, queryFn: api.listProjects });
@@ -38,6 +39,7 @@ export const useExpenses = (id: string) => useQuery({ queryKey: keys.expenses(id
 export const useMessages = (id: string) => useQuery({ queryKey: keys.messages(id), queryFn: () => api.listMessages(id) });
 export const useNotifications = (id: string) => useQuery({ queryKey: keys.notifications(id), queryFn: () => api.listNotifications(id) });
 export const useActivity = (id: string) => useQuery({ queryKey: keys.activity(id), queryFn: () => api.listActivity(id) });
+export const useCrew = (id: string) => useQuery({ queryKey: keys.crew(id), queryFn: () => api.listCrew(id) });
 export const useKnowledge = (id: string) => useQuery({ queryKey: keys.knowledge(id), queryFn: () => api.listKnowledge(id) });
 
 /**

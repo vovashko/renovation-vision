@@ -67,8 +67,8 @@ insert into public.projects (
   'a0000000-0000-4000-8000-000000000001'
 );
 
-insert into public.project_internal (project_id, internal_budget_notes) values (
-  'b0000000-0000-4000-8000-000000000001',
+insert into public.project_internal (project_id, client_phone, client_email, internal_budget_notes) values (
+  'b0000000-0000-4000-8000-000000000001', '+1 555 0142', 'sarah.bennett@example.com',
   E'Contingency: $4,000 held for Bedroom 2 rework if the circuit fails inspection.\nKitchen cabinets quote $14,800 — 30% deposit due May 1.\nKeep margin at or above 12%; oak planks came in $350 under quote.'
 );
 
@@ -76,6 +76,13 @@ insert into public.project_members (project_id, user_id, role, last_read_at) val
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'manager', '2026-04-20 09:25:00'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'client', '2026-04-20 09:25:00'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003', 'client', '2026-04-19 18:00:00');
+
+-- Crew on site (not app users; managers only). Example numbers and addresses.
+insert into public.project_crew (project_id, name, trade, phone, email, sort_order) values
+  ('b0000000-0000-4000-8000-000000000001', 'Marek Nowak', 'Site lead', '+1 555 0107', 'marek@example.com', 1),
+  ('b0000000-0000-4000-8000-000000000001', 'Ana Petrović', 'Electrician', '+1 555 0118', 'ana@example.com', 2),
+  ('b0000000-0000-4000-8000-000000000001', 'Luis Ortega', 'Plumber', '+1 555 0123', 'luis@example.com', 3),
+  ('b0000000-0000-4000-8000-000000000001', 'Kai Jensen', 'Drywall & paint', '+1 555 0136', '', 4);
 
 -- ---------------------------------------------------------------------------
 -- Rooms (same geometry as the client app's floor plan)

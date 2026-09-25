@@ -131,7 +131,8 @@ enter here, it has to read from the shared Supabase project as described below.
   visible tasks whose stage is also visible. `photos`: only `status = 'published'`.
 - Storage `project-media`: clients can read a file only when a published photo or visible render
   points at it, or when it's under `<project_id>/chat/`. They can upload only to `chat/`.
-- **Never readable by clients:** `project_internal` (internal budget notes), `expenses` (vendor
+- **Never readable by clients:** `project_internal` (internal budget notes, client phone and email),
+  `project_crew` (site crew and trades with contact details), `expenses` (vendor
   notes, receipts, line items), `activity_log`, draft photos, the `project-internal` bucket (receipts).
 - Clients have no write access to project data. The exceptions are sending chat messages as
   themselves, editing or deleting their own messages, and the two read-marker RPCs.

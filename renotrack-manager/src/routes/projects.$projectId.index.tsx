@@ -1,250 +1,152 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ProjectHeaderCard } from "@/components/ui/project-header-card";
-import { Stat } from "@/components/ui/stat-card";
-import { StageTimelineRow } from "@/components/ui/stage-timeline-row";
-import { FloorPlan, RoomDetail } from "@/components/ui/floor-plan";
 import { Field, FormSheet, selectCls } from "@/components/form-sheet";
 import { PageLoading } from "@/components/page-header";
 import { ManagerBadge } from "@/components/manager-badge";
-import { PhotoThumbs } from "@/components/photo-thumbs";
-import { SectionHeader } from "@/components/section-header";
+import { UploadSheet } from "@/components/photo-upload-sheet";
+import { ExpenseSheet } from "@/components/expense-sheet";
+import {
+  ClientCard,
+  ClientContactSheet,
+  CrewSheet,
+  ShortcutsCard,
+  StatusCard,
+  TeamCard,
+  type Issue,
+} from "@/components/overview-cards";
 import { api, type ProjectPatch } from "@/lib/api";
-import { keys, useMembers, usePhotos, useProject, useRooms, useSave, useStages } from "@/lib/queries";
-import { budgetStatus, daysLate, projectToday } from "@/lib/attention";
-import { cn } from "@/lib/utils";
+import { keys, useCrew, useInternal, useMembers, useProject, useRooms, useSave, useStages } from "@/lib/queries";
+import { budgetStatus, daysLate, daysUntil, lateLabel } from "@/lib/attention";
 import { findInconsistencies } from "@/lib/consistency";
-import { longDate, scheduleLabel, shortDate } from "@/lib/format";
-import type { ProjectSummary, ScheduleStatus } from "@/lib/database.types";
+import { scheduleLabel, shortDate } from "@/lib/format";
+import type { CrewMember, ProjectSummary, ScheduleStatus } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
     meta: [
       { title: "Overview — RenoTrack Manager" },
-      { name: "description", content: "Project details, schedule and progress at a glance." },
+      { name: "description", content: "Is the project on track, who to call, and one-click shortcuts." },
     ],
   }),
   component: Overview,
 });
 
+type Sheet = "details" | "contact" | "photo" | "expense" | null;
+
 function Overview() {
   const { projectId } = Route.useParams();
-  const navigate = useNavigate();
   const { data: project } = useProject(projectId);
   const { data: stages } = useStages(projectId);
   const { data: rooms } = useRooms(projectId);
-  const { data: photos = [] } = usePhotos(projectId);
   const { data: members = [] } = useMembers(projectId);
-  const [roomId, setRoomId] = useState<string | null>(null);
-  const [editing, setEditing] = useState(false);
-
-  useEffect(() => {
-    if (!roomId && rooms?.length) setRoomId(rooms[0].id);
-  }, [rooms, roomId]);
+  const { data: internal } = useInternal(projectId);
+  const { data: crew = [] } = useCrew(projectId);
+  const [sheet, setSheet] = useState<Sheet>(null);
+  const [person, setPerson] = useState<CrewMember | "new" | null>(null);
+  const sheetProps = (name: Exclude<Sheet, null>) => ({ open: sheet === name, onOpenChange: (v: boolean) => setSheet(v ? name : null) });
 
   if (!project || !stages || !rooms) return <PageLoading />;
 
-  const warnings = findInconsistencies(project, stages, rooms);
-  const activeRoom = rooms.find((r) => r.id === roomId);
-  const warnTo = { stages: "/projects/$projectId/stages", plan: "/projects/$projectId/plan", overview: "/projects/$projectId" } as const;
+  const params = { projectId };
+  const budget = budgetStatus(project);
   const current = stages.find((s) => s.status === "progress");
   const done = stages.filter((s) => s.status === "done").length;
-  const lateStages = stages.filter((s) => daysLate(s) > 0).length;
-  const budget = budgetStatus(project);
-  const spent = kUsd(project.spent);
-  const plan = kUsd(project.budget);
-  const onSchedule = project.schedule_status === "on_schedule";
-  const nameOf = (id: string | null) => members.find((m) => m.user_id === id)?.profile.full_name ?? "the team";
-  const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name;
-  const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name;
+  const onTrack = project.schedule_status === "on_schedule";
+  const left = project.target_date ? daysUntil(project.target_date) : null;
+
+  // Blocked first, then late, then money, then data checks.
+  const issues: Issue[] = [
+    ...stages
+      .filter((s) => s.status === "blocked")
+      .map((s): Issue => ({ key: `sb-${s.id}`, tone: "blocked", title: `${s.name} is blocked`, detail: s.client_note || undefined, link: { to: "/projects/$projectId/stages", params, hash: s.id } })),
+    ...rooms
+      .filter((r) => r.status === "blocked")
+      .map((r): Issue => ({ key: `rb-${r.id}`, tone: "blocked", title: `${r.name} is blocked`, detail: r.client_note || undefined, link: { to: "/projects/$projectId/plan", params, search: { room: r.id } } })),
+    ...stages
+      .filter((s) => s.status !== "blocked" && daysLate(s) > 0)
+      .map((s): Issue => ({ key: `sl-${s.id}`, tone: "attention", title: `${s.name} is ${lateLabel(daysLate(s))}`, detail: `Was due ${shortDate(s.end_date)} · ${s.progress}% done`, link: { to: "/projects/$projectId/stages", params, hash: s.id } })),
+    ...(budget.over
+      ? [{ key: "budget", tone: "attention", title: `Over budget by ${budget.overPct}%`, detail: `$${project.spent.toLocaleString("en-US")} spent of $${project.budget.toLocaleString("en-US")}`, link: { to: "/projects/$projectId/budget", params } } satisfies Issue]
+      : []),
+    ...findInconsistencies(project, stages, rooms).map(
+      (w): Issue =>
+        w.to === "overview"
+          ? { key: w.text, tone: "check", title: w.text, onClick: () => setSheet("details") }
+          : { key: w.text, tone: "check", title: w.text, link: { to: w.to === "stages" ? "/projects/$projectId/stages" : "/projects/$projectId/plan", params } },
+    ),
+  ];
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8">
-      <ProjectHeaderCard
-        name={project.name}
-        address={project.address}
-        managerName={project.manager_name}
-        progress={project.overall_progress}
-        currentStage={current?.name ?? null}
-        badges={
-          <>
-            <ManagerBadge />
-            {!onSchedule && (
-              <Badge variant="attention" size="compact" icon="schedule">
-                {scheduleLabel[project.schedule_status]}
-              </Badge>
-            )}
-          </>
-        }
-        actions={
-          <Button variant="outline" onClick={() => setEditing(true)}>
-            <Icon name="edit" size={20} />
-            Edit project details
-          </Button>
-        }
-      />
+    <div className="mx-auto w-full max-w-7xl space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-headline-md sm:text-headline-lg">{project.name}</h1>
+          <p className="text-body-lg text-on-surface-variant">{project.address}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <ManagerBadge />
+          {!onTrack && (
+            <Badge variant="attention" icon="schedule">
+              {scheduleLabel[project.schedule_status]}
+            </Badge>
+          )}
+        </div>
+      </header>
 
-      {warnings.length > 0 && (
-        <Card attention className="p-5" aria-label="Consistency checks">
-          <div className="flex items-center gap-2 pr-4 text-title-md">
-            <Icon name="warning" size={22} className="text-attention" /> Check before your client sees it
-          </div>
-          <ul className="mt-3 divide-y divide-outline-variant text-body-md">
-            {warnings.map((w) => (
-              <li key={w.text} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span>{w.text}</span>
-                {w.to === "overview" ? (
-                  <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="-mr-3">
-                    Fix
-                    <Icon name="arrow_forward" size={20} />
-                  </Button>
-                ) : (
-                  <Link to={warnTo[w.to]} params={{ projectId }} className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "-mr-3")}>
-                    Fix
-                    <Icon name="arrow_forward" size={20} />
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Project facts">
-        <Stat label="Started" value={shortDate(project.start_date)} note={`Target: ${longDate(project.target_date)}`} />
-        <Stat
-          label="Stages done"
-          value={String(done)}
-          unit={`/ ${stages.length}`}
-          delta={lateStages ? `${lateStages} late` : scheduleLabel[project.schedule_status]}
-          deltaTone={lateStages || !onSchedule ? "attention" : "good"}
-        />
-        <Stat
-          label="Budget spent"
-          value={spent.value}
-          unit={spent.unit}
-          attention={budget.over}
-          delta={budget.over ? `↑ ${budget.overPct}% over` : `${budget.usedPct}% used`}
-          deltaTone={budget.over ? "attention" : "good"}
-          note={`of the ${plan.value}${plan.unit} plan`}
-        />
-        <Stat label="Client" value={project.client_name || "—"} note="Primary contact" />
-      </section>
-
-      {project.schedule_note && (
-        <Card className="p-4 text-body-md text-on-surface-variant">
-          <span className="font-medium text-on-surface">Schedule note for the client: </span>
-          {project.schedule_note}
-        </Card>
-      )}
-
-      <section aria-labelledby="latest-photos">
-        <SectionHeader
-          id="latest-photos"
-          title="Latest photos"
-          sub={photos[0] ? `Latest from ${nameOf(photos[0].uploaded_by)} · ${dayLabel(photos[0].taken_at)}` : undefined}
-          link={{ to: "/projects/$projectId/photos", params: { projectId } }}
-          linkLabel="All photos"
-        />
-        {photos.length ? (
-          <PhotoThumbs
-            photos={photos}
-            max={4}
-            className="grid max-w-2xl grid-cols-4 gap-2 md:gap-3"
-            toItem={(p) => ({
-              src: p.url,
-              alt: p.alt,
-              title: p.caption,
-              subtitle: `${dayLabel(p.taken_at)} · ${nameOf(p.uploaded_by)}`,
-              tags: [stageName(p.stage_id), roomName(p.room_id), p.status === "draft" ? "Draft" : undefined].filter((t): t is string => !!t),
-            })}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="min-w-0 lg:col-span-2">
+          <StatusCard
+            onTrack={onTrack}
+            headline={onTrack ? "On track" : scheduleLabel[project.schedule_status]}
+            note={project.schedule_note || undefined}
+            progress={project.overall_progress}
+            currentStage={current?.name ?? null}
+            issues={issues}
+            facts={[
+              { label: "Stages done", value: `${done} of ${stages.length}` },
+              { label: "Target", value: project.target_date ? shortDate(project.target_date) : "—" },
+              {
+                label: left !== null && left < 0 ? "Past target" : "Days left",
+                value: left === null ? "—" : `${Math.abs(left)} ${Math.abs(left) === 1 ? "day" : "days"}`,
+                attention: left !== null && left < 0,
+              },
+              { label: "Budget used", value: `${budget.usedPct}%`, attention: budget.over },
+            ]}
           />
-        ) : (
-          <EmptyState icon="photo_camera" text="No photos yet. Add today's progress from the Photos page." />
-        )}
-      </section>
-
-      <section aria-labelledby="stage-timeline">
-        <SectionHeader
-          id="stage-timeline"
-          title="Stage timeline"
-          link={{ to: "/projects/$projectId/stages", params: { projectId } }}
-          linkLabel="Edit stages"
+        </div>
+        <ShortcutsCard
+          shortcuts={[
+            { label: "Upload photo", icon: "add_a_photo", onClick: () => setSheet("photo") },
+            { label: "Add expense", icon: "receipt_long", onClick: () => setSheet("expense") },
+            { label: "Message client", icon: "chat_bubble", link: { to: "/projects/$projectId/chat", params } },
+            { label: "Update stages", icon: "checklist", link: { to: "/projects/$projectId/stages", params } },
+            { label: "Update rooms", icon: "floor", link: { to: "/projects/$projectId/plan", params } },
+            { label: "Edit project", icon: "edit", onClick: () => setSheet("details") },
+          ]}
         />
-        <ul className="space-y-2">
-          {stages.map((s, i) => (
-            <li key={s.id}>
-              <StageTimelineRow
-                index={i + 1}
-                name={s.name}
-                status={s.status}
-                start={shortDate(s.start_date)}
-                end={shortDate(s.end_date)}
-                progress={s.progress}
-                lateDays={daysLate(s)}
-                onClick={() => navigate({ to: "/projects/$projectId/stages", params: { projectId }, hash: s.id })}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="floor-plan">
-        <SectionHeader
-          id="floor-plan"
-          title="Floor plan visualisation"
-          link={{ to: "/projects/$projectId/plan", params: { projectId } }}
-          linkLabel="Edit rooms"
+        <ClientCard
+          projectId={projectId}
+          clientName={project.client_name}
+          contact={internal}
+          appUsers={members.filter((m) => m.role === "client")}
+          onEdit={() => setSheet("contact")}
         />
-        <FloorPlan
-          rooms={rooms.map((r) => ({ ...r, muted: !r.is_visible }))}
-          activeId={roomId}
-          onSelect={(r) => setRoomId(r.id)}
-          detail={
-            activeRoom && (
-              <RoomDetail room={activeRoom}>
-                {activeRoom.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{activeRoom.client_note}</p>}
-                <Link
-                  to="/projects/$projectId/plan"
-                  params={{ projectId }}
-                  search={{ room: activeRoom.id }}
-                  className={cn(buttonVariants({ variant: "ghost" }), "mt-3 -ml-3")}
-                >
-                  Update {activeRoom.name}
-                  <Icon name="arrow_forward" size={20} />
-                </Link>
-              </RoomDetail>
-            )
-          }
-        />
-      </section>
+        <div className="min-w-0 lg:col-span-2">
+          <TeamCard managers={members.filter((m) => m.role === "manager")} crew={crew} onAdd={() => setPerson("new")} onEdit={setPerson} />
+        </div>
+      </div>
 
-      <ProjectDetailsSheet project={project} open={editing} onOpenChange={setEditing} />
+      <ProjectDetailsSheet project={project} {...sheetProps("details")} />
+      <ClientContactSheet projectId={projectId} contact={internal} {...sheetProps("contact")} />
+      <UploadSheet projectId={projectId} stages={stages} rooms={rooms} {...sheetProps("photo")} />
+      <ExpenseSheet projectId={projectId} stages={stages} expense={sheet === "expense" ? "new" : null} onClose={() => setSheet(null)} />
+      <CrewSheet projectId={projectId} person={person} onClose={() => setPerson(null)} />
     </div>
   );
-}
-
-/** "$51.2" + "k", like the client app's budget card. */
-function kUsd(n: number) {
-  return { value: `$${(n / 1000).toFixed(1)}`, unit: "k" };
-}
-
-/** "Today", "Yesterday" or "Apr 17", relative to the project's today. */
-function dayLabel(iso: string) {
-  const d = new Date(iso);
-  const today = projectToday();
-  const day = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
-  const diff = Math.round((day(today) - day(d)) / 86_400_000);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Yesterday";
-  return d.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
 }
 
 function ProjectDetailsSheet({ project, open, onOpenChange }: { project: ProjectSummary; open: boolean; onOpenChange: (v: boolean) => void }) {

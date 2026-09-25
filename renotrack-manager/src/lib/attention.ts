@@ -39,3 +39,8 @@ export function budgetStatus(p: { budget: number; spent: number }) {
     usedPct: p.budget > 0 ? Math.round((p.spent / p.budget) * 100) : 0,
   };
 }
+
+/** Whole days from today to a date ('YYYY-MM-DD'); negative once it has passed. */
+export function daysUntil(date: string, today: Date = projectToday()): number {
+  return Math.round((dayStart(parseDate(date)) - dayStart(today)) / DAY);
+}

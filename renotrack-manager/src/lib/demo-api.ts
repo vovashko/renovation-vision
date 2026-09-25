@@ -17,6 +17,7 @@ import type { Api } from "./api";
 import type {
   ActivityEntry,
   Expense,
+  CrewMember,
   Knowledge,
   Member,
   Message,
@@ -62,6 +63,8 @@ const pid = (n: number) => `e0000000-0000-4000-8000-00000000000${n}`;
 type State = {
   project: Project;
   internal: string;
+  clientContact: { client_phone: string; client_email: string };
+  crew: CrewMember[];
   members: Member[];
   rooms: Room[];
   stages: Omit<Stage, "tasks">[];
@@ -123,6 +126,13 @@ function seed(): State {
     },
     internal:
       "Contingency: $4,000 held for Bedroom 2 rework if the circuit fails inspection.\nKitchen cabinets quote $14,800 — 30% deposit due May 1.\nKeep margin at or above 12%; oak planks came in $350 under quote.",
+    clientContact: { client_phone: "+1 555 0142", client_email: "sarah.bennett@example.com" },
+    crew: [
+      { id: "cr1", project_id: PID, name: "Marek Nowak", trade: "Site lead", phone: "+1 555 0107", email: "marek@example.com", sort_order: 1 },
+      { id: "cr2", project_id: PID, name: "Ana Petrović", trade: "Electrician", phone: "+1 555 0118", email: "ana@example.com", sort_order: 2 },
+      { id: "cr3", project_id: PID, name: "Luis Ortega", trade: "Plumber", phone: "+1 555 0123", email: "luis@example.com", sort_order: 3 },
+      { id: "cr4", project_id: PID, name: "Kai Jensen", trade: "Drywall & paint", phone: "+1 555 0136", email: "", sort_order: 4 },
+    ],
     members: [
       { project_id: PID, user_id: DEMO_USER.id, role: "manager", last_read_at: "2026-04-20T09:25:00", created_at: ts, profile: { id: DEMO_USER.id, full_name: "Jonas Weber", avatar_url: null } },
       { project_id: PID, user_id: SARAH, role: "client", last_read_at: "2026-04-20T09:25:00", created_at: ts, profile: { id: SARAH, full_name: "Sarah Bennett", avatar_url: null } },
@@ -276,10 +286,32 @@ export const demoApi: Api = {
       notify("schedule", `Schedule: ${label}`, db.project.schedule_note, "/");
     }
   },
-  getInternal: (id) => wait({ project_id: id, internal_budget_notes: db.internal, updated_at: ts }),
+  getInternal: (id) => wait({ project_id: id, internal_budget_notes: db.internal, ...db.clientContact, updated_at: ts }),
   async updateInternal(_id, notes) {
     db.internal = notes;
     log("project_internal", "Updated internal notes");
+  },
+  async updateClientContact(_id, contact) {
+    db.clientContact = { ...contact };
+    log("project_internal", "Updated client contact details");
+  },
+
+  listCrew: () => wait([...db.crew].sort((a, b) => a.sort_order - b.sort_order)),
+  async saveCrew(_id, input) {
+    const existing = db.crew.find((c) => c.id === input.id);
+    if (existing) {
+      Object.assign(existing, input);
+      log("project_crew", `Updated crew member "${existing.name}"`);
+    } else {
+      const c: CrewMember = { id: uid(), project_id: PID, name: "", trade: "", phone: "", email: "", sort_order: db.crew.length + 1, ...input };
+      db.crew.push(c);
+      log("project_crew", `Added crew member "${c.name}"`);
+    }
+  },
+  async deleteCrew(crewId) {
+    const c = db.crew.find((x) => x.id === crewId);
+    db.crew = db.crew.filter((x) => x.id !== crewId);
+    log("project_crew", `Removed crew member "${c?.name}"`);
   },
 
   listMembers: () => wait(db.members),
