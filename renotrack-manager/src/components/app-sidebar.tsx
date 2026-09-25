@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { RenovisionLogo } from "@/components/renovision-logo";
 import { UserAvatar } from "@/components/user-avatar";
+import { ProfileSheet } from "@/components/profile-form";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -82,17 +83,27 @@ function SettingsItem({ expanded }: { expanded: boolean }) {
   );
 }
 
-/** Your avatar and name under Settings; opens Settings. */
-function ProfileItem({ expanded, onNavigate }: { expanded: boolean; onNavigate?: () => void }) {
+/** Your avatar and name, pinned at the bottom; opens the profile panel without leaving the page. */
+function ProfileItem({ expanded }: { expanded: boolean }) {
   const { profile } = useAuth();
+  const [open, setOpen] = useState(false);
   const name = profile?.full_name ?? "";
   return (
-    <Link to="/settings" onClick={onNavigate} aria-label={`${name || "Your profile"}, open settings`} className={itemClass(false)}>
-      <span className="grid w-14 shrink-0 place-items-center">
-        <UserAvatar name={name} src={profile?.avatar_url} />
-      </span>
-      <span className={cn(labelClass(expanded), "min-w-0 truncate")}>{name}</span>
-    </Link>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`${name || "Your profile"}, edit profile`}
+        aria-haspopup="dialog"
+        className={cn(itemClass(false), "cursor-pointer text-left")}
+      >
+        <span className="grid w-14 shrink-0 place-items-center">
+          <UserAvatar name={name} src={profile?.avatar_url} />
+        </span>
+        <span className={cn(labelClass(expanded), "min-w-0 truncate")}>{name}</span>
+      </button>
+      <ProfileSheet open={open} onOpenChange={setOpen} />
+    </>
   );
 }
 
@@ -154,6 +165,7 @@ export function MobileTabBar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const [open, setOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const tabHrefs = projectId ? tabs.map((t) => t.to.replace("$projectId", projectId)) : [];
   const moreItems = projectId ? projectItems.filter((i) => !tabs.some((t) => t.to === i.to)) : [];
   const moreActive = moreItems.some((i) => path === i.to.replace("$projectId", projectId ?? "")) || path === "/settings";
@@ -218,27 +230,34 @@ export function MobileTabBar() {
               <Icon name="settings" size={24} fill={path === "/settings"} />
               Settings
             </Link>
-            <ProfileRow onNavigate={() => setOpen(false)} />
+            <ProfileRow
+              onOpen={() => {
+                setOpen(false);
+                setProfileOpen(true);
+              }}
+            />
           </div>
         </SheetContent>
       </Sheet>
+      <ProfileSheet open={profileOpen} onOpenChange={setProfileOpen} />
     </>
   );
 }
 
-/** Phone "More" sheet: avatar + name row under Settings. */
-function ProfileRow({ onNavigate }: { onNavigate: () => void }) {
+/** Phone "More" sheet: avatar + name row under Settings; opens the profile panel. */
+function ProfileRow({ onOpen }: { onOpen: () => void }) {
   const { profile } = useAuth();
   const name = profile?.full_name ?? "";
   return (
-    <Link
-      to="/settings"
-      onClick={onNavigate}
-      aria-label={`${name || "Your profile"}, open settings`}
-      className="state-layer flex h-14 items-center gap-3 rounded-full pr-6 pl-2.5 text-label-lg text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={`${name || "Your profile"}, edit profile`}
+      aria-haspopup="dialog"
+      className="state-layer flex h-14 w-full items-center gap-3 rounded-full pr-6 pl-2.5 text-left text-label-lg text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
     >
       <UserAvatar name={name} src={profile?.avatar_url} />
       <span className="min-w-0 truncate">{name}</span>
-    </Link>
+    </button>
   );
 }
