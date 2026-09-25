@@ -152,24 +152,17 @@ export function StatusCard({
 
 export type Shortcut = { label: string; icon: string; onClick?: () => void; link?: Pick<LinkProps, "to" | "params"> };
 
-/**
- * Deep panel, styled like the design system's chart card: light, very rounded tiles
- * (surface-container, like the chart bars) and one dark accent tile (primary, like the
- * highlighted bar) for the most-used action, which comes first.
- */
+/** Deep panel, styled like the design system's chart card: light, very rounded tiles (like the chart bars). */
 export function ShortcutsCard({ shortcuts }: { shortcuts: Shortcut[] }) {
-  const tile = (accent: boolean) =>
-    cn(
-      "state-layer flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl p-4 text-left text-label-lg transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-tertiary-container",
-      accent ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface",
-    );
+  const tile =
+    "state-layer flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl bg-surface-container p-4 text-left text-label-lg text-on-surface transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-tertiary-container";
   return (
     <Card variant="deep" className="flex flex-col gap-5 p-5" aria-labelledby="shortcuts-heading">
       <h2 id="shortcuts-heading" className="text-title-md">
         Shortcuts
       </h2>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
-        {shortcuts.map((s, i) => {
+        {shortcuts.map((s) => {
           const body = (
             <>
               <Icon name={s.icon} size={24} />
@@ -177,11 +170,11 @@ export function ShortcutsCard({ shortcuts }: { shortcuts: Shortcut[] }) {
             </>
           );
           return s.link ? (
-            <Link key={s.label} {...s.link} className={tile(i === 0)}>
+            <Link key={s.label} {...s.link} className={tile}>
               {body}
             </Link>
           ) : (
-            <button key={s.label} type="button" onClick={s.onClick} className={tile(i === 0)}>
+            <button key={s.label} type="button" onClick={s.onClick} className={tile}>
               {body}
             </button>
           );
