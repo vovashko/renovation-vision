@@ -155,10 +155,11 @@ export type Shortcut = { label: string; icon: string; onClick?: () => void; link
 export function ShortcutsCard({ shortcuts }: { shortcuts: Shortcut[] }) {
   const cls = cn(
     buttonVariants({ variant: "tonal" }),
-    "h-auto min-h-20 flex-col items-start justify-between gap-3 px-4 py-3 text-left whitespace-normal",
+    // White tiles on the tinted panel (same rule as chips on panels).
+    "h-auto min-h-20 flex-col items-start justify-between gap-3 bg-surface-container-lowest px-4 py-3 text-left whitespace-normal text-on-surface",
   );
   return (
-    <Card className="p-5 md:p-6" aria-labelledby="shortcuts-heading">
+    <Card variant="tinted" className="p-5 md:p-6" aria-labelledby="shortcuts-heading">
       <h2 id="shortcuts-heading" className="text-title-lg">
         Shortcuts
       </h2>
