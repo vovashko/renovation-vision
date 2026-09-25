@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Map as MapIcon, Plus, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -53,11 +53,11 @@ function PlanPage() {
       <PageHeader
         title="Floor plan"
         description="Select a room to update what the client sees on their plan."
-        actions={<Button onClick={() => setAdding(true)} className="min-h-11 gap-2"><Plus className="h-4 w-4" /> Add room</Button>}
+        actions={<Button onClick={() => setAdding(true)} className="min-h-11 gap-2"><Icon name="add" size={20} /> Add room</Button>}
       />
 
       {rooms.length === 0 ? (
-        <EmptyState className="mt-6" icon={MapIcon} title="No rooms yet" text="Add rooms with their position on the 600×420 plan grid." />
+        <EmptyState className="mt-6" icon="floor" title="No rooms yet" text="Add rooms with their position on the 600×420 plan grid." />
       ) : (
         <>
           <div className="mt-6">
@@ -109,7 +109,7 @@ function RoomEditor({ projectId, room, openTasks }: { projectId: string; room: R
           onClick={() => confirm(`Delete ${room.name}? Photos and tasks keep existing without a room.`) && remove.mutate(room.id)}
           className="inline-flex items-center gap-1 text-xs text-destructive hover:underline"
         >
-          <Trash2 className="h-3.5 w-3.5" /> Delete room
+          <Icon name="delete" size={18} /> Delete room
         </button>
       </div>
     </>

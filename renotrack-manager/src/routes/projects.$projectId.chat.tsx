@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChatBubble, ChatComposer, ChatHeader } from "@/components/ui/chat";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -73,7 +73,7 @@ function ChatPage() {
       />
 
       <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
-        {messages.length === 0 && <EmptyState icon={MessageCircle} text="No messages yet. Say hello — your client gets a notification." className="border-0" />}
+        {messages.length === 0 && <EmptyState icon="chat_bubble" text="No messages yet. Say hello — your client gets a notification." className="border-0" />}
         {messages.map((m) => {
           const day = dayLabel(m.created_at);
           const showDay = day !== lastDay;
@@ -105,7 +105,7 @@ function ChatPage() {
         {file && (
           <div className="flex items-center gap-2 px-3 pt-3 text-sm">
             <span className="truncate rounded-full bg-muted px-3 py-1">{file.name}</span>
-            <button onClick={() => setFile(null)} aria-label="Remove attachment" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted"><X className="h-4 w-4" /></button>
+            <button onClick={() => setFile(null)} aria-label="Remove attachment" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted"><Icon name="close" size={20} /></button>
           </div>
         )}
       </ChatComposer>

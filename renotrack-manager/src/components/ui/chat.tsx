@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode } from "react";
-import { Paperclip, Send } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
 export function initials(name: string) {
@@ -69,7 +69,7 @@ export const ChatComposer = forwardRef<HTMLInputElement, {
       <div className="flex items-center gap-2 p-3">
         {onAttach && (
           <button type="button" onClick={onAttach} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach">
-            <Paperclip className="h-5 w-5" />
+            <Icon name="attach_file" size={22} />
           </button>
         )}
         <input
@@ -88,7 +88,7 @@ export const ChatComposer = forwardRef<HTMLInputElement, {
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)] disabled:opacity-50"
           aria-label="Send"
         >
-          <Send className="h-4 w-4" />
+          <Icon name="send" size={20} />
         </button>
       </div>
     </div>

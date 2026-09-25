@@ -1,5 +1,4 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { FolderX } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageLoading } from "@/components/page-header";
 import { useProject } from "@/lib/queries";
@@ -16,7 +15,7 @@ function ProjectLayout() {
     return (
       <EmptyState
         className="mx-auto mt-10 max-w-md"
-        icon={FolderX}
+        icon="folder_off"
         title="Project not available"
         text="It doesn't exist, or you're not assigned to it as a manager."
         action={<Link to="/" className="text-sm text-primary hover:underline">Back to all projects</Link>}

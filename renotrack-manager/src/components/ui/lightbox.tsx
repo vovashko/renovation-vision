@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 
 export type LightboxItem = { src: string; alt: string; title: string; subtitle?: string; tags?: string[] };
 
@@ -60,7 +60,7 @@ export function Lightbox({
       <div className="flex items-center justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <span className="text-sm opacity-80">{i + 1} / {items.length}</span>
         <button ref={closeRef} onClick={onClose} aria-label="Close viewer" className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-          <X className="h-6 w-6" />
+          <Icon name="close" size={24} />
         </button>
       </div>
       <div className="relative flex min-h-0 flex-1 items-center justify-center px-2">
@@ -68,10 +68,10 @@ export function Lightbox({
         {items.length > 1 && (
           <>
             <button onClick={prev} aria-label="Previous photo" className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-              <ChevronLeft className="h-6 w-6" />
+              <Icon name="chevron_left" size={24} />
             </button>
             <button onClick={next} aria-label="Next photo" className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-              <ChevronRight className="h-6 w-6" />
+              <Icon name="chevron_right" size={24} />
             </button>
           </>
         )}

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DollarSign, Paperclip, PiggyBank, Plus, Receipt, TrendingUp, Wallet } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,14 +53,14 @@ function BudgetPage() {
       <PageHeader
         title="Budget & expenses"
         description="The client sees the budget and the spent total. Line items, vendors and receipts stay internal."
-        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Plus className="h-4 w-4" /> Add expense</Button>}
+        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Icon name="add" size={20} /> Add expense</Button>}
       />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={DollarSign} label="Budget" value={money(project.budget)} sub="Client sees this" />
-        <Stat icon={Wallet} label="Spent" value={money(project.spent)} sub="Client sees this total" />
-        <Stat icon={PiggyBank} label="Remaining" value={money(project.budget - project.spent)} sub={project.spent > project.budget ? "Over budget" : "Left to spend"} />
-        <Stat icon={TrendingUp} label="Used" value={`${pct}%`} sub={`Project ${project.overall_progress}% complete`} />
+        <Stat icon="attach_money" label="Budget" value={money(project.budget)} sub="Client sees this" />
+        <Stat icon="account_balance_wallet" label="Spent" value={money(project.spent)} sub="Client sees this total" />
+        <Stat icon="savings" label="Remaining" value={money(project.budget - project.spent)} sub={project.spent > project.budget ? "Over budget" : "Left to spend"} />
+        <Stat icon="trending_up" label="Used" value={`${pct}%`} sub={`Project ${project.overall_progress}% complete`} />
       </section>
       <ProgressBar value={pct} size="lg" fill={pct > project.overall_progress + 20 ? "var(--status-blocked)" : "var(--gradient-primary)"} />
 
@@ -69,7 +69,7 @@ function BudgetPage() {
       <section>
         <h2 className="mb-3 flex flex-wrap items-center gap-2 text-xl font-semibold">Expenses <InternalBadge /></h2>
         {expenses.length === 0 ? (
-          <EmptyState icon={Receipt} text="No expenses yet. Spent stays at $0 until you add some." />
+          <EmptyState icon="receipt_long" text="No expenses yet. Spent stays at $0 until you add some." />
         ) : (
           <div className="relative overflow-x-auto rounded-xl border bg-card shadow-[var(--shadow-soft)]">
             <table className="w-full min-w-[720px] text-sm">
@@ -97,7 +97,7 @@ function BudgetPage() {
                     <td className="p-3 text-right">
                       {e.receipt_path && (
                         <button onClick={(ev) => { ev.stopPropagation(); void openReceipt(e.receipt_path!); }} aria-label="Open receipt" className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted">
-                          <Paperclip className="h-4 w-4" />
+                          <Icon name="attach_file" size={20} />
                         </button>
                       )}
                     </td>

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Check, Circle, X } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 import { statusFill, type Status } from "./status";
 import { StatusPill } from "./status-pill";
@@ -71,7 +71,7 @@ export function StageCard({
         </div>
         <ul className="mt-4 space-y-2">
           {tasks.map((t, i) => {
-            const icon = t.done ? <Check className="h-4 w-4 text-status-done" /> : <Circle className="h-4 w-4 text-muted-foreground" />;
+            const icon = t.done ? <Icon name="check" size={20} className="text-status-done" /> : <Icon name="circle" size={20} className="text-muted-foreground" />;
             const label = <span className={t.done ? "text-muted-foreground line-through" : ""}>{t.name}</span>;
             return (
               <li key={t.id ?? t.name} className={cn("group flex items-center gap-2 text-sm", t.muted && "opacity-60")}>
@@ -93,7 +93,7 @@ export function StageCard({
                     aria-label={`Remove task ${t.name}`}
                     className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground opacity-0 hover:bg-muted focus-visible:opacity-100 group-hover:opacity-100"
                   >
-                    <X className="h-4 w-4" />
+                    <Icon name="close" size={20} />
                   </button>
                 )}
               </li>

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { User } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { ProgressBar } from "./progress-bar";
 
 export function ProjectHeaderCard({
@@ -30,7 +30,7 @@ export function ProjectHeaderCard({
           <p className="mt-1 text-muted-foreground">{address}</p>
           {managerName && (
             <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="h-4 w-4" /> Manager: <span className="font-medium text-foreground">{managerName}</span>
+              <Icon name="person" size={20} /> Manager: <span className="font-medium text-foreground">{managerName}</span>
             </div>
           )}
           {badges && <div className="mt-3 flex flex-wrap items-center gap-2">{badges}</div>}

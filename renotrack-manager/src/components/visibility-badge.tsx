@@ -1,14 +1,14 @@
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 
 /** Tells the manager what the client will (not) see. */
 export function VisibilityBadge({ visible, hiddenLabel = "Hidden from client" }: { visible: boolean; hiddenLabel?: string }) {
   return visible ? (
     <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
-      <Eye className="h-3.5 w-3.5" /> Client sees this
+      <Icon name="visibility" size={18} /> Client sees this
     </span>
   ) : (
     <span className="inline-flex items-center gap-1 rounded-full border border-dashed px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-      <EyeOff className="h-3.5 w-3.5" /> {hiddenLabel}
+      <Icon name="visibility_off" size={18} /> {hiddenLabel}
     </span>
   );
 }
@@ -16,7 +16,7 @@ export function VisibilityBadge({ visible, hiddenLabel = "Hidden from client" }:
 export function InternalBadge() {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-dashed px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-      <Lock className="h-3.5 w-3.5" /> Internal — never shown to clients
+      <Icon name="lock" size={18} /> Internal — never shown to clients
     </span>
   );
 }

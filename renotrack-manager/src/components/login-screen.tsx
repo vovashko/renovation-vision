@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Hammer } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ export function LoginScreen() {
       <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border bg-card p-6 shadow-[var(--shadow-elegant)]">
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]">
-            <Hammer className="h-5 w-5" />
+            <Icon name="construction" size={22} />
           </div>
           <div className="flex flex-col leading-tight">
             <span className="font-semibold">RenoTrack</span>

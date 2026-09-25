@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { BookOpen, Pencil, Plus, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -38,17 +38,17 @@ function KnowledgePage() {
       <PageHeader
         title="AI knowledge"
         description="The client's “Ask AI” assistant answers from project data plus the visible entries here."
-        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Plus className="h-4 w-4" /> Add entry</Button>}
+        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Icon name="add" size={20} /> Add entry</Button>}
       />
       {entries.length === 0 ? (
-        <EmptyState className="mt-6" icon={BookOpen} title="Nothing yet" text="Add answers to the questions clients ask most — working hours, deliveries, why something is blocked." />
+        <EmptyState className="mt-6" icon="menu_book" title="Nothing yet" text="Add answers to the questions clients ask most — working hours, deliveries, why something is blocked." />
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {entries.map((k) => (
             <article key={k.id} className={`rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)] ${k.is_visible ? "" : "border-dashed"}`}>
               <div className="flex items-start justify-between gap-3">
                 <h2 className="font-semibold">{k.title}</h2>
-                <Button size="icon" variant="ghost" className="h-9 w-9 shrink-0" onClick={() => setEditing(k)} aria-label={`Edit ${k.title}`}><Pencil className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" className="h-9 w-9 shrink-0" onClick={() => setEditing(k)} aria-label={`Edit ${k.title}`}><Icon name="edit" size={20} /></Button>
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{k.content}</p>
               {k.tags.length > 0 && (
@@ -102,7 +102,7 @@ function KnowledgeSheet({ projectId, entry, onClose }: { projectId: string; entr
           <Button type="submit" disabled={save.isPending || !form.title.trim()} className="min-h-11 w-full">Save</Button>
           {!isNew && entry && (
             <Button type="button" variant="ghost" className="min-h-11 w-full gap-2 text-destructive" onClick={() => confirm("Delete this entry?") && remove.mutate(entry.id, { onSuccess: onClose })}>
-              <Trash2 className="h-4 w-4" /> Delete
+              <Icon name="delete" size={20} /> Delete
             </Button>
           )}
         </form>

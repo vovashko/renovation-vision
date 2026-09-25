@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bell, History, Send } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,7 +72,7 @@ function UpdatesPage() {
             send.mutate(undefined, { onSuccess: () => setForm({ title: "", body: "", link: "/" }) });
           }}
         >
-          <h2 className="flex items-center gap-2 font-semibold"><Send className="h-4 w-4" /> Send an announcement</h2>
+          <h2 className="flex items-center gap-2 font-semibold"><Icon name="send" size={20} /> Send an announcement</h2>
           <Field id="nt-title" label="Title"><Input id="nt-title" required maxLength={80} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Water off on Thursday" className="h-11" /></Field>
           <Field id="nt-body" label="Message"><Textarea id="nt-body" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></Field>
           <Field id="nt-link" label="Opens in the client app">
@@ -86,9 +86,9 @@ function UpdatesPage() {
         </form>
 
         <section>
-          <h2 className="mb-3 flex items-center gap-2 text-xl font-semibold"><Bell className="h-5 w-5" /> Sent to client</h2>
+          <h2 className="mb-3 flex items-center gap-2 text-xl font-semibold"><Icon name="notifications" size={22} /> Sent to client</h2>
           {sent.size === 0 ? (
-            <EmptyState icon={Bell} text="No notifications sent yet." />
+            <EmptyState icon="notifications" text="No notifications sent yet." />
           ) : (
             <ul className="space-y-3">
               {[...sent.values()].map(({ n, total, read }) => (
@@ -122,9 +122,9 @@ function UpdatesPage() {
       </div>
 
       <section>
-        <h2 className="mb-3 flex flex-wrap items-center gap-2 text-xl font-semibold"><History className="h-5 w-5" /> Activity log <InternalBadge /></h2>
+        <h2 className="mb-3 flex flex-wrap items-center gap-2 text-xl font-semibold"><Icon name="history" size={22} /> Activity log <InternalBadge /></h2>
         {activity.length === 0 ? (
-          <EmptyState icon={History} text="Changes to this project will be listed here." />
+          <EmptyState icon="history" text="Changes to this project will be listed here." />
         ) : (
           <ol className="relative space-y-4 border-l pl-5">
             {activity.map((a) => (

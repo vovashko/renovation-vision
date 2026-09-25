@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { FolderPlus, Plus } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FormSheet } from "@/components/form-sheet";
@@ -32,12 +32,12 @@ function ProjectsPage() {
       <PageHeader
         title="Your projects"
         description="Everything you update here appears in the client's RenoTrack app."
-        actions={<Button onClick={() => setOpen(true)} className="min-h-11 gap-2"><Plus className="h-4 w-4" /> New project</Button>}
+        actions={<Button onClick={() => setOpen(true)} className="min-h-11 gap-2"><Icon name="add" size={20} /> New project</Button>}
       />
       {isLoading ? (
         <PageLoading />
       ) : !projects?.length ? (
-        <EmptyState className="mt-6" icon={FolderPlus} title="No projects yet" text="Create a project, then invite your client from the Team page." />
+        <EmptyState className="mt-6" icon="create_new_folder" title="No projects yet" text="Create a project, then invite your client from the Team page." />
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {projects.map((p) => (

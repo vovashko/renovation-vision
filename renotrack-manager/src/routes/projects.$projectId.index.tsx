@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Calendar, DollarSign, Pencil, TrendingUp, User } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,12 +58,12 @@ function Overview() {
             {scheduleLabel[project.schedule_status]}
           </span>
         }
-        actions={<Button variant="outline" onClick={() => setEditing(true)} className="min-h-11 gap-2"><Pencil className="h-4 w-4" /> Edit project details</Button>}
+        actions={<Button variant="outline" onClick={() => setEditing(true)} className="min-h-11 gap-2"><Icon name="edit" size={20} /> Edit project details</Button>}
       />
 
       {warnings.length > 0 && (
         <section className="rounded-xl border border-status-blocked/40 bg-card p-5 shadow-[var(--shadow-soft)]" aria-label="Consistency checks">
-          <div className="flex items-center gap-2 font-semibold"><AlertTriangle className="h-5 w-5 text-status-blocked" /> Check before your client sees it</div>
+          <div className="flex items-center gap-2 font-semibold"><Icon name="warning" size={22} className="text-status-blocked" /> Check before your client sees it</div>
           <ul className="mt-3 space-y-2 text-sm">
             {warnings.map((w) => (
               <li key={w.text} className="flex flex-wrap items-center justify-between gap-2">
@@ -80,15 +80,15 @@ function Overview() {
       )}
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={Calendar} label="Started" value={longDate(project.start_date)} sub={`Target: ${longDate(project.target_date)}`} />
+        <Stat icon="calendar_month" label="Started" value={longDate(project.start_date)} sub={`Target: ${longDate(project.target_date)}`} />
         <Stat
-          icon={TrendingUp}
+          icon="trending_up"
           label="Stages done"
           value={`${project.stages_done}/${project.stages_total}`}
           sub={<span className="inline-flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full" style={{ background: scheduleFill[project.schedule_status] }} />{scheduleLabel[project.schedule_status]}</span>}
         />
-        <Stat icon={DollarSign} label="Budget" value={money(project.budget)} sub={`Spent ${money(project.spent)}`} />
-        <Stat icon={User} label="Client" value={project.client_name || "—"} sub="Primary contact" />
+        <Stat icon="attach_money" label="Budget" value={money(project.budget)} sub={`Spent ${money(project.spent)}`} />
+        <Stat icon="person" label="Client" value={project.client_name || "—"} sub="Primary contact" />
       </section>
 
       {project.schedule_note && (

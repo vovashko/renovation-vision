@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -148,7 +148,7 @@ function Shell() {
               <span className="hidden text-sm text-muted-foreground md:inline">{profile?.full_name}</span>
               {!isDemo && (
                 <button onClick={signOut} aria-label="Sign out" className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted">
-                  <LogOut className="h-4 w-4" />
+                  <Icon name="logout" size={20} />
                 </button>
               )}
             </div>

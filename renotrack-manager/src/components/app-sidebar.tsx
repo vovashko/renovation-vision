@@ -1,18 +1,5 @@
 import { Link, useParams, useRouterState } from "@tanstack/react-router";
-import {
-  BookOpen,
-  Camera,
-  FolderKanban,
-  Hammer,
-  LayoutDashboard,
-  ListChecks,
-  Map,
-  MessageCircle,
-  Palette,
-  Bell,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   Sidebar,
   SidebarContent,
@@ -28,16 +15,16 @@ import {
 import { useProject } from "@/lib/queries";
 
 const projectItems = [
-  { title: "Overview", to: "/projects/$projectId", icon: LayoutDashboard },
-  { title: "Stages", to: "/projects/$projectId/stages", icon: ListChecks },
-  { title: "Plan", to: "/projects/$projectId/plan", icon: Map },
-  { title: "Photos", to: "/projects/$projectId/photos", icon: Camera },
-  { title: "Design", to: "/projects/$projectId/design", icon: Palette },
-  { title: "Budget", to: "/projects/$projectId/budget", icon: Wallet },
-  { title: "Chat", to: "/projects/$projectId/chat", icon: MessageCircle },
-  { title: "Updates", to: "/projects/$projectId/updates", icon: Bell },
-  { title: "AI knowledge", to: "/projects/$projectId/knowledge", icon: BookOpen },
-  { title: "Team", to: "/projects/$projectId/team", icon: Users },
+  { title: "Overview", to: "/projects/$projectId", icon: "grid_view" },
+  { title: "Stages", to: "/projects/$projectId/stages", icon: "checklist" },
+  { title: "Plan", to: "/projects/$projectId/plan", icon: "floor" },
+  { title: "Photos", to: "/projects/$projectId/photos", icon: "photo_camera" },
+  { title: "Design", to: "/projects/$projectId/design", icon: "palette" },
+  { title: "Budget", to: "/projects/$projectId/budget", icon: "account_balance_wallet" },
+  { title: "Chat", to: "/projects/$projectId/chat", icon: "chat_bubble" },
+  { title: "Updates", to: "/projects/$projectId/updates", icon: "notifications" },
+  { title: "AI knowledge", to: "/projects/$projectId/knowledge", icon: "menu_book" },
+  { title: "Team", to: "/projects/$projectId/team", icon: "group" },
 ] as const;
 
 export function AppSidebar() {
@@ -53,7 +40,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <Link to="/" onClick={close} className="flex items-center gap-2 px-2 py-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)]">
-            <Hammer className="h-5 w-5" />
+            <Icon name="construction" size={22} />
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
@@ -73,7 +60,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={path === "/"} tooltip="All projects">
                   <Link to="/" onClick={close} className="flex items-center gap-2">
-                    <FolderKanban className="h-4 w-4" />
+                    <Icon name="folder_open" size={20} />
                     {!collapsed && <span>All projects</span>}
                   </Link>
                 </SidebarMenuButton>
@@ -92,7 +79,7 @@ export function AppSidebar() {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild isActive={path === href} tooltip={item.title}>
                         <Link to={item.to} params={{ projectId }} onClick={close} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
+                          <Icon name={item.icon} size={20} />
                           {!collapsed && <span>{item.title}</span>}
                         </Link>
                       </SidebarMenuButton>

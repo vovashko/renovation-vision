@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { UserPlus, Users, X } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChatAvatar } from "@/components/ui/chat";
@@ -55,11 +55,11 @@ function TeamPage() {
             <option value="manager">Manager</option>
           </select>
         </Field>
-        <Button type="submit" disabled={!email.trim() || add.isPending} className="min-h-11 gap-2 sm:mb-6"><UserPlus className="h-4 w-4" /> Add</Button>
+        <Button type="submit" disabled={!email.trim() || add.isPending} className="min-h-11 gap-2 sm:mb-6"><Icon name="person_add" size={20} /> Add</Button>
       </form>
 
       {members.length === 0 ? (
-        <EmptyState icon={Users} text="No members yet." />
+        <EmptyState icon="group" text="No members yet." />
       ) : (
         <ul className="divide-y rounded-xl border bg-card shadow-[var(--shadow-soft)]">
           {members.map((m) => (
@@ -74,7 +74,7 @@ function TeamPage() {
               </span>
               {m.user_id !== userId && (
                 <Button size="icon" variant="ghost" className="h-9 w-9" aria-label={`Remove ${m.profile.full_name}`} onClick={() => confirm(`Remove ${m.profile.full_name} from this project?`) && remove.mutate(m)}>
-                  <X className="h-4 w-4" />
+                  <Icon name="close" size={20} />
                 </Button>
               )}
             </li>

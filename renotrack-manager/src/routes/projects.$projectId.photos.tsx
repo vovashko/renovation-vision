@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Camera, EyeOff, ImagePlus, Pencil, Send, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -51,7 +51,7 @@ function PhotosPage() {
       <PageHeader
         title="Site photos"
         description="Uploads start as private drafts. Publish when they're ready for the client."
-        actions={<Button onClick={() => setUploading(true)} className="min-h-11 gap-2"><ImagePlus className="h-4 w-4" /> Add photos</Button>}
+        actions={<Button onClick={() => setUploading(true)} className="min-h-11 gap-2"><Icon name="add_photo_alternate" size={20} /> Add photos</Button>}
       />
       <div className="mt-5">
         <FilterChips
@@ -67,7 +67,7 @@ function PhotosPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState className="mt-6" icon={Camera} text={filter === "draft" ? "No drafts — everything is published." : "No photos yet. Add today's progress."} />
+        <EmptyState className="mt-6" icon="photo_camera" text={filter === "draft" ? "No drafts — everything is published." : "No photos yet. Add today's progress."} />
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p, i) => (
@@ -80,7 +80,7 @@ function PhotosPage() {
                 )}
                 {p.status === "draft" && (
                   <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-foreground/70 px-2.5 py-1 text-xs font-medium text-background">
-                    <EyeOff className="h-3.5 w-3.5" /> Draft — client can't see
+                    <Icon name="visibility_off" size={18} /> Draft — client can't see
                   </span>
                 )}
               </button>
@@ -93,11 +93,11 @@ function PhotosPage() {
                 <div className="mt-2 text-xs text-muted-foreground">{dateTime(p.taken_at)}</div>
                 <div className="mt-3 flex gap-2">
                   {p.status === "draft" ? (
-                    <Button size="sm" className="min-h-9 flex-1 gap-1.5" onClick={() => update.mutate({ id: p.id, patch: { status: "published" } })}><Send className="h-3.5 w-3.5" /> Publish</Button>
+                    <Button size="sm" className="min-h-9 flex-1 gap-1.5" onClick={() => update.mutate({ id: p.id, patch: { status: "published" } })}><Icon name="send" size={18} /> Publish</Button>
                   ) : (
                     <Button size="sm" variant="outline" className="min-h-9 flex-1" onClick={() => update.mutate({ id: p.id, patch: { status: "draft" } })}>Unpublish</Button>
                   )}
-                  <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setEditing(p)} aria-label="Edit photo"><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setEditing(p)} aria-label="Edit photo"><Icon name="edit" size={20} /></Button>
                 </div>
               </div>
             </article>
@@ -211,7 +211,7 @@ function EditSheet({ projectId, photo, onClose, stages, rooms }: { projectId: st
             Save changes
           </Button>
           <Button variant="ghost" className="min-h-11 w-full gap-2 text-destructive" onClick={() => confirm("Delete this photo for everyone?") && remove.mutate(photo, { onSuccess: onClose })}>
-            <Trash2 className="h-4 w-4" /> Delete photo
+            <Icon name="delete" size={20} /> Delete photo
           </Button>
         </div>
       )}

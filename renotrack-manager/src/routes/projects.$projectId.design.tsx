@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ImagePlus, Palette, Pencil, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,7 +49,7 @@ function DesignPage() {
       <PageHeader
         title="Planned design"
         description="Renders show the client how each room will look when finished."
-        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><ImagePlus className="h-4 w-4" /> Add render</Button>}
+        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Icon name="add_photo_alternate" size={20} /> Add render</Button>}
       />
 
       {compare && comparePhoto && (
@@ -62,7 +62,7 @@ function DesignPage() {
         </section>
       )}
 
-      {renders.length === 0 && <EmptyState className="mt-6" icon={Palette} title="No renders yet" text="Add the designer's renders so the client can see the finished look." />}
+      {renders.length === 0 && <EmptyState className="mt-6" icon="palette" title="No renders yet" text="Add the designer's renders so the client can see the finished look." />}
 
       <div className="mt-8 space-y-8">
         {groups.map((g) => (
@@ -70,7 +70,7 @@ function DesignPage() {
             <h2 className="mb-3 text-lg font-semibold">{g.room?.name ?? "Not linked to a room"}</h2>
             {g.items.length === 0 ? (
               <div className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-5 text-sm text-muted-foreground">
-                <Palette className="h-5 w-5 shrink-0" /> The client sees "Renders for {g.room?.name} are still being prepared by the designer."
+                <Icon name="palette" size={22} className="shrink-0" /> The client sees "Renders for {g.room?.name} are still being prepared by the designer."
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -84,7 +84,7 @@ function DesignPage() {
                         <VisibilityBadge visible={r.is_visible} />
                         <div className="flex items-center gap-1">
                           <Switch checked={r.is_visible} onCheckedChange={() => toggle.mutate(r)} aria-label={`Share ${r.title} with client`} />
-                          <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setEditing(r)} aria-label={`Edit ${r.title}`}><Pencil className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setEditing(r)} aria-label={`Edit ${r.title}`}><Icon name="edit" size={20} /></Button>
                         </div>
                       </div>
                     </div>
@@ -161,7 +161,7 @@ function RenderSheet({ projectId, render, rooms, photos, onClose }: { projectId:
           <Button type="submit" disabled={save.isPending || !form.title.trim() || (isNew && !form.file)} className="min-h-11 w-full">{save.isPending ? "Saving…" : "Save render"}</Button>
           {!isNew && render && (
             <Button type="button" variant="ghost" className="min-h-11 w-full gap-2 text-destructive" onClick={() => confirm("Delete this render?") && remove.mutate(render, { onSuccess: onClose })}>
-              <Trash2 className="h-4 w-4" /> Delete render
+              <Icon name="delete" size={20} /> Delete render
             </Button>
           )}
         </form>

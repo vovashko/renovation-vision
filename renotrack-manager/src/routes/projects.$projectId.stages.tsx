@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ListChecks, Pencil, Plus, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -49,11 +49,11 @@ function StagesPage() {
       <PageHeader
         title="Renovation stages"
         description="Tick tasks as the crew finishes them. Clients see visible stages and tasks instantly."
-        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Plus className="h-4 w-4" /> Add stage</Button>}
+        actions={<Button onClick={() => setEditing("new")} className="min-h-11 gap-2"><Icon name="add" size={20} /> Add stage</Button>}
       />
 
       {stages.length === 0 ? (
-        <EmptyState className="mt-8" icon={ListChecks} title="No stages yet" text="Add the first stage — demolition, electrical, flooring — with its dates." />
+        <EmptyState className="mt-8" icon="checklist" title="No stages yet" text="Add the first stage — demolition, electrical, flooring — with its dates." />
       ) : (
         <StageList className="mt-8">
           {stages.map((s, i) => {
@@ -75,7 +75,7 @@ function StagesPage() {
                   headerExtra={
                     <>
                       {!s.is_visible && <VisibilityBadge visible={false} />}
-                      <Button variant="ghost" size="icon" onClick={() => setEditing(s)} aria-label={`Edit ${s.name}`} className="h-9 w-9"><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => setEditing(s)} aria-label={`Edit ${s.name}`} className="h-9 w-9"><Icon name="edit" size={20} /></Button>
                     </>
                   }
                 >
@@ -191,7 +191,7 @@ function StageSheet({ projectId, stage, rooms, count, onClose }: { projectId: st
             className="min-h-11 w-full gap-2 text-destructive"
             onClick={() => confirm(`Delete "${stage.name}" and its ${stage.tasks.length} tasks?`) && remove.mutate(stage.id, { onSuccess: onClose })}
           >
-            <Trash2 className="h-4 w-4" /> Delete stage
+            <Icon name="delete" size={20} /> Delete stage
           </Button>
         )}
       </form>
