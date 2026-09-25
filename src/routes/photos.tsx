@@ -62,7 +62,7 @@ function PhotosPage() {
   }, [filtered]);
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-7xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-headline-md">Site photos</h1>

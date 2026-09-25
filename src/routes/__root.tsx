@@ -113,16 +113,6 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-// The header card matches the content width of the page below it, so their edges line up.
-const pageWidth: Record<string, string> = {
-  "/": "max-w-7xl",
-  "/plan": "max-w-6xl",
-  "/design": "max-w-6xl",
-  "/stages": "max-w-5xl",
-  "/photos": "max-w-5xl",
-  "/chat": "max-w-3xl",
-};
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -134,15 +124,14 @@ function RootComponent() {
           <div className="flex min-h-screen w-full bg-surface text-on-surface">
             <AppSidebar />
             <div className="flex min-w-0 flex-1 flex-col">
-              {/* Tinted panel as wide as the page content, top-aligned with the rail. Scrolls with
+              {/* Tinted panel as wide as the page content (max-w-7xl on every page), top-aligned with the rail. Scrolls with
                   the page. Hidden on the Overview, whose project card already says the same. */}
               {!isHome && (
                 <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
                   <div
                     className={cn(
                       cardVariants({ variant: "tinted" }),
-                      "mx-auto flex h-16 w-full items-center gap-3 px-5 py-0",
-                      pageWidth[path] ?? "max-w-7xl",
+                      "mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-5 py-0",
                     )}
                   >
                     <div className="flex min-w-0 flex-1 flex-col leading-tight">

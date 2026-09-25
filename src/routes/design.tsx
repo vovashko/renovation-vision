@@ -42,7 +42,7 @@ function DesignPage() {
   const baRoom = rooms.find((r) => r.id === beforeAfter.roomId)!;
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-7xl">
       <h1 className="text-headline-md">Planned design</h1>
       <p className="mt-1 text-body-lg text-on-surface-variant">
         How each room will look when finished.

@@ -28,7 +28,7 @@ function PlanPage() {
     navigate({ search: { room: id }, replace: true, resetScroll: false });
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-7xl">
       <h1 className="text-headline-md">Floor plan</h1>
       <p className="mt-1 text-body-lg text-on-surface-variant">
         Tap a room to inspect its current renovation status.

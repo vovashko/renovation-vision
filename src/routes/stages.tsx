@@ -24,7 +24,7 @@ export const Route = createFileRoute("/stages")({
 function StagesPage() {
   const { photos } = usePhotos();
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-7xl">
       <h1 className="text-headline-md">Renovation stages</h1>
       <p className="mt-1 text-body-lg text-on-surface-variant">
         Detailed breakdown of every stage and its tasks.
