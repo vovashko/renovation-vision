@@ -18,6 +18,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { useProject } from "@/lib/queries";
 
 import appCss from "../styles.css?url";
+import markUrl from "../assets/renovision-mark.svg?url";
 
 function NotFoundComponent() {
   return (
@@ -70,6 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "noindex" },
     ],
     links: [
+      { rel: "icon", type: "image/svg+xml", href: markUrl },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
