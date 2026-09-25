@@ -34,18 +34,25 @@ export function AppSidebar() {
         <Link
           to="/"
           aria-label="Renovision home"
-          className="mb-4 block h-10 shrink-0 overflow-hidden rounded-md pl-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="relative mb-4 block h-10 w-[150px] shrink-0 rounded-md pl-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          {/* The lockup is clipped to its mark while collapsed; the wordmark shows as the rail
-              widens. Its dark wordmark is for light surfaces only, so dark mode keeps the mark. */}
+          {/* Collapsed: the mark alone. Expanded: it cross-fades to the full lockup. The lockup's
+              dark wordmark is for light surfaces only, so dark mode keeps the mark. The link has
+              a fixed width so the lockup never shrinks to fit the collapsed rail. */}
+          <img
+            src={markUrl}
+            alt=""
+            width={40}
+            height={40}
+            className="size-10 transition-opacity duration-150 motion-reduce:transition-none group-hover/rail:opacity-0 group-focus-within/rail:opacity-0 dark:opacity-100!"
+          />
           <img
             src={logoUrl}
             alt=""
             width={150}
             height={40}
-            className="h-10 w-auto max-w-none dark:hidden"
+            className="absolute top-0 left-2 h-10 w-[150px] max-w-none opacity-0 transition-opacity duration-150 motion-reduce:transition-none group-hover/rail:opacity-100 group-focus-within/rail:opacity-100 dark:hidden"
           />
-          <img src={markUrl} alt="" width={40} height={40} className="hidden size-10 dark:block" />
         </Link>
         {items.map((item) => {
           const active = path === item.url;
