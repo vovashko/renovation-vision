@@ -124,14 +124,16 @@ function RootComponent() {
           <div className="flex min-h-screen w-full bg-surface text-on-surface">
             <AppSidebar />
             <div className="flex min-w-0 flex-1 flex-col">
-              {/* Tinted panel as wide as the page content (max-w-7xl on every page), top-aligned with the rail. Scrolls with
+              {/* Tinted panel as wide as the page content, top-aligned with the rail. Scrolls with
                   the page. Hidden on the Overview, whose project card already says the same. */}
               {!isHome && (
                 <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
                   <div
                     className={cn(
                       cardVariants({ variant: "tinted" }),
-                      "mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-5 py-0",
+                      "mx-auto flex h-16 w-full items-center gap-3 px-5 py-0",
+                      // Matches the page content: max-w-7xl everywhere, the narrower panel on Chat.
+                      path === "/chat" ? "max-w-3xl" : "max-w-7xl",
                     )}
                   >
                     <div className="flex min-w-0 flex-1 flex-col leading-tight">
