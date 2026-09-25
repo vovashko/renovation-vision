@@ -65,7 +65,7 @@ function ChatPage() {
 
   let lastDay = "";
   return (
-    <div className="-mx-4 -my-4 flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-surface-container-high p-4 text-on-surface md:mx-auto md:my-0 md:h-[calc(100dvh-8rem)] md:w-full md:max-w-3xl md:rounded-xl">
+    <div className="fixed inset-x-0 top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)] bottom-[calc(5rem+env(safe-area-inset-bottom))] z-20 flex flex-col overflow-hidden bg-surface-container-high p-4 text-on-surface md:static md:mx-auto md:h-[calc(100dvh-9rem)] md:w-full md:max-w-3xl md:rounded-xl">
       <ChatHeader
         name={project?.client_name || clients.map((c) => c.profile.full_name).join(" & ") || "Client"}
         roleLabel={clients.length ? `Client · ${clients.length} member${clients.length > 1 ? "s" : ""}` : "No client invited yet"}

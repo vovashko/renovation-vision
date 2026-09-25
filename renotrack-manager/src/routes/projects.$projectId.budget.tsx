@@ -15,6 +15,7 @@ import { InternalBadge } from "@/components/visibility-badge";
 import { api, type ExpenseInput } from "@/lib/api";
 import { keys, useExpenses, useInternal, useProject, useSave, useStages } from "@/lib/queries";
 import { money, shortDate } from "@/lib/format";
+import { budgetStatus } from "@/lib/attention";
 import type { Expense, Stage } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/budget")({
@@ -37,7 +38,8 @@ function BudgetPage() {
   const [editing, setEditing] = useState<Expense | "new" | null>(null);
 
   if (isLoading || !expenses || !project) return <PageLoading />;
-  const pct = project.budget ? Math.round((project.spent / project.budget) * 100) : 0;
+  const budget = budgetStatus(project);
+  const pct = budget.usedPct;
   const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name ?? "—";
 
   const openReceipt = async (path: string) => {
@@ -49,7 +51,7 @@ function BudgetPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8">
+    <div className="mx-auto w-full max-w-7xl space-y-8">
       <PageHeader
         title="Budget & expenses"
         description="The client sees the budget and the spent total. Line items, vendors and receipts stay internal."
@@ -58,11 +60,19 @@ function BudgetPage() {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat icon="attach_money" label="Budget" value={money(project.budget)} sub="Client sees this" />
-        <Stat icon="account_balance_wallet" label="Spent" value={money(project.spent)} sub="Client sees this total" />
+        <Stat
+          icon="account_balance_wallet"
+          label="Spent"
+          value={money(project.spent)}
+          attention={budget.over}
+          delta={budget.over ? `↑ ${budget.overPct}% over` : undefined}
+          deltaTone="attention"
+          note="Client sees this total"
+        />
         <Stat icon="savings" label="Remaining" value={money(project.budget - project.spent)} sub={project.spent > project.budget ? "Over budget" : "Left to spend"} />
         <Stat icon="trending_up" label="Used" value={`${pct}%`} sub={`Project ${project.overall_progress}% complete`} />
       </section>
-      <ProgressBar value={pct} tone={pct > project.overall_progress + 20 ? "blocked" : "primary"} />
+      <ProgressBar value={pct} />
 
       <InternalNotes projectId={projectId} />
 

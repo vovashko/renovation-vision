@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "./api";
+import { deriveStatus, type Status } from "@/components/ui/status";
 
 export const keys = {
   projects: ["projects"] as const,
@@ -23,8 +24,14 @@ export const useProject = (id: string | undefined) =>
   useQuery({ queryKey: keys.project(id ?? ""), queryFn: () => api.getProject(id!), enabled: !!id });
 export const useInternal = (id: string) => useQuery({ queryKey: keys.internal(id), queryFn: () => api.getInternal(id) });
 export const useMembers = (id: string) => useQuery({ queryKey: keys.members(id), queryFn: () => api.listMembers(id) });
-export const useStages = (id: string) => useQuery({ queryKey: keys.stages(id), queryFn: () => api.listStages(id) });
-export const useRooms = (id: string) => useQuery({ queryKey: keys.rooms(id), queryFn: () => api.listRooms(id) });
+// State follows progress (see deriveStatus): applied here so every screen gets it.
+const withDerivedStatus = <T extends { status: Status; progress: number }>(items: T[]): T[] =>
+  items.map((it) => ({ ...it, status: deriveStatus(it.status, it.progress) }));
+
+export const useStages = (id: string) =>
+  useQuery({ queryKey: keys.stages(id), queryFn: () => api.listStages(id), select: withDerivedStatus });
+export const useRooms = (id: string) =>
+  useQuery({ queryKey: keys.rooms(id), queryFn: () => api.listRooms(id), select: withDerivedStatus });
 export const usePhotos = (id: string) => useQuery({ queryKey: keys.photos(id), queryFn: () => api.listPhotos(id), staleTime: 30 * 60 * 1000 });
 export const useRenders = (id: string) => useQuery({ queryKey: keys.renders(id), queryFn: () => api.listRenders(id), staleTime: 30 * 60 * 1000 });
 export const useExpenses = (id: string) => useQuery({ queryKey: keys.expenses(id), queryFn: () => api.listExpenses(id) });

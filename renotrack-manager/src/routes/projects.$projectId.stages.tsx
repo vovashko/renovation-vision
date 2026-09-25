@@ -7,13 +7,14 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { StageCard, StageList } from "@/components/ui/stage-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { statusLabel, statuses, type Status } from "@/components/ui/status";
+import { progressForStatus, statusForProgress, statusLabel, statuses, type Status } from "@/components/ui/status";
 import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { api, type StageInput } from "@/lib/api";
 import { keys, useRooms, useSave, useStages } from "@/lib/queries";
 import { shortDate, slugify } from "@/lib/format";
+import { daysLate } from "@/lib/attention";
 import type { Room, Stage, Task } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/stages")({
@@ -45,7 +46,7 @@ function StagesPage() {
   if (isLoading || !stages) return <PageLoading />;
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="Renovation stages"
         description="Tick tasks as the crew finishes them. Clients see visible stages and tasks instantly."
@@ -68,6 +69,7 @@ function StagesPage() {
                   end={shortDate(s.end_date)}
                   status={s.status}
                   progress={s.progress}
+                  lateDays={daysLate(s)}
                   dimmed={!s.is_visible}
                   tasks={s.tasks.map((t) => ({ ...t, muted: !t.is_visible }))}
                   onToggleTask={(t) => saveTask.mutate({ id: t.id, stage_id: s.id, done: !t.done })}
@@ -148,9 +150,8 @@ function StageSheet({ projectId, stage, rooms, count, onClose }: { projectId: st
   const remove = useSave(projectId, (id: string) => api.deleteStage(id), { ...inv, success: "Stage removed" });
 
   // "Completed" and 100% always go together (enforced by the database too).
-  const setStatus = (status: Status) => setForm((f) => ({ ...f, status, progress: status === "done" ? 100 : f.progress === 100 ? 90 : f.progress }));
-  const setProgress = (progress: number) =>
-    setForm((f) => ({ ...f, progress, status: progress === 100 ? "done" : f.status === "done" ? "progress" : f.status === "pending" && progress > 0 ? "progress" : f.status }));
+  const setStatus = (status: Status) => setForm((f) => ({ ...f, status, progress: progressForStatus(status, f.progress) }));
+  const setProgress = (progress: number) => setForm((f) => ({ ...f, progress, status: statusForProgress(f.status, progress) }));
   const invalidDates = !!form.start_date && !!form.end_date && form.end_date < form.start_date;
   const roomNames = stage && stage !== "new" ? [...new Set(stage.tasks.map((t) => rooms.find((r) => r.id === t.room_id)?.name).filter(Boolean))] : [];
 

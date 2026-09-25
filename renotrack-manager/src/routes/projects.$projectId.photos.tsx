@@ -47,7 +47,7 @@ function PhotosPage() {
   const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name ?? "No room";
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="Site photos"
         description="Uploads start as private drafts. Publish when they're ready for the client."

@@ -36,7 +36,7 @@ function TeamPage() {
   if (isLoading || !members) return <PageLoading />;
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-8">
+    <div className="mx-auto w-full max-w-7xl space-y-8">
       <PageHeader title="Team" description="Clients see visible project data in the RenoTrack app. Managers can edit everything here." />
 
       <form

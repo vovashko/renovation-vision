@@ -79,3 +79,29 @@ export const statusStroke: Record<Status, string> = {
   pending: "stroke-outline",
   blocked: "stroke-status-blocked",
 };
+
+/**
+ * State follows progress: pending is only ever 0%, above 0% it is in progress, 100% is done.
+ * Blocked is the one stored state that is kept, with whatever progress was reached.
+ */
+export function deriveStatus(stored: Status, progress: number): Status {
+  if (stored === "blocked") return "blocked";
+  if (progress >= 100) return "done";
+  if (progress > 0) return "progress";
+  return "pending";
+}
+
+/** Form helper: the state after moving the progress slider (100% is always Completed). */
+export function statusForProgress(current: Status, progress: number): Status {
+  if (progress >= 100) return "done";
+  return deriveStatus(current === "blocked" ? "blocked" : "progress", progress);
+}
+
+/** Form helper: the progress after picking a state (Pending = 0%, Completed = 100%). */
+export function progressForStatus(status: Status, progress: number): number {
+  if (status === "done") return 100;
+  if (status === "pending") return 0;
+  if (progress >= 100) return 95;
+  if (status === "progress" && progress <= 0) return 5;
+  return progress;
+}

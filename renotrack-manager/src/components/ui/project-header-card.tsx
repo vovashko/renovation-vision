@@ -23,11 +23,11 @@ export function ProjectHeaderCard({
   actions?: ReactNode;
 }) {
   return (
-    <Card className="flex flex-wrap justify-between gap-x-12 gap-y-6 px-7 py-6">
+    <Card className="flex flex-wrap items-start justify-between gap-x-12 gap-y-6 px-5 py-5 md:px-7 md:py-6">
       <div className="min-w-0">
         <div className="text-body-md text-on-surface-variant">{eyebrow}</div>
-        <h1 className="mt-1 text-headline-lg">{name}</h1>
-        <p className="mt-1 text-body-lg text-on-surface-variant">{address}</p>
+        <h1 className="text-headline-md sm:text-headline-lg">{name}</h1>
+        <p className="text-body-lg text-on-surface-variant">{address}</p>
         {managerName && (
           <div className="mt-3 flex items-center gap-2 text-body-md text-on-surface-variant">
             <span className="grid size-7 place-items-center rounded-full bg-surface-container-high text-on-surface">
@@ -38,12 +38,12 @@ export function ProjectHeaderCard({
         )}
         {badges && <div className="mt-3 flex flex-wrap items-center gap-2">{badges}</div>}
       </div>
-      <div className="w-full sm:w-[380px]">
+      <div className="w-full md:w-[380px]">
         <div className="flex items-end justify-between gap-3">
-          <span className="text-body-md text-on-surface">Overall progress</span>
+          <span className="text-body-md text-on-surface-variant">Overall progress</span>
           <span className="text-headline-md">{progress}%</span>
         </div>
-        <ProgressBar value={progress} className="mt-3" />
+        <ProgressBar value={progress} className="mt-2" />
         {currentStage && (
           <div className="mt-3 text-body-md text-on-surface-variant">
             Currently working on <span className="font-medium text-on-surface">{currentStage}</span>

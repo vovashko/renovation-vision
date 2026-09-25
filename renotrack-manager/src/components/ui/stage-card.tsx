@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "./icon";
-import { LateLine } from "./late-line";
+import { Badge } from "./badge";
+import { lateLabel } from "@/lib/attention";
 import { ProgressBar } from "./progress-bar";
 import { statusMarker, statusTone, type Status } from "./status";
 import { StatusPill } from "./status-pill";
@@ -62,16 +63,21 @@ export function StageCard({
       <div className={cn("absolute top-0 left-0 grid size-11 place-items-center rounded-full font-semibold", statusMarker[status])}>
         {index}
       </div>
-      <div className={cn("rounded-xl border border-outline-variant bg-card px-6 py-5 text-on-surface", dimmed && "border-dashed opacity-70")}>
+      <div className={cn("relative rounded-xl border border-outline-variant bg-card px-6 py-5 text-on-surface", lateDays && "border-attention-outline", dimmed && "border-dashed opacity-70")}>
+        {lateDays ? <span aria-hidden className="absolute top-4 right-4 size-2 rounded-full bg-attention" /> : null}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-title-lg">{name}</h2>
             <div className="mt-1 text-body-md text-on-surface-variant">
               {start} – {end}
             </div>
-            {lateDays ? <LateLine days={lateDays} className="mt-1" /> : null}
+            {lateDays ? (
+              <Badge variant="attention" size="compact" icon="schedule" className="mt-2">
+                {lateLabel(lateDays)}
+              </Badge>
+            ) : null}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 pr-4">
             {headerExtra}
             <StatusPill status={status} size="sm" />
           </div>

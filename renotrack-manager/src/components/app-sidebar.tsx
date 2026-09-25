@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { RenovisionLogo } from "@/components/renovision-logo";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -97,56 +97,133 @@ function SettingsItem({ expanded }: { expanded: boolean }) {
 }
 
 /**
- * Navigation rail (768px and up): 96px, expands to 240px on hover or keyboard focus and
- * overlays the page. Labels and the wordmark fade in as it widens.
+ * Navigation rail (768px and up; phones use the bottom navigation bar). Sits in a fixed 96px
+ * slot; the rail itself is absolutely positioned inside it, so expanding to 240px on hover or
+ * keyboard focus overlays the page instead of pushing it. Labels and the wordmark fade in.
  */
 export function AppSidebar() {
   return (
-    <div className="relative hidden w-24 shrink-0 md:block">
-      <div className="sticky top-3 z-30 h-[calc(100dvh-1.5rem)]">
-        <nav
-          aria-label="Main"
-          className="group/rail absolute inset-y-0 left-0 z-20 flex w-24 flex-col overflow-hidden rounded-2xl border border-outline-variant bg-card px-5 py-5 transition-[width,box-shadow] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] hover:w-60 hover:shadow-float has-[:focus-visible]:w-60 has-[:focus-visible]:shadow-float"
+    <div className="sticky top-4 z-40 m-4 mr-0 hidden h-[calc(100dvh-2rem)] w-24 shrink-0 md:block">
+      <nav
+        aria-label="Main"
+        className="group/rail absolute inset-y-0 left-0 z-20 flex w-24 flex-col overflow-hidden rounded-2xl border border-outline-variant bg-card px-5 py-5 transition-[width,box-shadow] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] hover:w-60 hover:shadow-float has-[:focus-visible]:w-60 has-[:focus-visible]:shadow-float motion-reduce:transition-none"
+      >
+        <Link
+          to="/"
+          aria-label="RenoVision, all projects"
+          className="mb-4 ml-2 block h-10 w-10 shrink-0 overflow-hidden rounded-md transition-[width] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover/rail:w-[151px] group-has-[:focus-visible]/rail:w-[151px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
         >
-          <Link
-            to="/"
-            aria-label="RenoVision, all projects"
-            className="mb-4 ml-2 block h-10 w-10 shrink-0 overflow-hidden rounded-md transition-[width] duration-[220ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover/rail:w-[151px] group-has-[:focus-visible]/rail:w-[151px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            <RenovisionLogo className="h-10" />
-          </Link>
-          <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-5 [scrollbar-width:none]">
-            <NavItems expanded={false} />
-          </div>
-          <div className="mt-2 shrink-0 border-t border-outline-variant pt-2">
-            <SettingsItem expanded={false} />
-          </div>
-        </nav>
-      </div>
+          <RenovisionLogo className="h-10" />
+        </Link>
+        <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-5 [scrollbar-width:none]">
+          <NavItems expanded={false} />
+        </div>
+        <div className="mt-2 shrink-0 border-t border-outline-variant pt-2">
+          <SettingsItem expanded={false} />
+        </div>
+      </nav>
     </div>
   );
 }
 
-/** Below 768px: a menu button in the header opens the same items in a sheet. */
-export function MobileNav() {
+const tabs = [
+  { title: "Overview", to: "/projects/$projectId", icon: "grid_view" },
+  { title: "Stages", to: "/projects/$projectId/stages", icon: "checklist" },
+  { title: "Photos", to: "/projects/$projectId/photos", icon: "photo_camera" },
+  { title: "Chat", to: "/projects/$projectId/chat", icon: "chat_bubble" },
+] as const;
+
+// M3 navigation bar item: 64x32 indicator pill behind the icon, label below.
+const tabClass = (active: boolean) =>
+  cn(
+    "group flex h-20 flex-1 flex-col items-center justify-center gap-1 text-label-md outline-none",
+    active ? "text-on-surface" : "text-on-surface-variant",
+  );
+const pillClass = (active: boolean) =>
+  cn(
+    "state-layer flex h-8 w-16 items-center justify-center rounded-full group-focus-visible:outline-2 group-focus-visible:outline-primary",
+    active && "bg-secondary-container text-on-secondary-container",
+  );
+
+/** Below 768px: M3 bottom navigation bar. "More" opens the other pages and the account. */
+export function MobileTabBar() {
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  const { projectId } = useParams({ strict: false }) as { projectId?: string };
+  const { profile, email, isDemo, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+  const tabHrefs = projectId ? tabs.map((t) => t.to.replace("$projectId", projectId)) : [];
+  const moreItems = projectId ? projectItems.filter((i) => !tabs.some((t) => t.to === i.to)) : [];
+  const moreActive = moreItems.some((i) => path === i.to.replace("$projectId", projectId ?? "")) || (!!projectId && path === "/");
+  const moreRow = (active: boolean) =>
+    cn(
+      "state-layer flex h-14 items-center gap-3 rounded-full pr-6 pl-4 text-label-lg focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
+      active ? "bg-secondary-container text-on-secondary-container" : "text-on-surface-variant",
+    );
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Open navigation" className="text-on-surface md:hidden">
-          <Icon name="menu" size={22} />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="flex w-72 flex-col gap-2 p-5">
-        <SheetTitle className="sr-only">Navigation</SheetTitle>
-        <RenovisionLogo className="mb-4 ml-2 h-10 self-start" />
-        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
-          <NavItems expanded onNavigate={() => setOpen(false)} />
-        </div>
-        <div className="border-t border-outline-variant pt-2">
-          <SettingsItem expanded />
-        </div>
-      </SheetContent>
-    </Sheet>
+    <>
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex bg-surface-container pb-[env(safe-area-inset-bottom)] md:hidden">
+        {projectId ? (
+          tabs.map((t, i) => {
+            const active = path === tabHrefs[i];
+            return (
+              <Link key={t.title} to={t.to} params={{ projectId }} className={tabClass(active)} aria-current={active ? "page" : undefined}>
+                <span className={pillClass(active)}>
+                  <Icon name={t.icon} size={24} fill={active} />
+                </span>
+                {t.title}
+              </Link>
+            );
+          })
+        ) : (
+          <Link to="/" className={tabClass(path === "/")} aria-current={path === "/" ? "page" : undefined}>
+            <span className={pillClass(path === "/")}>
+              <Icon name="folder_open" size={24} fill={path === "/"} />
+            </span>
+            Projects
+          </Link>
+        )}
+        <button onClick={() => setOpen(true)} className={tabClass(moreActive)} aria-label="More pages" aria-haspopup="dialog">
+          <span className={pillClass(moreActive)}>
+            <Icon name="more_horiz" size={24} fill={moreActive} />
+          </span>
+          More
+        </button>
+      </nav>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-xl border-0 bg-surface-container-low pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <SheetTitle className="px-4 pt-2 text-title-lg">More</SheetTitle>
+          <div className="mt-2 grid gap-1 px-3">
+            {projectId && (
+              <Link to="/" onClick={() => setOpen(false)} className={moreRow(path === "/")}>
+                <Icon name="folder_open" size={24} />
+                All projects
+              </Link>
+            )}
+            {moreItems.map((item) => {
+              const active = path === item.to.replace("$projectId", projectId!);
+              return (
+                <Link key={item.title} to={item.to} params={{ projectId: projectId! }} onClick={() => setOpen(false)} className={moreRow(active)}>
+                  <Icon name={item.icon} size={24} fill={active} />
+                  {item.title}
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mx-4 mt-3 border-t border-outline-variant pt-4">
+            <div className="text-title-md">{profile?.full_name}</div>
+            <div className="text-body-md text-on-surface-variant">{email}</div>
+            {isDemo ? (
+              <p className="mt-2 text-body-sm text-on-surface-variant">Demo data. Changes aren't saved and reset when you reload.</p>
+            ) : (
+              <Button variant="outline" onClick={signOut} className="mt-3 w-full">
+                <Icon name="logout" size={20} />
+                Sign out
+              </Button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

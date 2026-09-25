@@ -34,7 +34,7 @@ function KnowledgePage() {
   if (isLoading || !entries) return <PageLoading />;
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="AI knowledge"
         description="The client's “Ask AI” assistant answers from project data plus the visible entries here."

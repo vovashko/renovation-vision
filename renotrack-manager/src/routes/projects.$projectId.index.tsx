@@ -1,7 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ProjectHeaderCard } from "@/components/ui/project-header-card";
@@ -10,10 +13,15 @@ import { StageTimelineRow } from "@/components/ui/stage-timeline-row";
 import { FloorPlan, RoomDetail } from "@/components/ui/floor-plan";
 import { Field, FormSheet, selectCls } from "@/components/form-sheet";
 import { PageLoading } from "@/components/page-header";
+import { ManagerBadge } from "@/components/manager-badge";
+import { PhotoThumbs } from "@/components/photo-thumbs";
+import { SectionHeader } from "@/components/section-header";
 import { api, type ProjectPatch } from "@/lib/api";
-import { keys, useProject, useRooms, useSave, useStages } from "@/lib/queries";
+import { keys, useMembers, usePhotos, useProject, useRooms, useSave, useStages } from "@/lib/queries";
+import { budgetStatus, daysLate, projectToday } from "@/lib/attention";
+import { cn } from "@/lib/utils";
 import { findInconsistencies } from "@/lib/consistency";
-import { longDate, money, scheduleFill, scheduleLabel, shortDate } from "@/lib/format";
+import { longDate, scheduleLabel, shortDate } from "@/lib/format";
 import type { ProjectSummary, ScheduleStatus } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/")({
@@ -32,6 +40,8 @@ function Overview() {
   const { data: project } = useProject(projectId);
   const { data: stages } = useStages(projectId);
   const { data: rooms } = useRooms(projectId);
+  const { data: photos = [] } = usePhotos(projectId);
+  const { data: members = [] } = useMembers(projectId);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
 
@@ -44,6 +54,16 @@ function Overview() {
   const warnings = findInconsistencies(project, stages, rooms);
   const activeRoom = rooms.find((r) => r.id === roomId);
   const warnTo = { stages: "/projects/$projectId/stages", plan: "/projects/$projectId/plan", overview: "/projects/$projectId" } as const;
+  const current = stages.find((s) => s.status === "progress");
+  const done = stages.filter((s) => s.status === "done").length;
+  const lateStages = stages.filter((s) => daysLate(s) > 0).length;
+  const budget = budgetStatus(project);
+  const spent = kUsd(project.spent);
+  const plan = kUsd(project.budget);
+  const onSchedule = project.schedule_status === "on_schedule";
+  const nameOf = (id: string | null) => members.find((m) => m.user_id === id)?.profile.full_name ?? "the team";
+  const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name;
+  const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name;
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
@@ -52,95 +72,179 @@ function Overview() {
         address={project.address}
         managerName={project.manager_name}
         progress={project.overall_progress}
-        currentStage={project.current_stage}
+        currentStage={current?.name ?? null}
         badges={
-          <span className="rounded-full px-3 py-1 text-xs font-medium text-white" style={{ background: scheduleFill[project.schedule_status] }}>
-            {scheduleLabel[project.schedule_status]}
-          </span>
+          <>
+            <ManagerBadge />
+            {!onSchedule && (
+              <Badge variant="attention" size="compact" icon="schedule">
+                {scheduleLabel[project.schedule_status]}
+              </Badge>
+            )}
+          </>
         }
-        actions={<Button variant="outline" onClick={() => setEditing(true)} className="min-h-11 gap-2"><Icon name="edit" size={20} /> Edit project details</Button>}
+        actions={
+          <Button variant="outline" onClick={() => setEditing(true)}>
+            <Icon name="edit" size={20} />
+            Edit project details
+          </Button>
+        }
       />
 
       {warnings.length > 0 && (
-        <section className="rounded-xl border border-status-blocked/40 bg-card p-5 shadow-[var(--shadow-soft)]" aria-label="Consistency checks">
-          <div className="flex items-center gap-2 font-semibold"><Icon name="warning" size={22} className="text-status-blocked" /> Check before your client sees it</div>
-          <ul className="mt-3 space-y-2 text-sm">
+        <Card attention className="p-5" aria-label="Consistency checks">
+          <div className="flex items-center gap-2 pr-4 text-title-md">
+            <Icon name="warning" size={22} className="text-attention" /> Check before your client sees it
+          </div>
+          <ul className="mt-3 divide-y divide-outline-variant text-body-md">
             {warnings.map((w) => (
-              <li key={w.text} className="flex flex-wrap items-center justify-between gap-2">
+              <li key={w.text} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <span>{w.text}</span>
                 {w.to === "overview" ? (
-                  <button onClick={() => setEditing(true)} className="text-primary hover:underline">Fix →</button>
+                  <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="-mr-3">
+                    Fix
+                    <Icon name="arrow_forward" size={20} />
+                  </Button>
                 ) : (
-                  <Link to={warnTo[w.to]} params={{ projectId }} className="text-primary hover:underline">Fix →</Link>
+                  <Link to={warnTo[w.to]} params={{ projectId }} className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "-mr-3")}>
+                    Fix
+                    <Icon name="arrow_forward" size={20} />
+                  </Link>
                 )}
               </li>
             ))}
           </ul>
-        </section>
+        </Card>
       )}
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon="calendar_month" label="Started" value={longDate(project.start_date)} sub={`Target: ${longDate(project.target_date)}`} />
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Project facts">
+        <Stat label="Started" value={shortDate(project.start_date)} note={`Target: ${longDate(project.target_date)}`} />
         <Stat
-          icon="trending_up"
           label="Stages done"
-          value={`${project.stages_done}/${project.stages_total}`}
-          sub={<span className="inline-flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full" style={{ background: scheduleFill[project.schedule_status] }} />{scheduleLabel[project.schedule_status]}</span>}
+          value={String(done)}
+          unit={`/ ${stages.length}`}
+          delta={lateStages ? `${lateStages} late` : scheduleLabel[project.schedule_status]}
+          deltaTone={lateStages || !onSchedule ? "attention" : "good"}
         />
-        <Stat icon="attach_money" label="Budget" value={money(project.budget)} sub={`Spent ${money(project.spent)}`} />
-        <Stat icon="person" label="Client" value={project.client_name || "—"} sub="Primary contact" />
+        <Stat
+          label="Budget spent"
+          value={spent.value}
+          unit={spent.unit}
+          attention={budget.over}
+          delta={budget.over ? `↑ ${budget.overPct}% over` : `${budget.usedPct}% used`}
+          deltaTone={budget.over ? "attention" : "good"}
+          note={`of the ${plan.value}${plan.unit} plan`}
+        />
+        <Stat label="Client" value={project.client_name || "—"} note="Primary contact" />
       </section>
 
       {project.schedule_note && (
-        <p className="-mt-4 rounded-xl border bg-card p-4 text-sm text-muted-foreground shadow-[var(--shadow-soft)]">
-          <span className="font-medium text-foreground">Schedule note for the client: </span>{project.schedule_note}
-        </p>
+        <Card className="p-4 text-body-md text-on-surface-variant">
+          <span className="font-medium text-on-surface">Schedule note for the client: </span>
+          {project.schedule_note}
+        </Card>
       )}
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Stage timeline</h2>
-          <Link to="/projects/$projectId/stages" params={{ projectId }} className="text-sm text-primary hover:underline">Edit stages →</Link>
-        </div>
-        <div className="space-y-3">
-          {stages.map((s, i) => (
-            <StageTimelineRow
-              key={s.id}
-              index={i + 1}
-              name={s.name}
-              status={s.status}
-              start={shortDate(s.start_date)}
-              end={shortDate(s.end_date)}
-              progress={s.progress}
-              onClick={() => navigate({ to: "/projects/$projectId/stages", params: { projectId }, hash: s.id })}
-            />
-          ))}
-        </div>
+      <section aria-labelledby="latest-photos">
+        <SectionHeader
+          id="latest-photos"
+          title="Latest photos"
+          sub={photos[0] ? `Latest from ${nameOf(photos[0].uploaded_by)} · ${dayLabel(photos[0].taken_at)}` : undefined}
+          link={{ to: "/projects/$projectId/photos", params: { projectId } }}
+          linkLabel="All photos"
+        />
+        {photos.length ? (
+          <PhotoThumbs
+            photos={photos}
+            max={4}
+            className="grid max-w-2xl grid-cols-4 gap-2 md:gap-3"
+            toItem={(p) => ({
+              src: p.url,
+              alt: p.alt,
+              title: p.caption,
+              subtitle: `${dayLabel(p.taken_at)} · ${nameOf(p.uploaded_by)}`,
+              tags: [stageName(p.stage_id), roomName(p.room_id), p.status === "draft" ? "Draft" : undefined].filter((t): t is string => !!t),
+            })}
+          />
+        ) : (
+          <EmptyState icon="photo_camera" text="No photos yet. Add today's progress from the Photos page." />
+        )}
       </section>
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Floor plan visualisation</h2>
-          <Link to="/projects/$projectId/plan" params={{ projectId }} className="text-sm text-primary hover:underline">Edit rooms →</Link>
-        </div>
+      <section aria-labelledby="stage-timeline">
+        <SectionHeader
+          id="stage-timeline"
+          title="Stage timeline"
+          link={{ to: "/projects/$projectId/stages", params: { projectId } }}
+          linkLabel="Edit stages"
+        />
+        <ul className="space-y-2">
+          {stages.map((s, i) => (
+            <li key={s.id}>
+              <StageTimelineRow
+                index={i + 1}
+                name={s.name}
+                status={s.status}
+                start={shortDate(s.start_date)}
+                end={shortDate(s.end_date)}
+                progress={s.progress}
+                lateDays={daysLate(s)}
+                onClick={() => navigate({ to: "/projects/$projectId/stages", params: { projectId }, hash: s.id })}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="floor-plan">
+        <SectionHeader
+          id="floor-plan"
+          title="Floor plan visualisation"
+          link={{ to: "/projects/$projectId/plan", params: { projectId } }}
+          linkLabel="Edit rooms"
+        />
         <FloorPlan
           rooms={rooms.map((r) => ({ ...r, muted: !r.is_visible }))}
           activeId={roomId}
           onSelect={(r) => setRoomId(r.id)}
-          detail={activeRoom && (
-            <RoomDetail room={activeRoom}>
-              {activeRoom.client_note && <p className="mt-5 text-sm text-muted-foreground">{activeRoom.client_note}</p>}
-              <Link to="/projects/$projectId/plan" params={{ projectId }} search={{ room: activeRoom.id }} className="mt-5 inline-flex text-sm text-primary hover:underline">
-                Update {activeRoom.name} →
-              </Link>
-            </RoomDetail>
-          )}
+          detail={
+            activeRoom && (
+              <RoomDetail room={activeRoom}>
+                {activeRoom.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{activeRoom.client_note}</p>}
+                <Link
+                  to="/projects/$projectId/plan"
+                  params={{ projectId }}
+                  search={{ room: activeRoom.id }}
+                  className={cn(buttonVariants({ variant: "ghost" }), "mt-3 -ml-3")}
+                >
+                  Update {activeRoom.name}
+                  <Icon name="arrow_forward" size={20} />
+                </Link>
+              </RoomDetail>
+            )
+          }
         />
       </section>
 
       <ProjectDetailsSheet project={project} open={editing} onOpenChange={setEditing} />
     </div>
   );
+}
+
+/** "$51.2" + "k", like the client app's budget card. */
+function kUsd(n: number) {
+  return { value: `$${(n / 1000).toFixed(1)}`, unit: "k" };
+}
+
+/** "Today", "Yesterday" or "Apr 17", relative to the project's today. */
+function dayLabel(iso: string) {
+  const d = new Date(iso);
+  const today = projectToday();
+  const day = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((day(today) - day(d)) / 86_400_000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  return d.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
 }
 
 function ProjectDetailsSheet({ project, open, onOpenChange }: { project: ProjectSummary; open: boolean; onOpenChange: (v: boolean) => void }) {

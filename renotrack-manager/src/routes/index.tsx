@@ -28,7 +28,7 @@ function ProjectsPage() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="Your projects"
         description="Everything you update here appears in the client's RenoTrack app."

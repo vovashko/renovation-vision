@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Icon } from "./icon";
-import { LateLine } from "./late-line";
+import { Badge } from "./badge";
+import { lateLabel } from "@/lib/attention";
 import { ProgressBar } from "./progress-bar";
 import { statusContainer, statusLabel, statusTone, type Status } from "./status";
 
@@ -29,7 +30,7 @@ export function StageTimelineRow({
     <Wrapper
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-3.5 rounded-xl border border-outline-variant bg-card py-3.5 pr-5 pl-3.5 text-left text-on-surface",
+        "flex w-full items-center gap-3.5 rounded-xl border border-outline-variant bg-card py-3.5 pr-4 pl-3.5 text-left text-on-surface sm:pr-5",
         onClick &&
           "cursor-pointer transition-colors duration-150 hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
       )}
@@ -45,11 +46,15 @@ export function StageTimelineRow({
         <span className="block text-body-sm text-on-surface-variant">
           {start} – {end}
         </span>
-        {lateDays ? <LateLine days={lateDays} className="mt-0.5" /> : null}
+        {lateDays ? (
+          <Badge variant="attention" size="compact" icon="schedule" className="mt-1.5">
+            {lateLabel(lateDays)}
+          </Badge>
+        ) : null}
       </span>
       <span className="flex shrink-0 items-center gap-3">
         <ProgressBar value={progress} tone={statusTone[status]} className="w-16 sm:w-[140px]" />
-        <span className="w-10 text-right text-label-lg">{progress}%</span>
+        <span className="w-10 text-right text-label-lg tabular-nums">{progress}%</span>
       </span>
     </Wrapper>
   );

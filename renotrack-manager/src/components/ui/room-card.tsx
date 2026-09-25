@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { LateLine } from "./late-line";
 import { ProgressBar } from "./progress-bar";
 import { statusTone, type Status } from "./status";
 import { StatusPill } from "./status-pill";
@@ -11,7 +10,6 @@ export function RoomCard({
   progress,
   active,
   muted,
-  lateDays,
   onClick,
   children,
 }: {
@@ -20,7 +18,6 @@ export function RoomCard({
   progress: number;
   active?: boolean;
   muted?: boolean;
-  lateDays?: number;
   onClick?: () => void;
   children?: ReactNode;
 }) {
@@ -41,7 +38,6 @@ export function RoomCard({
         <span className="min-w-0 truncate text-title-md">{name}</span>
         <StatusPill status={status} size="sm" />
       </div>
-      {lateDays ? <LateLine days={lateDays} className="mt-1" /> : null}
       <ProgressBar value={progress} tone={statusTone[status]} className="mt-4" />
       <div className="mt-1.5 text-right text-body-sm text-on-surface-variant">{progress}%</div>
       {children}

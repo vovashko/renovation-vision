@@ -45,7 +45,7 @@ function DesignPage() {
   ].filter((g) => g.room || g.items.length);
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="Planned design"
         description="Renders show the client how each room will look when finished."

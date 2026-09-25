@@ -4,13 +4,17 @@ import {
   Link,
   createRootRouteWithContext,
   useParams,
+  useRouterState,
   useRouter,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { Icon } from "@/components/ui/icon";
+import { Badge } from "@/components/ui/badge";
+import { cardVariants } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-import { AppSidebar, MobileNav } from "@/components/app-sidebar";
+import { AppSidebar, MobileTabBar } from "@/components/app-sidebar";
 import { ManagerBadge } from "@/components/manager-badge";
 import { LoginScreen, NotAManagerScreen } from "@/components/login-screen";
 import { AuthProvider, useAuth } from "@/lib/auth";
@@ -122,37 +126,60 @@ function AuthGate() {
 }
 
 function Shell() {
-  const { profile, isDemo, signOut } = useAuth();
+  const { isDemo } = useAuth();
+  const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const { data: project } = useProject(projectId);
+  // The Overview has no top bar: its project card already shows the same information.
+  const isOverview = !!projectId && path.replace(/\/$/, "") === `/projects/${projectId}`;
+  const isChat = path.endsWith("/chat");
 
   return (
-    <div className="flex min-h-screen w-full gap-3 bg-surface text-on-surface md:pl-3">
-        <AppSidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur">
-            <MobileNav />
-            <div className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate text-sm font-semibold">{projectId ? project?.name ?? "…" : "All projects"}</span>
-              <span className="truncate text-xs text-muted-foreground">{projectId ? project?.address : "Projects you manage"}</span>
-            </div>
-            <ManagerBadge />
-            <div className="ml-auto flex items-center gap-2">
-              {isDemo && (
-                <span className="hidden rounded-full border border-dashed px-2.5 py-1 text-xs text-muted-foreground sm:inline" title="Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to connect">
-                  Demo data — not connected
+    <div className="flex min-h-screen w-full bg-surface text-on-surface">
+      <AppSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        {!isOverview && (
+          <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
+            {/* Tinted panel as wide as the page content below it; scrolls with the page. */}
+            <div
+              className={cn(
+                cardVariants({ variant: "tinted" }),
+                "mx-auto flex h-16 w-full items-center gap-3 px-5",
+                isChat ? "max-w-3xl" : "max-w-7xl",
+              )}
+            >
+              <div className="flex min-w-0 flex-1 flex-col leading-tight">
+                <span className="truncate text-title-md">{projectId ? (project?.name ?? "…") : "All projects"}</span>
+                <span className="hidden truncate text-body-sm text-on-surface-variant md:block">
+                  {projectId ? project?.address : "Projects you manage"}
                 </span>
+                {projectId && project && (
+                  <div className="mt-1 flex items-center gap-2 md:hidden">
+                    <Progress value={project.overall_progress} onPanel aria-label="Overall progress" className="flex-1" />
+                    <span className="text-label-sm tabular-nums text-on-surface-variant">{project.overall_progress}%</span>
+                  </div>
+                )}
+              </div>
+              {isDemo && (
+                <Badge variant="assist" size="compact" className="hidden lg:inline-flex" title="Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to connect">
+                  Demo data
+                </Badge>
               )}
-              <span className="hidden text-sm text-muted-foreground md:inline">{profile?.full_name}</span>
-              {!isDemo && (
-                <button onClick={signOut} aria-label="Sign out" className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted">
-                  <Icon name="logout" size={20} />
-                </button>
-              )}
+              <ManagerBadge onPanel />
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-8"><Outlet /></main>
-        </div>
+        )}
+        <main
+          className={cn(
+            "min-w-0 flex-1 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-8 md:pb-8",
+            // Without the top bar, content starts level with the rail's top edge.
+            isOverview ? "pt-[max(1rem,env(safe-area-inset-top))] md:pt-4" : "md:pt-6",
+          )}
+        >
+          <Outlet />
+        </main>
+      </div>
+      <MobileTabBar />
     </div>
   );
 }

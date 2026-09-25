@@ -61,7 +61,7 @@ function UpdatesPage() {
   const inbox = notifications.filter((n) => n.recipient_id === userId);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8">
+    <div className="mx-auto w-full max-w-7xl space-y-8">
       <PageHeader title="Updates" description="Status changes, published photos and new renders notify your client automatically." />
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">

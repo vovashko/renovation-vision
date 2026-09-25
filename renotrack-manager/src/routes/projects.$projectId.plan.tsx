@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FloorPlan } from "@/components/ui/floor-plan";
 import { RoomCard } from "@/components/ui/room-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { statusLabel, statuses, type Status } from "@/components/ui/status";
+import { progressForStatus, statusForProgress, statusLabel, statuses, type Status } from "@/components/ui/status";
 import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/visibility-badge";
@@ -49,7 +49,7 @@ function PlanPage() {
   const openTasks = (roomId: string) => (stages ?? []).flatMap((s) => s.tasks).filter((t) => t.room_id === roomId && !t.done);
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-7xl">
       <PageHeader
         title="Floor plan"
         description="Select a room to update what the client sees on their plan."
@@ -143,8 +143,8 @@ function RoomFields({
     invalidate: [keys.rooms(projectId)],
     success: (r) => `${r.name} saved — the client's plan is updated`,
   });
-  const setStatus = (status: Status) => setForm((f) => ({ ...f, status, progress: status === "done" ? 100 : f.progress === 100 ? 90 : f.progress }));
-  const setProgress = (progress: number) => setForm((f) => ({ ...f, progress, status: progress === 100 ? "done" : f.status === "done" ? "progress" : f.status }));
+  const setStatus = (status: Status) => setForm((f) => ({ ...f, status, progress: progressForStatus(status, f.progress) }));
+  const setProgress = (progress: number) => setForm((f) => ({ ...f, progress, status: statusForProgress(f.status, progress) }));
   const blockedByTasks = form.status === "done" && openTasks.length > 0;
   const pre = id ?? "new";
 
