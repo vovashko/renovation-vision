@@ -13,9 +13,8 @@ const items = [
   { title: "Chat", url: "/chat", icon: "chat_bubble" },
 ] as const;
 
-// Width, shadow and the item fade are driven by :hover / :focus-within on the rail (CSS only),
+// Width, shadow and label fade are driven by :hover / :focus-within on the rail (CSS only),
 // so it expands on mouseenter or keyboard focus and collapses on mouseleave / blur.
-// Collapsed, the rail shows only the logo; the nav items fade in as it expands.
 const expanded = "group-hover/rail:opacity-100 group-focus-within/rail:opacity-100";
 
 /**
@@ -57,15 +56,21 @@ export function AppSidebar() {
               aria-label={item.title}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex h-14 w-full shrink-0 items-center whitespace-nowrap rounded-lg text-on-surface opacity-0 transition-[opacity,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none",
-                expanded,
+                "flex h-14 w-full shrink-0 items-center whitespace-nowrap rounded-lg text-on-surface transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
                 active ? "bg-surface-container-high" : "hover:bg-surface",
               )}
             >
               <span className="grid w-14 shrink-0 place-items-center">
                 <Icon name={item.icon} />
               </span>
-              <span className="text-label-lg">{item.title}</span>
+              <span
+                className={cn(
+                  "text-label-lg opacity-0 transition-opacity duration-150 motion-reduce:transition-none",
+                  expanded,
+                )}
+              >
+                {item.title}
+              </span>
             </Link>
           );
         })}
