@@ -12,6 +12,7 @@ export function AiChat({ projectId, managerName, onAskManager }: { projectId: st
   const { data: rooms } = useRooms(projectId);
   const { data: photos } = usePhotos(projectId);
   const { data: knowledge } = useKnowledge(projectId);
+  const ready = !!project && !!stages && !!rooms;
   const [messages, setMessages] = useState<AiMsg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -22,11 +23,11 @@ export function AiChat({ projectId, managerName, onAskManager }: { projectId: st
 
   const ask = async (question: string) => {
     const q = question.trim();
-    if (!q || thinking || !project || !stages || !rooms) return;
+    if (!q || thinking || !ready) return;
     setInput("");
     setMessages((m) => [...m, { id: Date.now(), role: "user", text: q }]);
     setThinking(true);
-    const answer = await getAiAnswer(q, { project, stages, rooms, photos: photos ?? [], knowledge: knowledge ?? [] });
+    const answer = await getAiAnswer(q, { project: project!, stages: stages!, rooms: rooms!, photos: photos ?? [], knowledge: knowledge ?? [] });
     await new Promise((r) => setTimeout(r, 500));
     setThinking(false);
     const id = Date.now() + 1;
@@ -90,7 +91,7 @@ export function AiChat({ projectId, managerName, onAskManager }: { projectId: st
       <div className="border-t bg-background/60 backdrop-blur">
         <div className="flex gap-2 overflow-x-auto px-3 pt-3 [scrollbar-width:none]" aria-label="Suggested questions">
           {suggestedQuestions.map((s) => (
-            <button key={s} onClick={() => ask(s)} disabled={thinking} className="min-h-10 shrink-0 whitespace-nowrap rounded-full border bg-card px-3 text-sm hover:bg-muted disabled:opacity-50">{s}</button>
+            <button key={s} onClick={() => ask(s)} disabled={thinking || !ready} className="min-h-10 shrink-0 whitespace-nowrap rounded-full border bg-card px-3 text-sm hover:bg-muted disabled:opacity-50">{s}</button>
           ))}
         </div>
         <p className="px-3 pt-2 text-xs text-muted-foreground">AI answers are based on project data. For decisions, confirm with your site manager.</p>
@@ -101,7 +102,7 @@ export function AiChat({ projectId, managerName, onAskManager }: { projectId: st
             </button>
           )}
           <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about your project…" aria-label="Ask the AI assistant" className="h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm" />
-          <button type="submit" disabled={!input.trim() || thinking} aria-label="Send question" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground disabled:opacity-50">
+          <button type="submit" disabled={!input.trim() || thinking || !ready} aria-label="Send question" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground disabled:opacity-50">
             <Send className="h-4 w-4" />
           </button>
         </form>
