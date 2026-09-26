@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Bot, Send, Trash2, UserRound } from "lucide-react";
-import { defaultProjectData, getAiAnswer, suggestedQuestions, type AiAnswer } from "@/lib/ai-assistant";
-import { usePhotos } from "@/lib/photo-store";
-import { project } from "@/lib/renovation-data";
+import { getAiAnswer, suggestedQuestions, type AiAnswer } from "@/lib/ai-assistant";
+import { useKnowledge, usePhotos, useProject, useRooms, useStages } from "@/lib/queries";
 
 type AiMsg = { id: number; role: "user" | "ai"; text: string; answer?: AiAnswer; question?: string };
 
-export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) {
-  const { photos } = usePhotos();
+export function AiChat({ projectId, managerName, onAskManager }: { projectId: string; managerName: string; onAskManager: (q: string) => void }) {
+  const { data: project } = useProject(projectId);
+  const { data: stages } = useStages(projectId);
+  const { data: rooms } = useRooms(projectId);
+  const { data: photos } = usePhotos(projectId);
+  const { data: knowledge } = useKnowledge(projectId);
   const [messages, setMessages] = useState<AiMsg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -19,11 +22,11 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
 
   const ask = async (question: string) => {
     const q = question.trim();
-    if (!q || thinking) return;
+    if (!q || thinking || !project || !stages || !rooms) return;
     setInput("");
     setMessages((m) => [...m, { id: Date.now(), role: "user", text: q }]);
     setThinking(true);
-    const answer = await getAiAnswer(q, defaultProjectData(photos));
+    const answer = await getAiAnswer(q, { project, stages, rooms, photos: photos ?? [], knowledge: knowledge ?? [] });
     await new Promise((r) => setTimeout(r, 500));
     setThinking(false);
     const id = Date.now() + 1;
@@ -62,10 +65,10 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
                   <div className="text-xs text-muted-foreground">Based on: {m.answer.sources.join(" · ")}</div>
                   <div className="flex flex-wrap gap-2">
                     {m.answer.links.map((l) => (
-                      <Link key={l.label} to={l.to} className="inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-medium text-primary hover:bg-muted">{l.label} →</Link>
+                      <Link key={l.label} to={(l.section ? `/projects/$projectId/${l.section}` : "/projects/$projectId") as "/projects/$projectId"} params={{ projectId }} className="inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-medium text-primary hover:bg-muted">{l.label} →</Link>
                     ))}
                     <button onClick={() => onAskManager(m.question ?? "")} className="inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-xs font-medium hover:bg-muted">
-                      <UserRound className="h-3.5 w-3.5" /> Ask {project.manager.split(" ")[0]} about this
+                      <UserRound className="h-3.5 w-3.5" /> Ask {managerName} about this
                     </button>
                   </div>
                 </div>
