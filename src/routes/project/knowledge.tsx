@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { BookOpen, Pencil, Plus, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { EmptyState } from "@/components/empty-state";
 import { Field, FormSheet, VisibleSwitch } from "@/components/manager/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/manager/visibility-badge";
@@ -39,27 +39,27 @@ function KnowledgePage() {
         title="AI knowledge"
         description="The client's “Ask AI” assistant answers from project data plus the visible entries here."
         actions={
-          <Button onClick={() => setEditing("new")} className="min-h-11 gap-2">
-            <Plus className="h-4 w-4" /> Add entry
+          <Button onClick={() => setEditing("new")} className="gap-2">
+            <Icon name="add" size={20} /> Add entry
           </Button>
         }
       />
       {entries.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          icon={BookOpen}
-          title="Nothing yet"
-          text="Add answers to the questions clients ask most — working hours, deliveries, why something is blocked."
-        />
+        <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed p-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high">
+            <Icon name="menu_book" size={24} className="text-on-surface-variant" />
+          </div>
+          <h3 className="mt-3 text-title-md">Nothing yet</h3>
+          <p className="mt-2 max-w-xs text-body-md text-on-surface-variant">
+            Add answers to the questions clients ask most — working hours, deliveries, why something is blocked.
+          </p>
+        </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {entries.map((k) => (
-            <article
-              key={k.id}
-              className={`rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)] ${k.is_visible ? "" : "border-dashed"}`}
-            >
+            <Card key={k.id} className={k.is_visible ? "p-5" : "border-dashed p-5"}>
               <div className="flex items-start justify-between gap-3">
-                <h2 className="font-semibold">{k.title}</h2>
+                <h2 className="text-title-md">{k.title}</h2>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -67,14 +67,14 @@ function KnowledgePage() {
                   onClick={() => setEditing(k)}
                   aria-label={`Edit ${k.title}`}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Icon name="edit" size={20} />
                 </Button>
               </div>
-              <p className="mt-2 text-sm whitespace-pre-wrap text-muted-foreground">{k.content}</p>
+              <p className="mt-2 text-body-md whitespace-pre-wrap text-on-surface-variant">{k.content}</p>
               {k.tags.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {k.tags.map((t) => (
-                    <span key={t} className="rounded-full bg-muted px-2.5 py-0.5 text-xs">
+                    <span key={t} className="rounded-full bg-surface-container-high px-2.5 py-0.5 text-label-md">
                       {t}
                     </span>
                   ))}
@@ -84,7 +84,7 @@ function KnowledgePage() {
                 <VisibilityBadge visible={k.is_visible} hiddenLabel="Internal only" />
                 <Switch checked={k.is_visible} onCheckedChange={() => toggle.mutate(k)} aria-label={`Let the assistant use ${k.title}`} />
               </div>
-            </article>
+            </Card>
           ))}
         </div>
       )}
@@ -166,17 +166,17 @@ function KnowledgeSheet({ projectId, entry, onClose }: { projectId: string; entr
             onChange={(v) => setForm({ ...form, is_visible: v })}
             label="Assistant may use this with the client"
           />
-          <Button type="submit" disabled={save.isPending || !form.title.trim()} className="min-h-11 w-full">
+          <Button type="submit" disabled={save.isPending || !form.title.trim()} className="w-full">
             Save
           </Button>
           {!isNew && entry && (
             <Button
               type="button"
               variant="ghost"
-              className="min-h-11 w-full gap-2 text-destructive"
+              className="w-full gap-2 text-destructive"
               onClick={() => confirm("Delete this entry?") && remove.mutate(entry.id, { onSuccess: onClose })}
             >
-              <Trash2 className="h-4 w-4" /> Delete
+              <Icon name="delete" size={20} /> Delete
             </Button>
           )}
         </form>

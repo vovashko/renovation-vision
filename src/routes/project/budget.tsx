@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DollarSign, Paperclip, PiggyBank, Plus, Receipt, TrendingUp, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Stat } from "@/components/stat-card";
-import { ProgressBar } from "@/components/progress-bar";
-import { EmptyState } from "@/components/empty-state";
-import { Field, FormSheet, selectCls } from "@/components/manager/form-sheet";
+import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { InternalBadge } from "@/components/manager/visibility-badge";
-import { api, type ExpenseInput } from "@/lib/api";
+import { ExpenseSheet } from "@/components/expense-sheet";
+import { api } from "@/lib/api";
 import { keys, useExpenses, useInternal, useProject, useSave, useStages } from "@/lib/queries";
 import { money, shortDate } from "@/lib/format";
-import type { Expense, Stage } from "@/lib/database.types";
+import { budgetSummary, expensesTotal } from "@/lib/budget";
+import type { Expense } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/budget")({
   head: () => ({
@@ -27,8 +27,6 @@ export const Route = createFileRoute("/projects/$projectId/budget")({
   component: BudgetPage,
 });
 
-const categories = ["Labour", "Materials", "Permits", "Disposal", "Equipment", "Other"];
-
 function BudgetPage() {
   const { projectId } = Route.useParams();
   const { data: project } = useProject(projectId);
@@ -37,7 +35,7 @@ function BudgetPage() {
   const [editing, setEditing] = useState<Expense | "new" | null>(null);
 
   if (isLoading || !expenses || !project) return <PageLoading />;
-  const pct = project.budget ? Math.round((project.spent / project.budget) * 100) : 0;
+  const budget = budgetSummary(project);
   const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name ?? "—";
 
   const openReceipt = async (path: string) => {
@@ -54,63 +52,70 @@ function BudgetPage() {
         title="Budget & expenses"
         description="The client sees the budget and the spent total. Line items, vendors and receipts stay internal."
         actions={
-          <Button onClick={() => setEditing("new")} className="min-h-11 gap-2">
-            <Plus className="h-4 w-4" /> Add expense
+          <Button onClick={() => setEditing("new")} className="gap-2">
+            <Icon name="add" size={20} /> Add expense
           </Button>
         }
       />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={DollarSign} label="Budget" value={money(project.budget)} sub="Client sees this" />
-        <Stat icon={Wallet} label="Spent" value={money(project.spent)} sub="Client sees this total" />
-        <Stat
-          icon={PiggyBank}
-          label="Remaining"
-          value={money(project.budget - project.spent)}
-          sub={project.spent > project.budget ? "Over budget" : "Left to spend"}
+        <BudgetStat icon="euro" label="Budget" value={money(project.budget)} sub="Client sees this" />
+        <BudgetStat
+          icon="account_balance_wallet"
+          label="Spent"
+          value={money(project.spent)}
+          sub={budget.over ? undefined : "Client sees this total"}
+          delta={budget.over ? `↑ ${budget.overPct}% over` : undefined}
+          attention={budget.over}
         />
-        <Stat icon={TrendingUp} label="Used" value={`${pct}%`} sub={`Project ${project.overall_progress}% complete`} />
+        <BudgetStat icon="savings" label="Remaining" value={money(budget.remaining)} sub={budget.over ? "Over budget" : "Left to spend"} />
+        <BudgetStat icon="trending_up" label="Used" value={`${budget.usedPct}%`} sub={`Project ${project.overall_progress}% complete`} />
       </section>
-      <ProgressBar value={pct} size="lg" fill={pct > project.overall_progress + 20 ? "var(--status-blocked)" : "var(--gradient-primary)"} />
+      <Progress value={budget.usedPct} tone={budget.over ? "blocked" : "progress"} className="h-3" />
 
       <InternalNotes projectId={projectId} />
 
       <section>
-        <h2 className="mb-3 flex flex-wrap items-center gap-2 text-xl font-semibold">
+        <h2 className="mb-3 flex flex-wrap items-center gap-2 text-title-lg">
           Expenses <InternalBadge />
         </h2>
         {expenses.length === 0 ? (
-          <EmptyState icon={Receipt} text="No expenses yet. Spent stays at $0 until you add some." />
+          <div className="flex flex-col items-center rounded-xl border border-dashed p-8 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high">
+              <Icon name="receipt_long" size={24} className="text-on-surface-variant" />
+            </div>
+            <p className="mt-2 max-w-xs text-body-md text-on-surface-variant">No expenses yet. Spent stays at $0 until you add some.</p>
+          </div>
         ) : (
-          <div className="relative overflow-x-auto rounded-xl border bg-card shadow-[var(--shadow-soft)]">
-            <table className="w-full min-w-[720px] text-sm">
-              <thead className="border-b text-left text-xs tracking-wide text-muted-foreground uppercase">
-                <tr>
-                  <th className="p-3 font-medium">Date</th>
-                  <th className="p-3 font-medium">Description</th>
-                  <th className="p-3 font-medium">Vendor</th>
-                  <th className="p-3 font-medium">Stage</th>
-                  <th className="p-3 text-right font-medium">Amount</th>
-                  <th className="p-3">
+          <Card>
+            <Table className="min-w-[720px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Vendor</TableHead>
+                  <TableHead>Stage</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>
                     <span className="sr-only">Receipt</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {expenses.map((e) => (
-                  <tr key={e.id} onClick={() => setEditing(e)} className="cursor-pointer border-b last:border-0 hover:bg-muted/50">
-                    <td className="p-3 whitespace-nowrap text-muted-foreground">{shortDate(e.spent_on)}</td>
-                    <td className="p-3">
+                  <TableRow key={e.id} onClick={() => setEditing(e)} className="cursor-pointer">
+                    <TableCell className="whitespace-nowrap text-on-surface-variant">{shortDate(e.spent_on)}</TableCell>
+                    <TableCell>
                       <div className="font-medium">{e.description}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-body-sm text-on-surface-variant">
                         {e.category}
                         {e.vendor_notes ? ` · ${e.vendor_notes}` : ""}
                       </div>
-                    </td>
-                    <td className="p-3">{e.vendor || "—"}</td>
-                    <td className="p-3 text-muted-foreground">{stageName(e.stage_id)}</td>
-                    <td className="p-3 text-right font-medium whitespace-nowrap tabular-nums">{money(e.amount)}</td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell>{e.vendor || "—"}</TableCell>
+                    <TableCell className="text-on-surface-variant">{stageName(e.stage_id)}</TableCell>
+                    <TableCell className="text-right font-medium whitespace-nowrap tabular-nums">{money(e.amount)}</TableCell>
+                    <TableCell className="text-right">
                       {e.receipt_path && (
                         <button
                           onClick={(ev) => {
@@ -118,31 +123,60 @@ function BudgetPage() {
                             void openReceipt(e.receipt_path!);
                           }}
                           aria-label="Open receipt"
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high"
                         >
-                          <Paperclip className="h-4 w-4" />
+                          <Icon name="attach_file" size={20} />
                         </button>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t font-semibold">
-                  <td className="p-3" colSpan={4}>
-                    Total spent
-                  </td>
-                  <td className="p-3 text-right tabular-nums">{money(expenses.reduce((a, e) => a + e.amount, 0))}</td>
-                  <td />
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={4}>Total spent</TableCell>
+                  <TableCell className="text-right tabular-nums">{money(expensesTotal(expenses))}</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </Card>
         )}
       </section>
 
       <ExpenseSheet projectId={projectId} expense={editing} stages={stages} onClose={() => setEditing(null)} />
     </div>
+  );
+}
+
+function BudgetStat({
+  icon,
+  label,
+  value,
+  sub,
+  delta,
+  attention,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  sub?: string;
+  delta?: string;
+  attention?: boolean;
+}) {
+  return (
+    <Card attention={attention} className="px-5 py-4">
+      <div className="flex items-center gap-2 text-body-md text-on-surface-variant">
+        <Icon name={icon} size={20} />
+        {label}
+      </div>
+      <div className="mt-2 text-headline-md">{value}</div>
+      {delta ? (
+        <div className="mt-1 text-body-sm font-medium text-attention-text">{delta}</div>
+      ) : sub ? (
+        <div className="mt-1 text-body-sm text-on-surface-variant">{sub}</div>
+      ) : null}
+    </Card>
   );
 }
 
@@ -157,9 +191,9 @@ function InternalNotes({ projectId }: { projectId: string }) {
     success: "Internal notes saved",
   });
   return (
-    <section className="rounded-xl border border-dashed bg-card p-5 shadow-[var(--shadow-soft)]">
+    <Card className="border-dashed p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Label htmlFor="internal-notes" className="text-base font-semibold">
+        <Label htmlFor="internal-notes" className="text-title-md">
           Internal budget notes
         </Label>
         <InternalBadge />
@@ -172,207 +206,10 @@ function InternalNotes({ projectId }: { projectId: string }) {
         placeholder="Contingency, quotes, margins…"
       />
       <div className="mt-3 flex justify-end">
-        <Button
-          variant="outline"
-          disabled={save.isPending || notes === data?.internal_budget_notes}
-          onClick={() => save.mutate(notes)}
-          className="min-h-10"
-        >
+        <Button variant="outline" disabled={save.isPending || notes === data?.internal_budget_notes} onClick={() => save.mutate(notes)}>
           Save notes
         </Button>
       </div>
-    </section>
-  );
-}
-
-type ExpenseForm = {
-  description: string;
-  vendor: string;
-  vendor_notes: string;
-  category: string;
-  amount: string;
-  spent_on: string;
-  stage_id: string;
-  receiptFile: File | null;
-};
-
-function ExpenseSheet({
-  projectId,
-  expense,
-  stages,
-  onClose,
-}: {
-  projectId: string;
-  expense: Expense | "new" | null;
-  stages: Stage[];
-  onClose: () => void;
-}) {
-  const isNew = expense === "new";
-  const [form, setForm] = useState<ExpenseForm | null>(null);
-  const [lastKey, setLastKey] = useState<string | null>(null);
-  const key = expense === null ? null : isNew ? "new" : expense.id;
-  if (key !== lastKey) {
-    setLastKey(key);
-    setForm(
-      expense === null
-        ? null
-        : isNew
-          ? {
-              description: "",
-              vendor: "",
-              vendor_notes: "",
-              category: "Materials",
-              amount: "",
-              spent_on: new Date().toISOString().slice(0, 10),
-              stage_id: stages.find((s) => s.status === "progress")?.id ?? "",
-              receiptFile: null,
-            }
-          : {
-              description: expense.description,
-              vendor: expense.vendor,
-              vendor_notes: expense.vendor_notes,
-              category: expense.category,
-              amount: String(expense.amount),
-              spent_on: expense.spent_on,
-              stage_id: expense.stage_id ?? "",
-              receiptFile: null,
-            },
-    );
-  }
-  const inv = { invalidate: [keys.expenses(projectId)] };
-  const save = useSave(projectId, (e: ExpenseInput) => api.saveExpense(projectId, e), {
-    ...inv,
-    success: "Expense saved — spent total updated",
-  });
-  const remove = useSave(projectId, (e: Expense) => api.deleteExpense(e), { ...inv, success: "Expense deleted" });
-  const amount = Number(form?.amount);
-
-  return (
-    <FormSheet
-      open={expense !== null}
-      onOpenChange={(v) => !v && onClose()}
-      title={isNew ? "Add expense" : "Edit expense"}
-      description="Only the new spent total reaches the client."
-    >
-      {form && (
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            save.mutate(
-              {
-                ...(isNew ? {} : { id: (expense as Expense).id }),
-                description: form.description.trim(),
-                vendor: form.vendor.trim(),
-                vendor_notes: form.vendor_notes.trim(),
-                category: form.category,
-                amount,
-                spent_on: form.spent_on,
-                stage_id: form.stage_id || null,
-                receiptFile: form.receiptFile,
-              },
-              { onSuccess: onClose },
-            );
-          }}
-        >
-          <Field id="ex-desc" label="Description">
-            <Input
-              id="ex-desc"
-              required
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="h-11"
-            />
-          </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field id="ex-amount" label="Amount ($)">
-              <Input
-                id="ex-amount"
-                type="number"
-                min={0.01}
-                step={0.01}
-                required
-                value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                className="h-11"
-              />
-            </Field>
-            <Field id="ex-date" label="Date">
-              <Input
-                id="ex-date"
-                type="date"
-                required
-                value={form.spent_on}
-                onChange={(e) => setForm({ ...form, spent_on: e.target.value })}
-                className="h-11"
-              />
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field id="ex-cat" label="Category">
-              <select
-                id="ex-cat"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className={selectCls}
-              >
-                {categories.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
-            </Field>
-            <Field id="ex-stage" label="Stage">
-              <select
-                id="ex-stage"
-                value={form.stage_id}
-                onChange={(e) => setForm({ ...form, stage_id: e.target.value })}
-                className={selectCls}
-              >
-                <option value="">—</option>
-                {stages.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-          <Field id="ex-vendor" label="Vendor">
-            <Input id="ex-vendor" value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} className="h-11" />
-          </Field>
-          <Field id="ex-notes" label="Vendor notes (internal)">
-            <Textarea
-              id="ex-notes"
-              value={form.vendor_notes}
-              onChange={(e) => setForm({ ...form, vendor_notes: e.target.value })}
-              placeholder="Contacts, warranty, payment terms…"
-            />
-          </Field>
-          <div className="space-y-2">
-            <Label htmlFor="ex-receipt">Receipt (internal){!isNew && (expense as Expense).receipt_path ? " — replace" : ""}</Label>
-            <input
-              id="ex-receipt"
-              type="file"
-              accept="image/*,application/pdf"
-              onChange={(e) => setForm({ ...form, receiptFile: e.target.files?.[0] ?? null })}
-              className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
-            />
-          </div>
-          <Button type="submit" disabled={save.isPending || !form.description.trim() || !(amount > 0)} className="min-h-11 w-full">
-            {save.isPending ? "Saving…" : "Save expense"}
-          </Button>
-          {!isNew && expense && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="min-h-11 w-full text-destructive"
-              onClick={() => confirm("Delete this expense?") && remove.mutate(expense, { onSuccess: onClose })}
-            >
-              Delete expense
-            </Button>
-          )}
-        </form>
-      )}
-    </FormSheet>
+    </Card>
   );
 }

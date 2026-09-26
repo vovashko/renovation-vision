@@ -1,18 +1,21 @@
 import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { FolderPlus, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cardVariants } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Field, FormSheet } from "@/components/manager/form-sheet";
-import { EmptyState } from "@/components/empty-state";
-import { ProgressBar } from "@/components/progress-bar";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useProjects } from "@/lib/queries";
-import { longDate, money, scheduleFill, scheduleLabel } from "@/lib/format";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { longDate, money, scheduleLabel } from "@/lib/format";
+import { budgetSummary } from "@/lib/budget";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/")({
   head: () => ({
@@ -33,62 +36,74 @@ function ProjectsPage() {
         title="Your projects"
         description="Everything you update here appears in the client's RenoVision view."
         actions={
-          <Button onClick={() => setOpen(true)} className="min-h-11 gap-2">
-            <Plus className="h-4 w-4" /> New project
+          <Button onClick={() => setOpen(true)} className="gap-2">
+            <Icon name="add" size={20} /> New project
           </Button>
         }
       />
       {isLoading ? (
         <PageLoading />
       ) : !projects?.length ? (
-        <EmptyState
-          className="mt-6"
-          icon={FolderPlus}
-          title="No projects yet"
-          text="Create a project, then invite your client from the Team page."
-        />
+        <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed p-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high">
+            <Icon name="create_new_folder" size={24} className="text-on-surface-variant" />
+          </div>
+          <h3 className="mt-3 text-title-md">No projects yet</h3>
+          <p className="mt-2 max-w-xs text-body-md text-on-surface-variant">
+            Create a project, then invite your client from the Team page.
+          </p>
+        </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {projects.map((p) => (
-            <Link
-              key={p.id}
-              to="/projects/$projectId"
-              params={{ projectId: p.id }}
-              className="rounded-2xl border bg-card p-6 shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-elegant)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold">{p.name}</h2>
-                  <p className="text-sm text-muted-foreground">{p.address}</p>
+          {projects.map((p) => {
+            const budget = budgetSummary(p);
+            return (
+              <Link
+                key={p.id}
+                to="/projects/$projectId"
+                params={{ projectId: p.id }}
+                className={cn(cardVariants({ interactive: true, attention: budget.over }), "block min-w-0 px-5 py-5 md:px-6")}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="truncate text-title-lg">{p.name}</h2>
+                    <p className="text-body-md text-on-surface-variant">{p.address}</p>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap justify-end gap-2 pr-3">
+                    {p.schedule_status !== "on_schedule" && (
+                      <Badge variant="attention" size="compact" icon="schedule">
+                        {scheduleLabel[p.schedule_status]}
+                      </Badge>
+                    )}
+                    {budget.over && (
+                      <Badge variant="attention" size="compact" icon="euro">
+                        Over budget
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-                <span
-                  className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-white"
-                  style={{ background: scheduleFill[p.schedule_status] }}
-                >
-                  {scheduleLabel[p.schedule_status]}
-                </span>
-              </div>
-              <div className="mt-5 flex items-end justify-between text-sm">
-                <span className="text-muted-foreground">{p.current_stage ? `Now: ${p.current_stage}` : "Overall progress"}</span>
-                <span className="font-semibold">{p.overall_progress}%</span>
-              </div>
-              <ProgressBar value={p.overall_progress} className="mt-2" />
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                <span>
-                  Client: <span className="text-foreground">{p.client_name || "—"}</span>
-                </span>
-                <span>
-                  Target: <span className="text-foreground">{longDate(p.target_date)}</span>
-                </span>
-                <span>
-                  Spent:{" "}
-                  <span className="text-foreground">
-                    {money(p.spent)} / {money(p.budget)}
+                <div className="mt-5 flex items-end justify-between text-body-md">
+                  <span className="text-on-surface-variant">{p.current_stage ? `Now: ${p.current_stage}` : "Overall progress"}</span>
+                  <span className="text-title-md tabular-nums">{p.overall_progress}%</span>
+                </div>
+                <Progress value={p.overall_progress} className="mt-2" />
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-body-sm text-on-surface-variant">
+                  <span>
+                    Client <span className="text-on-surface">{p.client_name || "—"}</span>
                   </span>
-                </span>
-              </div>
-            </Link>
-          ))}
+                  <span>
+                    Target <span className="text-on-surface">{longDate(p.target_date)}</span>
+                  </span>
+                  <span>
+                    Spent{" "}
+                    <span className="text-on-surface">
+                      {money(p.spent)} / {money(p.budget)}
+                    </span>
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
       <NewProjectSheet open={open} onOpenChange={setOpen} />
@@ -154,7 +169,7 @@ function NewProjectSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
         <Field id="np-budget" label="Budget ($)">
           <Input id="np-budget" type="number" min={0} step={100} value={form.budget} onChange={set("budget")} className="h-11" />
         </Field>
-        <Button type="submit" disabled={saving || !form.name.trim()} className="min-h-11 w-full">
+        <Button type="submit" disabled={saving || !form.name.trim()} className="w-full">
           {saving ? "Creating…" : "Create project"}
         </Button>
       </form>
