@@ -45,7 +45,7 @@ export function FilterChips({
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(o.value)}
             className={cn(
-              badgeVariants({ variant: active ? "filter-selected" : "assist" }),
+              badgeVariants({ variant: active ? "filter-selected" : "filter" }),
               // 32px chip, but keep a 44px tap target via an invisible hit-area extension.
               "relative shrink-0 after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']",
             )}

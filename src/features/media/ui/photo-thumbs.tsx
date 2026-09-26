@@ -4,26 +4,6 @@ import { Lightbox } from "@/components/lightbox";
 import { toLightboxItem } from "@/lib/photo-helpers";
 import type { Photo } from "@/lib/database.types";
 
-/** Friendly placeholder for a stage, room or filter with no photos yet. */
-export function EmptyPhotos({ text, compact = false }: { text: string; compact?: boolean }) {
-  if (compact) {
-    return (
-      <div className="flex items-center gap-3 rounded-md border border-dashed border-outline-variant bg-surface-container-low p-3 text-body-md text-on-surface-variant">
-        <Icon name="photo_camera" size={20} />
-        {text}
-      </div>
-    );
-  }
-  return (
-    <div className="mt-6 flex flex-col items-center rounded-md border border-dashed border-outline-variant bg-surface-container-low p-8 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-surface-container-highest">
-        <Icon name="photo_camera" size={22} className="text-on-surface-variant" />
-      </div>
-      <p className="mt-3 max-w-xs text-body-md text-on-surface-variant">{text}</p>
-    </div>
-  );
-}
-
 /** Row of square thumbnails that open the shared lightbox. Used for compact previews (overview, plan, stages). */
 export function PhotoThumbs({
   photos,

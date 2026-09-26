@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import { Badge } from "@/components/ui/badge";
 
 export function BeforeAfter({ before, after, label }: { before: string; after: string; label: string }) {
   const [pos, setPos] = useState(50);
@@ -19,10 +20,12 @@ export function BeforeAfter({ before, after, label }: { before: string; after: s
           <Icon name="code" size={22} />
         </div>
       </div>
-      <span className="absolute top-3 left-3 flex h-6 items-center rounded-sm bg-inverse-surface px-2 text-label-md text-inverse-on-surface">
+      <Badge icon={null} size="compact" className="absolute top-3 left-3 bg-inverse-surface text-inverse-on-surface">
         Now
-      </span>
-      <span className="absolute top-3 right-3 flex h-6 items-center rounded-sm bg-primary px-2 text-label-md text-on-primary">Planned</span>
+      </Badge>
+      <Badge icon={null} size="compact" variant="filter-selected" className="absolute top-3 right-3">
+        Planned
+      </Badge>
       <input
         type="range"
         min={0}

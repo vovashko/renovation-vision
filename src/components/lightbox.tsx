@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export type LightboxItem = { src: string; alt: string; title: string; subtitle?: string; tags?: string[] };
 
@@ -76,33 +77,39 @@ export function Lightbox({ items, index, onClose }: { items: LightboxItem[]; ind
         <span className="text-label-lg text-white/80" aria-live="polite">
           {i + 1} / {items.length}
         </span>
-        <button
+        <Button
           ref={closeRef}
+          variant="ghost"
+          size="icon"
           onClick={onClose}
           aria-label="Close viewer"
-          className="state-layer flex size-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="text-white focus-visible:outline-white"
         >
           <Icon name="close" size={22} />
-        </button>
+        </Button>
       </div>
       <div className="relative flex min-h-0 flex-1 items-center justify-center px-2">
         <img src={item.src} alt={item.alt} className="max-h-full max-w-full rounded-md object-contain select-none" draggable={false} />
         {items.length > 1 && (
           <>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={prev}
               aria-label="Previous photo"
-              className="state-layer absolute left-2 flex size-11 items-center justify-center rounded-full bg-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="absolute left-2 bg-black/50 text-white focus-visible:outline-white"
             >
               <Icon name="chevron_left" size={22} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={next}
               aria-label="Next photo"
-              className="state-layer absolute right-2 flex size-11 items-center justify-center rounded-full bg-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="absolute right-2 bg-black/50 text-white focus-visible:outline-white"
             >
               <Icon name="chevron_right" size={22} />
-            </button>
+            </Button>
           </>
         )}
       </div>
