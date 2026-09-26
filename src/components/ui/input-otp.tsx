@@ -1,6 +1,6 @@
 import * as React from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
-import { Minus } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ const InputOTPSlot = React.forwardRef<React.ElementRef<"div">, React.ComponentPr
       <div
         ref={ref}
         className={cn(
-          "relative flex h-9 w-9 items-center justify-center border-y border-r border-input text-sm shadow-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md",
+          "relative flex h-9 w-9 items-center justify-center border-y border-r border-outline-variant text-body-md transition-all first:rounded-l-md first:border-l last:rounded-r-md",
           isActive && "z-10 ring-1 ring-ring",
           className,
         )}
@@ -50,7 +50,7 @@ InputOTPSlot.displayName = "InputOTPSlot";
 
 const InputOTPSeparator = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(({ ...props }, ref) => (
   <div ref={ref} role="separator" {...props}>
-    <Minus />
+    <Icon name="remove" size={20} />
   </div>
 ));
 InputOTPSeparator.displayName = "InputOTPSeparator";
