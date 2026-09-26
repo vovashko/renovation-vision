@@ -1,5 +1,4 @@
 import { createFileRoute, Link, Navigate, Outlet, useRouterState } from "@tanstack/react-router";
-import { FolderX } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
@@ -25,17 +24,19 @@ function ProjectLayout() {
   if (isLoading) return <PageLoading />;
   if (error) {
     return (
-      <EmptyState
-        className="mx-auto mt-10 max-w-md"
-        icon={FolderX}
-        title="Project not available"
-        text="It doesn't exist, or you're not a member of it."
-        action={
-          <Link to="/" className="text-sm text-primary hover:underline">
-            Back
-          </Link>
-        }
-      />
+      <div className="mx-auto w-full max-w-7xl">
+        <EmptyState
+          className="mx-auto mt-10 max-w-md"
+          icon="folder_off"
+          title="Project not available"
+          text="It doesn't exist, or you're not a member of it."
+          action={
+            <Link to="/" className="text-label-lg text-primary hover:underline">
+              Back
+            </Link>
+          }
+        />
+      </div>
     );
   }
   return <Outlet />;

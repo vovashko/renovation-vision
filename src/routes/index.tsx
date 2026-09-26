@@ -1,5 +1,4 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { FolderX } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
@@ -19,12 +18,14 @@ function Home() {
   if (isLoading || !projects) return <PageLoading />;
   if (!projects.length) {
     return (
-      <EmptyState
-        className="mx-auto mt-10 max-w-md"
-        icon={FolderX}
-        title="No project yet"
-        text="Your site manager hasn't added you to a project. Ask them to invite you by email."
-      />
+      <div className="mx-auto w-full max-w-7xl">
+        <EmptyState
+          className="mx-auto mt-10 max-w-md"
+          icon="folder_off"
+          title="No project yet"
+          text="Your site manager hasn't added you to a project. Ask them to invite you by email."
+        />
+      </div>
     );
   }
   return <Navigate to="/projects/$projectId" params={{ projectId: projects[0].id }} replace />;

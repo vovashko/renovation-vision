@@ -4,6 +4,7 @@ import { index, rootRoute, route } from "@tanstack/virtual-file-routes";
 // Paths are relative to src/routes. Add new project pages under the $projectId route.
 export const routes = rootRoute("__root.tsx", [
   index("index.tsx"),
+  route("/settings", "settings.tsx"),
   route("/projects", [
     index("projects.tsx"),
     route("$projectId", "project/layout.tsx", [
