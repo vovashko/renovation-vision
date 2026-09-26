@@ -12,7 +12,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { buttonVariants } from "@/components/ui/button";
-import { cardVariants } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileTabBar } from "@/components/mobile-nav";
@@ -20,6 +20,7 @@ import { LoginScreen } from "@/components/login-screen";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { useProject } from "@/lib/queries";
 import { cn } from "@/lib/utils";
+import type { ProjectSummary } from "@/lib/database.types";
 
 import appCss from "../styles.css?url";
 import logoMark from "@/assets/renovision-mark.svg";
@@ -136,6 +137,26 @@ function AuthGate() {
   return <Shell />;
 }
 
+/** Tinted panel as wide as the page content below it; scrolls with the page. */
+function ProjectTopBar({ project }: { project?: ProjectSummary }) {
+  return (
+    <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
+      <Card variant="tinted" className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-5">
+        <div className="flex min-w-0 flex-1 flex-col leading-tight">
+          <span className="truncate text-title-md">{project?.name ?? "…"}</span>
+          <span className="hidden truncate text-body-sm text-on-surface-variant md:block">{project?.address}</span>
+          {project && (
+            <div className="mt-1 flex items-center gap-2 md:hidden">
+              <Progress value={project.overall_progress} onPanel aria-label="Overall progress" className="flex-1" />
+              <span className="text-label-sm text-on-surface-variant tabular-nums">{project.overall_progress}%</span>
+            </div>
+          )}
+        </div>
+      </Card>
+    </header>
+  );
+}
+
 function Shell() {
   const { profile } = useAuth();
   const isManager = profile?.account_type === "manager";
@@ -151,23 +172,7 @@ function Shell() {
     <div className="flex min-h-screen w-full bg-surface text-on-surface">
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        {showTopBar && (
-          <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
-            {/* Tinted panel as wide as the page content below it; scrolls with the page. */}
-            <div className={cn(cardVariants({ variant: "tinted" }), "mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-5")}>
-              <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                <span className="truncate text-title-md">{project?.name ?? "…"}</span>
-                <span className="hidden truncate text-body-sm text-on-surface-variant md:block">{project?.address}</span>
-                {project && (
-                  <div className="mt-1 flex items-center gap-2 md:hidden">
-                    <Progress value={project.overall_progress} onPanel aria-label="Overall progress" className="flex-1" />
-                    <span className="text-label-sm text-on-surface-variant tabular-nums">{project.overall_progress}%</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </header>
-        )}
+        {showTopBar && <ProjectTopBar project={project} />}
         <main
           className={cn(
             "min-w-0 flex-1 p-4 md:px-8 md:pb-8",

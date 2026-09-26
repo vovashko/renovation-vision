@@ -1,6 +1,6 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { EmptyState } from "@/components/empty-state";
 import { PageLoading } from "@/components/page-header";
+import { ProjectEmpty } from "@/shared/ui/project-empty";
 import { useAuth } from "@/lib/auth";
 import { useProjects } from "@/lib/queries";
 
@@ -17,16 +17,7 @@ function Home() {
   if (isManager) return <Navigate to="/projects" replace />;
   if (isLoading || !projects) return <PageLoading />;
   if (!projects.length) {
-    return (
-      <div className="mx-auto w-full max-w-7xl">
-        <EmptyState
-          className="mx-auto mt-10 max-w-md"
-          icon="folder_off"
-          title="No project yet"
-          text="Your site manager hasn't added you to a project. Ask them to invite you by email."
-        />
-      </div>
-    );
+    return <ProjectEmpty title="No project yet" text="Your site manager hasn't added you to a project. Ask them to invite you by email." />;
   }
   return <Navigate to="/projects/$projectId" params={{ projectId: projects[0].id }} replace />;
 }

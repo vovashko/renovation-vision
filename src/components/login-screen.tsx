@@ -3,8 +3,8 @@ import { toast } from "sonner";
 import logo from "@/assets/renovision-logo.svg";
 import { Button } from "@/components/ui/button";
 import { cardVariants } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -42,13 +42,13 @@ export function LoginScreen() {
         <img src={logo} alt="RenoVision" className="h-9 w-auto" />
         <h1 className="mt-6 text-headline-md text-on-surface">Sign in</h1>
         <p className="mt-1 text-body-md text-on-surface-variant">Clients and site managers sign in here.</p>
-        <div className="mt-5 space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+        <FieldGroup className="mt-5">
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
             <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
             <Input
               id="password"
               type="password"
@@ -56,8 +56,8 @@ export function LoginScreen() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
-        </div>
+          </Field>
+        </FieldGroup>
         <Button type="submit" disabled={busy || !email || !password} size="lg" className="mt-5">
           {busy ? "Signing in…" : "Sign in"}
         </Button>
