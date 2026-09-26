@@ -1,4 +1,4 @@
--- RLS regression tests for the shared RenoTrack backend.
+-- RLS regression tests for the shared Renovision backend.
 -- Run against a freshly seeded database (everything is rolled back):
 --   psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql
 -- Prints "RLS tests passed" on success; any failed assertion aborts with an error.
@@ -32,7 +32,7 @@ insert into storage.objects (bucket_id, name) values
 
 -- An unrelated manager account with its own project.
 insert into auth.users (id, email, aud, role) values
-  ('a0000000-0000-4000-8000-0000000000ff', 'other@renotrack.demo', 'authenticated', 'authenticated');
+  ('a0000000-0000-4000-8000-0000000000ff', 'other@renovision.demo', 'authenticated', 'authenticated');
 insert into public.profiles (id, full_name, account_type)
 values ('a0000000-0000-4000-8000-0000000000ff', 'Other Manager', 'manager')
 on conflict (id) do update set account_type = 'manager';
@@ -52,6 +52,7 @@ select pg_temp.check((select count(*) from public.renders) = 4, 'client sees 4 v
 select pg_temp.check((select count(*) from public.ai_knowledge) = 4, 'client sees only visible AI knowledge');
 select pg_temp.check((select count(*) from public.expenses) = 0, 'client cannot read expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 0, 'client cannot read internal budget notes');
+select pg_temp.check((select count(*) from public.project_crew) = 0, 'client cannot read the crew list');
 select pg_temp.check((select count(*) from public.activity_log) = 0, 'client cannot read the activity log');
 select pg_temp.check((select count(*) from public.messages) = 5, 'client reads the chat');
 select pg_temp.check((select count(*) from public.notifications) = 5, 'client reads only their own notifications');
@@ -77,6 +78,13 @@ begin
     insert into public.expenses (project_id, description, amount)
     values ('b0000000-0000-4000-8000-000000000001', 'x', 1);
     raise exception 'FAILED: client inserted an expense';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    insert into public.project_crew (project_id, name)
+    values ('b0000000-0000-4000-8000-000000000001', 'x');
+    raise exception 'FAILED: client added a crew member';
   exception when insufficient_privilege then null;
   end;
 
@@ -112,6 +120,12 @@ select pg_temp.as_user('a0000000-0000-4000-8000-000000000001');
 select pg_temp.check((select count(*) from public.photos) = 9, 'manager sees drafts');
 select pg_temp.check((select count(*) from public.expenses) = 9, 'manager reads expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 1, 'manager reads internal notes');
+select pg_temp.check((select client_phone from public.project_internal) = '+1 555 0142', 'manager reads client contact');
+select pg_temp.check((select count(*) from public.project_crew) = 4, 'manager reads the crew list');
+insert into public.project_crew (project_id, name, trade) values ('b0000000-0000-4000-8000-000000000001', 'Test Tiler', 'Tiler');
+select pg_temp.check(
+  (select count(*) from public.activity_log where entity_type = 'project_crew' and summary = 'Added crew member "Test Tiler"') = 1,
+  'crew changes are written to the activity log');
 select pg_temp.check((select count(*) from public.ai_knowledge) = 5, 'manager reads all AI knowledge');
 select pg_temp.check((select count(*) from storage.objects) = 3, 'manager reads all project files');
 
@@ -160,13 +174,26 @@ begin
   get diagnostics n = row_count;
   perform pg_temp.check(n = 0, 'other manager cannot edit stages');
   begin
-    perform public.add_project_member('b0000000-0000-4000-8000-000000000001', 'other@renotrack.demo', 'manager');
+    perform public.add_project_member('b0000000-0000-4000-8000-000000000001', 'other@renovision.demo', 'manager');
     raise exception 'FAILED: other manager joined a project they do not manage';
   exception when insufficient_privilege then null;
   end;
 end $$;
 select pg_temp.check(public.create_project('Elm Road House') is not null, 'manager accounts can create projects');
 select pg_temp.check((select count(*) from public.projects) = 1, 'creator becomes manager of the new project');
+
+-- ===========================================================================
+-- Avatars: users write only inside their own folder
+-- ===========================================================================
+select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
+insert into storage.objects (bucket_id, name) values ('avatars', 'a0000000-0000-4000-8000-000000000002/me.png');
+do $$
+begin
+  insert into storage.objects (bucket_id, name) values ('avatars', 'a0000000-0000-4000-8000-000000000001/not-mine.png');
+  raise exception 'FAILED: user uploaded into another user''s avatar folder';
+exception when insufficient_privilege then null;
+end $$;
+select pg_temp.check((select count(*) from storage.objects where bucket_id = 'avatars') = 1, 'user sees only their own avatar files');
 
 -- ===========================================================================
 -- Anonymous

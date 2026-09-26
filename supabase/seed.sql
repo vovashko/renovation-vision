@@ -1,4 +1,4 @@
--- Demo seed: "Maple Street Apartment", exactly as the RenoTrack client app shows it,
+-- Demo seed: "Maple Street Apartment", exactly as the Renovision client app shows it,
 -- with two data inconsistencies fixed:
 --
 --   1. Bedroom 2 is Blocked, but the project said "On schedule".
@@ -6,11 +6,13 @@
 --   2. Bathroom was Completed at 100% while the "Bathroom tiling" task was unchecked.
 --      -> Bathroom is In progress at 80%; "Bathroom tiling" is linked to the Bathroom room.
 --         The guard_room_done trigger now prevents this state from recurring.
+--   3. Kitchen was Pending at 10%, but pending always means 0% (state follows progress).
+--      -> Kitchen is In progress at 10%.
 --
--- Demo logins (password for all: renotrack-demo)
---   jonas@renotrack.demo  manager (Jonas Weber)
---   sarah@renotrack.demo  client  (Sarah Bennett)
---   tom@renotrack.demo    client  (Tom Bennett)
+-- Demo logins (password for all: renovision-demo)
+--   jonas@renovision.demo  manager (Jonas Weber)
+--   sarah@renovision.demo  client  (Sarah Bennett)
+--   tom@renovision.demo    client  (Tom Bennett)
 --
 -- Image files are uploaded separately: `node supabase/scripts/upload-seed-media.mjs`.
 -- Triggers are disabled while seeding so the audit trail and notifications below are curated.
@@ -27,13 +29,13 @@ insert into auth.users (
 )
 select
   '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
-  extensions.crypt('renotrack-demo', extensions.gen_salt('bf')), now(),
+  extensions.crypt('renovision-demo', extensions.gen_salt('bf')), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
   jsonb_build_object('full_name', u.full_name), now(), now(), '', '', '', ''
 from (values
-  ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renotrack.demo', 'Jonas Weber'),
-  ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renotrack.demo', 'Sarah Bennett'),
-  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renotrack.demo', 'Tom Bennett')
+  ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renovision.demo', 'Jonas Weber'),
+  ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renovision.demo', 'Sarah Bennett'),
+  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renovision.demo', 'Tom Bennett')
 ) as u (id, email, full_name)
 on conflict (id) do nothing;
 
@@ -42,7 +44,7 @@ select gen_random_uuid(), u.id, u.id::text,
        jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
        'email', now(), now(), now()
 from auth.users u
-where u.email like '%@renotrack.demo'
+where u.email like '%@renovision.demo'
   and not exists (select 1 from auth.identities i where i.user_id = u.id and i.provider = 'email');
 
 insert into public.profiles (id, full_name, account_type) values
@@ -65,8 +67,8 @@ insert into public.projects (
   'a0000000-0000-4000-8000-000000000001'
 );
 
-insert into public.project_internal (project_id, internal_budget_notes) values (
-  'b0000000-0000-4000-8000-000000000001',
+insert into public.project_internal (project_id, client_phone, client_email, internal_budget_notes) values (
+  'b0000000-0000-4000-8000-000000000001', '+1 555 0142', 'sarah.bennett@example.com',
   E'Contingency: $4,000 held for Bedroom 2 rework if the circuit fails inspection.\nKitchen cabinets quote $14,800 — 30% deposit due May 1.\nKeep margin at or above 12%; oak planks came in $350 under quote.'
 );
 
@@ -75,12 +77,19 @@ insert into public.project_members (project_id, user_id, role, last_read_at) val
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'client', '2026-04-20 09:25:00'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003', 'client', '2026-04-19 18:00:00');
 
+-- Crew on site (not app users; managers only). Example numbers and addresses.
+insert into public.project_crew (project_id, name, trade, phone, email, sort_order) values
+  ('b0000000-0000-4000-8000-000000000001', 'Marek Nowak', 'Site lead', '+1 555 0107', 'marek@example.com', 1),
+  ('b0000000-0000-4000-8000-000000000001', 'Ana Petrović', 'Electrician', '+1 555 0118', 'ana@example.com', 2),
+  ('b0000000-0000-4000-8000-000000000001', 'Luis Ortega', 'Plumber', '+1 555 0123', 'luis@example.com', 3),
+  ('b0000000-0000-4000-8000-000000000001', 'Kai Jensen', 'Drywall & paint', '+1 555 0136', '', 4);
+
 -- ---------------------------------------------------------------------------
 -- Rooms (same geometry as the client app's floor plan)
 -- ---------------------------------------------------------------------------
 insert into public.rooms (id, project_id, key, name, status, progress, x, y, w, h, sort_order, client_note) values
   ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'living', 'Living Room', 'progress', 60, 20, 20, 320, 220, 1, 'Drywall finished; taping and priming this week.'),
-  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'pending', 10, 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
+  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'progress', 10, 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
   ('d0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'dining', 'Dining', 'progress', 45, 340, 160, 240, 80, 3, 'Walls boarded and insulated.'),
   ('d0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'bath', 'Bathroom', 'progress', 80, 20, 240, 160, 160, 4, 'Plumbing re-routed and signed off. Tiling follows with the flooring stage.'),
   ('d0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'bed1', 'Bedroom 1', 'progress', 35, 180, 240, 200, 160, 5, 'Subfloor levelled; oak planks acclimatising.'),

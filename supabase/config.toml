@@ -1,4 +1,4 @@
-# Supabase CLI config for the shared RenoTrack backend (client app + manager portal).
+# Supabase CLI config for the shared Renovision backend (client app + manager portal).
 # `supabase start` runs it locally; `supabase db push` applies the migrations to the hosted project.
 project_id = "renotrack"
 
