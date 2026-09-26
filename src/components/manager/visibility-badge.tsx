@@ -1,22 +1,25 @@
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-/** Tells the manager what the client will (not) see. */
+/**
+ * Tells the manager what the client will (not) see. Reuses the status chip's `done` (filled) / `pending`
+ * (hollow, dashed) treatment as a visible / hidden metaphor, rather than a bespoke chip style.
+ */
 export function VisibilityBadge({ visible, hiddenLabel = "Hidden from client" }: { visible: boolean; hiddenLabel?: string }) {
   return visible ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
-      <Eye className="h-3.5 w-3.5" /> Client sees this
-    </span>
+    <Badge variant="status-done" size="compact" icon="visibility">
+      Client sees this
+    </Badge>
   ) : (
-    <span className="inline-flex items-center gap-1 rounded-full border border-dashed px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-      <EyeOff className="h-3.5 w-3.5" /> {hiddenLabel}
-    </span>
+    <Badge variant="status-pending" size="compact" icon="visibility_off">
+      {hiddenLabel}
+    </Badge>
   );
 }
 
 export function InternalBadge() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-dashed px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-      <Lock className="h-3.5 w-3.5" /> Internal — never shown to clients
-    </span>
+    <Badge variant="status-pending" size="compact" icon="lock">
+      Internal — never shown to clients
+    </Badge>
   );
 }
