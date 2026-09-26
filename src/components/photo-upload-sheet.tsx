@@ -1,55 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FormSheet, NativeSelect } from "@/components/manager/form-sheet";
+import { FormSheet } from "@/components/manager/form-sheet";
+import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
 import { api, type PhotoMeta } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Room, Stage } from "@/lib/database.types";
-
-export function StageRoomFields({
-  prefix,
-  stages,
-  rooms,
-  stageId,
-  roomId,
-  onStage,
-  onRoom,
-}: {
-  prefix: string;
-  stages: Stage[];
-  rooms: Room[];
-  stageId: string;
-  roomId: string;
-  onStage: (v: string) => void;
-  onRoom: (v: string) => void;
-}) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <Field id={`${prefix}-stage`} label="Stage">
-        <NativeSelect id={`${prefix}-stage`} value={stageId} onChange={(e) => onStage(e.target.value)}>
-          <option value="">—</option>
-          {stages.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </NativeSelect>
-      </Field>
-      <Field id={`${prefix}-room`} label="Room">
-        <NativeSelect id={`${prefix}-room`} value={roomId} onChange={(e) => onRoom(e.target.value)}>
-          <option value="">—</option>
-          {rooms.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </NativeSelect>
-      </Field>
-    </div>
-  );
-}
 
 /** "Add site photos" panel: used on the Photos page and by the Overview shortcut. */
 export function UploadSheet({
@@ -90,25 +48,25 @@ export function UploadSheet({
       title="Add site photos"
       description="Tag the stage and room so the client can filter them."
     >
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="photo-files">Images</Label>
+      <div className="flex flex-col gap-4">
+        <Field>
+          <FieldLabel htmlFor="photo-files">Images</FieldLabel>
           <input
             id="photo-files"
             type="file"
             accept="image/*"
             multiple
             onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-            className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
+            className="block w-full text-body-md text-on-surface-variant file:mr-3 file:h-10 file:rounded-full file:border-0 file:bg-secondary-container file:px-6 file:text-label-lg file:text-on-secondary-container"
           />
           {files.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
               {files.map((f) => (
-                <img key={f.name} src={URL.createObjectURL(f)} alt={f.name} className="aspect-square w-full rounded-md object-cover" />
+                <img key={f.name} src={URL.createObjectURL(f)} alt={f.name} className="aspect-square w-full rounded-sm object-cover" />
               ))}
             </div>
           )}
-        </div>
+        </Field>
         <StageRoomFields
           prefix="up"
           stages={stages}
@@ -118,13 +76,14 @@ export function UploadSheet({
           onStage={setStageId}
           onRoom={setRoomId}
         />
-        <Field id="up-caption" label="Caption">
+        <Field>
+          <FieldLabel htmlFor="up-caption">Caption</FieldLabel>
           <Textarea id="up-caption" value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="What changed today?" />
         </Field>
-        <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border px-3">
-          <Label htmlFor="up-publish" className="font-normal">
+        <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-outline-variant px-3">
+          <FieldLabel htmlFor="up-publish" className="font-normal">
             Publish to client now
-          </Label>
+          </FieldLabel>
           <Switch id="up-publish" checked={publish} onCheckedChange={setPublish} />
         </div>
         <Button
