@@ -1,20 +1,31 @@
 import type { ReactNode } from "react";
-import { statusFill, statusLabel, type Status } from "@/lib/status";
-import { StatusLegend } from "./status-pill";
-import { ProgressBar } from "./progress-bar";
+import { cn } from "@/lib/utils";
+import { statusLabel, type Status } from "@/lib/status";
+import { statusContainer, statusOutline, statusTone } from "@/lib/status-ui";
+import { Card } from "@/components/ui/card";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { StatusLegend, StatusPill } from "./status-pill";
 
 export type FloorPlanRoom = {
   id: string;
   name: string;
   status: Status;
   progress: number;
-  // SVG rect coords on a 600x420 viewBox
+  // Position on a 600x420 plan grid.
   x: number;
   y: number;
   w: number;
   h: number;
   muted?: boolean;
 };
+
+// Plan geometry: rooms live on a 600x420 grid. Each tile is inset by GAP on every side so
+// neighbouring rooms sit 2*GAP plan-units apart (~6px at a typical rendered width).
+const GRID_W = 600;
+const GRID_H = 420;
+const GAP = 3;
+
+const pct = (n: number, of: number) => `${(n / of) * 100}%`;
 
 /**
  * Floor plan with clickable rooms, legend and a detail panel.
@@ -34,78 +45,77 @@ export function FloorPlan({
   const active = rooms.find((r) => r.id === activeId) ?? null;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
-      <div className="rounded-xl border bg-card p-4 shadow-[var(--shadow-soft)]">
-        <svg viewBox="0 0 600 420" className="h-auto w-full" role="group" aria-label="Floor plan">
-          <rect x="0" y="0" width="600" height="420" fill="var(--muted)" rx="12" />
+    <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+      <Card className="p-4">
+        <div
+          className="relative w-full overflow-hidden rounded-lg bg-surface-container"
+          style={{ aspectRatio: `${GRID_W} / ${GRID_H}` }}
+          role="group"
+          aria-label="Floor plan"
+        >
           {rooms.map((r) => {
             const isActive = active?.id === r.id;
+            const isPending = r.status === "pending";
             return (
-              <g
+              <button
                 key={r.id}
+                type="button"
                 onClick={() => onSelect?.(r)}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect?.(r)}
-                tabIndex={onSelect ? 0 : undefined}
-                role={onSelect ? "button" : undefined}
+                aria-pressed={onSelect ? isActive : undefined}
                 aria-label={`${r.name}: ${statusLabel[r.status]}, ${r.progress}%`}
-                className="cursor-pointer transition-opacity outline-none hover:opacity-90"
+                style={{
+                  left: pct(r.x + GAP, GRID_W),
+                  top: pct(r.y + GAP, GRID_H),
+                  width: pct(Math.max(r.w - GAP * 2, 1), GRID_W),
+                  height: pct(Math.max(r.h - GAP * 2, 1), GRID_H),
+                }}
+                className={cn(
+                  "absolute flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md px-1 text-center transition-opacity",
+                  // Not "outline-none": that utility's --tw-outline-style cascades over the
+                  // selected-room outline below, which needs to stay solid, not just on focus.
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  // Pending has no border of its own here — only bg/text — so a selected pending
+                  // tile can swap the dashed border for a solid outline instead of layering both.
+                  isPending ? "bg-status-pending-container text-on-status-pending-container" : statusContainer[r.status],
+                  isPending && !isActive && "border border-dashed border-outline",
+                  isActive && cn("outline-2 -outline-offset-2", statusOutline[r.status]),
+                  r.muted && "opacity-50",
+                )}
               >
-                <rect
-                  x={r.x}
-                  y={r.y}
-                  width={r.w}
-                  height={r.h}
-                  fill={statusFill[r.status]}
-                  fillOpacity={r.muted ? 0.2 : isActive ? 0.85 : 0.55}
-                  stroke={isActive ? "var(--primary)" : "var(--border)"}
-                  strokeWidth={isActive ? 3 : 1.5}
-                  strokeDasharray={r.muted ? "6 4" : undefined}
-                  rx="6"
-                />
-                <text x={r.x + r.w / 2} y={r.y + r.h / 2 - 6} textAnchor="middle" className="fill-foreground text-sm font-semibold">
-                  {r.name}
-                </text>
-                <text x={r.x + r.w / 2} y={r.y + r.h / 2 + 14} textAnchor="middle" className="fill-foreground/70 text-xs">
-                  {r.progress}%
-                </text>
-              </g>
+                <span className="w-full truncate text-label-lg">{r.name}</span>
+                <span className="text-body-sm opacity-80">{r.progress}%</span>
+              </button>
             );
           })}
-        </svg>
-        <StatusLegend className="mt-4" />
-      </div>
-      <div className="rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)]">
+        </div>
+        <StatusLegend className="mt-3.5" />
+      </Card>
+      <Card variant="tinted" className="p-5 lg:self-start">
         {detail ??
           (active ? (
             <RoomDetail room={active} />
           ) : (
-            <p className="text-sm text-muted-foreground">Click any room on the floor plan to view its current renovation status.</p>
+            <p className="text-body-md text-on-surface-variant">Click any room on the floor plan to view its current renovation status.</p>
           ))}
-      </div>
+      </Card>
     </div>
   );
 }
 
+/** Selected room panel content (goes inside the tinted card beside the plan). */
 export function RoomDetail({ room, children }: { room: FloorPlanRoom; children?: ReactNode }) {
   return (
     <>
-      <div className="text-xs tracking-wide text-muted-foreground uppercase">Selected room</div>
-      <h3 className="mt-1 text-xl font-semibold">{room.name}</h3>
-      <div
-        className="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-white"
-        style={{ background: statusFill[room.status] }}
-      >
-        {statusLabel[room.status]}
+      <div className="text-body-md text-on-surface-variant">Selected room</div>
+      <h3 className="mt-1 text-title-lg">{room.name}</h3>
+      <StatusPill status={room.status} size="sm" onPanel className="mt-3" />
+      <div className="mt-5 flex justify-between text-body-md">
+        <span className="text-on-surface-variant">Progress</span>
+        <span className="font-medium text-on-surface">{room.progress}%</span>
       </div>
-      <div className="mt-5">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium">{room.progress}%</span>
-        </div>
-        <ProgressBar value={room.progress} className="mt-2" />
-      </div>
+      <ProgressBar value={room.progress} tone={statusTone[room.status]} onPanel className="mt-2" aria-label={`${room.name} progress`} />
       {children ?? (
-        <p className="mt-5 text-sm text-muted-foreground">Click any room on the floor plan to view its current renovation status.</p>
+        <p className="mt-5 text-body-md text-on-surface-variant">Click any room on the floor plan to view its current renovation status.</p>
       )}
     </>
   );

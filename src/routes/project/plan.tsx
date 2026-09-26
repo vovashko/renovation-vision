@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Map as MapIcon, Plus, Trash2 } from "lucide-react";
+// EmptyState (owned by another task) still takes a LucideIcon; swap this for Icon once it's ported.
+import { Map as MapIcon } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -9,7 +11,8 @@ import { FloorPlan, RoomDetail } from "@/components/floor-plan";
 import { RoomCard } from "@/components/room-card";
 import { EmptyState } from "@/components/empty-state";
 import { statusLabel, statuses, type Status } from "@/lib/status";
-import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/manager/form-sheet";
+import { progressForStatus, statusForProgress } from "@/lib/status-progress";
+import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/manager/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/manager/visibility-badge";
 import { useAuth } from "@/lib/auth";
@@ -59,7 +62,7 @@ function PlanPage() {
         actions={
           isManager && (
             <Button onClick={() => setAdding(true)} className="min-h-11 gap-2">
-              <Plus className="h-4 w-4" /> Add room
+              <Icon name="add" size={20} /> Add room
             </Button>
           )
         }
@@ -84,11 +87,11 @@ function PlanPage() {
                   />
                 ) : (
                   <RoomDetail room={active}>
-                    {active.client_note && <p className="mt-5 text-sm text-muted-foreground">{active.client_note}</p>}
+                    {active.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{active.client_note}</p>}
                     {openTasks(active.id).length > 0 && (
                       <div className="mt-5">
-                        <div className="text-xs tracking-wide text-muted-foreground uppercase">Still to do</div>
-                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                        <div className="text-body-md text-on-surface-variant">Still to do</div>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-body-md">
                           {openTasks(active.id).map((t) => (
                             <li key={t.id}>{t.name}</li>
                           ))}
@@ -101,7 +104,7 @@ function PlanPage() {
             />
           </div>
 
-          <h2 className="mt-10 text-xl font-semibold">Rooms</h2>
+          <h2 className="mt-10 text-title-lg">Rooms</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {rooms.map((r) => (
               <RoomCard
@@ -147,20 +150,21 @@ function RoomEditor({ projectId, room, openTasks }: { projectId: string; room: R
   });
   return (
     <>
-      <div className="text-xs tracking-wide text-muted-foreground uppercase">Selected room</div>
-      <h3 className="mt-1 text-xl font-semibold">{room.name}</h3>
+      <div className="text-body-md text-on-surface-variant">Selected room</div>
+      <h3 className="mt-1 text-title-lg">{room.name}</h3>
       <div className="mt-4">
         <RoomFields projectId={projectId} initial={room} id={room.id} openTasks={openTasks} showGeometry={geometry} compact />
       </div>
       <div className="mt-3 flex flex-wrap justify-between gap-2">
-        <button onClick={() => setGeometry((g) => !g)} className="text-xs text-primary hover:underline">
+        <button type="button" onClick={() => setGeometry((g) => !g)} className="text-body-sm text-primary hover:underline">
           {geometry ? "Hide" : "Edit"} position & size
         </button>
         <button
+          type="button"
           onClick={() => confirm(`Delete ${room.name}? Photos and tasks keep existing without a room.`) && remove.mutate(room.id)}
-          className="inline-flex items-center gap-1 text-xs text-destructive hover:underline"
+          className="inline-flex items-center gap-1 text-body-sm text-destructive hover:underline"
         >
-          <Trash2 className="h-3.5 w-3.5" /> Delete room
+          <Icon name="delete" size={16} /> Delete room
         </button>
       </div>
     </>
@@ -201,10 +205,8 @@ function RoomFields({
     invalidate: [keys.rooms(projectId)],
     success: (r) => `${r.name} saved — the client's plan is updated`,
   });
-  const setStatus = (status: Status) =>
-    setForm((f) => ({ ...f, status, progress: status === "done" ? 100 : f.progress === 100 ? 90 : f.progress }));
-  const setProgress = (progress: number) =>
-    setForm((f) => ({ ...f, progress, status: progress === 100 ? "done" : f.status === "done" ? "progress" : f.status }));
+  const setStatus = (status: Status) => setForm((f) => ({ ...f, status, progress: progressForStatus(status, f.progress) }));
+  const setProgress = (progress: number) => setForm((f) => ({ ...f, progress, status: statusForProgress(f.status, progress) }));
   const blockedByTasks = form.status === "done" && openTasks.length > 0;
   const pre = id ?? "new";
 
@@ -228,16 +230,16 @@ function RoomFields({
         </Field>
       )}
       <Field id={`${pre}-status`} label="Status">
-        <select id={`${pre}-status`} value={form.status} onChange={(e) => setStatus(e.target.value as Status)} className={selectCls}>
+        <NativeSelect id={`${pre}-status`} value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
           {statuses.map((s) => (
             <option key={s} value={s}>
               {statusLabel[s]}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </Field>
       {blockedByTasks && (
-        <p className="rounded-md bg-muted p-2 text-xs text-status-blocked" role="alert">
+        <p className="rounded-md bg-status-blocked-container p-2 text-body-sm text-on-status-blocked-container" role="alert">
           Can't mark Completed while tasks are open: {openTasks.join(", ")}.
         </p>
       )}
