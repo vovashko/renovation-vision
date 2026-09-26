@@ -1,18 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
-import { Card, cardVariants } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Field, NativeSelect } from "@/components/manager/form-sheet";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia } from "@/components/ui/empty";
+import { ItemGroup } from "@/components/ui/item";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { InternalBadge } from "@/components/manager/visibility-badge";
+import { ActivityLog } from "@/features/comms/ui/activity-log";
+import { AnnouncementForm, type AnnouncementFormState } from "@/features/comms/ui/announcement-form";
+import { InboxNotificationItem, SentNotificationItem } from "@/features/comms/ui/notification-item";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useActivity, useMembers, useNotifications, useSave } from "@/lib/queries";
-import { dateTime } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import type { Notification } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/updates")({
@@ -40,7 +38,7 @@ function UpdatesPage() {
   const { data: notifications, isLoading } = useNotifications(projectId);
   const { data: activity = [] } = useActivity(projectId);
   const { data: members = [] } = useMembers(projectId);
-  const [form, setForm] = useState({ title: "", body: "", link: "/" });
+  const [form, setForm] = useState<AnnouncementFormState>({ title: "", body: "", link: "/" });
   const send = useSave(projectId, () => api.notifyClients(projectId, form.title.trim(), form.body.trim(), form.link || null), {
     invalidate: [],
     success: "Sent to your client",
@@ -66,90 +64,47 @@ function UpdatesPage() {
       <PageHeader title="Updates" description="Status changes, published photos and new renders notify your client automatically." />
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <Card className="h-fit p-5">
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              send.mutate(undefined, { onSuccess: () => setForm({ title: "", body: "", link: "/" }) });
-            }}
-          >
-            <h2 className="flex items-center gap-2 text-title-md">
-              <Icon name="send" size={20} /> Send an announcement
-            </h2>
-            <Field id="nt-title" label="Title">
-              <Input
-                id="nt-title"
-                required
-                maxLength={80}
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="e.g. Water off on Thursday"
-                className="h-11"
-              />
-            </Field>
-            <Field id="nt-body" label="Message">
-              <Textarea id="nt-body" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
-            </Field>
-            <Field id="nt-link" label="Opens in the client app">
-              <NativeSelect id="nt-link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })}>
-                {links.map((l) => (
-                  <option key={l.value} value={l.value}>
-                    {l.label}
-                  </option>
-                ))}
-              </NativeSelect>
-            </Field>
-            <Button type="submit" disabled={!form.title.trim() || send.isPending || clientIds.size === 0} className="w-full">
-              {clientIds.size === 0 ? "Invite a client first" : `Send to ${clientIds.size} client${clientIds.size > 1 ? "s" : ""}`}
-            </Button>
-          </form>
-        </Card>
+        <AnnouncementForm
+          form={form}
+          onChange={setForm}
+          pending={send.isPending}
+          clientCount={clientIds.size}
+          links={links}
+          onSubmit={() => send.mutate(undefined, { onSuccess: () => setForm({ title: "", body: "", link: "/" }) })}
+        />
 
         <section>
           <h2 className="mb-3 flex items-center gap-2 text-title-lg">
             <Icon name="notifications" size={22} /> Sent to client
           </h2>
           {sent.size === 0 ? (
-            <div className="flex flex-col items-center rounded-xl border border-dashed p-8 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high">
-                <Icon name="notifications" size={24} className="text-on-surface-variant" />
-              </div>
-              <p className="mt-2 max-w-xs text-body-md text-on-surface-variant">No notifications sent yet.</p>
-            </div>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon" icon="notifications" />
+                <EmptyDescription>No notifications sent yet.</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           ) : (
-            <ul className="space-y-3">
+            <ItemGroup>
               {[...sent.values()].map(({ n, total, read }) => (
-                <li key={n.id} className={cn(cardVariants(), "p-4")}>
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="font-medium">{n.title}</div>
-                    <span className="rounded-full bg-surface-container-high px-2.5 py-0.5 text-label-md text-on-surface-variant">
-                      {n.kind}
-                    </span>
-                  </div>
-                  {n.body && <p className="mt-1 text-body-sm text-on-surface-variant">{n.body}</p>}
-                  <div className="mt-2 text-body-sm text-on-surface-variant">
-                    {dateTime(n.created_at)} · read by {read} of {total}
-                    {n.link ? ` · opens ${links.find((l) => l.value === n.link)?.label ?? n.link}` : ""}
-                  </div>
-                </li>
+                <SentNotificationItem
+                  key={n.id}
+                  notification={n}
+                  total={total}
+                  read={read}
+                  linkLabel={n.link ? (links.find((l) => l.value === n.link)?.label ?? n.link) : undefined}
+                />
               ))}
-            </ul>
+            </ItemGroup>
           )}
           {inbox.length > 0 && (
             <>
               <h2 className="mt-8 mb-3 text-title-lg">Your inbox</h2>
-              <ul className="space-y-2">
+              <ItemGroup>
                 {inbox.slice(0, 10).map((n) => (
-                  <li key={n.id} className={cn(cardVariants(), "flex items-start justify-between gap-3 p-4 text-body-md")}>
-                    <div>
-                      <div className="font-medium">{n.title}</div>
-                      <div className="text-on-surface-variant">{n.body}</div>
-                    </div>
-                    <span className="shrink-0 text-body-sm text-on-surface-variant">{dateTime(n.created_at)}</span>
-                  </li>
+                  <InboxNotificationItem key={n.id} notification={n} />
                 ))}
-              </ul>
+              </ItemGroup>
             </>
           )}
         </section>
@@ -160,35 +115,14 @@ function UpdatesPage() {
           <Icon name="history" size={22} /> Activity log <InternalBadge />
         </h2>
         {activity.length === 0 ? (
-          <div className="flex flex-col items-center rounded-xl border border-dashed p-8 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high">
-              <Icon name="history" size={24} className="text-on-surface-variant" />
-            </div>
-            <p className="mt-2 max-w-xs text-body-md text-on-surface-variant">Changes to this project will be listed here.</p>
-          </div>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon" icon="history" />
+              <EmptyDescription>Changes to this project will be listed here.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : (
-          <ol className="relative space-y-4 border-l pl-5">
-            {activity.map((a) => (
-              <li key={a.id} className="relative">
-                <span className="absolute top-1.5 -left-[25px] h-2.5 w-2.5 rounded-full bg-primary" />
-                <div className="text-body-md font-medium">{a.summary}</div>
-                {Object.keys(a.changes).length > 0 && (
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {Object.entries(a.changes)
-                      .slice(0, 4)
-                      .map(([k, v]) => (
-                        <span key={k} className="rounded-full bg-surface-container-high px-2 py-0.5 text-label-md text-on-surface-variant">
-                          {k.replace(/_/g, " ")}: {String(v.from ?? "—").slice(0, 24)} → {String(v.to ?? "—").slice(0, 24)}
-                        </span>
-                      ))}
-                  </div>
-                )}
-                <div className="mt-1 text-body-sm text-on-surface-variant">
-                  {nameOf(a.actor_id)} · {dateTime(a.created_at)}
-                </div>
-              </li>
-            ))}
-          </ol>
+          <ActivityLog activity={activity} nameOf={nameOf} />
         )}
       </section>
     </div>
