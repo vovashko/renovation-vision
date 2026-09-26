@@ -20,7 +20,7 @@ import type { Room, Stage, Task } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/stages")({
   head: () => ({
     meta: [
-      { title: "Stages — RenoTrack" },
+      { title: "Stages — RenoVision" },
       { name: "description", content: "Edit renovation stages, dates, progress and task checklists." },
     ],
   }),

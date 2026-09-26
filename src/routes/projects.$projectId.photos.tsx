@@ -19,7 +19,7 @@ import type { Photo, Room, Stage } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/photos")({
   head: () => ({
     meta: [
-      { title: "Site photos — RenoTrack" },
+      { title: "Site photos — RenoVision" },
       { name: "description", content: "Upload site photos, keep drafts private and publish them to the client." },
     ],
   }),

@@ -1,4 +1,4 @@
-// Row types for the shared RenoTrack Supabase schema (supabase/migrations at the repo root).
+// Row types for the shared RenoVision Supabase schema (supabase/migrations at the repo root).
 // Keep in sync with the migrations, or regenerate with `supabase gen types typescript`.
 import type { Status } from "@/lib/status";
 

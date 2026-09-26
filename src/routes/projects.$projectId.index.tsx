@@ -20,7 +20,7 @@ import type { ProjectSummary, ScheduleStatus } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
     meta: [
-      { title: "Overview — RenoTrack" },
+      { title: "Overview — RenoVision" },
       { name: "description", content: "Project details, schedule and progress at a glance." },
     ],
   }),

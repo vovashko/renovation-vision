@@ -14,7 +14,7 @@ import { timeLabel } from "@/lib/format";
 export const Route = createFileRoute("/projects/$projectId/chat")({
   head: () => ({
     meta: [
-      { title: "Chat — RenoTrack" },
+      { title: "Chat — RenoVision" },
       { name: "description", content: "Chat in real time about the project." },
     ],
   }),

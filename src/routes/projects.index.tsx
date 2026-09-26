@@ -17,7 +17,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/projects/")({
   head: () => ({
     meta: [
-      { title: "Projects — RenoTrack" },
+      { title: "Projects — RenoVision" },
       { name: "description", content: "All renovation projects you manage." },
     ],
   }),
@@ -34,7 +34,7 @@ function ProjectsPage() {
     <div className="mx-auto w-full max-w-6xl">
       <PageHeader
         title="Your projects"
-        description="Everything you update here appears in the client's RenoTrack app."
+        description="Everything you update here appears in the client's RenoVision view."
         actions={<Button onClick={() => setOpen(true)} className="min-h-11 gap-2"><Plus className="h-4 w-4" /> New project</Button>}
       />
       {isLoading ? (

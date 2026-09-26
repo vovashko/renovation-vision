@@ -20,7 +20,7 @@ import type { Expense, Stage } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/budget")({
   head: () => ({
     meta: [
-      { title: "Budget — RenoTrack" },
+      { title: "Budget — RenoVision" },
       { name: "description", content: "Track expenses, vendor notes and receipts. Clients only see the budget and spent totals." },
     ],
   }),

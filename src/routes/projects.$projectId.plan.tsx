@@ -24,7 +24,7 @@ export const Route = createFileRoute("/projects/$projectId/plan")({
   }),
   head: () => ({
     meta: [
-      { title: "Plan — RenoTrack" },
+      { title: "Plan — RenoVision" },
       { name: "description", content: "Update room status and progress on the floor plan." },
     ],
   }),

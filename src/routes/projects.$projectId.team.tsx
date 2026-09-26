@@ -16,7 +16,7 @@ import type { Member, ProjectRole } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/team")({
   head: () => ({
     meta: [
-      { title: "Team — RenoTrack" },
+      { title: "Team — RenoVision" },
       { name: "description", content: "Who can see and manage this project." },
     ],
   }),
@@ -37,7 +37,7 @@ function TeamPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8">
-      <PageHeader title="Team" description="Clients see visible project data in the RenoTrack app. Managers can edit everything here." />
+      <PageHeader title="Team" description="Clients see visible project data in the RenoVision app. Managers can edit everything here." />
 
       <form
         className="grid gap-3 rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)] sm:grid-cols-[1fr_160px_auto] sm:items-end"
@@ -46,7 +46,7 @@ function TeamPage() {
           add.mutate(undefined, { onSuccess: () => setEmail("") });
         }}
       >
-        <Field id="tm-email" label="Add by email" hint="They need a RenoTrack account first.">
+        <Field id="tm-email" label="Add by email" hint="They need a RenoVision account first.">
           <Input id="tm-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-11" />
         </Field>
         <Field id="tm-role" label="Role">

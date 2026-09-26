@@ -19,6 +19,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { useProject } from "@/lib/queries";
 
 import appCss from "../styles.css?url";
+import logoMark from "@/assets/renovision-mark.svg";
 
 function NotFoundComponent() {
   return (
@@ -66,7 +67,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "RenoTrack" },
+      { title: "RenoVision" },
       { name: "description", content: "Track a home renovation: stages, plan, photos and chat with your site manager. Site managers update it all in one place." },
     ],
     links: [
@@ -80,6 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..400,0..1,0&display=block",
       },
+      { rel: "icon", type: "image/svg+xml", href: logoMark },
       { rel: "stylesheet", href: appCss },
     ],
   }),

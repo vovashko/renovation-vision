@@ -17,7 +17,7 @@ import type { Notification } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/updates")({
   head: () => ({
     meta: [
-      { title: "Updates — RenoTrack" },
+      { title: "Updates — RenoVision" },
       { name: "description", content: "Notifications sent to the client and the internal activity log." },
     ],
   }),

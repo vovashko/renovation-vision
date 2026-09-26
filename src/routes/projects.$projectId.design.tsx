@@ -19,7 +19,7 @@ import type { Photo, Render, Room } from "@/lib/database.types";
 export const Route = createFileRoute("/projects/$projectId/design")({
   head: () => ({
     meta: [
-      { title: "Design renders — RenoTrack" },
+      { title: "Design renders — RenoVision" },
       { name: "description", content: "Upload design renders and before/after pairs for each room." },
     ],
   }),
