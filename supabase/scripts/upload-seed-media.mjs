@@ -1,5 +1,5 @@
 // Uploads the demo images to Storage at the paths referenced by supabase/seed.sql.
-// The images are the RenoTrack client app's own assets (read-only), so both apps show the same pictures.
+// The images are the Renovision client app's own assets (read-only), so both apps show the same pictures.
 //
 //   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node supabase/scripts/upload-seed-media.mjs
 //

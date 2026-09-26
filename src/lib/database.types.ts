@@ -36,7 +36,25 @@ export type ProjectSummary = Project & {
   manager_name: string | null;
 };
 
-export type ProjectInternal = { project_id: string; internal_budget_notes: string; updated_at: string };
+export type ProjectInternal = {
+  project_id: string;
+  internal_budget_notes: string;
+  /** Manager-only contact details for the client (Overview client card). */
+  client_phone: string;
+  client_email: string;
+  updated_at: string;
+};
+
+/** Site crew and trades (not app users). Manager-only. */
+export type CrewMember = {
+  id: string;
+  project_id: string;
+  name: string;
+  trade: string;
+  phone: string;
+  email: string;
+  sort_order: number;
+};
 
 export type Member = {
   project_id: string;

@@ -4,6 +4,7 @@ import { fileExt } from "./format";
 import type {
   ActivityEntry,
   Expense,
+  CrewMember,
   Knowledge,
   Member,
   Message,
@@ -30,6 +31,8 @@ export type PhotoMeta = { stage_id: string | null; room_id: string | null; capti
 export type PhotoPatch = Partial<Pick<Photo, "caption" | "alt" | "stage_id" | "room_id" | "status">>;
 export type RenderInput = Partial<Omit<Render, "project_id" | "url" | "storage_path">> & { file?: File | null };
 export type ExpenseInput = Partial<Omit<Expense, "project_id" | "receipt_path">> & { receiptFile?: File | null };
+export type ClientContact = Pick<ProjectInternal, "client_phone" | "client_email">;
+export type CrewInput = Partial<Omit<CrewMember, "project_id">>;
 export type KnowledgeInput = Partial<Omit<Knowledge, "project_id" | "updated_at">>;
 export type PresenceMember = { id: string; name: string; role: ProjectRole };
 
@@ -41,6 +44,11 @@ export type Api = {
   updateProject(id: string, patch: ProjectPatch): Promise<void>;
   getInternal(id: string): Promise<ProjectInternal>;
   updateInternal(id: string, notes: string): Promise<void>;
+  updateClientContact(id: string, contact: ClientContact): Promise<void>;
+
+  listCrew(id: string): Promise<CrewMember[]>;
+  saveCrew(id: string, input: CrewInput): Promise<void>;
+  deleteCrew(crewId: string): Promise<void>;
 
   listMembers(id: string): Promise<Member[]>;
   addMember(id: string, email: string, role: ProjectRole): Promise<void>;
@@ -154,6 +162,20 @@ const supabaseApi: Api = {
   },
   async updateInternal(id, notes) {
     await must(sb().from("project_internal").upsert({ project_id: id, internal_budget_notes: notes }));
+  },
+  async updateClientContact(id, contact) {
+    await must(sb().from("project_internal").upsert({ project_id: id, ...contact }));
+  },
+
+  async listCrew(id) {
+    return must(sb().from("project_crew").select("*").eq("project_id", id).order("sort_order").order("created_at")) as Promise<CrewMember[]>;
+  },
+  async saveCrew(id, { id: crewId, ...input }) {
+    if (crewId) await must(sb().from("project_crew").update(input).eq("id", crewId));
+    else await must(sb().from("project_crew").insert({ ...input, project_id: id }));
+  },
+  async deleteCrew(crewId) {
+    await must(sb().from("project_crew").delete().eq("id", crewId));
   },
 
   async listMembers(id) {
