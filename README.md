@@ -62,7 +62,13 @@ supabase db reset
 
 ## Design system
 
-The design handoff for the current visual redesign ("RenoVision design
-system v5 (Sage)") lives in [`design/README.md`](design/README.md), along
-with the HTML design reference and supporting assets it points to. Those
-files are a reference for re-theming the app, not app source.
+The v5 ("Sage") design system lives in code, not in docs:
+
+- Tokens (color roles, type scale, radii, `state-layer`) are in `src/styles.css`.
+- Primitives and their variants are in `src/components/ui/*` (`cva`). Icons are Material Symbols via `ui/icon`.
+- Components own their Tailwind classes; call sites pick variants and props rather than restyling. Repeated class
+  patterns become a component or a variant, never a separate CSS file.
+- Status model: `done` / `progress` / `pending` (hollow) / `blocked`. Status follows progress: 0% is pending, above 0% is progress, 100% is done. Blocked is set by hand. The orange attention flag (late, over budget) is computed, never stored.
+
+The original design handoff and HTML reference were removed from the repo. They remain in git history at `0e27b3f`
+(`git show 0e27b3f:README.md`, `git show "0e27b3f:RenoVision Design System v5.dc.html" > /tmp/v5.html`).
