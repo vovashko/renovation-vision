@@ -1,10 +1,12 @@
 import { useState } from "react";
-import logo from "@/assets/renovision-logo.svg";
 import { toast } from "sonner";
+import logo from "@/assets/renovision-logo.svg";
 import { Button } from "@/components/ui/button";
+import { cardVariants } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 export function LoginScreen() {
   const { signIn, sendMagicLink } = useAuth();
@@ -35,40 +37,31 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[image:var(--gradient-surface)] px-4">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border bg-card p-6 shadow-[var(--shadow-elegant)]">
-        <img src={logo} alt="RenoVision" className="h-10 w-auto" />
-        <h1 className="mt-6 text-xl font-semibold">Sign in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Clients and site managers sign in here.</p>
-        <div className="mt-5 space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-11"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+    <div className="flex min-h-screen items-center justify-center bg-surface px-4">
+      <form onSubmit={submit} className={cn(cardVariants({ variant: "default" }), "w-full max-w-sm p-6")}>
+        <img src={logo} alt="RenoVision" className="h-9 w-auto" />
+        <h1 className="mt-6 text-headline-md text-on-surface">Sign in</h1>
+        <p className="mt-1 text-body-md text-on-surface-variant">Clients and site managers sign in here.</p>
+        <FieldGroup className="mt-5">
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
             <Input
               id="password"
               type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-11"
             />
-          </div>
-        </div>
-        <Button type="submit" disabled={busy || !email || !password} className="mt-5 min-h-11 w-full">
+          </Field>
+        </FieldGroup>
+        <Button type="submit" disabled={busy || !email || !password} size="lg" className="mt-5">
           {busy ? "Signing in…" : "Sign in"}
         </Button>
-        <Button type="button" variant="ghost" onClick={magic} className="mt-2 min-h-11 w-full">
+        <Button type="button" variant="ghost" onClick={magic} className="mt-2 w-full">
           Email me a sign-in link
         </Button>
       </form>
