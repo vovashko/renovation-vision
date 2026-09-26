@@ -94,3 +94,22 @@ The v5 ("Sage") design system lives in code, not in docs:
 
 The original design handoff and HTML reference were removed from the repo. They remain in git history at `0e27b3f`
 (`git show 0e27b3f:README.md`, `git show "0e27b3f:RenoVision Design System v5.dc.html" > /tmp/v5.html`).
+
+## UI conventions
+
+UI code has three layers:
+
+1. **`src/components/ui/*` is the design system.** Compound primitives with `cva` variants. Long Tailwind class strings live
+   here and nowhere else. Prefer a shadcn registry primitive (`bunx shadcn@latest add …`, never overwriting existing files),
+   restyled to the v5 tokens; build our own compound primitive only when the spec needs something shadcn lacks.
+2. **Feature components** (`src/features/*/ui`, `src/shared/ui`, for now `src/components/*.tsx`) are small, single-purpose and
+   named for what they are (`ProjectRail`, `RoomRow`, `StagesEmpty`). They compose primitives; their `className` is layout only
+   (flex, grid, gap, width, margin). No raw `<div>` styling, no inline empty states, stat tiles or list rows.
+3. **Routes** compose feature components only.
+
+Icons are Material Symbols names passed to `ui/icon` (or a primitive's `icon` prop), never `lucide-react`.
+
+Primitives: `Button`, `Badge`, `Card`, `Progress`/`ProgressBar`, `Input`, `InputGroup` (addons, `search` variant), `NativeSelect`,
+`Field` (label, description, error), `Item` (list rows, `lg` for stage rows), `Empty` (empty states), `Stat` (stat cards),
+`Rail` (desktop navigation rail), `Sheet`, `Dialog`, `Tabs`, `Switch`, `Tooltip`, `DropdownMenu`, `Popover` and the rest of
+`src/components/ui/`.
