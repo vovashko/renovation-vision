@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Bot, Send, Trash2, UserRound } from "lucide-react";
-import { defaultProjectData, getAiAnswer, suggestedQuestions, type AiAnswer } from "@/lib/ai-assistant";
-import { usePhotos } from "@/lib/photo-store";
-import { project } from "@/lib/renovation-data";
+import { getAiAnswer, suggestedQuestions, type AiAnswer } from "@/lib/ai-assistant";
+import { useKnowledge, usePhotos, useProject, useRooms, useStages } from "@/lib/queries";
 
 type AiMsg = { id: number; role: "user" | "ai"; text: string; answer?: AiAnswer; question?: string };
 
-export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) {
-  const { photos } = usePhotos();
+export function AiChat({ projectId, managerName, onAskManager }: { projectId: string; managerName: string; onAskManager: (q: string) => void }) {
+  const { data: project } = useProject(projectId);
+  const { data: stages } = useStages(projectId);
+  const { data: rooms } = useRooms(projectId);
+  const { data: photos } = usePhotos(projectId);
+  const { data: knowledge } = useKnowledge(projectId);
+  const ready = !!project && !!stages && !!rooms;
   const [messages, setMessages] = useState<AiMsg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -19,11 +23,11 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
 
   const ask = async (question: string) => {
     const q = question.trim();
-    if (!q || thinking) return;
+    if (!q || thinking || !ready) return;
     setInput("");
     setMessages((m) => [...m, { id: Date.now(), role: "user", text: q }]);
     setThinking(true);
-    const answer = await getAiAnswer(q, defaultProjectData(photos));
+    const answer = await getAiAnswer(q, { project: project!, stages: stages!, rooms: rooms!, photos: photos ?? [], knowledge: knowledge ?? [] });
     await new Promise((r) => setTimeout(r, 500));
     setThinking(false);
     const id = Date.now() + 1;
@@ -62,10 +66,10 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
                   <div className="text-xs text-muted-foreground">Based on: {m.answer.sources.join(" · ")}</div>
                   <div className="flex flex-wrap gap-2">
                     {m.answer.links.map((l) => (
-                      <Link key={l.label} to={l.to} className="inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-medium text-primary hover:bg-muted">{l.label} →</Link>
+                      <Link key={l.label} to={(l.section ? `/projects/$projectId/${l.section}` : "/projects/$projectId") as "/projects/$projectId"} params={{ projectId }} className="inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-medium text-primary hover:bg-muted">{l.label} →</Link>
                     ))}
                     <button onClick={() => onAskManager(m.question ?? "")} className="inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-xs font-medium hover:bg-muted">
-                      <UserRound className="h-3.5 w-3.5" /> Ask {project.manager.split(" ")[0]} about this
+                      <UserRound className="h-3.5 w-3.5" /> Ask {managerName} about this
                     </button>
                   </div>
                 </div>
@@ -87,7 +91,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
       <div className="border-t bg-background/60 backdrop-blur">
         <div className="flex gap-2 overflow-x-auto px-3 pt-3 [scrollbar-width:none]" aria-label="Suggested questions">
           {suggestedQuestions.map((s) => (
-            <button key={s} onClick={() => ask(s)} disabled={thinking} className="min-h-10 shrink-0 whitespace-nowrap rounded-full border bg-card px-3 text-sm hover:bg-muted disabled:opacity-50">{s}</button>
+            <button key={s} onClick={() => ask(s)} disabled={thinking || !ready} className="min-h-10 shrink-0 whitespace-nowrap rounded-full border bg-card px-3 text-sm hover:bg-muted disabled:opacity-50">{s}</button>
           ))}
         </div>
         <p className="px-3 pt-2 text-xs text-muted-foreground">AI answers are based on project data. For decisions, confirm with your site manager.</p>
@@ -98,7 +102,7 @@ export function AiChat({ onAskManager }: { onAskManager: (q: string) => void }) 
             </button>
           )}
           <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about your project…" aria-label="Ask the AI assistant" className="h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm" />
-          <button type="submit" disabled={!input.trim() || thinking} aria-label="Send question" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground disabled:opacity-50">
+          <button type="submit" disabled={!input.trim() || thinking || !ready} aria-label="Send question" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground disabled:opacity-50">
             <Send className="h-4 w-4" />
           </button>
         </form>

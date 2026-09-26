@@ -50,7 +50,10 @@ export function Lightbox({
       onTouchEnd={(e) => {
         if (touchX.current === null) return;
         const dx = e.changedTouches[0].clientX - touchX.current;
-        if (Math.abs(dx) > 50) (dx > 0 ? prev() : next());
+        if (Math.abs(dx) > 50) {
+          if (dx > 0) prev();
+          else next();
+        }
         touchX.current = null;
       }}
     >
