@@ -53,6 +53,12 @@ supabase db reset
 | `bun run test:db`      | SQL/RLS tests against a local Supabase instance      |
 | `bun run verify`       | lint + format:check + typecheck + test — the CI gate |
 
+## Routes
+
+Route files are flat (`src/routes/projects.tsx`, `src/routes/project/budget.tsx`), and URLs keep the project id
+(`/projects/<id>/budget`). The mapping lives in `src/routes.config.ts` (TanStack virtual file routes): register every new
+route there. `src/routeTree.gen.ts` is generated on `dev`/`build`, so don't edit it by hand.
+
 ## Tests
 
 - `tests/unit/<area>/*.test.ts(x)` — vitest unit tests (jsdom).
