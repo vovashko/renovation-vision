@@ -1,19 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Camera, EyeOff, ImagePlus, Pencil, Send, Trash2 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { cardVariants } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { FilterChips } from "@/components/filter-chips";
 import { Lightbox } from "@/components/lightbox";
-import { EmptyState } from "@/components/empty-state";
-import { Field, FormSheet, selectCls } from "@/components/manager/form-sheet";
+import { EmptyPhotos } from "@/components/photo-thumbs";
+import { Field, FormSheet } from "@/components/manager/form-sheet";
+import { StageRoomFields, UploadSheet } from "@/components/photo-upload-sheet";
 import { useAuth } from "@/lib/auth";
 import { PageHeader, PageLoading } from "@/components/page-header";
-import { api, type PhotoMeta, type PhotoPatch } from "@/lib/api";
+import { api, type PhotoPatch } from "@/lib/api";
 import { keys, usePhotos, useRooms, useSave, useStages } from "@/lib/queries";
 import { dateTime } from "@/lib/format";
+import { filterPhotos, groupPhotosByDate, toLightboxItem } from "@/lib/photo-helpers";
+import { cn } from "@/lib/utils";
 import type { Photo, Room, Stage } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/photos")({
@@ -32,7 +35,9 @@ function PhotosPage() {
   const { data: photos, isLoading } = usePhotos(projectId);
   const { data: stages = [] } = useStages(projectId);
   const { data: rooms = [] } = useRooms(projectId);
-  const [filter, setFilter] = useState<"all" | "draft" | "published">("all");
+  const [status, setStatus] = useState<"all" | "draft" | "published">("all");
+  const [stageId, setStageId] = useState("all");
+  const [roomId, setRoomId] = useState("all");
   const [uploading, setUploading] = useState(false);
   const [editing, setEditing] = useState<Photo | null>(null);
   const [open, setOpen] = useState<number | null>(null);
@@ -47,14 +52,22 @@ function PhotosPage() {
           : "Photo updated",
   });
 
-  const filtered = useMemo(() => (photos ?? []).filter((p) => filter === "all" || p.status === filter), [photos, filter]);
+  const byStatus = useMemo(() => {
+    const all = photos ?? [];
+    return status === "all" ? all : all.filter((p) => p.status === status);
+  }, [photos, status]);
+  const filtered = useMemo(() => filterPhotos(byStatus, { stageId, roomId }), [byStatus, stageId, roomId]);
+  const groups = useMemo(() => groupPhotosByDate(filtered), [filtered]);
+  const indexById = useMemo(() => new Map(filtered.map((p, i) => [p.id, i] as const)), [filtered]);
+
   if (isLoading || !photos) return <PageLoading />;
   const drafts = photos.filter((p) => p.status === "draft").length;
   const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name ?? "No stage";
   const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name ?? "No room";
+  const filtering = stageId !== "all" || roomId !== "all";
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-6xl">
       <PageHeader
         title="Site photos"
         description={
@@ -65,260 +78,150 @@ function PhotosPage() {
         actions={
           isManager && (
             <Button onClick={() => setUploading(true)} className="min-h-11 gap-2">
-              <ImagePlus className="h-4 w-4" /> Add photos
+              <Icon name="add_photo_alternate" size={22} /> Add photos
             </Button>
           )
         }
       />
-      {isManager && (
-        <div className="mt-5">
+
+      <div className="mt-5 space-y-1">
+        {isManager && (
           <FilterChips
-            label="Filter photos"
-            value={filter}
-            onChange={(v) => setFilter(v as typeof filter)}
+            label="Filter by status"
+            value={status}
+            onChange={(v) => setStatus(v as typeof status)}
             options={[
               { value: "all", label: `All (${photos.length})` },
               { value: "draft", label: `Drafts (${drafts})` },
               { value: "published", label: `Published (${photos.length - drafts})` },
             ]}
           />
-        </div>
-      )}
+        )}
+        {stages.length > 0 && (
+          <FilterChips
+            label="Filter by stage"
+            value={stageId}
+            onChange={setStageId}
+            options={[{ value: "all", label: "All stages" }, ...stages.map((s) => ({ value: s.id, label: s.name }))]}
+          />
+        )}
+        {rooms.length > 0 && (
+          <FilterChips
+            label="Filter by room"
+            value={roomId}
+            onChange={setRoomId}
+            options={[{ value: "all", label: "All rooms" }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
+          />
+        )}
+      </div>
 
       {filtered.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          icon={Camera}
+        <EmptyPhotos
           text={
-            filter === "draft"
-              ? "No drafts — everything is published."
-              : isManager
-                ? "No photos yet. Add today's progress."
-                : "No photos yet. Your site manager will share progress photos here."
+            filtering
+              ? "No photos match this filter."
+              : status === "draft"
+                ? "No drafts — everything is published."
+                : isManager
+                  ? "No photos yet. Add today's progress."
+                  : "No photos yet. Your site manager will share progress photos here."
           }
         />
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p, i) => (
-            <article
-              key={p.id}
-              className={`overflow-hidden rounded-xl border bg-card shadow-[var(--shadow-soft)] ${p.status === "draft" ? "border-dashed" : ""}`}
-            >
-              <button
-                onClick={() => setOpen(i)}
-                className="relative block w-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                aria-label={`Open photo: ${p.caption}`}
-              >
-                {p.url ? (
-                  <img src={p.url} alt={p.alt} loading="lazy" width={1024} height={768} className="aspect-[4/3] w-full object-cover" />
-                ) : (
-                  <div className="flex aspect-[4/3] w-full items-center justify-center bg-muted text-xs text-muted-foreground">
-                    File missing
-                  </div>
-                )}
-                {isManager && p.status === "draft" && (
-                  <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-foreground/70 px-2.5 py-1 text-xs font-medium text-background">
-                    <EyeOff className="h-3.5 w-3.5" /> Draft — client can't see
-                  </span>
-                )}
-              </button>
-              <div className="p-4">
-                <p className="text-sm">{p.caption || <span className="text-muted-foreground">No caption</span>}</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
-                    {stageName(p.stage_id)}
-                  </span>
-                  <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">{roomName(p.room_id)}</span>
-                </div>
-                <div className="mt-2 text-xs text-muted-foreground">{dateTime(p.taken_at)}</div>
-                {isManager && (
-                  <div className="mt-3 flex gap-2">
-                    {p.status === "draft" ? (
-                      <Button
-                        size="sm"
-                        className="min-h-9 flex-1 gap-1.5"
-                        onClick={() => update.mutate({ id: p.id, patch: { status: "published" } })}
-                      >
-                        <Send className="h-3.5 w-3.5" /> Publish
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="min-h-9 flex-1"
-                        onClick={() => update.mutate({ id: p.id, patch: { status: "draft" } })}
-                      >
-                        Unpublish
-                      </Button>
-                    )}
-                    <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setEditing(p)} aria-label="Edit photo">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
+        <div className="mt-6 space-y-8">
+          {groups.map((g) => (
+            <section key={g.label} aria-label={g.label}>
+              <h2 className="mb-3 text-label-lg text-on-surface-variant">{g.label}</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {g.items.map((p) => (
+                  <article
+                    key={p.id}
+                    className={cn(cardVariants(), "overflow-hidden p-0", isManager && p.status === "draft" && "border-dashed")}
+                  >
+                    <button
+                      onClick={() => setOpen(indexById.get(p.id) ?? 0)}
+                      className="relative block w-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+                      aria-label={`Open photo: ${p.caption || "site photo"}`}
+                    >
+                      {p.url ? (
+                        <img
+                          src={p.url}
+                          alt={p.alt}
+                          loading="lazy"
+                          width={1024}
+                          height={768}
+                          className="aspect-[4/3] w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex aspect-[4/3] w-full items-center justify-center bg-surface-container-high text-body-sm text-on-surface-variant">
+                          File missing
+                        </div>
+                      )}
+                      {isManager && p.status === "draft" && (
+                        <span className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-inverse-surface px-2.5 py-1 text-label-md text-inverse-on-surface">
+                          <Icon name="visibility_off" size={18} /> Draft — client can&rsquo;t see
+                        </span>
+                      )}
+                    </button>
+                    <div className="p-4">
+                      <p className="text-body-md">{p.caption || <span className="text-on-surface-variant">No caption</span>}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Badge variant="secondary" icon="construction">
+                          {stageName(p.stage_id)}
+                        </Badge>
+                        <Badge variant="outline" icon="meeting_room">
+                          {roomName(p.room_id)}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 text-body-sm text-on-surface-variant">{dateTime(p.taken_at)}</div>
+                      {isManager && (
+                        <div className="mt-3 flex gap-2">
+                          {p.status === "draft" ? (
+                            <Button
+                              size="sm"
+                              className="min-h-9 flex-1 gap-1.5"
+                              onClick={() => update.mutate({ id: p.id, patch: { status: "published" } })}
+                            >
+                              <Icon name="send" size={18} /> Publish
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="min-h-9 flex-1"
+                              onClick={() => update.mutate({ id: p.id, patch: { status: "draft" } })}
+                            >
+                              Unpublish
+                            </Button>
+                          )}
+                          <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setEditing(p)} aria-label="Edit photo">
+                            <Icon name="edit" size={20} />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                ))}
               </div>
-            </article>
+            </section>
           ))}
         </div>
       )}
 
       <Lightbox
-        items={filtered.map((p) => ({
-          src: p.url,
-          alt: p.alt,
-          title: p.caption,
-          subtitle: dateTime(p.taken_at),
-          tags: [stageName(p.stage_id), roomName(p.room_id), ...(isManager ? [p.status === "draft" ? "Draft" : "Published"] : [])],
-        }))}
+        items={filtered.map((p) =>
+          toLightboxItem(p, [
+            stageName(p.stage_id),
+            roomName(p.room_id),
+            ...(isManager ? [p.status === "draft" ? "Draft" : "Published"] : []),
+          ]),
+        )}
         index={open}
         onClose={() => setOpen(null)}
       />
       {isManager && <UploadSheet projectId={projectId} open={uploading} onOpenChange={setUploading} stages={stages} rooms={rooms} />}
       {isManager && <EditSheet projectId={projectId} photo={editing} onClose={() => setEditing(null)} stages={stages} rooms={rooms} />}
     </div>
-  );
-}
-
-function StageRoomFields({
-  prefix,
-  stages,
-  rooms,
-  stageId,
-  roomId,
-  onStage,
-  onRoom,
-}: {
-  prefix: string;
-  stages: Stage[];
-  rooms: Room[];
-  stageId: string;
-  roomId: string;
-  onStage: (v: string) => void;
-  onRoom: (v: string) => void;
-}) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <Field id={`${prefix}-stage`} label="Stage">
-        <select id={`${prefix}-stage`} value={stageId} onChange={(e) => onStage(e.target.value)} className={selectCls}>
-          <option value="">—</option>
-          {stages.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field id={`${prefix}-room`} label="Room">
-        <select id={`${prefix}-room`} value={roomId} onChange={(e) => onRoom(e.target.value)} className={selectCls}>
-          <option value="">—</option>
-          {rooms.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-    </div>
-  );
-}
-
-function UploadSheet({
-  projectId,
-  open,
-  onOpenChange,
-  stages,
-  rooms,
-}: {
-  projectId: string;
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  stages: Stage[];
-  rooms: Room[];
-}) {
-  const [files, setFiles] = useState<File[]>([]);
-  const [stageId, setStageId] = useState("");
-  const [roomId, setRoomId] = useState("");
-  const [caption, setCaption] = useState("");
-  const [publish, setPublish] = useState(false);
-  const upload = useSave(
-    projectId,
-    (v: { files: File[]; meta: PhotoMeta; publish: boolean }) => api.uploadPhotos(projectId, v.files, v.meta, v.publish),
-    {
-      invalidate: [keys.photos(projectId)],
-      success: (v) =>
-        v.publish
-          ? `Published ${v.files.length} photo${v.files.length > 1 ? "s" : ""}`
-          : `Saved ${v.files.length} draft${v.files.length > 1 ? "s" : ""}`,
-    },
-  );
-  const current = stages.find((s) => s.status === "progress")?.id ?? "";
-
-  return (
-    <FormSheet
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Add site photos"
-      description="Tag the stage and room so the client can filter them."
-    >
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="photo-files">Images</Label>
-          <input
-            id="photo-files"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-            className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
-          />
-          {files.length > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              {files.map((f) => (
-                <img key={f.name} src={URL.createObjectURL(f)} alt={f.name} className="aspect-square w-full rounded-md object-cover" />
-              ))}
-            </div>
-          )}
-        </div>
-        <StageRoomFields
-          prefix="up"
-          stages={stages}
-          rooms={rooms}
-          stageId={stageId || current}
-          roomId={roomId}
-          onStage={setStageId}
-          onRoom={setRoomId}
-        />
-        <Field id="up-caption" label="Caption">
-          <Textarea id="up-caption" value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="What changed today?" />
-        </Field>
-        <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border px-3">
-          <Label htmlFor="up-publish" className="font-normal">
-            Publish to client now
-          </Label>
-          <Switch id="up-publish" checked={publish} onCheckedChange={setPublish} />
-        </div>
-        <Button
-          disabled={!files.length || upload.isPending}
-          className="min-h-11 w-full"
-          onClick={() =>
-            upload.mutate(
-              { files, meta: { stage_id: stageId || current || null, room_id: roomId || null, caption: caption.trim() }, publish },
-              {
-                onSuccess: () => {
-                  setFiles([]);
-                  setCaption("");
-                  onOpenChange(false);
-                },
-              },
-            )
-          }
-        >
-          {upload.isPending
-            ? "Uploading…"
-            : `${publish ? "Publish" : "Save"} ${files.length || ""} ${publish ? "photo" : "draft"}${files.length === 1 ? "" : "s"}`}
-        </Button>
-      </div>
-    </FormSheet>
   );
 }
 
@@ -358,7 +261,7 @@ function EditSheet({
     >
       {photo && draft && (
         <div className="space-y-4">
-          {photo.url && <img src={photo.url} alt={photo.alt} className="aspect-[4/3] w-full rounded-lg object-cover" />}
+          {photo.url && <img src={photo.url} alt={photo.alt} className="aspect-[4/3] w-full rounded-md object-cover" />}
           <Field id="ed-caption" label="Caption">
             <Textarea id="ed-caption" value={draft.caption} onChange={(e) => setDraft({ ...draft, caption: e.target.value })} />
           </Field>
@@ -391,7 +294,7 @@ function EditSheet({
             className="min-h-11 w-full gap-2 text-destructive"
             onClick={() => confirm("Delete this photo for everyone?") && remove.mutate(photo, { onSuccess: onClose })}
           >
-            <Trash2 className="h-4 w-4" /> Delete photo
+            <Icon name="delete" size={20} /> Delete photo
           </Button>
         </div>
       )}

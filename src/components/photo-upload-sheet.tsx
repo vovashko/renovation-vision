@@ -99,12 +99,12 @@ export function UploadSheet({
             accept="image/*"
             multiple
             onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-            className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
+            className="block w-full text-body-md text-on-surface-variant file:mr-3 file:h-10 file:rounded-full file:border-0 file:bg-secondary-container file:px-6 file:text-label-lg file:text-on-secondary-container"
           />
           {files.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
               {files.map((f) => (
-                <img key={f.name} src={URL.createObjectURL(f)} alt={f.name} className="aspect-square w-full rounded-md object-cover" />
+                <img key={f.name} src={URL.createObjectURL(f)} alt={f.name} className="aspect-square w-full rounded-sm object-cover" />
               ))}
             </div>
           )}
@@ -121,7 +121,7 @@ export function UploadSheet({
         <Field id="up-caption" label="Caption">
           <Textarea id="up-caption" value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="What changed today?" />
         </Field>
-        <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border px-3">
+        <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-outline-variant px-3">
           <Label htmlFor="up-publish" className="font-normal">
             Publish to client now
           </Label>

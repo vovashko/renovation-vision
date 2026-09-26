@@ -1,19 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ImagePlus, Palette, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { Icon } from "@/components/ui/icon";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { cardVariants } from "@/components/ui/card";
 import { BeforeAfter } from "@/components/before-after";
-import { EmptyState } from "@/components/empty-state";
-import { Field, FormSheet, selectCls, VisibleSwitch } from "@/components/manager/form-sheet";
+import { FilterChips } from "@/components/filter-chips";
+import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/manager/form-sheet";
 import { useAuth } from "@/lib/auth";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/manager/visibility-badge";
 import { api, type RenderInput } from "@/lib/api";
 import { keys, usePhotos, useRenders, useRooms, useSave } from "@/lib/queries";
+import { cn } from "@/lib/utils";
 import type { Photo, Render, Room } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/design")({
@@ -32,18 +34,22 @@ function DesignPage() {
   const { data: renders, isLoading } = useRenders(projectId);
   const { data: rooms = [] } = useRooms(projectId);
   const { data: photos = [] } = usePhotos(projectId);
+  const [roomId, setRoomId] = useState("all");
   const [editing, setEditing] = useState<Render | "new" | null>(null);
   const toggle = useSave(projectId, (r: Render) => api.saveRender(projectId, { id: r.id, is_visible: !r.is_visible }), {
     invalidate: [keys.renders(projectId)],
     success: (r) => (r.is_visible ? "Hidden from the client" : "Shared with the client"),
   });
 
+  const shownRooms = useMemo(() => (roomId === "all" ? rooms : rooms.filter((r) => r.id === roomId)), [rooms, roomId]);
+
   if (isLoading || !renders) return <PageLoading />;
   const compare = renders.find((r) => r.compare_photo_id && photos.some((p) => p.id === r.compare_photo_id));
   const comparePhoto = photos.find((p) => p.id === compare?.compare_photo_id);
+  const showCompare = compare && comparePhoto && (roomId === "all" || roomId === compare.room_id);
   const groups: { room: Room | null; items: Render[] }[] = [
-    ...rooms.map((room) => ({ room, items: renders.filter((r) => r.room_id === room.id) })),
-    { room: null, items: renders.filter((r) => !r.room_id) },
+    ...shownRooms.map((room) => ({ room, items: renders.filter((r) => r.room_id === room.id) })),
+    ...(roomId === "all" ? [{ room: null, items: renders.filter((r) => !r.room_id) }] : []),
   ].filter((g) => g.room || g.items.length);
 
   return (
@@ -56,17 +62,28 @@ function DesignPage() {
         actions={
           isManager && (
             <Button onClick={() => setEditing("new")} className="min-h-11 gap-2">
-              <ImagePlus className="h-4 w-4" /> Add render
+              <Icon name="add_photo_alternate" size={22} /> Add render
             </Button>
           )
         }
       />
 
-      {compare && comparePhoto && (
+      {rooms.length > 0 && (
+        <div className="mt-5">
+          <FilterChips
+            label="Filter by room"
+            value={roomId}
+            onChange={setRoomId}
+            options={[{ value: "all", label: "All rooms" }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
+          />
+        </div>
+      )}
+
+      {showCompare && comparePhoto && compare && (
         <section className="mt-6">
-          <h2 className="text-lg font-semibold">{rooms.find((r) => r.id === compare.room_id)?.name ?? compare.title}: now vs. planned</h2>
+          <h2 className="text-title-lg">{rooms.find((r) => r.id === compare.room_id)?.name ?? compare.title}: now vs. planned</h2>
           {isManager && (
-            <p className="mb-3 text-sm text-muted-foreground">
+            <p className="mb-3 text-body-md text-on-surface-variant">
               The client sees this slider on their Design page
               {compare.is_visible && comparePhoto.status === "published" ? "." : " once both the render and the photo are shared."}
             </p>
@@ -78,38 +95,49 @@ function DesignPage() {
       )}
 
       {renders.length === 0 && (
-        <EmptyState
-          className="mt-6"
-          icon={Palette}
-          title="No renders yet"
-          text={
-            isManager
+        <div className="mt-6 flex flex-col items-center rounded-md border border-dashed border-outline-variant bg-surface-container-low p-8 text-center">
+          <div className="flex size-12 items-center justify-center rounded-full bg-surface-container-highest">
+            <Icon name="palette" size={22} className="text-on-surface-variant" />
+          </div>
+          <h3 className="mt-3 text-title-md">No renders yet</h3>
+          <p className="mt-2 max-w-xs text-body-md text-on-surface-variant">
+            {isManager
               ? "Add the designer's renders so the client can see the finished look."
-              : "Design renders will appear here once your designer shares them."
-          }
-        />
+              : "Design renders will appear here once your designer shares them."}
+          </p>
+        </div>
       )}
 
       <div className="mt-8 space-y-8">
         {groups.map((g) => (
           <section key={g.room?.id ?? "none"} aria-label={g.room?.name ?? "No room"}>
-            <h2 className="mb-3 text-lg font-semibold">{g.room?.name ?? "Not linked to a room"}</h2>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3">
+              <h2 className="text-title-lg">{g.room?.name ?? "Not linked to a room"}</h2>
+              {g.room && (
+                <Link
+                  to="/projects/$projectId/plan"
+                  params={{ projectId }}
+                  search={{ room: g.room.id }}
+                  className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11")}
+                >
+                  See on plan
+                  <Icon name="arrow_forward" size={20} />
+                </Link>
+              )}
+            </div>
             {g.items.length === 0 ? (
-              <div className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-5 text-sm text-muted-foreground">
-                <Palette className="h-5 w-5 shrink-0" /> {isManager ? "The client sees " : ""}"Renders for {g.room?.name} are still being
-                prepared by the designer."
+              <div className="flex items-center gap-3 rounded-md border border-dashed border-outline-variant bg-surface-container-low p-5 text-body-md text-on-surface-variant">
+                <Icon name="palette" size={20} className="shrink-0" />
+                {isManager ? "The client sees " : ""}&quot;Renders for {g.room?.name} are still being prepared by the designer.&quot;
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {g.items.map((r) => (
-                  <article
-                    key={r.id}
-                    className={`overflow-hidden rounded-xl border bg-card shadow-[var(--shadow-soft)] ${!isManager || r.is_visible ? "" : "border-dashed"}`}
-                  >
+                  <article key={r.id} className={cn(cardVariants(), "overflow-hidden p-0", isManager && !r.is_visible && "border-dashed")}>
                     <img src={r.url} alt={r.alt} loading="lazy" width={1024} height={768} className="aspect-[4/3] w-full object-cover" />
                     <div className="p-4">
-                      <div className="font-medium">{r.title}</div>
-                      <p className="mt-1 text-sm text-muted-foreground">{r.description}</p>
+                      <div className="text-title-md">{r.title}</div>
+                      <p className="mt-1 text-body-md text-on-surface-variant">{r.description}</p>
                       {isManager && (
                         <div className="mt-3 flex items-center justify-between gap-2">
                           <VisibilityBadge visible={r.is_visible} />
@@ -126,7 +154,7 @@ function DesignPage() {
                               onClick={() => setEditing(r)}
                               aria-label={`Edit ${r.title}`}
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Icon name="edit" size={20} />
                             </Button>
                           </div>
                         </div>
@@ -230,7 +258,7 @@ function RenderSheet({
               accept="image/*"
               required={isNew}
               onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })}
-              className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
+              className="block w-full text-body-md text-on-surface-variant file:mr-3 file:h-10 file:rounded-full file:border-0 file:bg-secondary-container file:px-6 file:text-label-lg file:text-on-secondary-container"
             />
           </div>
           <Field id="rn-title" label="Title">
@@ -254,11 +282,10 @@ function RenderSheet({
             <Input id="rn-alt" value={form.alt} onChange={(e) => setForm({ ...form, alt: e.target.value })} className="h-11" />
           </Field>
           <Field id="rn-room" label="Room">
-            <select
+            <NativeSelect
               id="rn-room"
               value={form.room_id}
               onChange={(e) => setForm({ ...form, room_id: e.target.value, compare_photo_id: "" })}
-              className={selectCls}
             >
               <option value="">—</option>
               {rooms.map((r) => (
@@ -266,18 +293,17 @@ function RenderSheet({
                   {r.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </Field>
           <Field
             id="rn-compare"
             label="Before/after: current site photo (optional)"
             hint="Adds a slider comparing this photo with the render."
           >
-            <select
+            <NativeSelect
               id="rn-compare"
               value={form.compare_photo_id}
               onChange={(e) => setForm({ ...form, compare_photo_id: e.target.value })}
-              className={selectCls}
             >
               <option value="">None</option>
               {roomPhotos.map((p) => (
@@ -286,7 +312,7 @@ function RenderSheet({
                   {p.status === "draft" ? " (draft)" : ""}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </Field>
           <VisibleSwitch
             id="rn-visible"
@@ -304,7 +330,7 @@ function RenderSheet({
               className="min-h-11 w-full gap-2 text-destructive"
               onClick={() => confirm("Delete this render?") && remove.mutate(render, { onSuccess: onClose })}
             >
-              <Trash2 className="h-4 w-4" /> Delete render
+              <Icon name="delete" size={20} /> Delete render
             </Button>
           )}
         </form>
