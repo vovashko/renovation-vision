@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, DollarSign, TrendingUp, User } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
+import { buttonVariants } from "@/components/ui/button";
 import { ProjectHeaderCard } from "@/components/project-header-card";
 import { Stat } from "@/components/stat-card";
 import { StageTimelineRow } from "@/components/stage-timeline-row";
@@ -9,7 +10,9 @@ import { ManagerOverview } from "@/components/manager/manager-overview";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
 import { useProject, useRooms, useStages } from "@/lib/queries";
-import { longDate, money, scheduleFill, scheduleLabel, shortDate } from "@/lib/format";
+import { budgetStatus, daysLate } from "@/lib/attention";
+import { longDate, money, shortDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
@@ -25,6 +28,8 @@ function ProjectHome() {
   return isManager ? <ManagerOverview projectId={projectId} /> : <ClientOverview projectId={projectId} />;
 }
 
+const sectionLink = cn(buttonVariants({ variant: "ghost" }), "-mr-3 shrink-0");
+
 function ClientOverview({ projectId }: { projectId: string }) {
   const navigate = useNavigate();
   const { data: project } = useProject(projectId);
@@ -39,6 +44,9 @@ function ClientOverview({ projectId }: { projectId: string }) {
   if (!project || !stages || !rooms) return <PageLoading />;
 
   const activeRoom = rooms.find((r) => r.id === roomId);
+  const params = { projectId };
+  const budget = budgetStatus(project);
+  const lateStages = stages.filter((s) => daysLate(s) > 0).length;
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
@@ -48,67 +56,71 @@ function ClientOverview({ projectId }: { projectId: string }) {
         managerName={project.manager_name}
         progress={project.overall_progress}
         currentStage={project.current_stage}
-        badges={
-          <span
-            className="rounded-full px-3 py-1 text-xs font-medium text-white"
-            style={{ background: scheduleFill[project.schedule_status] }}
-          >
-            {scheduleLabel[project.schedule_status]}
-          </span>
-        }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={Calendar} label="Started" value={longDate(project.start_date)} sub={`Target: ${longDate(project.target_date)}`} />
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Project facts">
+        <Stat label="Started" value={longDate(project.start_date)} sub={`Target: ${longDate(project.target_date)}`} />
         <Stat
-          icon={TrendingUp}
           label="Stages done"
-          value={`${project.stages_done}/${project.stages_total}`}
-          sub={
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full" style={{ background: scheduleFill[project.schedule_status] }} />
-              {scheduleLabel[project.schedule_status]}
-            </span>
-          }
+          value={String(project.stages_done)}
+          unit={`/ ${project.stages_total}`}
+          delta={lateStages ? `${lateStages} ${lateStages === 1 ? "stage" : "stages"} late` : "On schedule"}
+          deltaTone={lateStages ? "attention" : "good"}
         />
-        <Stat icon={DollarSign} label="Budget" value={money(project.budget)} sub={`Spent ${money(project.spent)}`} />
-        <Stat icon={User} label="Site manager" value={project.manager_name || "—"} sub="Your point of contact" />
+        <Stat
+          label="Budget spent"
+          value={money(project.spent)}
+          attention={budget.over}
+          delta={budget.over ? `↑ ${budget.overPct}% over` : `${budget.usedPct}% used`}
+          deltaTone={budget.over ? "attention" : "good"}
+          sub={`of the ${money(project.budget)} plan`}
+        />
+        <Stat label="Site manager" value={project.manager_name || "—"} sub="Your point of contact" />
       </section>
 
       {project.schedule_note && (
-        <p className="-mt-4 rounded-xl border bg-card p-4 text-sm text-muted-foreground shadow-[var(--shadow-soft)]">
-          <span className="font-medium text-foreground">Schedule note: </span>
+        <p className="-mt-4 rounded-lg bg-surface-container-low px-4 py-3 text-body-md text-on-surface-variant">
+          <span className="font-medium text-on-surface">Schedule note: </span>
           {project.schedule_note}
         </p>
       )}
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Stage timeline</h2>
-          <Link to="/projects/$projectId/stages" params={{ projectId }} className="text-sm text-primary hover:underline">
-            All stages →
+      <section aria-labelledby="stage-timeline">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <h2 id="stage-timeline" className="text-title-lg">
+            Stage timeline
+          </h2>
+          <Link to="/projects/$projectId/stages" params={params} className={sectionLink}>
+            All stages
+            <Icon name="arrow_forward" size={20} />
           </Link>
         </div>
-        <div className="space-y-3">
-          {stages.map((s) => (
-            <StageTimelineRow
-              key={s.id}
-              name={s.name}
-              status={s.status}
-              start={shortDate(s.start_date)}
-              end={shortDate(s.end_date)}
-              progress={s.progress}
-              onClick={() => navigate({ to: "/projects/$projectId/stages", params: { projectId }, hash: s.id })}
-            />
+        <ul className="space-y-2">
+          {stages.map((s, i) => (
+            <li key={s.id}>
+              <StageTimelineRow
+                index={i + 1}
+                name={s.name}
+                status={s.status}
+                start={shortDate(s.start_date)}
+                end={shortDate(s.end_date)}
+                progress={s.progress}
+                lateDays={daysLate(s)}
+                onClick={() => navigate({ to: "/projects/$projectId/stages", params, hash: s.id })}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Floor plan visualisation</h2>
-          <Link to="/projects/$projectId/plan" params={{ projectId }} className="text-sm text-primary hover:underline">
-            Open plan →
+      <section aria-labelledby="floor-plan">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <h2 id="floor-plan" className="text-title-lg">
+            Floor plan visualisation
+          </h2>
+          <Link to="/projects/$projectId/plan" params={params} className={sectionLink}>
+            Open plan
+            <Icon name="arrow_forward" size={20} />
           </Link>
         </div>
         <FloorPlan
@@ -118,7 +130,7 @@ function ClientOverview({ projectId }: { projectId: string }) {
           detail={
             activeRoom && (
               <RoomDetail room={activeRoom}>
-                {activeRoom.client_note && <p className="mt-5 text-sm text-muted-foreground">{activeRoom.client_note}</p>}
+                {activeRoom.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{activeRoom.client_note}</p>}
               </RoomDetail>
             )
           }
