@@ -1,5 +1,6 @@
 import { forwardRef, type ReactNode } from "react";
-import { Paperclip, Send } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function initials(name: string) {
@@ -10,8 +11,9 @@ export function initials(name: string) {
 export function ChatAvatar({ name, className }: { name: string; className?: string }) {
   return (
     <div
+      aria-hidden
       className={cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] font-semibold text-primary-foreground",
+        "flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-container-lowest text-title-md text-on-surface",
         className,
       )}
     >
@@ -22,8 +24,9 @@ export function ChatAvatar({ name, className }: { name: string; className?: stri
 
 export function PresenceIndicator({ online, label }: { online: boolean; label: string }) {
   return (
-    <div className={cn("text-xs", online ? "text-status-done" : "text-muted-foreground")}>
-      ● {online ? "Online" : "Offline"} — {label}
+    <div className="flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+      <span aria-hidden className={cn("size-2 rounded-full", online ? "bg-success" : "bg-on-surface-variant/40")} />
+      {online ? "Online" : "Offline"} · {label}
     </div>
   );
 }
@@ -40,10 +43,10 @@ export function ChatHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 border-b p-4">
+    <div className="flex items-center gap-3 px-4 py-3">
       <ChatAvatar name={name} />
       <div className="min-w-0 flex-1">
-        <div className="truncate font-semibold">{name}</div>
+        <div className="truncate text-title-md">{name}</div>
         <PresenceIndicator online={online} label={roleLabel} />
       </div>
       {actions}
@@ -65,20 +68,21 @@ export function ChatBubble({
   attachment?: ReactNode;
 }) {
   return (
-    <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+    <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-[var(--shadow-soft)] ${
-          mine ? "rounded-br-sm bg-[image:var(--gradient-primary)] text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"
-        }`}
+        className={cn(
+          "max-w-[75%] px-3.5 py-2.5 text-body-md",
+          mine ? "rounded-[18px_18px_6px_18px] bg-primary text-on-primary" : "rounded-[18px_18px_18px_6px] bg-card text-on-surface",
+        )}
       >
         {author && (
-          <div className={`mb-0.5 text-[11px] font-semibold ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+          <div className={cn("mb-0.5 text-label-sm font-medium", mine ? "text-primary-container" : "text-on-surface-variant")}>
             {author}
           </div>
         )}
         {attachment}
         <div className="break-words whitespace-pre-wrap">{children}</div>
-        <div className={`mt-1 text-[11px] ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{time}</div>
+        <div className={cn("mt-1 text-[11px]", mine ? "text-primary-container" : "text-on-surface-variant")}>{time}</div>
       </div>
     </div>
   );
@@ -98,18 +102,13 @@ export const ChatComposer = forwardRef<
   }
 >(function ChatComposer({ value, onChange, onSend, onAttach, placeholder, disabled, children }, ref) {
   return (
-    <div className="border-t bg-background/60 backdrop-blur">
+    <div>
       {children}
-      <div className="flex items-center gap-2 p-3">
+      <div className="flex items-center gap-2 p-4 pt-2">
         {onAttach && (
-          <button
-            type="button"
-            onClick={onAttach}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
-            aria-label="Attach"
-          >
-            <Paperclip className="h-5 w-5" />
-          </button>
+          <Button type="button" variant="panel" size="icon" onClick={onAttach} aria-label="Attach">
+            <Icon name="attach_file" size={22} />
+          </Button>
         )}
         <input
           ref={ref}
@@ -118,17 +117,11 @@ export const ChatComposer = forwardRef<
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSend()}
           placeholder={placeholder}
           aria-label={placeholder}
-          className="h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm"
+          className="h-12 min-w-0 flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-body-lg text-on-surface placeholder:text-on-surface-variant focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary md:text-body-md"
         />
-        <button
-          type="button"
-          onClick={onSend}
-          disabled={disabled}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-soft)] disabled:opacity-50"
-          aria-label="Send"
-        >
-          <Send className="h-4 w-4" />
-        </button>
+        <Button type="button" size="icon" onClick={onSend} disabled={disabled} aria-label="Send">
+          <Icon name="send" size={22} />
+        </Button>
       </div>
     </div>
   );
