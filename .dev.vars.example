@@ -1,0 +1,6 @@
+# Local Worker secrets for `wrangler dev`. Copy to `.dev.vars` (gitignored) and fill in as needed.
+# Remote secrets are set per environment with `wrangler secret put <NAME> --env <preview|production>`.
+
+SUPABASE_SERVICE_ROLE_KEY= # Server-side Supabase key for privileged operations; never expose to the client.
+BREVO_API_KEY= # Transactional email (Brevo/Sendinblue) API key.
+SENTRY_DSN= # Sentry project DSN for server-side error reporting.

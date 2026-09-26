@@ -66,6 +66,22 @@ route there. `src/routeTree.gen.ts` is generated on `dev`/`build`, so don't edit
   database with `bun run test:db` (see `tests/db/README.md`).
 - `tests/fixtures/` — sample files shared by tests.
 
+## Deploy
+
+The app builds to a Cloudflare Worker via `@cloudflare/vite-plugin` (`bun run build`
+writes static assets to `dist/client` and the Worker to `dist/server` — no Nitro,
+no `.output/`). There are two Worker environments, defined in `wrangler.jsonc`:
+
+- `preview` (`renovision-preview`) — `bun run deploy:preview`
+- `production` (`renovision`) — `bun run deploy`
+
+First time only: `wrangler login`.
+
+Secrets (`SUPABASE_SERVICE_ROLE_KEY`, `BREVO_API_KEY`, `SENTRY_DSN`) are not set via
+`vars`. Copy `.dev.vars.example` to `.dev.vars` (gitignored) for local `wrangler dev`,
+and set remote secrets per environment with `wrangler secret put <NAME> --env <preview|production>`.
+The app runs with none of them set — public config only lives in `vars.APP_ENV`.
+
 ## Design system
 
 The v5 ("Sage") design system lives in code, not in docs:
