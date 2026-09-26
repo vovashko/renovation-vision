@@ -26,7 +26,7 @@ export function RoomCard({
     <Wrapper
       onClick={onClick}
       className={cn(
-        "block w-full rounded-xl border bg-card p-4 text-left shadow-[var(--shadow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "block w-full rounded-xl border bg-card p-4 text-left shadow-[var(--shadow-soft)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         active && "border-primary ring-1 ring-primary",
         muted && "border-dashed opacity-70",
       )}

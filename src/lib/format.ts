@@ -43,7 +43,13 @@ export const scheduleFill: Record<ScheduleStatus, string> = {
 };
 
 export function slugify(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 24) || "item";
+  return (
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 24) || "item"
+  );
 }
 
 export function fileExt(name: string) {

@@ -38,25 +38,29 @@ export function AppSidebar() {
             <img src={logo} alt="RenoVision" className="h-9 w-auto max-w-[9.5rem]" />
           )}
           {!collapsed && isManager && (
-            <span className="rounded-md bg-foreground px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background">Manager</span>
+            <span className="rounded-md bg-foreground px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-background uppercase">
+              Manager
+            </span>
           )}
         </Link>
       </SidebarHeader>
       <SidebarContent>
-        {isManager && <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={path === "/projects"} tooltip="All projects">
-                  <Link to="/projects" onClick={close} className="flex items-center gap-2">
-                    <FolderKanban className="h-4 w-4" />
-                    {!collapsed && <span>All projects</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>}
+        {isManager && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={path === "/projects"} tooltip="All projects">
+                    <Link to="/projects" onClick={close} className="flex items-center gap-2">
+                      <FolderKanban className="h-4 w-4" />
+                      {!collapsed && <span>All projects</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         {projectId && (
           <SidebarGroup>
             <SidebarGroupLabel className="truncate">{project?.name ?? "Project"}</SidebarGroupLabel>

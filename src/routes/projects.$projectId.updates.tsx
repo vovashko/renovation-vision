@@ -72,12 +72,30 @@ function UpdatesPage() {
             send.mutate(undefined, { onSuccess: () => setForm({ title: "", body: "", link: "/" }) });
           }}
         >
-          <h2 className="flex items-center gap-2 font-semibold"><Send className="h-4 w-4" /> Send an announcement</h2>
-          <Field id="nt-title" label="Title"><Input id="nt-title" required maxLength={80} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Water off on Thursday" className="h-11" /></Field>
-          <Field id="nt-body" label="Message"><Textarea id="nt-body" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></Field>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <Send className="h-4 w-4" /> Send an announcement
+          </h2>
+          <Field id="nt-title" label="Title">
+            <Input
+              id="nt-title"
+              required
+              maxLength={80}
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="e.g. Water off on Thursday"
+              className="h-11"
+            />
+          </Field>
+          <Field id="nt-body" label="Message">
+            <Textarea id="nt-body" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
+          </Field>
           <Field id="nt-link" label="Opens in the client app">
             <select id="nt-link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className={selectCls}>
-              {links.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+              {links.map((l) => (
+                <option key={l.value} value={l.value}>
+                  {l.label}
+                </option>
+              ))}
             </select>
           </Field>
           <Button type="submit" disabled={!form.title.trim() || send.isPending || clientIds.size === 0} className="min-h-11 w-full">
@@ -86,7 +104,9 @@ function UpdatesPage() {
         </form>
 
         <section>
-          <h2 className="mb-3 flex items-center gap-2 text-xl font-semibold"><Bell className="h-5 w-5" /> Sent to client</h2>
+          <h2 className="mb-3 flex items-center gap-2 text-xl font-semibold">
+            <Bell className="h-5 w-5" /> Sent to client
+          </h2>
           {sent.size === 0 ? (
             <EmptyState icon={Bell} text="No notifications sent yet." />
           ) : (
@@ -99,7 +119,8 @@ function UpdatesPage() {
                   </div>
                   {n.body && <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>}
                   <div className="mt-2 text-xs text-muted-foreground">
-                    {dateTime(n.created_at)} · read by {read} of {total}{n.link ? ` · opens ${links.find((l) => l.value === n.link)?.label ?? n.link}` : ""}
+                    {dateTime(n.created_at)} · read by {read} of {total}
+                    {n.link ? ` · opens ${links.find((l) => l.value === n.link)?.label ?? n.link}` : ""}
                   </div>
                 </li>
               ))}
@@ -107,11 +128,17 @@ function UpdatesPage() {
           )}
           {inbox.length > 0 && (
             <>
-              <h2 className="mb-3 mt-8 text-xl font-semibold">Your inbox</h2>
+              <h2 className="mt-8 mb-3 text-xl font-semibold">Your inbox</h2>
               <ul className="space-y-2">
                 {inbox.slice(0, 10).map((n) => (
-                  <li key={n.id} className="flex items-start justify-between gap-3 rounded-xl border bg-card p-4 text-sm shadow-[var(--shadow-soft)]">
-                    <div><div className="font-medium">{n.title}</div><div className="text-muted-foreground">{n.body}</div></div>
+                  <li
+                    key={n.id}
+                    className="flex items-start justify-between gap-3 rounded-xl border bg-card p-4 text-sm shadow-[var(--shadow-soft)]"
+                  >
+                    <div>
+                      <div className="font-medium">{n.title}</div>
+                      <div className="text-muted-foreground">{n.body}</div>
+                    </div>
                     <span className="shrink-0 text-xs text-muted-foreground">{dateTime(n.created_at)}</span>
                   </li>
                 ))}
@@ -122,25 +149,31 @@ function UpdatesPage() {
       </div>
 
       <section>
-        <h2 className="mb-3 flex flex-wrap items-center gap-2 text-xl font-semibold"><History className="h-5 w-5" /> Activity log <InternalBadge /></h2>
+        <h2 className="mb-3 flex flex-wrap items-center gap-2 text-xl font-semibold">
+          <History className="h-5 w-5" /> Activity log <InternalBadge />
+        </h2>
         {activity.length === 0 ? (
           <EmptyState icon={History} text="Changes to this project will be listed here." />
         ) : (
           <ol className="relative space-y-4 border-l pl-5">
             {activity.map((a) => (
               <li key={a.id} className="relative">
-                <span className="absolute -left-[25px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
+                <span className="absolute top-1.5 -left-[25px] h-2.5 w-2.5 rounded-full bg-primary" />
                 <div className="text-sm font-medium">{a.summary}</div>
                 {Object.keys(a.changes).length > 0 && (
                   <div className="mt-1 flex flex-wrap gap-1.5">
-                    {Object.entries(a.changes).slice(0, 4).map(([k, v]) => (
-                      <span key={k} className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                        {k.replace(/_/g, " ")}: {String(v.from ?? "—").slice(0, 24)} → {String(v.to ?? "—").slice(0, 24)}
-                      </span>
-                    ))}
+                    {Object.entries(a.changes)
+                      .slice(0, 4)
+                      .map(([k, v]) => (
+                        <span key={k} className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          {k.replace(/_/g, " ")}: {String(v.from ?? "—").slice(0, 24)} → {String(v.to ?? "—").slice(0, 24)}
+                        </span>
+                      ))}
                   </div>
                 )}
-                <div className="mt-1 text-xs text-muted-foreground">{nameOf(a.actor_id)} · {dateTime(a.created_at)}</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {nameOf(a.actor_id)} · {dateTime(a.created_at)}
+                </div>
               </li>
             ))}
           </ol>

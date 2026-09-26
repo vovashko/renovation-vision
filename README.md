@@ -38,20 +38,20 @@ supabase db reset
 
 ## Scripts
 
-| Script                | What it does                                             |
-| ---------------------- | --------------------------------------------------------- |
-| `bun run dev`          | Start the dev server                                       |
-| `bun run build`        | Production build                                            |
-| `bun run build:dev`    | Development-mode build                                      |
-| `bun run preview`      | Preview a production build                                   |
-| `bun run lint`         | ESLint                                                       |
-| `bun run format`       | Prettier, writing changes                                    |
-| `bun run format:check` | Prettier, check only (used in CI)                             |
-| `bun run typecheck`    | `tsc --noEmit`                                               |
-| `bun run test`         | Unit tests (vitest)                                          |
-| `bun run test:watch`   | Unit tests in watch mode                                      |
-| `bun run test:db`      | SQL/RLS tests against a local Supabase instance               |
-| `bun run verify`       | lint + format:check + typecheck + test — the CI gate         |
+| Script                 | What it does                                         |
+| ---------------------- | ---------------------------------------------------- |
+| `bun run dev`          | Start the dev server                                 |
+| `bun run build`        | Production build                                     |
+| `bun run build:dev`    | Development-mode build                               |
+| `bun run preview`      | Preview a production build                           |
+| `bun run lint`         | ESLint                                               |
+| `bun run format`       | Prettier, writing changes                            |
+| `bun run format:check` | Prettier, check only (used in CI)                    |
+| `bun run typecheck`    | `tsc --noEmit`                                       |
+| `bun run test`         | Unit tests (vitest)                                  |
+| `bun run test:watch`   | Unit tests in watch mode                             |
+| `bun run test:db`      | SQL/RLS tests against a local Supabase instance      |
+| `bun run verify`       | lint + format:check + typecheck + test — the CI gate |
 
 ## Tests
 

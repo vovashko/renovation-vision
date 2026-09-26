@@ -7,17 +7,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [
-      "dist",
-      ".output",
-      ".vinxi",
-      ".wrangler",
-      ".tanstack",
-      "design/**",
-      "docs/**",
-      "supabase/**",
-      "src/routeTree.gen.ts",
-    ],
+    ignores: ["dist", ".output", ".vinxi", ".wrangler", ".tanstack", "design/**", "docs/**", "supabase/**", "src/routeTree.gen.ts"],
   },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -48,10 +38,7 @@ export default tseslint.config(
         },
       ],
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
   {

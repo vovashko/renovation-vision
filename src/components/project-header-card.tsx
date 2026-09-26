@@ -25,7 +25,7 @@ export function ProjectHeaderCard({
     <section className="overflow-hidden rounded-2xl border bg-card p-6 shadow-[var(--shadow-elegant)] md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">{eyebrow}</div>
+          <div className="text-xs tracking-wide text-muted-foreground uppercase">{eyebrow}</div>
           <h1 className="mt-1 text-3xl font-semibold md:text-4xl">{name}</h1>
           <p className="mt-1 text-muted-foreground">{address}</p>
           {managerName && (
@@ -37,7 +37,7 @@ export function ProjectHeaderCard({
         </div>
         <div className="min-w-[220px]">
           <div className="flex items-end justify-between">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Overall progress</span>
+            <span className="text-xs tracking-wide text-muted-foreground uppercase">Overall progress</span>
             <span className="text-2xl font-semibold">{progress}%</span>
           </div>
           <ProgressBar value={progress} size="lg" className="mt-2" />

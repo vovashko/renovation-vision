@@ -10,16 +10,13 @@ const base =
   "block h-2 w-full appearance-none overflow-hidden rounded-full border-0 [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:transition-[width] [&::-webkit-progress-value]:duration-300 [&::-moz-progress-bar]:rounded-full";
 
 const toneClass: Record<ProgressTone, string> = {
-  primary:
-    "bg-surface-container-highest [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary",
+  primary: "bg-surface-container-highest [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary",
   done: "bg-status-done-container [&::-webkit-progress-value]:bg-success [&::-moz-progress-bar]:bg-success",
-  progress:
-    "bg-status-progress-container [&::-webkit-progress-value]:bg-status-progress [&::-moz-progress-bar]:bg-status-progress",
+  progress: "bg-status-progress-container [&::-webkit-progress-value]:bg-status-progress [&::-moz-progress-bar]:bg-status-progress",
   // Not started: no indicator, an empty white track with a dashed outline.
   pending:
     "border border-dashed border-outline bg-surface-container-lowest [&::-webkit-progress-value]:bg-transparent [&::-moz-progress-bar]:bg-transparent",
-  blocked:
-    "bg-status-blocked-container [&::-webkit-progress-value]:bg-status-blocked [&::-moz-progress-bar]:bg-status-blocked",
+  blocked: "bg-status-blocked-container [&::-webkit-progress-value]:bg-status-blocked [&::-moz-progress-bar]:bg-status-blocked",
 };
 
 export interface ProgressProps extends Omit<React.ProgressHTMLAttributes<HTMLProgressElement>, "value" | "max"> {

@@ -68,7 +68,9 @@ export function StatusCard({
             {headline}
           </h2>
           <p className="text-body-md text-on-surface-variant">
-            {issues.length ? `${issues.length} ${issues.length === 1 ? "thing needs" : "things need"} your attention` : "Nothing is blocked or late."}
+            {issues.length
+              ? `${issues.length} ${issues.length === 1 ? "thing needs" : "things need"} your attention`
+              : "Nothing is blocked or late."}
           </p>
         </div>
       </div>
@@ -208,7 +210,13 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
   );
   const row = "flex min-h-12 items-center gap-3 px-4 text-body-lg";
   return href ? (
-    <a href={href} className={cn(row, "text-on-surface transition-colors duration-150 hover:bg-surface active:bg-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary")}>
+    <a
+      href={href}
+      className={cn(
+        row,
+        "text-on-surface transition-colors duration-150 hover:bg-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary active:bg-surface",
+      )}
+    >
       {inner}
     </a>
   ) : (
@@ -333,7 +341,12 @@ export function TeamCard({
               <div className="truncate text-body-md text-on-surface-variant">
                 {c.trade}
                 {/* Phones show the call button instead of the number. */}
-                {c.phone && <span className="hidden sm:inline">{c.trade ? " · " : ""}{c.phone}</span>}
+                {c.phone && (
+                  <span className="hidden sm:inline">
+                    {c.trade ? " · " : ""}
+                    {c.phone}
+                  </span>
+                )}
                 {!c.trade && !c.phone && "No contact details"}
               </div>
             </div>
@@ -392,10 +405,22 @@ export function ClientContactSheet({
         }}
       >
         <Field id="cc-phone" label="Phone">
-          <Input id="cc-phone" type="tel" autoComplete="off" value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} />
+          <Input
+            id="cc-phone"
+            type="tel"
+            autoComplete="off"
+            value={form.client_phone}
+            onChange={(e) => setForm({ ...form, client_phone: e.target.value })}
+          />
         </Field>
         <Field id="cc-email" label="Email">
-          <Input id="cc-email" type="email" autoComplete="off" value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} />
+          <Input
+            id="cc-email"
+            type="email"
+            autoComplete="off"
+            value={form.client_email}
+            onChange={(e) => setForm({ ...form, client_email: e.target.value })}
+          />
         </Field>
         <Button type="submit" disabled={save.isPending} className="w-full">
           {save.isPending ? "Saving…" : "Save contact"}

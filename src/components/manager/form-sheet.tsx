@@ -56,15 +56,31 @@ export function NativeSelect({ className, wrapperClassName, ...props }: Componen
   return (
     <div className={cn("relative", wrapperClassName)}>
       <select className={cn(selectCls, className)} {...props} />
-      <Icon name="expand_more" size={22} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-on-surface-variant" />
+      <Icon
+        name="expand_more"
+        size={22}
+        className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-on-surface-variant"
+      />
     </div>
   );
 }
 
-export function VisibleSwitch({ id, checked, onChange, label = "Visible to client" }: { id: string; checked: boolean; onChange: (v: boolean) => void; label?: string }) {
+export function VisibleSwitch({
+  id,
+  checked,
+  onChange,
+  label = "Visible to client",
+}: {
+  id: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label?: string;
+}) {
   return (
     <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border px-3">
-      <Label htmlFor={id} className="font-normal">{label}</Label>
+      <Label htmlFor={id} className="font-normal">
+        {label}
+      </Label>
       <Switch id={id} checked={checked} onCheckedChange={onChange} />
     </div>
   );

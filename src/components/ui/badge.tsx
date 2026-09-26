@@ -32,7 +32,11 @@ const badgeVariants = cva("inline-flex items-center gap-2 whitespace-nowrap roun
     onPanel: { true: "", false: "" },
   },
   compoundVariants: [
-    { onPanel: true, variant: ["status-done", "status-progress", "status-blocked", "default", "secondary"], class: "bg-surface-container-lowest" },
+    {
+      onPanel: true,
+      variant: ["status-done", "status-progress", "status-blocked", "default", "secondary"],
+      class: "bg-surface-container-lowest",
+    },
   ],
   defaultVariants: { variant: "default", size: "default", onPanel: false },
 });

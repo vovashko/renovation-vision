@@ -1,6 +1,4 @@
-import {
-  Bell, BookOpen, Camera, LayoutDashboard, ListChecks, Map, MessageCircle, Palette, Users, Wallet,
-} from "lucide-react";
+import { Bell, BookOpen, Camera, LayoutDashboard, ListChecks, Map, MessageCircle, Palette, Users, Wallet } from "lucide-react";
 
 export type NavItem = {
   title: string;

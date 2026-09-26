@@ -13,5 +13,9 @@ export function PageHeader({ title, description, actions }: { title: string; des
 }
 
 export function PageLoading() {
-  return <div className="py-16 text-center text-sm text-muted-foreground" role="status">Loading…</div>;
+  return (
+    <div className="py-16 text-center text-sm text-muted-foreground" role="status">
+      Loading…
+    </div>
+  );
 }

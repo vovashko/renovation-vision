@@ -6,15 +6,7 @@ import { Field, FormSheet, NativeSelect } from "@/components/manager/form-sheet"
 import { PageLoading } from "@/components/page-header";
 import { UploadSheet } from "@/components/photo-upload-sheet";
 import { ExpenseSheet } from "@/components/expense-sheet";
-import {
-  ClientCard,
-  ClientContactSheet,
-  CrewSheet,
-  ShortcutsCard,
-  StatusCard,
-  TeamCard,
-  type Issue,
-} from "@/components/overview-cards";
+import { ClientCard, ClientContactSheet, CrewSheet, ShortcutsCard, StatusCard, TeamCard, type Issue } from "@/components/overview-cards";
 import { api, type ProjectPatch } from "@/lib/api";
 import { keys, useCrew, useInternal, useMembers, useProject, useRooms, useSave, useStages } from "@/lib/queries";
 import { budgetStatus, daysLate, daysUntil, lateLabel } from "@/lib/attention";
@@ -49,21 +41,51 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const issues: Issue[] = [
     ...stages
       .filter((s) => s.status === "blocked")
-      .map((s): Issue => ({ key: `sb-${s.id}`, tone: "blocked", title: `${s.name} is blocked`, detail: s.client_note || undefined, link: { to: "/projects/$projectId/stages", params, hash: s.id } })),
+      .map((s): Issue => ({
+        key: `sb-${s.id}`,
+        tone: "blocked",
+        title: `${s.name} is blocked`,
+        detail: s.client_note || undefined,
+        link: { to: "/projects/$projectId/stages", params, hash: s.id },
+      })),
     ...rooms
       .filter((r) => r.status === "blocked")
-      .map((r): Issue => ({ key: `rb-${r.id}`, tone: "blocked", title: `${r.name} is blocked`, detail: r.client_note || undefined, link: { to: "/projects/$projectId/plan", params, search: { room: r.id } } })),
+      .map((r): Issue => ({
+        key: `rb-${r.id}`,
+        tone: "blocked",
+        title: `${r.name} is blocked`,
+        detail: r.client_note || undefined,
+        link: { to: "/projects/$projectId/plan", params, search: { room: r.id } },
+      })),
     ...stages
       .filter((s) => s.status !== "blocked" && daysLate(s) > 0)
-      .map((s): Issue => ({ key: `sl-${s.id}`, tone: "attention", title: `${s.name} is ${lateLabel(daysLate(s))}`, detail: `Was due ${shortDate(s.end_date)} · ${s.progress}% done`, link: { to: "/projects/$projectId/stages", params, hash: s.id } })),
+      .map((s): Issue => ({
+        key: `sl-${s.id}`,
+        tone: "attention",
+        title: `${s.name} is ${lateLabel(daysLate(s))}`,
+        detail: `Was due ${shortDate(s.end_date)} · ${s.progress}% done`,
+        link: { to: "/projects/$projectId/stages", params, hash: s.id },
+      })),
     ...(budget.over
-      ? [{ key: "budget", tone: "attention", title: `Over budget by ${budget.overPct}%`, detail: `$${project.spent.toLocaleString("en-US")} spent of $${project.budget.toLocaleString("en-US")}`, link: { to: "/projects/$projectId/budget", params } } satisfies Issue]
+      ? [
+          {
+            key: "budget",
+            tone: "attention",
+            title: `Over budget by ${budget.overPct}%`,
+            detail: `$${project.spent.toLocaleString("en-US")} spent of $${project.budget.toLocaleString("en-US")}`,
+            link: { to: "/projects/$projectId/budget", params },
+          } satisfies Issue,
+        ]
       : []),
-    ...findInconsistencies(project, stages, rooms).map(
-      (w): Issue =>
-        w.to === "overview"
-          ? { key: w.text, tone: "check", title: w.text, onClick: () => setSheet("details") }
-          : { key: w.text, tone: "check", title: w.text, link: { to: w.to === "stages" ? "/projects/$projectId/stages" : "/projects/$projectId/plan", params } },
+    ...findInconsistencies(project, stages, rooms).map((w): Issue =>
+      w.to === "overview"
+        ? { key: w.text, tone: "check", title: w.text, onClick: () => setSheet("details") }
+        : {
+            key: w.text,
+            tone: "check",
+            title: w.text,
+            link: { to: w.to === "stages" ? "/projects/$projectId/stages" : "/projects/$projectId/plan", params },
+          },
     ),
   ];
 
@@ -126,7 +148,15 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   );
 }
 
-function ProjectDetailsSheet({ project, open, onOpenChange }: { project: ProjectSummary; open: boolean; onOpenChange: (v: boolean) => void }) {
+function ProjectDetailsSheet({
+  project,
+  open,
+  onOpenChange,
+}: {
+  project: ProjectSummary;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   const [form, setForm] = useState<ProjectPatch>({});
   useEffect(() => {
     if (open) {
@@ -146,28 +176,76 @@ function ProjectDetailsSheet({ project, open, onOpenChange }: { project: Project
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          save.mutate({ ...form, budget: Number(form.budget) || 0, start_date: form.start_date || null, target_date: form.target_date || null }, { onSuccess: () => onOpenChange(false) });
+          save.mutate(
+            { ...form, budget: Number(form.budget) || 0, start_date: form.start_date || null, target_date: form.target_date || null },
+            { onSuccess: () => onOpenChange(false) },
+          );
         }}
       >
-        <Field id="pd-name" label="Project name"><Input id="pd-name" required value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} className="h-11" /></Field>
-        <Field id="pd-address" label="Address"><Input id="pd-address" value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} className="h-11" /></Field>
-        <Field id="pd-client" label="Client name"><Input id="pd-client" value={form.client_name ?? ""} onChange={(e) => set("client_name", e.target.value)} className="h-11" /></Field>
+        <Field id="pd-name" label="Project name">
+          <Input id="pd-name" required value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} className="h-11" />
+        </Field>
+        <Field id="pd-address" label="Address">
+          <Input id="pd-address" value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} className="h-11" />
+        </Field>
+        <Field id="pd-client" label="Client name">
+          <Input id="pd-client" value={form.client_name ?? ""} onChange={(e) => set("client_name", e.target.value)} className="h-11" />
+        </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field id="pd-start" label="Start"><Input id="pd-start" type="date" value={form.start_date ?? ""} onChange={(e) => set("start_date", e.target.value)} className="h-11" /></Field>
-          <Field id="pd-target" label="Target"><Input id="pd-target" type="date" value={form.target_date ?? ""} onChange={(e) => set("target_date", e.target.value)} className="h-11" /></Field>
+          <Field id="pd-start" label="Start">
+            <Input
+              id="pd-start"
+              type="date"
+              value={form.start_date ?? ""}
+              onChange={(e) => set("start_date", e.target.value)}
+              className="h-11"
+            />
+          </Field>
+          <Field id="pd-target" label="Target">
+            <Input
+              id="pd-target"
+              type="date"
+              value={form.target_date ?? ""}
+              onChange={(e) => set("target_date", e.target.value)}
+              className="h-11"
+            />
+          </Field>
         </div>
         <Field id="pd-budget" label="Budget ($)" hint="Spent is calculated from the expenses on the Budget page.">
-          <Input id="pd-budget" type="number" min={0} step={100} value={form.budget ?? 0} onChange={(e) => set("budget", Number(e.target.value))} className="h-11" />
+          <Input
+            id="pd-budget"
+            type="number"
+            min={0}
+            step={100}
+            value={form.budget ?? 0}
+            onChange={(e) => set("budget", Number(e.target.value))}
+            className="h-11"
+          />
         </Field>
         <Field id="pd-schedule" label="Schedule status" hint="Shown on the client's overview. Changing it notifies the client.">
-          <NativeSelect id="pd-schedule" value={form.schedule_status} onChange={(e) => set("schedule_status", e.target.value as ScheduleStatus)}>
-            {(Object.keys(scheduleLabel) as ScheduleStatus[]).map((s) => <option key={s} value={s}>{scheduleLabel[s]}</option>)}
+          <NativeSelect
+            id="pd-schedule"
+            value={form.schedule_status}
+            onChange={(e) => set("schedule_status", e.target.value as ScheduleStatus)}
+          >
+            {(Object.keys(scheduleLabel) as ScheduleStatus[]).map((s) => (
+              <option key={s} value={s}>
+                {scheduleLabel[s]}
+              </option>
+            ))}
           </NativeSelect>
         </Field>
         <Field id="pd-note" label="Schedule note for the client">
-          <Textarea id="pd-note" value={form.schedule_note ?? ""} onChange={(e) => set("schedule_note", e.target.value)} placeholder="Why the schedule is what it is, in plain words." />
+          <Textarea
+            id="pd-note"
+            value={form.schedule_note ?? ""}
+            onChange={(e) => set("schedule_note", e.target.value)}
+            placeholder="Why the schedule is what it is, in plain words."
+          />
         </Field>
-        <Button type="submit" disabled={save.isPending} className="min-h-11 w-full">{save.isPending ? "Saving…" : "Save details"}</Button>
+        <Button type="submit" disabled={save.isPending} className="min-h-11 w-full">
+          {save.isPending ? "Saving…" : "Save details"}
+        </Button>
       </form>
     </FormSheet>
   );

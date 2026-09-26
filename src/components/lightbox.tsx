@@ -3,21 +3,15 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export type LightboxItem = { src: string; alt: string; title: string; subtitle?: string; tags?: string[] };
 
-export function Lightbox({
-  items,
-  index,
-  onClose,
-}: {
-  items: LightboxItem[];
-  index: number | null;
-  onClose: () => void;
-}) {
+export function Lightbox({ items, index, onClose }: { items: LightboxItem[]; index: number | null; onClose: () => void }) {
   const [i, setI] = useState(index ?? 0);
   const touchX = useRef<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const open = index !== null && items.length > 0;
 
-  useEffect(() => { if (index !== null) setI(index); }, [index]);
+  useEffect(() => {
+    if (index !== null) setI(index);
+  }, [index]);
 
   const prev = () => setI((x) => (x - 1 + items.length) % items.length);
   const next = () => setI((x) => (x + 1) % items.length);
@@ -33,7 +27,10 @@ export function Lightbox({
     document.addEventListener("keydown", onKey);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = overflow; };
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, items.length]);
 
@@ -58,8 +55,15 @@ export function Lightbox({
       }}
     >
       <div className="flex items-center justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <span className="text-sm opacity-80">{i + 1} / {items.length}</span>
-        <button ref={closeRef} onClick={onClose} aria-label="Close viewer" className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        <span className="text-sm opacity-80">
+          {i + 1} / {items.length}
+        </span>
+        <button
+          ref={closeRef}
+          onClick={onClose}
+          aria-label="Close viewer"
+          className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-background/10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+        >
           <X className="h-6 w-6" />
         </button>
       </div>
@@ -67,10 +71,18 @@ export function Lightbox({
         <img src={item.src} alt={item.alt} className="max-h-full max-w-full rounded-lg object-contain" />
         {items.length > 1 && (
           <>
-            <button onClick={prev} aria-label="Previous photo" className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <button
+              onClick={prev}
+              aria-label="Previous photo"
+              className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            >
               <ChevronLeft className="h-6 w-6" />
             </button>
-            <button onClick={next} aria-label="Next photo" className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <button
+              onClick={next}
+              aria-label="Next photo"
+              className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-foreground/60 hover:bg-foreground/80 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            >
               <ChevronRight className="h-6 w-6" />
             </button>
           </>
@@ -82,7 +94,9 @@ export function Lightbox({
         {item.tags && (
           <div className="mt-2 flex flex-wrap gap-2">
             {item.tags.map((t) => (
-              <span key={t} className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">{t}</span>
+              <span key={t} className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                {t}
+              </span>
             ))}
           </div>
         )}

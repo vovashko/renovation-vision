@@ -23,26 +23,46 @@ export function MobileTabBar() {
 
   return (
     <>
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav
+        aria-label="Main"
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      >
         {tabs.map((t) => {
           const active = projectPath(projectId, t.section) === path;
           return (
-            <Link key={t.section} to={to(t.section)} params={{ projectId }} className={cls(active)} aria-current={active ? "page" : undefined}>
-              <t.icon className="h-5 w-5" />{t.title}
+            <Link
+              key={t.section}
+              to={to(t.section)}
+              params={{ projectId }}
+              className={cls(active)}
+              aria-current={active ? "page" : undefined}
+            >
+              <t.icon className="h-5 w-5" />
+              {t.title}
             </Link>
           );
         })}
         <button onClick={() => setOpen(true)} className={cls(moreActive)} aria-label="More pages" aria-haspopup="dialog">
-          <MoreHorizontal className="h-5 w-5" />More
+          <MoreHorizontal className="h-5 w-5" />
+          More
         </button>
       </nav>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-          <SheetHeader><SheetTitle>More</SheetTitle></SheetHeader>
+          <SheetHeader>
+            <SheetTitle>More</SheetTitle>
+          </SheetHeader>
           <div className="grid gap-2 px-4">
             {more.map((m) => (
-              <Link key={m.section} to={to(m.section)} params={{ projectId }} onClick={() => setOpen(false)} className={`flex min-h-12 items-center gap-3 rounded-xl border px-4 text-base font-medium ${projectPath(projectId, m.section) === path ? "border-primary text-primary" : ""}`}>
-                <m.icon className="h-5 w-5" />{m.title}
+              <Link
+                key={m.section}
+                to={to(m.section)}
+                params={{ projectId }}
+                onClick={() => setOpen(false)}
+                className={`flex min-h-12 items-center gap-3 rounded-xl border px-4 text-base font-medium ${projectPath(projectId, m.section) === path ? "border-primary text-primary" : ""}`}
+              >
+                <m.icon className="h-5 w-5" />
+                {m.title}
               </Link>
             ))}
           </div>

@@ -13,10 +13,7 @@ import { longDate, money, scheduleFill, scheduleLabel, shortDate } from "@/lib/f
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
-    meta: [
-      { title: "Overview — RenoVision" },
-      { name: "description", content: "Project details, schedule and progress at a glance." },
-    ],
+    meta: [{ title: "Overview — RenoVision" }, { name: "description", content: "Project details, schedule and progress at a glance." }],
   }),
   component: ProjectHome,
 });
@@ -52,7 +49,10 @@ function ClientOverview({ projectId }: { projectId: string }) {
         progress={project.overall_progress}
         currentStage={project.current_stage}
         badges={
-          <span className="rounded-full px-3 py-1 text-xs font-medium text-white" style={{ background: scheduleFill[project.schedule_status] }}>
+          <span
+            className="rounded-full px-3 py-1 text-xs font-medium text-white"
+            style={{ background: scheduleFill[project.schedule_status] }}
+          >
             {scheduleLabel[project.schedule_status]}
           </span>
         }
@@ -64,7 +64,12 @@ function ClientOverview({ projectId }: { projectId: string }) {
           icon={TrendingUp}
           label="Stages done"
           value={`${project.stages_done}/${project.stages_total}`}
-          sub={<span className="inline-flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full" style={{ background: scheduleFill[project.schedule_status] }} />{scheduleLabel[project.schedule_status]}</span>}
+          sub={
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full" style={{ background: scheduleFill[project.schedule_status] }} />
+              {scheduleLabel[project.schedule_status]}
+            </span>
+          }
         />
         <Stat icon={DollarSign} label="Budget" value={money(project.budget)} sub={`Spent ${money(project.spent)}`} />
         <Stat icon={User} label="Site manager" value={project.manager_name || "—"} sub="Your point of contact" />
@@ -72,14 +77,17 @@ function ClientOverview({ projectId }: { projectId: string }) {
 
       {project.schedule_note && (
         <p className="-mt-4 rounded-xl border bg-card p-4 text-sm text-muted-foreground shadow-[var(--shadow-soft)]">
-          <span className="font-medium text-foreground">Schedule note: </span>{project.schedule_note}
+          <span className="font-medium text-foreground">Schedule note: </span>
+          {project.schedule_note}
         </p>
       )}
 
       <section>
         <div className="mb-3 flex items-end justify-between">
           <h2 className="text-xl font-semibold">Stage timeline</h2>
-          <Link to="/projects/$projectId/stages" params={{ projectId }} className="text-sm text-primary hover:underline">All stages →</Link>
+          <Link to="/projects/$projectId/stages" params={{ projectId }} className="text-sm text-primary hover:underline">
+            All stages →
+          </Link>
         </div>
         <div className="space-y-3">
           {stages.map((s) => (
@@ -99,17 +107,21 @@ function ClientOverview({ projectId }: { projectId: string }) {
       <section>
         <div className="mb-3 flex items-end justify-between">
           <h2 className="text-xl font-semibold">Floor plan visualisation</h2>
-          <Link to="/projects/$projectId/plan" params={{ projectId }} className="text-sm text-primary hover:underline">Open plan →</Link>
+          <Link to="/projects/$projectId/plan" params={{ projectId }} className="text-sm text-primary hover:underline">
+            Open plan →
+          </Link>
         </div>
         <FloorPlan
           rooms={rooms}
           activeId={roomId}
           onSelect={(r) => setRoomId(r.id)}
-          detail={activeRoom && (
-            <RoomDetail room={activeRoom}>
-              {activeRoom.client_note && <p className="mt-5 text-sm text-muted-foreground">{activeRoom.client_note}</p>}
-            </RoomDetail>
-          )}
+          detail={
+            activeRoom && (
+              <RoomDetail room={activeRoom}>
+                {activeRoom.client_note && <p className="mt-5 text-sm text-muted-foreground">{activeRoom.client_note}</p>}
+              </RoomDetail>
+            )
+          }
         />
       </section>
     </div>
