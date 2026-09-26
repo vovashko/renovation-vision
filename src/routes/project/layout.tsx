@@ -30,7 +30,11 @@ function ProjectLayout() {
         icon={FolderX}
         title="Project not available"
         text="It doesn't exist, or you're not a member of it."
-        action={<Link to="/" className="text-sm text-primary hover:underline">Back</Link>}
+        action={
+          <Link to="/" className="text-sm text-primary hover:underline">
+            Back
+          </Link>
+        }
       />
     );
   }

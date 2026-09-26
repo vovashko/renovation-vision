@@ -1,6 +1,9 @@
 -- RLS regression tests for the shared Renovision backend.
 -- Run against a freshly seeded database (everything is rolled back):
---   psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql
+--   bun run test:db
+-- which runs `supabase db reset` and then every tests/db/*.test.sql file, in
+-- order, via psql (if on PATH and SUPABASE_DB_URL is set) or `docker exec`
+-- against the local Supabase Postgres container. See tests/db/README.md.
 -- Prints "RLS tests passed" on success; any failed assertion aborts with an error.
 
 begin;

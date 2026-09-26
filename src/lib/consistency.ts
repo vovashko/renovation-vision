@@ -10,7 +10,10 @@ export type Warning = { text: string; to: "stages" | "plan" | "overview" };
  */
 export function findInconsistencies(project: ProjectSummary, stages: Stage[], rooms: Room[]): Warning[] {
   const out: Warning[] = [];
-  const blocked = [...rooms.filter((r) => r.is_visible && r.status === "blocked"), ...stages.filter((s) => s.is_visible && s.status === "blocked")];
+  const blocked = [
+    ...rooms.filter((r) => r.is_visible && r.status === "blocked"),
+    ...stages.filter((s) => s.is_visible && s.status === "blocked"),
+  ];
   if (blocked.length && project.schedule_status === "on_schedule") {
     out.push({
       text: `${blocked.map((b) => b.name).join(", ")} ${blocked.length > 1 ? "are" : "is"} Blocked, but the project says "${scheduleLabel.on_schedule}". Update the schedule status or unblock.`,
@@ -25,8 +28,13 @@ export function findInconsistencies(project: ProjectSummary, stages: Stage[], ro
   }
   for (const s of stages) {
     const open = s.tasks.filter((t) => !t.done);
-    if (s.status === "done" && open.length) out.push({ text: `${s.name} is ${statusLabel.done} but ${open.length} task${open.length > 1 ? "s are" : " is"} unchecked.`, to: "stages" });
-    if (s.status === "pending" && s.tasks.some((t) => t.done)) out.push({ text: `${s.name} is ${statusLabel.pending} but has checked tasks.`, to: "stages" });
+    if (s.status === "done" && open.length)
+      out.push({
+        text: `${s.name} is ${statusLabel.done} but ${open.length} task${open.length > 1 ? "s are" : " is"} unchecked.`,
+        to: "stages",
+      });
+    if (s.status === "pending" && s.tasks.some((t) => t.done))
+      out.push({ text: `${s.name} is ${statusLabel.pending} but has checked tasks.`, to: "stages" });
   }
   return out;
 }

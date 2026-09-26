@@ -23,7 +23,14 @@ import type {
 export type ProjectPatch = Partial<
   Pick<Project, "name" | "address" | "client_name" | "start_date" | "target_date" | "budget" | "schedule_status" | "schedule_note">
 >;
-export type NewProject = { name: string; address: string; client_name: string; start_date: string | null; target_date: string | null; budget: number };
+export type NewProject = {
+  name: string;
+  address: string;
+  client_name: string;
+  start_date: string | null;
+  target_date: string | null;
+  budget: number;
+};
 export type StageInput = Partial<Omit<Stage, "tasks" | "project_id">>;
 export type TaskInput = Partial<Omit<Task, "project_id">> & { stage_id: string };
 export type RoomInput = Partial<Omit<Room, "project_id">>;
@@ -118,12 +125,20 @@ async function currentUserId() {
 async function signUrls(bucket: string, paths: string[]) {
   const unique = [...new Set(paths.filter(Boolean))];
   if (!unique.length) return new Map<string, string>();
-  const data = await must(sb().storage.from(bucket).createSignedUrls(unique, 60 * 60));
+  const data = await must(
+    sb()
+      .storage.from(bucket)
+      .createSignedUrls(unique, 60 * 60),
+  );
   return new Map(data.filter((d) => d.signedUrl).map((d) => [d.path as string, d.signedUrl]));
 }
 
 async function upload(bucket: string, path: string, file: File) {
-  await must(sb().storage.from(bucket).upload(path, file, { contentType: file.type || undefined, upsert: false }));
+  await must(
+    sb()
+      .storage.from(bucket)
+      .upload(path, file, { contentType: file.type || undefined, upsert: false }),
+  );
   return path;
 }
 
@@ -164,15 +179,26 @@ const supabaseApi: Api = {
     await must(sb().from("project_internal").upsert({ project_id: id, internal_budget_notes: notes }));
   },
   async updateClientContact(id, contact) {
-    await must(sb().from("project_internal").upsert({ project_id: id, ...contact }));
+    await must(
+      sb()
+        .from("project_internal")
+        .upsert({ project_id: id, ...contact }),
+    );
   },
 
   async listCrew(id) {
-    return must(sb().from("project_crew").select("*").eq("project_id", id).order("sort_order").order("created_at")) as Promise<CrewMember[]>;
+    return must(sb().from("project_crew").select("*").eq("project_id", id).order("sort_order").order("created_at")) as Promise<
+      CrewMember[]
+    >;
   },
   async saveCrew(id, { id: crewId, ...input }) {
     if (crewId) await must(sb().from("project_crew").update(input).eq("id", crewId));
-    else await must(sb().from("project_crew").insert({ ...input, project_id: id }));
+    else
+      await must(
+        sb()
+          .from("project_crew")
+          .insert({ ...input, project_id: id }),
+      );
   },
   async deleteCrew(crewId) {
     await must(sb().from("project_crew").delete().eq("id", crewId));
@@ -197,14 +223,24 @@ const supabaseApi: Api = {
   },
   async saveStage(id, { id: stageId, ...input }) {
     if (stageId) await must(sb().from("stages").update(input).eq("id", stageId));
-    else await must(sb().from("stages").insert({ ...input, project_id: id }));
+    else
+      await must(
+        sb()
+          .from("stages")
+          .insert({ ...input, project_id: id }),
+      );
   },
   async deleteStage(stageId) {
     await must(sb().from("stages").delete().eq("id", stageId));
   },
   async saveTask(id, { id: taskId, ...input }) {
     if (taskId) await must(sb().from("tasks").update(input).eq("id", taskId));
-    else await must(sb().from("tasks").insert({ ...input, project_id: id }));
+    else
+      await must(
+        sb()
+          .from("tasks")
+          .insert({ ...input, project_id: id }),
+      );
   },
   async deleteTask(taskId) {
     await must(sb().from("tasks").delete().eq("id", taskId));
@@ -215,7 +251,12 @@ const supabaseApi: Api = {
   },
   async saveRoom(id, { id: roomId, ...input }) {
     if (roomId) await must(sb().from("rooms").update(input).eq("id", roomId));
-    else await must(sb().from("rooms").insert({ ...input, project_id: id }));
+    else
+      await must(
+        sb()
+          .from("rooms")
+          .insert({ ...input, project_id: id }),
+      );
   },
   async deleteRoom(roomId) {
     await must(sb().from("rooms").delete().eq("id", roomId));
@@ -223,7 +264,10 @@ const supabaseApi: Api = {
 
   async listPhotos(id) {
     const rows = (await must(sb().from("photos").select("*").eq("project_id", id).order("taken_at", { ascending: false }))) as Photo[];
-    const urls = await signUrls(MEDIA_BUCKET, rows.map((r) => r.storage_path));
+    const urls = await signUrls(
+      MEDIA_BUCKET,
+      rows.map((r) => r.storage_path),
+    );
     return rows.map((r) => ({ ...r, url: urls.get(r.storage_path) ?? "" }));
   },
   async uploadPhotos(id, files, meta, publish) {
@@ -232,23 +276,31 @@ const supabaseApi: Api = {
     for (const file of files) {
       const path = await upload(MEDIA_BUCKET, newPath(id, "photos", file), file);
       await must(
-        sb().from("photos").insert({
-          project_id: id,
-          storage_path: path,
-          stage_id: meta.stage_id,
-          room_id: meta.room_id,
-          caption: meta.caption,
-          alt: meta.caption || file.name,
-          uploaded_by: uid,
-          status: publish ? "published" : "draft",
-          published_at: publish ? now : null,
-        }),
+        sb()
+          .from("photos")
+          .insert({
+            project_id: id,
+            storage_path: path,
+            stage_id: meta.stage_id,
+            room_id: meta.room_id,
+            caption: meta.caption,
+            alt: meta.caption || file.name,
+            uploaded_by: uid,
+            status: publish ? "published" : "draft",
+            published_at: publish ? now : null,
+          }),
       );
     }
   },
   async updatePhoto(photoId, patch) {
-    const extra = patch.status === "published" ? { published_at: new Date().toISOString() } : patch.status === "draft" ? { published_at: null } : {};
-    await must(sb().from("photos").update({ ...patch, ...extra }).eq("id", photoId));
+    const extra =
+      patch.status === "published" ? { published_at: new Date().toISOString() } : patch.status === "draft" ? { published_at: null } : {};
+    await must(
+      sb()
+        .from("photos")
+        .update({ ...patch, ...extra })
+        .eq("id", photoId),
+    );
   },
   async deletePhoto(photo) {
     await must(sb().from("photos").delete().eq("id", photo.id));
@@ -257,15 +309,28 @@ const supabaseApi: Api = {
 
   async listRenders(id) {
     const rows = (await must(sb().from("renders").select("*").eq("project_id", id).order("sort_order"))) as Render[];
-    const urls = await signUrls(MEDIA_BUCKET, rows.map((r) => r.storage_path));
+    const urls = await signUrls(
+      MEDIA_BUCKET,
+      rows.map((r) => r.storage_path),
+    );
     return rows.map((r) => ({ ...r, url: urls.get(r.storage_path) ?? "" }));
   },
   async saveRender(id, { id: renderId, file, ...input }) {
     const storage_path = file ? await upload(MEDIA_BUCKET, newPath(id, "renders", file), file) : undefined;
-    if (renderId) await must(sb().from("renders").update({ ...input, ...(storage_path ? { storage_path } : {}) }).eq("id", renderId));
+    if (renderId)
+      await must(
+        sb()
+          .from("renders")
+          .update({ ...input, ...(storage_path ? { storage_path } : {}) })
+          .eq("id", renderId),
+      );
     else {
       if (!storage_path) throw new Error("Choose an image for the render");
-      await must(sb().from("renders").insert({ ...input, storage_path, project_id: id }));
+      await must(
+        sb()
+          .from("renders")
+          .insert({ ...input, storage_path, project_id: id }),
+      );
     }
   },
   async deleteRender(render) {
@@ -281,25 +346,41 @@ const supabaseApi: Api = {
     const receipt_path = receiptFile ? await upload(INTERNAL_BUCKET, newPath(id, "receipts", receiptFile), receiptFile) : undefined;
     const row = { ...input, ...(receipt_path ? { receipt_path } : {}) };
     if (expenseId) await must(sb().from("expenses").update(row).eq("id", expenseId));
-    else await must(sb().from("expenses").insert({ ...row, project_id: id, created_by: await currentUserId() }));
+    else
+      await must(
+        sb()
+          .from("expenses")
+          .insert({ ...row, project_id: id, created_by: await currentUserId() }),
+      );
   },
   async deleteExpense(expense) {
     await must(sb().from("expenses").delete().eq("id", expense.id));
     if (expense.receipt_path) await sb().storage.from(INTERNAL_BUCKET).remove([expense.receipt_path]);
   },
   async receiptUrl(path) {
-    const data = await must(sb().storage.from(INTERNAL_BUCKET).createSignedUrl(path, 60 * 10));
+    const data = await must(
+      sb()
+        .storage.from(INTERNAL_BUCKET)
+        .createSignedUrl(path, 60 * 10),
+    );
     return data.signedUrl;
   },
 
   async listMessages(id) {
     const rows = (await must(sb().from("messages").select("*").eq("project_id", id).order("created_at"))) as Message[];
-    const urls = await signUrls(MEDIA_BUCKET, rows.map((r) => r.attachment_path ?? ""));
-    return rows.map((r) => ({ ...r, attachment_url: r.attachment_path ? urls.get(r.attachment_path) ?? null : null }));
+    const urls = await signUrls(
+      MEDIA_BUCKET,
+      rows.map((r) => r.attachment_path ?? ""),
+    );
+    return rows.map((r) => ({ ...r, attachment_url: r.attachment_path ? (urls.get(r.attachment_path) ?? null) : null }));
   },
   async sendMessage(id, body, file) {
     const attachment_path = file ? await upload(MEDIA_BUCKET, newPath(id, "chat", file), file) : null;
-    await must(sb().from("messages").insert({ project_id: id, sender_id: await currentUserId(), body, attachment_path }));
+    await must(
+      sb()
+        .from("messages")
+        .insert({ project_id: id, sender_id: await currentUserId(), body, attachment_path }),
+    );
   },
   subscribeMessages(id, onChange) {
     const ch = sb()
@@ -314,10 +395,9 @@ const supabaseApi: Api = {
   joinPresence(id, me, onChange) {
     // Channel name and payload are shared with the client app (see README: Client app integration notes).
     const ch = sb().channel(`presence:project:${id}`, { config: { presence: { key: me.id } } });
-    ch.on("presence", { event: "sync" }, () => onChange(Object.keys(ch.presenceState())))
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") void ch.track({ name: me.name, role: me.role, at: new Date().toISOString() });
-      });
+    ch.on("presence", { event: "sync" }, () => onChange(Object.keys(ch.presenceState()))).subscribe((status) => {
+      if (status === "SUBSCRIBED") void ch.track({ name: me.name, role: me.role, at: new Date().toISOString() });
+    });
     return () => void sb().removeChannel(ch);
   },
 
@@ -330,9 +410,9 @@ const supabaseApi: Api = {
     await must(sb().rpc("notify_project_clients", { p_project: id, p_title: title, p_body: body, p_link: link }));
   },
   async listActivity(id) {
-    return must(
-      sb().from("activity_log").select("*").eq("project_id", id).order("created_at", { ascending: false }).limit(200),
-    ) as Promise<ActivityEntry[]>;
+    return must(sb().from("activity_log").select("*").eq("project_id", id).order("created_at", { ascending: false }).limit(200)) as Promise<
+      ActivityEntry[]
+    >;
   },
 
   async listKnowledge(id) {
@@ -340,7 +420,12 @@ const supabaseApi: Api = {
   },
   async saveKnowledge(id, { id: kId, ...input }) {
     if (kId) await must(sb().from("ai_knowledge").update(input).eq("id", kId));
-    else await must(sb().from("ai_knowledge").insert({ ...input, project_id: id, created_by: await currentUserId() }));
+    else
+      await must(
+        sb()
+          .from("ai_knowledge")
+          .insert({ ...input, project_id: id, created_by: await currentUserId() }),
+      );
   },
   async deleteKnowledge(kId) {
     await must(sb().from("ai_knowledge").delete().eq("id", kId));

@@ -25,41 +25,37 @@ const cardVariants = cva("rounded-xl text-on-surface", {
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {}
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, attention, interactive, children, ...props }, ref) => (
-    <div ref={ref} className={cn(cardVariants({ variant, attention, interactive }), className)} {...props}>
-      {attention && <span aria-hidden className="absolute top-4 right-4 size-2 rounded-full bg-attention" />}
-      {children}
-    </div>
-  ),
-);
+const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, variant, attention, interactive, children, ...props }, ref) => (
+  <div ref={ref} className={cn(cardVariants({ variant, attention, interactive }), className)} {...props}>
+    {attention && <span aria-hidden className="absolute top-4 right-4 size-2 rounded-full bg-attention" />}
+    {children}
+  </div>
+));
 Card.displayName = "Card";
 
-const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("flex flex-col gap-1 p-5", className)} {...props} />,
-);
+const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("flex flex-col gap-1 p-5", className)} {...props} />
+));
 CardHeader.displayName = "CardHeader";
 
-const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("text-title-md", className)} {...props} />,
-);
+const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("text-title-md", className)} {...props} />
+));
 CardTitle.displayName = "CardTitle";
 
-const CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("text-body-md text-on-surface-variant", className)} {...props} />
-  ),
-);
+const CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("text-body-md text-on-surface-variant", className)} {...props} />
+));
 CardDescription.displayName = "CardDescription";
 
-const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("p-5 pt-0", className)} {...props} />,
-);
+const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-5 pt-0", className)} {...props} />
+));
 CardContent.displayName = "CardContent";
 
-const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("flex items-center p-5 pt-0", className)} {...props} />,
-);
+const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("flex items-center p-5 pt-0", className)} {...props} />
+));
 CardFooter.displayName = "CardFooter";
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, cardVariants };

@@ -26,8 +26,10 @@ export const useInternal = (id: string) => useQuery({ queryKey: keys.internal(id
 export const useMembers = (id: string) => useQuery({ queryKey: keys.members(id), queryFn: () => api.listMembers(id) });
 export const useStages = (id: string) => useQuery({ queryKey: keys.stages(id), queryFn: () => api.listStages(id) });
 export const useRooms = (id: string) => useQuery({ queryKey: keys.rooms(id), queryFn: () => api.listRooms(id) });
-export const usePhotos = (id: string) => useQuery({ queryKey: keys.photos(id), queryFn: () => api.listPhotos(id), staleTime: 30 * 60 * 1000 });
-export const useRenders = (id: string) => useQuery({ queryKey: keys.renders(id), queryFn: () => api.listRenders(id), staleTime: 30 * 60 * 1000 });
+export const usePhotos = (id: string) =>
+  useQuery({ queryKey: keys.photos(id), queryFn: () => api.listPhotos(id), staleTime: 30 * 60 * 1000 });
+export const useRenders = (id: string) =>
+  useQuery({ queryKey: keys.renders(id), queryFn: () => api.listRenders(id), staleTime: 30 * 60 * 1000 });
 export const useExpenses = (id: string) => useQuery({ queryKey: keys.expenses(id), queryFn: () => api.listExpenses(id) });
 export const useMessages = (id: string) => useQuery({ queryKey: keys.messages(id), queryFn: () => api.listMessages(id) });
 export const useNotifications = (id: string) => useQuery({ queryKey: keys.notifications(id), queryFn: () => api.listNotifications(id) });
@@ -53,7 +55,13 @@ export function useSave<V>(
     },
     onError: (e: Error) => toast.error(e.message),
     onSettled: () => {
-      for (const k of [...opts.invalidate, keys.project(projectId), keys.projects, keys.activity(projectId), keys.notifications(projectId)]) {
+      for (const k of [
+        ...opts.invalidate,
+        keys.project(projectId),
+        keys.projects,
+        keys.activity(projectId),
+        keys.notifications(projectId),
+      ]) {
         void qc.invalidateQueries({ queryKey: k });
       }
     },

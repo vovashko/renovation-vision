@@ -10,7 +10,12 @@ export type StageCardTask = { id?: string; name: string; done: boolean; muted?: 
 /** Vertical timeline container for StageCards (the connecting line). */
 export function StageList({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("relative space-y-6 before:absolute before:left-4 before:top-2 before:bottom-2 before:w-px before:bg-border md:before:left-5", className)}>
+    <div
+      className={cn(
+        "relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-4 before:w-px before:bg-border md:before:left-5",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -47,7 +52,7 @@ export function StageCard({
   return (
     <div className="relative pl-12 md:pl-14">
       <div
-        className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-background text-xs font-semibold text-white shadow-[var(--shadow-soft)] md:h-10 md:w-10"
+        className="absolute top-1 left-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-background text-xs font-semibold text-white shadow-[var(--shadow-soft)] md:h-10 md:w-10"
         style={{ background: statusFill[status] }}
       >
         {index}
@@ -56,7 +61,9 @@ export function StageCard({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">{name}</h2>
-            <div className="mt-1 text-xs text-muted-foreground">{start} – {end}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {start} – {end}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {headerExtra}
@@ -65,7 +72,8 @@ export function StageCard({
         </div>
         <div className="mt-4">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Progress</span><span>{progress}%</span>
+            <span>Progress</span>
+            <span>{progress}%</span>
           </div>
           <ProgressBar value={progress} className="mt-1.5" />
         </div>
@@ -80,18 +88,22 @@ export function StageCard({
                     role="checkbox"
                     aria-checked={t.done}
                     onClick={() => onToggleTask(t, i)}
-                    className="flex min-h-8 flex-1 items-center gap-2 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex min-h-8 flex-1 items-center gap-2 rounded-md text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                   >
-                    {icon}{label}
+                    {icon}
+                    {label}
                   </button>
                 ) : (
-                  <>{icon}{label}</>
+                  <>
+                    {icon}
+                    {label}
+                  </>
                 )}
                 {onRemoveTask && (
                   <button
                     onClick={() => onRemoveTask(t, i)}
                     aria-label={`Remove task ${t.name}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground opacity-0 hover:bg-muted focus-visible:opacity-100 group-hover:opacity-100"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted focus-visible:opacity-100"
                   >
                     <X className="h-4 w-4" />
                   </button>

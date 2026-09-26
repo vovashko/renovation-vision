@@ -15,10 +15,7 @@ import type { Member, ProjectRole } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/team")({
   head: () => ({
-    meta: [
-      { title: "Team — RenoVision" },
-      { name: "description", content: "Who can see and manage this project." },
-    ],
+    meta: [{ title: "Team — RenoVision" }, { name: "description", content: "Who can see and manage this project." }],
   }),
   component: TeamPage,
 });
@@ -31,7 +28,10 @@ function TeamPage() {
   const [role, setRole] = useState<ProjectRole>("client");
   const inv = { invalidate: [keys.members(projectId)] };
   const add = useSave(projectId, () => api.addMember(projectId, email.trim(), role), { ...inv, success: `Added ${email.trim()}` });
-  const remove = useSave(projectId, (m: Member) => api.removeMember(projectId, m.user_id), { ...inv, success: (m) => `Removed ${m.profile.full_name}` });
+  const remove = useSave(projectId, (m: Member) => api.removeMember(projectId, m.user_id), {
+    ...inv,
+    success: (m) => `Removed ${m.profile.full_name}`,
+  });
 
   if (isLoading || !members) return <PageLoading />;
 
@@ -55,7 +55,9 @@ function TeamPage() {
             <option value="manager">Manager</option>
           </select>
         </Field>
-        <Button type="submit" disabled={!email.trim() || add.isPending} className="min-h-11 gap-2 sm:mb-6"><UserPlus className="h-4 w-4" /> Add</Button>
+        <Button type="submit" disabled={!email.trim() || add.isPending} className="min-h-11 gap-2 sm:mb-6">
+          <UserPlus className="h-4 w-4" /> Add
+        </Button>
       </form>
 
       {members.length === 0 ? (
@@ -66,14 +68,27 @@ function TeamPage() {
             <li key={m.user_id} className="flex items-center gap-3 p-4">
               <ChatAvatar name={m.profile.full_name || "?"} />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{m.profile.full_name}{m.user_id === userId && <span className="text-muted-foreground"> (you)</span>}</div>
-                <div className="text-xs text-muted-foreground">{m.last_read_at ? `Last read chat ${dateTime(m.last_read_at)}` : "Hasn't opened the chat yet"}</div>
+                <div className="truncate font-medium">
+                  {m.profile.full_name}
+                  {m.user_id === userId && <span className="text-muted-foreground"> (you)</span>}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {m.last_read_at ? `Last read chat ${dateTime(m.last_read_at)}` : "Hasn't opened the chat yet"}
+                </div>
               </div>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${m.role === "manager" ? "bg-foreground text-background" : "bg-accent text-accent-foreground"}`}>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${m.role === "manager" ? "bg-foreground text-background" : "bg-accent text-accent-foreground"}`}
+              >
                 {m.role === "manager" ? "Manager" : "Client"}
               </span>
               {m.user_id !== userId && (
-                <Button size="icon" variant="ghost" className="h-9 w-9" aria-label={`Remove ${m.profile.full_name}`} onClick={() => confirm(`Remove ${m.profile.full_name} from this project?`) && remove.mutate(m)}>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9"
+                  aria-label={`Remove ${m.profile.full_name}`}
+                  onClick={() => confirm(`Remove ${m.profile.full_name} from this project?`) && remove.mutate(m)}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               )}

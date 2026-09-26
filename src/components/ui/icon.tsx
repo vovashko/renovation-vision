@@ -35,17 +35,7 @@ const variationClass: Record<IconSize, Record<"on" | "off", string>> = {
 };
 
 /** Material Symbols Outlined glyph. Decorative: label the surrounding control instead. */
-export function Icon({
-  name,
-  size = 24,
-  fill = false,
-  className,
-}: {
-  name: string;
-  size?: IconSize;
-  fill?: boolean;
-  className?: string;
-}) {
+export function Icon({ name, size = 24, fill = false, className }: { name: string; size?: IconSize; fill?: boolean; className?: string }) {
   return (
     <span
       aria-hidden

@@ -9,139 +9,138 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
-import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
-import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects.$projectId.index'
-import { Route as ProjectsProjectIdBudgetRouteImport } from './routes/projects.$projectId.budget'
-import { Route as ProjectsProjectIdChatRouteImport } from './routes/projects.$projectId.chat'
-import { Route as ProjectsProjectIdDesignRouteImport } from './routes/projects.$projectId.design'
-import { Route as ProjectsProjectIdKnowledgeRouteImport } from './routes/projects.$projectId.knowledge'
-import { Route as ProjectsProjectIdPhotosRouteImport } from './routes/projects.$projectId.photos'
-import { Route as ProjectsProjectIdPlanRouteImport } from './routes/projects.$projectId.plan'
-import { Route as ProjectsProjectIdStagesRouteImport } from './routes/projects.$projectId.stages'
-import { Route as ProjectsProjectIdTeamRouteImport } from './routes/projects.$projectId.team'
-import { Route as ProjectsProjectIdUpdatesRouteImport } from './routes/projects.$projectId.updates'
+import { Route as indexRouteImport } from './routes/index'
+import { Route as projectsRouteImport } from './routes/projects'
+import { Route as projectLayoutRouteImport } from './routes/project/layout'
+import { Route as projectOverviewRouteImport } from './routes/project/overview'
+import { Route as projectBudgetRouteImport } from './routes/project/budget'
+import { Route as projectChatRouteImport } from './routes/project/chat'
+import { Route as projectDesignRouteImport } from './routes/project/design'
+import { Route as projectKnowledgeRouteImport } from './routes/project/knowledge'
+import { Route as projectPhotosRouteImport } from './routes/project/photos'
+import { Route as projectPlanRouteImport } from './routes/project/plan'
+import { Route as projectStagesRouteImport } from './routes/project/stages'
+import { Route as projectTeamRouteImport } from './routes/project/team'
+import { Route as projectUpdatesRouteImport } from './routes/project/updates'
 
-const IndexRoute = IndexRouteImport.update({
+const indexRoute = indexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+const projectsRoute = projectsRouteImport.update({
   id: '/projects/',
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
+const projectLayoutRoute = projectLayoutRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsProjectIdIndexRoute = ProjectsProjectIdIndexRouteImport.update({
+const projectOverviewRoute = projectOverviewRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdBudgetRoute = ProjectsProjectIdBudgetRouteImport.update({
+const projectBudgetRoute = projectBudgetRouteImport.update({
   id: '/budget',
   path: '/budget',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdChatRoute = ProjectsProjectIdChatRouteImport.update({
+const projectChatRoute = projectChatRouteImport.update({
   id: '/chat',
   path: '/chat',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdDesignRoute = ProjectsProjectIdDesignRouteImport.update({
+const projectDesignRoute = projectDesignRouteImport.update({
   id: '/design',
   path: '/design',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdKnowledgeRoute =
-  ProjectsProjectIdKnowledgeRouteImport.update({
-    id: '/knowledge',
-    path: '/knowledge',
-    getParentRoute: () => ProjectsProjectIdRoute,
-  } as any)
-const ProjectsProjectIdPhotosRoute = ProjectsProjectIdPhotosRouteImport.update({
+const projectKnowledgeRoute = projectKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => projectLayoutRoute,
+} as any)
+const projectPhotosRoute = projectPhotosRouteImport.update({
   id: '/photos',
   path: '/photos',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdPlanRoute = ProjectsProjectIdPlanRouteImport.update({
+const projectPlanRoute = projectPlanRouteImport.update({
   id: '/plan',
   path: '/plan',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdStagesRoute = ProjectsProjectIdStagesRouteImport.update({
+const projectStagesRoute = projectStagesRouteImport.update({
   id: '/stages',
   path: '/stages',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdTeamRoute = ProjectsProjectIdTeamRouteImport.update({
+const projectTeamRoute = projectTeamRouteImport.update({
   id: '/team',
   path: '/team',
-  getParentRoute: () => ProjectsProjectIdRoute,
+  getParentRoute: () => projectLayoutRoute,
 } as any)
-const ProjectsProjectIdUpdatesRoute =
-  ProjectsProjectIdUpdatesRouteImport.update({
-    id: '/updates',
-    path: '/updates',
-    getParentRoute: () => ProjectsProjectIdRoute,
-  } as any)
+const projectUpdatesRoute = projectUpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => projectLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRouteWithChildren
-  '/projects/': typeof ProjectsIndexRoute
-  '/projects/$projectId/budget': typeof ProjectsProjectIdBudgetRoute
-  '/projects/$projectId/chat': typeof ProjectsProjectIdChatRoute
-  '/projects/$projectId/design': typeof ProjectsProjectIdDesignRoute
-  '/projects/$projectId/knowledge': typeof ProjectsProjectIdKnowledgeRoute
-  '/projects/$projectId/photos': typeof ProjectsProjectIdPhotosRoute
-  '/projects/$projectId/plan': typeof ProjectsProjectIdPlanRoute
-  '/projects/$projectId/stages': typeof ProjectsProjectIdStagesRoute
-  '/projects/$projectId/team': typeof ProjectsProjectIdTeamRoute
-  '/projects/$projectId/updates': typeof ProjectsProjectIdUpdatesRoute
-  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
+  '/': typeof indexRoute
+  '/projects/': typeof projectsRoute
+  '/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/projects/$projectId/': typeof projectOverviewRoute
+  '/projects/$projectId/budget': typeof projectBudgetRoute
+  '/projects/$projectId/chat': typeof projectChatRoute
+  '/projects/$projectId/design': typeof projectDesignRoute
+  '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
+  '/projects/$projectId/photos': typeof projectPhotosRoute
+  '/projects/$projectId/plan': typeof projectPlanRoute
+  '/projects/$projectId/stages': typeof projectStagesRoute
+  '/projects/$projectId/team': typeof projectTeamRoute
+  '/projects/$projectId/updates': typeof projectUpdatesRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/projects': typeof ProjectsIndexRoute
-  '/projects/$projectId/budget': typeof ProjectsProjectIdBudgetRoute
-  '/projects/$projectId/chat': typeof ProjectsProjectIdChatRoute
-  '/projects/$projectId/design': typeof ProjectsProjectIdDesignRoute
-  '/projects/$projectId/knowledge': typeof ProjectsProjectIdKnowledgeRoute
-  '/projects/$projectId/photos': typeof ProjectsProjectIdPhotosRoute
-  '/projects/$projectId/plan': typeof ProjectsProjectIdPlanRoute
-  '/projects/$projectId/stages': typeof ProjectsProjectIdStagesRoute
-  '/projects/$projectId/team': typeof ProjectsProjectIdTeamRoute
-  '/projects/$projectId/updates': typeof ProjectsProjectIdUpdatesRoute
-  '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
+  '/': typeof indexRoute
+  '/projects': typeof projectsRoute
+  '/projects/$projectId': typeof projectOverviewRoute
+  '/projects/$projectId/budget': typeof projectBudgetRoute
+  '/projects/$projectId/chat': typeof projectChatRoute
+  '/projects/$projectId/design': typeof projectDesignRoute
+  '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
+  '/projects/$projectId/photos': typeof projectPhotosRoute
+  '/projects/$projectId/plan': typeof projectPlanRoute
+  '/projects/$projectId/stages': typeof projectStagesRoute
+  '/projects/$projectId/team': typeof projectTeamRoute
+  '/projects/$projectId/updates': typeof projectUpdatesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRouteWithChildren
-  '/projects/': typeof ProjectsIndexRoute
-  '/projects/$projectId/budget': typeof ProjectsProjectIdBudgetRoute
-  '/projects/$projectId/chat': typeof ProjectsProjectIdChatRoute
-  '/projects/$projectId/design': typeof ProjectsProjectIdDesignRoute
-  '/projects/$projectId/knowledge': typeof ProjectsProjectIdKnowledgeRoute
-  '/projects/$projectId/photos': typeof ProjectsProjectIdPhotosRoute
-  '/projects/$projectId/plan': typeof ProjectsProjectIdPlanRoute
-  '/projects/$projectId/stages': typeof ProjectsProjectIdStagesRoute
-  '/projects/$projectId/team': typeof ProjectsProjectIdTeamRoute
-  '/projects/$projectId/updates': typeof ProjectsProjectIdUpdatesRoute
-  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
+  '/': typeof indexRoute
+  '/projects/': typeof projectsRoute
+  '/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/projects/$projectId/': typeof projectOverviewRoute
+  '/projects/$projectId/budget': typeof projectBudgetRoute
+  '/projects/$projectId/chat': typeof projectChatRoute
+  '/projects/$projectId/design': typeof projectDesignRoute
+  '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
+  '/projects/$projectId/photos': typeof projectPhotosRoute
+  '/projects/$projectId/plan': typeof projectPlanRoute
+  '/projects/$projectId/stages': typeof projectStagesRoute
+  '/projects/$projectId/team': typeof projectTeamRoute
+  '/projects/$projectId/updates': typeof projectUpdatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/projects/$projectId'
     | '/projects/'
+    | '/projects/$projectId'
+    | '/projects/$projectId/'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
     | '/projects/$projectId/design'
@@ -151,11 +150,11 @@ export interface FileRouteTypes {
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
-    | '/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/projects'
+    | '/projects/$projectId'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
     | '/projects/$projectId/design'
@@ -165,12 +164,12 @@ export interface FileRouteTypes {
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
-    | '/projects/$projectId'
   id:
     | '__root__'
     | '/'
-    | '/projects/$projectId'
     | '/projects/'
+    | '/projects/$projectId'
+    | '/projects/$projectId/'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
     | '/projects/$projectId/design'
@@ -180,13 +179,12 @@ export interface FileRouteTypes {
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
-    | '/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ProjectsProjectIdRoute: typeof ProjectsProjectIdRouteWithChildren
-  ProjectsIndexRoute: typeof ProjectsIndexRoute
+  indexRoute: typeof indexRoute
+  projectsRoute: typeof projectsRoute
+  projectLayoutRoute: typeof projectLayoutRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -195,129 +193,130 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof indexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/': {
       id: '/projects/'
       path: '/projects'
       fullPath: '/projects/'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
+      preLoaderRoute: typeof projectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectId': {
       id: '/projects/$projectId'
       path: '/projects/$projectId'
       fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof ProjectsProjectIdRouteImport
+      preLoaderRoute: typeof projectLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectId/': {
       id: '/projects/$projectId/'
       path: '/'
       fullPath: '/projects/$projectId/'
-      preLoaderRoute: typeof ProjectsProjectIdIndexRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectOverviewRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/budget': {
       id: '/projects/$projectId/budget'
       path: '/budget'
       fullPath: '/projects/$projectId/budget'
-      preLoaderRoute: typeof ProjectsProjectIdBudgetRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectBudgetRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/chat': {
       id: '/projects/$projectId/chat'
       path: '/chat'
       fullPath: '/projects/$projectId/chat'
-      preLoaderRoute: typeof ProjectsProjectIdChatRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectChatRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/design': {
       id: '/projects/$projectId/design'
       path: '/design'
       fullPath: '/projects/$projectId/design'
-      preLoaderRoute: typeof ProjectsProjectIdDesignRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectDesignRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/knowledge': {
       id: '/projects/$projectId/knowledge'
       path: '/knowledge'
       fullPath: '/projects/$projectId/knowledge'
-      preLoaderRoute: typeof ProjectsProjectIdKnowledgeRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectKnowledgeRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/photos': {
       id: '/projects/$projectId/photos'
       path: '/photos'
       fullPath: '/projects/$projectId/photos'
-      preLoaderRoute: typeof ProjectsProjectIdPhotosRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectPhotosRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/plan': {
       id: '/projects/$projectId/plan'
       path: '/plan'
       fullPath: '/projects/$projectId/plan'
-      preLoaderRoute: typeof ProjectsProjectIdPlanRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectPlanRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/stages': {
       id: '/projects/$projectId/stages'
       path: '/stages'
       fullPath: '/projects/$projectId/stages'
-      preLoaderRoute: typeof ProjectsProjectIdStagesRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectStagesRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/team': {
       id: '/projects/$projectId/team'
       path: '/team'
       fullPath: '/projects/$projectId/team'
-      preLoaderRoute: typeof ProjectsProjectIdTeamRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectTeamRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
     '/projects/$projectId/updates': {
       id: '/projects/$projectId/updates'
       path: '/updates'
       fullPath: '/projects/$projectId/updates'
-      preLoaderRoute: typeof ProjectsProjectIdUpdatesRouteImport
-      parentRoute: typeof ProjectsProjectIdRoute
+      preLoaderRoute: typeof projectUpdatesRouteImport
+      parentRoute: typeof projectLayoutRoute
     }
   }
 }
 
-interface ProjectsProjectIdRouteChildren {
-  ProjectsProjectIdBudgetRoute: typeof ProjectsProjectIdBudgetRoute
-  ProjectsProjectIdChatRoute: typeof ProjectsProjectIdChatRoute
-  ProjectsProjectIdDesignRoute: typeof ProjectsProjectIdDesignRoute
-  ProjectsProjectIdKnowledgeRoute: typeof ProjectsProjectIdKnowledgeRoute
-  ProjectsProjectIdPhotosRoute: typeof ProjectsProjectIdPhotosRoute
-  ProjectsProjectIdPlanRoute: typeof ProjectsProjectIdPlanRoute
-  ProjectsProjectIdStagesRoute: typeof ProjectsProjectIdStagesRoute
-  ProjectsProjectIdTeamRoute: typeof ProjectsProjectIdTeamRoute
-  ProjectsProjectIdUpdatesRoute: typeof ProjectsProjectIdUpdatesRoute
-  ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
+interface projectLayoutRouteChildren {
+  projectOverviewRoute: typeof projectOverviewRoute
+  projectBudgetRoute: typeof projectBudgetRoute
+  projectChatRoute: typeof projectChatRoute
+  projectDesignRoute: typeof projectDesignRoute
+  projectKnowledgeRoute: typeof projectKnowledgeRoute
+  projectPhotosRoute: typeof projectPhotosRoute
+  projectPlanRoute: typeof projectPlanRoute
+  projectStagesRoute: typeof projectStagesRoute
+  projectTeamRoute: typeof projectTeamRoute
+  projectUpdatesRoute: typeof projectUpdatesRoute
 }
 
-const ProjectsProjectIdRouteChildren: ProjectsProjectIdRouteChildren = {
-  ProjectsProjectIdBudgetRoute: ProjectsProjectIdBudgetRoute,
-  ProjectsProjectIdChatRoute: ProjectsProjectIdChatRoute,
-  ProjectsProjectIdDesignRoute: ProjectsProjectIdDesignRoute,
-  ProjectsProjectIdKnowledgeRoute: ProjectsProjectIdKnowledgeRoute,
-  ProjectsProjectIdPhotosRoute: ProjectsProjectIdPhotosRoute,
-  ProjectsProjectIdPlanRoute: ProjectsProjectIdPlanRoute,
-  ProjectsProjectIdStagesRoute: ProjectsProjectIdStagesRoute,
-  ProjectsProjectIdTeamRoute: ProjectsProjectIdTeamRoute,
-  ProjectsProjectIdUpdatesRoute: ProjectsProjectIdUpdatesRoute,
-  ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,
+const projectLayoutRouteChildren: projectLayoutRouteChildren = {
+  projectOverviewRoute: projectOverviewRoute,
+  projectBudgetRoute: projectBudgetRoute,
+  projectChatRoute: projectChatRoute,
+  projectDesignRoute: projectDesignRoute,
+  projectKnowledgeRoute: projectKnowledgeRoute,
+  projectPhotosRoute: projectPhotosRoute,
+  projectPlanRoute: projectPlanRoute,
+  projectStagesRoute: projectStagesRoute,
+  projectTeamRoute: projectTeamRoute,
+  projectUpdatesRoute: projectUpdatesRoute,
 }
 
-const ProjectsProjectIdRouteWithChildren =
-  ProjectsProjectIdRoute._addFileChildren(ProjectsProjectIdRouteChildren)
+const projectLayoutRouteWithChildren = projectLayoutRoute._addFileChildren(
+  projectLayoutRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ProjectsProjectIdRoute: ProjectsProjectIdRouteWithChildren,
-  ProjectsIndexRoute: ProjectsIndexRoute,
+  indexRoute: indexRoute,
+  projectsRoute: projectsRoute,
+  projectLayoutRoute: projectLayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

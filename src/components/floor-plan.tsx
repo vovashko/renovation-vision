@@ -48,7 +48,7 @@ export function FloorPlan({
                 tabIndex={onSelect ? 0 : undefined}
                 role={onSelect ? "button" : undefined}
                 aria-label={`${r.name}: ${statusLabel[r.status]}, ${r.progress}%`}
-                className="cursor-pointer outline-none transition-opacity hover:opacity-90"
+                className="cursor-pointer transition-opacity outline-none hover:opacity-90"
               >
                 <rect
                   x={r.x}
@@ -75,9 +75,12 @@ export function FloorPlan({
         <StatusLegend className="mt-4" />
       </div>
       <div className="rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)]">
-        {detail ?? (active ? <RoomDetail room={active} /> : (
-          <p className="text-sm text-muted-foreground">Click any room on the floor plan to view its current renovation status.</p>
-        ))}
+        {detail ??
+          (active ? (
+            <RoomDetail room={active} />
+          ) : (
+            <p className="text-sm text-muted-foreground">Click any room on the floor plan to view its current renovation status.</p>
+          ))}
       </div>
     </div>
   );
@@ -86,7 +89,7 @@ export function FloorPlan({
 export function RoomDetail({ room, children }: { room: FloorPlanRoom; children?: ReactNode }) {
   return (
     <>
-      <div className="text-xs uppercase tracking-wide text-muted-foreground">Selected room</div>
+      <div className="text-xs tracking-wide text-muted-foreground uppercase">Selected room</div>
       <h3 className="mt-1 text-xl font-semibold">{room.name}</h3>
       <div
         className="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-white"

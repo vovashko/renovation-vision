@@ -11,5 +11,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
+    // Flat route files mapped to URLs in src/routes.config.ts.
+    router: { virtualRouteConfig: "./src/routes.config.ts" },
   },
 });

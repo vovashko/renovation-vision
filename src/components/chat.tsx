@@ -9,7 +9,12 @@ export function initials(name: string) {
 
 export function ChatAvatar({ name, className }: { name: string; className?: string }) {
   return (
-    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] font-semibold text-primary-foreground", className)}>
+    <div
+      className={cn(
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-primary)] font-semibold text-primary-foreground",
+        className,
+      )}
+    >
       {initials(name)}
     </div>
   );
@@ -23,7 +28,17 @@ export function PresenceIndicator({ online, label }: { online: boolean; label: s
   );
 }
 
-export function ChatHeader({ name, roleLabel, online, actions }: { name: string; roleLabel: string; online: boolean; actions?: ReactNode }) {
+export function ChatHeader({
+  name,
+  roleLabel,
+  online,
+  actions,
+}: {
+  name: string;
+  roleLabel: string;
+  online: boolean;
+  actions?: ReactNode;
+}) {
   return (
     <div className="flex items-center gap-3 border-b p-4">
       <ChatAvatar name={name} />
@@ -36,7 +51,19 @@ export function ChatHeader({ name, roleLabel, online, actions }: { name: string;
   );
 }
 
-export function ChatBubble({ mine, author, time, children, attachment }: { mine: boolean; author?: string; time: string; children: ReactNode; attachment?: ReactNode }) {
+export function ChatBubble({
+  mine,
+  author,
+  time,
+  children,
+  attachment,
+}: {
+  mine: boolean;
+  author?: string;
+  time: string;
+  children: ReactNode;
+  attachment?: ReactNode;
+}) {
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
@@ -44,9 +71,13 @@ export function ChatBubble({ mine, author, time, children, attachment }: { mine:
           mine ? "rounded-br-sm bg-[image:var(--gradient-primary)] text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"
         }`}
       >
-        {author && <div className={`mb-0.5 text-[11px] font-semibold ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{author}</div>}
+        {author && (
+          <div className={`mb-0.5 text-[11px] font-semibold ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+            {author}
+          </div>
+        )}
         {attachment}
-        <div className="whitespace-pre-wrap break-words">{children}</div>
+        <div className="break-words whitespace-pre-wrap">{children}</div>
         <div className={`mt-1 text-[11px] ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{time}</div>
       </div>
     </div>
@@ -54,21 +85,29 @@ export function ChatBubble({ mine, author, time, children, attachment }: { mine:
 }
 
 /** Pinned composer: attachment button, input, send button. */
-export const ChatComposer = forwardRef<HTMLInputElement, {
-  value: string;
-  onChange: (v: string) => void;
-  onSend: () => void;
-  onAttach?: () => void;
-  placeholder: string;
-  disabled?: boolean;
-  children?: ReactNode;
-}>(function ChatComposer({ value, onChange, onSend, onAttach, placeholder, disabled, children }, ref) {
+export const ChatComposer = forwardRef<
+  HTMLInputElement,
+  {
+    value: string;
+    onChange: (v: string) => void;
+    onSend: () => void;
+    onAttach?: () => void;
+    placeholder: string;
+    disabled?: boolean;
+    children?: ReactNode;
+  }
+>(function ChatComposer({ value, onChange, onSend, onAttach, placeholder, disabled, children }, ref) {
   return (
     <div className="border-t bg-background/60 backdrop-blur">
       {children}
       <div className="flex items-center gap-2 p-3">
         {onAttach && (
-          <button type="button" onClick={onAttach} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach">
+          <button
+            type="button"
+            onClick={onAttach}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+            aria-label="Attach"
+          >
             <Paperclip className="h-5 w-5" />
           </button>
         )}

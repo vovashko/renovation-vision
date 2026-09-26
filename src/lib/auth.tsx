@@ -31,7 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!supabase) {
       let role: DemoRole = "manager";
-      try { if (sessionStorage.getItem("demo-role") === "client") role = "client"; } catch { /* storage unavailable */ }
+      try {
+        if (sessionStorage.getItem("demo-role") === "client") role = "client";
+      } catch {
+        /* storage unavailable */
+      }
       setDemoRole(role);
       const u = demoUser(role);
       setRole(role);
@@ -61,16 +65,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const switchDemoRole = useCallback((role: DemoRole) => {
-    try { sessionStorage.setItem("demo-role", role); } catch { /* storage unavailable */ }
-    setDemoRole(role);
-    const u = demoUser(role);
-    setRole(role);
-    setUserId(u.id);
-    setEmail(u.email);
-    setProfile({ id: u.id, full_name: u.full_name, avatar_url: null, account_type: role });
-    qc.clear();
-  }, [qc]);
+  const switchDemoRole = useCallback(
+    (role: DemoRole) => {
+      try {
+        sessionStorage.setItem("demo-role", role);
+      } catch {
+        /* storage unavailable */
+      }
+      setDemoRole(role);
+      const u = demoUser(role);
+      setRole(role);
+      setUserId(u.id);
+      setEmail(u.email);
+      setProfile({ id: u.id, full_name: u.full_name, avatar_url: null, account_type: role });
+      qc.clear();
+    },
+    [qc],
+  );
 
   const signIn = useCallback(async (mail: string, password: string) => {
     if (!supabase) return;

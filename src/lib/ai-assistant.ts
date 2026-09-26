@@ -17,7 +17,11 @@ export type AiAnswer = { text: string; sources: string[]; links: AiLink[] };
 
 const stageRef = (stages: Stage[], s: Stage) => `Stage ${stages.indexOf(s) + 1}: ${s.name}`;
 
-const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3);
+const words = (s: string) =>
+  s
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length > 3);
 
 /**
  * Single entry point for the assistant. Currently a rule-based answerer over the
@@ -33,12 +37,19 @@ export async function getAiAnswer(question: string, data: ProjectData): Promise<
 
   if (q.includes("block")) {
     const blocked = rm.filter((r) => r.status === "blocked");
-    if (!blocked.length) return { text: "Nothing is blocked right now.", sources: ["Plan: room statuses"], links: [{ label: "Open plan", section: "plan" }] };
-    const notes = blocked.map((r) => r.client_note && `${r.name}: ${r.client_note}`).filter(Boolean).join(" ");
+    if (!blocked.length)
+      return { text: "Nothing is blocked right now.", sources: ["Plan: room statuses"], links: [{ label: "Open plan", section: "plan" }] };
+    const notes = blocked
+      .map((r) => r.client_note && `${r.name}: ${r.client_note}`)
+      .filter(Boolean)
+      .join(" ");
     return {
       text: `${blocked.map((r) => r.name).join(", ")} ${blocked.length > 1 ? "are" : "is"} blocked at ${blocked[0].progress}%. ${notes || "Your site manager hasn't added a reason yet — ask them in chat."}`,
       sources: blocked.map((r) => `Plan: ${r.name} status`),
-      links: [{ label: "Open plan", section: "plan" }, { label: "See photos", section: "photos" }],
+      links: [
+        { label: "Open plan", section: "plan" },
+        { label: "See photos", section: "photos" },
+      ],
     };
   }
 
@@ -52,18 +63,29 @@ export async function getAiAnswer(question: string, data: ProjectData): Promise<
   }
 
   const stageMatch = st.find((s) => q.includes(s.name.toLowerCase()) || words(s.name).some((w) => q.includes(w)));
-  if (stageMatch && (q.includes("start") || q.includes("when") || q.includes("kitchen") || words(stageMatch.name).some((w) => q.includes(w)))) {
+  if (
+    stageMatch &&
+    (q.includes("start") || q.includes("when") || q.includes("kitchen") || words(stageMatch.name).some((w) => q.includes(w)))
+  ) {
     const open = stageMatch.tasks.find((t) => !t.done);
     return {
       text: `${stageMatch.name} runs ${shortDate(stageMatch.start_date)} – ${shortDate(stageMatch.end_date)}. It's currently ${statusLabel[stageMatch.status].toLowerCase()} (${stageMatch.progress}%).${open ? ` Next task: ${open.name.toLowerCase()}.` : ""}${stageMatch.client_note ? ` ${stageMatch.client_note}` : ""}`,
       sources: [stageRef(st, stageMatch)],
-      links: [{ label: "View stages", section: "stages" }, { label: "Planned look", section: "design" }],
+      links: [
+        { label: "View stages", section: "stages" },
+        { label: "Planned look", section: "design" },
+      ],
     };
   }
 
   if (q.includes("next") || q.includes("upcoming") || q.includes("what's happening") || q.includes("now")) {
     const nextStage = pending[0];
-    if (!current.length && !nextStage) return { text: "There are no active or upcoming stages right now.", sources: ["Stages"], links: [{ label: "View stages", section: "stages" }] };
+    if (!current.length && !nextStage)
+      return {
+        text: "There are no active or upcoming stages right now.",
+        sources: ["Stages"],
+        links: [{ label: "View stages", section: "stages" }],
+      };
     const cur = current.map((s) => `${s.name} (${s.progress}%, until ${shortDate(s.end_date)})`).join(" and ");
     const openTasks = current.flatMap((s) => s.tasks.filter((t) => !t.done).map((t) => t.name.toLowerCase()));
     return {
