@@ -1,58 +1,46 @@
+/**
+ * @deprecated moved: dates to @/domain/dates, money to @/domain/money, slugify/fileExt to @/domain/text.
+ * In components use `useFormat()` from @/i18n. These English-only helpers keep today's output
+ * unchanged until each feature switches over; the shim goes away in T17.
+ */
+import en from "@/i18n/common/en.json";
+import { formatDate } from "@/domain/dates";
 import type { ScheduleStatus } from "./database.types";
 
-/** Parse 'YYYY-MM-DD' as a local date (no timezone shift). */
-export function parseDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(y, m - 1, day);
-}
+export { parseDate } from "@/domain/dates";
+export { fileExt, slugify } from "@/domain/text";
 
-/** "Mar 02" — same format as the client app's stage dates. */
+/** @deprecated "Mar 02". Use `useFormat().date(d, "short")`. */
 export function shortDate(d: string | null | undefined) {
-  if (!d) return "—";
-  return parseDate(d).toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+  return formatDate(d, "short", "en-US");
 }
 
-/** "Mar 02, 2026" — same format as the client app's project dates. */
+/** @deprecated "Mar 02, 2026". Use `useFormat().date(d, "long")`. */
 export function longDate(d: string | null | undefined) {
-  if (!d) return "—";
-  return parseDate(d).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+  return formatDate(d, "long", "en-US");
 }
 
+/** @deprecated "$12,345" (whole dollars). Use `useFormat().money(amount, currency)`. */
 export function money(n: number) {
   return `$${Math.round(n).toLocaleString("en-US")}`;
 }
 
+/** @deprecated Use `useFormat().date(iso, "dayTime")`. */
 export function dateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-US", { month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return formatDate(iso, "dayTime", "en-US");
 }
 
+/** @deprecated Use `useFormat().date(iso, "time")`. */
 export function timeLabel(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return formatDate(iso, "time", "en-US");
 }
 
-export const scheduleLabel: Record<ScheduleStatus, string> = {
-  on_schedule: "On schedule",
-  at_risk: "At risk",
-  delayed: "Delayed",
-};
+/** @deprecated English only. Use `useScheduleLabel()` from @/i18n or `t("common:schedule.<status>")`. */
+export const scheduleLabel: Record<ScheduleStatus, string> = en.schedule;
 
+/** @deprecated unused. */
 export const scheduleFill: Record<ScheduleStatus, string> = {
   on_schedule: "var(--status-done)",
   at_risk: "var(--status-progress)",
   delayed: "var(--status-blocked)",
 };
-
-export function slugify(s: string) {
-  return (
-    s
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")
-      .slice(0, 24) || "item"
-  );
-}
-
-export function fileExt(name: string) {
-  const m = /\.([a-z0-9]+)$/i.exec(name);
-  return m ? m[1].toLowerCase() : "jpg";
-}

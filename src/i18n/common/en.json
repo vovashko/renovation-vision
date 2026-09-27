@@ -1,0 +1,80 @@
+{
+  "app": {
+    "name": "RenoVision"
+  },
+  "actions": {
+    "add": "Add",
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "remove": "Remove",
+    "retry": "Try again",
+    "save": "Save"
+  },
+  "state": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "empty": "Nothing here yet"
+  },
+  "status": {
+    "done": "Completed",
+    "progress": "In progress",
+    "pending": "Pending",
+    "blocked": "Blocked"
+  },
+  "schedule": {
+    "on_schedule": "On schedule",
+    "at_risk": "At risk",
+    "delayed": "Delayed"
+  },
+  "attention": {
+    "daysLate_one": "{{count}} day late",
+    "daysLate_other": "{{count}} days late",
+    "overBudget": "{{pct}}% over budget"
+  },
+  "nav": {
+    "overview": "Overview",
+    "stages": "Stages",
+    "plan": "Plan",
+    "photos": "Photos",
+    "design": "Design",
+    "budget": "Budget",
+    "chat": "Chat",
+    "updates": "Updates",
+    "knowledge": "AI knowledge",
+    "team": "Team",
+    "allProjects": "All projects",
+    "settings": "Settings",
+    "more": "More",
+    "morePages": "More pages",
+    "home": "RenoVision home",
+    "profile": "Profile",
+    "openProfile": "{{name}}, open profile",
+    "yourProfile": "Your profile"
+  },
+  "confirm": {
+    "title": "Are you sure?",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "table": {
+    "empty": "No rows yet"
+  },
+  "form": {
+    "required": "This field is required",
+    "invalid": "This value isn't valid",
+    "invalidEmail": "Enter a valid email address"
+  },
+  "errors": {
+    "generic": "Something went wrong"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "pl": "Polski"
+  }
+}
