@@ -1,1 +1,67 @@
-{}
+{
+  "page": {
+    "title": "Budżet i wydatki",
+    "description": "Klient widzi budżet i sumę wydatków. Pozycje, dostawcy i paragony pozostają wewnętrzne.",
+    "addExpense": "Dodaj wydatek"
+  },
+  "stats": {
+    "budget": "Budżet",
+    "clientSeesBudget": "Klient to widzi",
+    "spent": "Wydano",
+    "clientSeesSpent": "Klient widzi tę sumę",
+    "overBudget": "Ponad budżet",
+    "remaining": "Pozostało",
+    "leftToSpend": "Zostało do wydania",
+    "used": "Wykorzystano",
+    "projectComplete": "Projekt ukończony w {{pct}}%"
+  },
+  "expenses": {
+    "heading": "Wydatki",
+    "date": "Data",
+    "description": "Opis",
+    "vendor": "Dostawca",
+    "stage": "Etap",
+    "noStage": "—",
+    "amount": "Kwota",
+    "openReceipt": "Otwórz paragon",
+    "total": "Suma wydatków",
+    "emptyTitle": "Brak wydatków",
+    "emptyDescription": "Wydano pozostanie na poziomie {{amount}}, dopóki nie dodasz wydatków."
+  },
+  "internalNotes": {
+    "title": "Wewnętrzne notatki budżetowe",
+    "placeholder": "Rezerwa, wyceny, marże…",
+    "save": "Zapisz notatki",
+    "saved": "Zapisano notatki wewnętrzne"
+  },
+  "sheet": {
+    "addTitle": "Dodaj wydatek",
+    "editTitle": "Edytuj wydatek",
+    "description": "Do klienta trafia tylko nowa suma wydatków.",
+    "descriptionLabel": "Opis",
+    "amount": "Kwota",
+    "amountPositive": "Podaj kwotę większą od 0",
+    "date": "Data",
+    "category": "Kategoria",
+    "stage": "Etap",
+    "stageNone": "—",
+    "vendor": "Dostawca",
+    "vendorNotes": "Notatki o dostawcy (wewnętrzne)",
+    "vendorNotesPlaceholder": "Kontakty, gwarancja, warunki płatności…",
+    "receipt": "Paragon (wewnętrzny)",
+    "receiptReplace": "Paragon (wewnętrzny) — zamień",
+    "save": "Zapisz wydatek",
+    "saved": "Zapisano wydatek — suma zaktualizowana",
+    "delete": "Usuń wydatek",
+    "deleted": "Usunięto wydatek",
+    "deleteConfirmTitle": "Usunąć ten wydatek?"
+  },
+  "category": {
+    "Labour": "Robocizna",
+    "Materials": "Materiały",
+    "Permits": "Pozwolenia",
+    "Disposal": "Utylizacja",
+    "Equipment": "Sprzęt",
+    "Other": "Inne"
+  }
+}

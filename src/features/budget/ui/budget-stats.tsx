@@ -1,40 +1,51 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Stat, StatChange, StatDelta, StatLabel, StatValue } from "@/components/ui/stat";
-import { money } from "@/lib/format";
-import type { budgetSummary } from "@/lib/budget";
+import { useFormat } from "@/i18n";
+import type { budgetSummary } from "@/domain/budget";
 import type { ProjectSummary } from "@/lib/database.types";
 
 /** The Budget page's four stat tiles: Budget, Spent (attention over budget), Remaining, Used. */
 export function BudgetStats({ project, budget }: { project: ProjectSummary; budget: ReturnType<typeof budgetSummary> }) {
+  const { t } = useTranslation(["budget", "common"]);
+  const format = useFormat();
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <Stat>
         <StatLabel>
-          <Icon name="euro" size={20} /> Budget
+          <Icon name="euro" size={20} /> {t("budget:stats.budget")}
         </StatLabel>
-        <StatValue>{money(project.budget)}</StatValue>
-        <StatChange>Client sees this</StatChange>
+        <StatValue>{format.money(project.budget)}</StatValue>
+        <StatChange>{t("budget:stats.clientSeesBudget")}</StatChange>
       </Stat>
       <Stat variant={budget.over ? "attention" : "default"}>
         <StatLabel>
-          <Icon name="account_balance_wallet" size={20} /> Spent
+          <Icon name="account_balance_wallet" size={20} /> {t("budget:stats.spent")}
         </StatLabel>
-        <StatValue>{money(project.spent)}</StatValue>
-        <StatChange>{budget.over ? <StatDelta tone="attention">↑ {budget.overPct}% over</StatDelta> : "Client sees this total"}</StatChange>
+        <StatValue>{format.money(project.spent)}</StatValue>
+        <StatChange>
+          {budget.over ? (
+            <StatDelta tone="attention">{t("common:attention.overBudget", { pct: budget.overPct })}</StatDelta>
+          ) : (
+            t("budget:stats.clientSeesSpent")
+          )}
+        </StatChange>
       </Stat>
       <Stat>
         <StatLabel>
-          <Icon name="savings" size={20} /> Remaining
+          <Icon name="savings" size={20} /> {t("budget:stats.remaining")}
         </StatLabel>
-        <StatValue>{money(budget.remaining)}</StatValue>
-        <StatChange>{budget.over ? <StatDelta tone="attention">Over budget</StatDelta> : "Left to spend"}</StatChange>
+        <StatValue>{format.money(budget.remaining)}</StatValue>
+        <StatChange>
+          {budget.over ? <StatDelta tone="attention">{t("budget:stats.overBudget")}</StatDelta> : t("budget:stats.leftToSpend")}
+        </StatChange>
       </Stat>
       <Stat>
         <StatLabel>
-          <Icon name="trending_up" size={20} /> Used
+          <Icon name="trending_up" size={20} /> {t("budget:stats.used")}
         </StatLabel>
         <StatValue>{budget.usedPct}%</StatValue>
-        <StatChange>Project {project.overall_progress}% complete</StatChange>
+        <StatChange>{t("budget:stats.projectComplete", { pct: project.overall_progress })}</StatChange>
       </Stat>
     </div>
   );

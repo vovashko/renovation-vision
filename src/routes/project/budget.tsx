@@ -1,56 +1,50 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { InternalBadge } from "@/components/manager/visibility-badge";
-import { ExpenseSheet } from "@/components/expense-sheet";
+import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
 import { BudgetStats } from "@/features/budget/ui/budget-stats";
 import { ExpenseTable } from "@/features/budget/ui/expense-table";
 import { InternalNotes } from "@/features/budget/ui/internal-notes";
-import { api } from "@/lib/api";
-import { useExpenses, useProject, useStages } from "@/lib/queries";
-import { budgetSummary } from "@/lib/budget";
+import { useExpenses, useOpenReceipt } from "@/features/budget/hooks/use-expenses";
+import { useProject, useStages } from "@/lib/queries";
+import { budgetSummary } from "@/domain/budget";
 import type { Expense } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/budget")({
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
-      { title: "Budget — RenoVision" },
-      { name: "description", content: "Track expenses, vendor notes and receipts. Clients only see the budget and spent totals." },
+      { title: `${match.context.i18n.t("budget:page.title")} — RenoVision` },
+      { name: "description", content: match.context.i18n.t("budget:page.description") },
     ],
   }),
   component: BudgetPage,
 });
 
 function BudgetPage() {
+  const { t } = useTranslation(["budget"]);
   const { projectId } = Route.useParams();
   const { data: project } = useProject(projectId);
   const { data: expenses, isLoading } = useExpenses(projectId);
   const { data: stages = [] } = useStages(projectId);
   const [editing, setEditing] = useState<Expense | "new" | null>(null);
+  const openReceipt = useOpenReceipt();
 
   if (isLoading || !expenses || !project) return <PageLoading />;
   const budget = budgetSummary(project);
 
-  const openReceipt = async (path: string) => {
-    try {
-      window.open(await api.receiptUrl(path), "_blank", "noopener");
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
-  };
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
       <PageHeader
-        title="Budget & expenses"
-        description="The client sees the budget and the spent total. Line items, vendors and receipts stay internal."
+        title={t("budget:page.title")}
+        description={t("budget:page.description")}
         actions={
           <Button onClick={() => setEditing("new")} className="gap-2">
-            <Icon name="add" size={20} /> Add expense
+            <Icon name="add" size={20} /> {t("budget:page.addExpense")}
           </Button>
         }
       />
@@ -62,7 +56,7 @@ function BudgetPage() {
 
       <section>
         <h2 className="mb-3 flex flex-wrap items-center gap-2 text-title-lg">
-          Expenses <InternalBadge />
+          {t("budget:expenses.heading")} <InternalBadge />
         </h2>
         <ExpenseTable expenses={expenses} stages={stages} onSelect={setEditing} onOpenReceipt={(path) => void openReceipt(path)} />
       </section>
