@@ -3,16 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { StatusPill } from "@/components/status-pill";
 import { lateLabel } from "@/lib/attention";
 import { cn } from "@/lib/utils";
 import type { Status } from "@/lib/status";
 import { statusMarker, statusTone } from "@/lib/status-ui";
-import { StatusPill } from "./status-pill";
 
-export type StageCardTask = { id?: string; name: string; done: boolean; muted?: boolean };
+export type StageRowTask = { id?: string; name: string; done: boolean; muted?: boolean };
 
-/** Vertical timeline for StageCards: a 2px line at x=21 in a 60px gutter. */
-export function StageList({ children, className }: { children: ReactNode; className?: string }) {
+/** Vertical timeline for StageRows: a 2px line at x=21 in a 60px gutter (the spec's stage timeline gutter). */
+export function StageRowList({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
@@ -35,7 +35,8 @@ function CheckBox({ done }: { done: boolean }) {
   );
 }
 
-export function StageCard({
+/** The stages page's expanded stage card: timeline marker, header, progress block and checklist. */
+export function StageRow({
   index,
   name,
   start,
@@ -56,10 +57,10 @@ export function StageCard({
   end: string;
   status: Status;
   progress: number;
-  tasks: StageCardTask[];
+  tasks: StageRowTask[];
   /** When set, checklist items become toggleable. */
-  onToggleTask?: (task: StageCardTask, i: number) => void;
-  onRemoveTask?: (task: StageCardTask, i: number) => void;
+  onToggleTask?: (task: StageRowTask, i: number) => void;
+  onRemoveTask?: (task: StageRowTask, i: number) => void;
   headerExtra?: ReactNode;
   /** Days past the end date, shown as an attention badge and the card's attention outline. */
   lateDays?: number;

@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
-export function ProjectHeaderCard({
+/** The client overview's project header card: name, address, manager and overall progress. */
+export function ProjectHeader({
   eyebrow = "Active project",
   name,
   address,

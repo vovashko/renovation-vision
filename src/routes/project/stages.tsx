@@ -1,17 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-// EmptyState (owned by another task) still takes a LucideIcon; swap this for Icon once it's ported.
-import { ListChecks } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { StageCard, StageList } from "@/components/stage-card";
-import { EmptyState } from "@/components/empty-state";
+import { FieldGroup } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { StageRow, StageRowList } from "@/features/work/ui/stage-row";
+import { StagesEmpty } from "@/features/work/ui/stages-empty";
+import { WorkField } from "@/features/work/ui/work-field";
 import { statusLabel, statuses, type Status } from "@/lib/status";
 import { deriveStatus, progressForStatus, statusForProgress } from "@/lib/status-progress";
-import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/manager/form-sheet";
+import { FormSheet, VisibleSwitch } from "@/components/manager/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/manager/visibility-badge";
 import { useAuth } from "@/lib/auth";
@@ -69,20 +70,15 @@ function StagesPage() {
       />
 
       {stages.length === 0 ? (
-        <EmptyState
-          className="mt-8"
-          icon={ListChecks}
-          title="No stages yet"
-          text="Add the first stage — demolition, electrical, flooring — with its dates."
-        />
+        <StagesEmpty className="mt-8" />
       ) : (
-        <StageList className="mt-8">
+        <StageRowList className="mt-8">
           {stages.map((s, i) => {
             const done = s.tasks.filter((t) => t.done).length;
             const fromChecklist = s.tasks.length ? Math.round((done / s.tasks.length) * 100) : null;
             return (
               <div key={s.id} id={s.id} className="scroll-mt-20">
-                <StageCard
+                <StageRow
                   index={i + 1}
                   name={s.name}
                   start={shortDate(s.start_date)}
@@ -134,11 +130,11 @@ function StagesPage() {
                       {s.client_note}
                     </p>
                   )}
-                </StageCard>
+                </StageRow>
               </div>
             );
           })}
-        </StageList>
+        </StageRowList>
       )}
 
       {isManager && (
@@ -169,16 +165,17 @@ function AddTask({ rooms, onAdd }: { rooms: Room[]; onAdd: (name: string, roomId
         className="h-10 min-w-0 flex-1 basis-full sm:basis-auto"
       />
       <NativeSelect
+        size="sm"
         value={roomId}
         onChange={(e) => setRoomId(e.target.value)}
         aria-label="Room this task affects"
-        wrapperClassName="w-36 shrink-0"
+        className="w-36 shrink-0"
       >
-        <option value="">No room</option>
+        <NativeSelectOption value="">No room</NativeSelectOption>
         {rooms.map((r) => (
-          <option key={r.id} value={r.id}>
+          <NativeSelectOption key={r.id} value={r.id}>
             {r.name}
-          </option>
+          </NativeSelectOption>
         ))}
       </NativeSelect>
       <Button type="submit" variant="outline" disabled={!name.trim()} className="h-10">
@@ -243,7 +240,6 @@ function StageSheet({
       description="Dates, status and progress appear on the client's timeline."
     >
       <form
-        className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
           const payload: StageInput = isNew
@@ -252,72 +248,74 @@ function StageSheet({
           save.mutate(payload, { onSuccess: onClose });
         }}
       >
-        <Field id="st-name" label="Stage name">
-          <Input id="st-name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-11" />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field id="st-start" label="Start">
-            <Input
-              id="st-start"
-              type="date"
-              required
-              value={form.start_date}
-              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-              className="h-11"
+        <FieldGroup>
+          <WorkField id="st-name" label="Stage name">
+            <Input id="st-name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-11" />
+          </WorkField>
+          <div className="grid grid-cols-2 gap-3">
+            <WorkField id="st-start" label="Start">
+              <Input
+                id="st-start"
+                type="date"
+                required
+                value={form.start_date}
+                onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                className="h-11"
+              />
+            </WorkField>
+            <WorkField id="st-end" label="End">
+              <Input
+                id="st-end"
+                type="date"
+                required
+                value={form.end_date}
+                onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+                className="h-11"
+              />
+            </WorkField>
+          </div>
+          {invalidDates && <p className="text-sm text-destructive">End date must be on or after the start date.</p>}
+          <WorkField id="st-status" label="Status">
+            <NativeSelect id="st-status" value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
+              {statuses.map((s) => (
+                <NativeSelectOption key={s} value={s}>
+                  {statusLabel[s]}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </WorkField>
+          <WorkField id="st-progress" label={`Progress — ${form.progress}%`}>
+            <Slider
+              id="st-progress"
+              min={0}
+              max={100}
+              step={5}
+              value={[form.progress]}
+              onValueChange={([v]) => setProgress(v)}
+              className="py-3"
             />
-          </Field>
-          <Field id="st-end" label="End">
-            <Input
-              id="st-end"
-              type="date"
-              required
-              value={form.end_date}
-              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-              className="h-11"
-            />
-          </Field>
-        </div>
-        {invalidDates && <p className="text-sm text-destructive">End date must be on or after the start date.</p>}
-        <Field id="st-status" label="Status">
-          <NativeSelect id="st-status" value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {statusLabel[s]}
-              </option>
-            ))}
-          </NativeSelect>
-        </Field>
-        <Field id="st-progress" label={`Progress — ${form.progress}%`}>
-          <Slider
-            id="st-progress"
-            min={0}
-            max={100}
-            step={5}
-            value={[form.progress]}
-            onValueChange={([v]) => setProgress(v)}
-            className="py-3"
-          />
-        </Field>
-        <Field id="st-note" label="Note for the client (optional)">
-          <Textarea id="st-note" value={form.client_note} onChange={(e) => setForm({ ...form, client_note: e.target.value })} />
-        </Field>
-        <VisibleSwitch id="st-visible" checked={form.is_visible} onChange={(v) => setForm({ ...form, is_visible: v })} />
-        {roomNames.length > 0 && <p className="text-xs text-muted-foreground">Tasks in this stage affect: {roomNames.join(", ")}.</p>}
-        <Button type="submit" disabled={save.isPending || invalidDates || !form.name.trim()} className="min-h-11 w-full">
-          {save.isPending ? "Saving…" : "Save stage"}
-        </Button>
-        {!isNew && stage && (
-          <Button
-            type="button"
-            variant="ghost"
-            className="min-h-11 w-full gap-2 text-destructive"
-            onClick={() =>
-              confirm(`Delete "${stage.name}" and its ${stage.tasks.length} tasks?`) && remove.mutate(stage.id, { onSuccess: onClose })
-            }
-          >
-            <Icon name="delete" size={20} /> Delete stage
+          </WorkField>
+          <WorkField id="st-note" label="Note for the client (optional)">
+            <Textarea id="st-note" value={form.client_note} onChange={(e) => setForm({ ...form, client_note: e.target.value })} />
+          </WorkField>
+          <VisibleSwitch id="st-visible" checked={form.is_visible} onChange={(v) => setForm({ ...form, is_visible: v })} />
+          {roomNames.length > 0 && <p className="text-xs text-muted-foreground">Tasks in this stage affect: {roomNames.join(", ")}.</p>}
+          <Button type="submit" disabled={save.isPending || invalidDates || !form.name.trim()} className="min-h-11 w-full">
+            {save.isPending ? "Saving…" : "Save stage"}
           </Button>
-        )}
+          {!isNew && stage && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="min-h-11 w-full gap-2 text-destructive"
+              onClick={() =>
+                confirm(`Delete "${stage.name}" and its ${stage.tasks.length} tasks?`) && remove.mutate(stage.id, { onSuccess: onClose })
+              }
+            >
+              <Icon name="delete" size={20} /> Delete stage
+            </Button>
+          )}
+        </FieldGroup>
       </form>
     </FormSheet>
   );

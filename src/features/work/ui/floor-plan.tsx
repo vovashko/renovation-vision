@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { statusLabel, type Status } from "@/lib/status";
-import { statusContainer, statusOutline, statusTone } from "@/lib/status-ui";
+import { statusContainer, statusOutline } from "@/lib/status-ui";
 import { Card } from "@/components/ui/card";
-import { ProgressBar } from "@/components/ui/progress-bar";
-import { StatusLegend, StatusPill } from "./status-pill";
+import { StatusLegend } from "@/components/status-pill";
+import { SelectedRoomPanel, type SelectedRoom } from "./selected-room-panel";
 
 export type FloorPlanRoom = {
   id: string;
@@ -20,7 +20,9 @@ export type FloorPlanRoom = {
 };
 
 // Plan geometry: rooms live on a 600x420 grid. Each tile is inset by GAP on every side so
-// neighbouring rooms sit 2*GAP plan-units apart (~6px at a typical rendered width).
+// neighbouring rooms sit 2*GAP plan-units apart (~6px at a typical rendered width). This grid
+// has no shadcn/spec primitive to compose from — it's a genuinely bespoke, positioned widget —
+// so its tiles are styled here directly, through the shared status-ui.ts token maps only.
 const GRID_W = 600;
 const GRID_H = 420;
 const GAP = 3;
@@ -93,7 +95,7 @@ export function FloorPlan({
       <Card variant="tinted" className="p-5 lg:self-start">
         {detail ??
           (active ? (
-            <RoomDetail room={active} />
+            <SelectedRoomPanel room={active} />
           ) : (
             <p className="text-body-md text-on-surface-variant">Click any room on the floor plan to view its current renovation status.</p>
           ))}
@@ -102,21 +104,4 @@ export function FloorPlan({
   );
 }
 
-/** Selected room panel content (goes inside the tinted card beside the plan). */
-export function RoomDetail({ room, children }: { room: FloorPlanRoom; children?: ReactNode }) {
-  return (
-    <>
-      <div className="text-body-md text-on-surface-variant">Selected room</div>
-      <h3 className="mt-1 text-title-lg">{room.name}</h3>
-      <StatusPill status={room.status} size="sm" onPanel className="mt-3" />
-      <div className="mt-5 flex justify-between text-body-md">
-        <span className="text-on-surface-variant">Progress</span>
-        <span className="font-medium text-on-surface">{room.progress}%</span>
-      </div>
-      <ProgressBar value={room.progress} tone={statusTone[room.status]} onPanel className="mt-2" aria-label={`${room.name} progress`} />
-      {children ?? (
-        <p className="mt-5 text-body-md text-on-surface-variant">Click any room on the floor plan to view its current renovation status.</p>
-      )}
-    </>
-  );
-}
+export type { SelectedRoom };

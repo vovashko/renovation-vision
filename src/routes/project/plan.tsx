@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-// EmptyState (owned by another task) still takes a LucideIcon; swap this for Icon once it's ported.
-import { Map as MapIcon } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { FloorPlan, RoomDetail } from "@/components/floor-plan";
-import { RoomCard } from "@/components/room-card";
-import { EmptyState } from "@/components/empty-state";
+import { FieldGroup } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { FloorPlan } from "@/features/work/ui/floor-plan";
+import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
+import { RoomList } from "@/features/work/ui/room-list";
+import { RoomsEmpty } from "@/features/work/ui/rooms-empty";
+import { WorkField } from "@/features/work/ui/work-field";
 import { statusLabel, statuses, type Status } from "@/lib/status";
 import { progressForStatus, statusForProgress } from "@/lib/status-progress";
-import { Field, FormSheet, NativeSelect, VisibleSwitch } from "@/components/manager/form-sheet";
+import { FormSheet, VisibleSwitch } from "@/components/manager/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/manager/visibility-badge";
 import { useAuth } from "@/lib/auth";
@@ -69,7 +71,7 @@ function PlanPage() {
       />
 
       {rooms.length === 0 ? (
-        <EmptyState className="mt-6" icon={MapIcon} title="No rooms yet" text="Add rooms with their position on the 600×420 plan grid." />
+        <RoomsEmpty className="mt-6" />
       ) : (
         <>
           <div className="mt-6">
@@ -86,7 +88,7 @@ function PlanPage() {
                     openTasks={openTasks(active.id).map((t) => t.name)}
                   />
                 ) : (
-                  <RoomDetail room={active}>
+                  <SelectedRoomPanel room={active}>
                     {active.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{active.client_note}</p>}
                     {openTasks(active.id).length > 0 && (
                       <div className="mt-5">
@@ -98,31 +100,32 @@ function PlanPage() {
                         </ul>
                       </div>
                     )}
-                  </RoomDetail>
+                  </SelectedRoomPanel>
                 )
               }
             />
           </div>
 
           <h2 className="mt-10 text-title-lg">Rooms</h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {rooms.map((r) => (
-              <RoomCard
-                key={r.id}
-                name={r.name}
-                status={r.status}
-                progress={r.progress}
-                active={r.id === activeId}
-                muted={isManager && !r.is_visible}
-                onClick={() => setActiveId(r.id)}
-              >
-                {isManager && !r.is_visible && (
-                  <div className="mt-2">
+          <div className="mt-3">
+            <RoomList
+              rooms={rooms.map((r) => ({
+                id: r.id,
+                name: r.name,
+                status: r.status,
+                progress: r.progress,
+                muted: isManager && !r.is_visible,
+              }))}
+              activeId={activeId}
+              onSelect={(r) => setActiveId(r.id)}
+              rowExtra={(r) =>
+                isManager && r.muted ? (
+                  <div className="mt-1">
                     <VisibilityBadge visible={false} />
                   </div>
-                )}
-              </RoomCard>
-            ))}
+                ) : null
+              }
+            />
           </div>
         </>
       )}
@@ -212,77 +215,78 @@ function RoomFields({
 
   return (
     <form
-      className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         save.mutate({ ...form, ...extra, ...(id ? { id } : { key: slugify(form.name) }) }, { onSuccess: () => onSaved?.() });
       }}
     >
-      {!compact && (
-        <Field id={`${pre}-name`} label="Room name">
-          <Input
-            id={`${pre}-name`}
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="h-11"
+      <FieldGroup>
+        {!compact && (
+          <WorkField id={`${pre}-name`} label="Room name">
+            <Input
+              id={`${pre}-name`}
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="h-11"
+            />
+          </WorkField>
+        )}
+        <WorkField id={`${pre}-status`} label="Status">
+          <NativeSelect id={`${pre}-status`} value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
+            {statuses.map((s) => (
+              <NativeSelectOption key={s} value={s}>
+                {statusLabel[s]}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </WorkField>
+        {blockedByTasks && (
+          <p className="rounded-md bg-status-blocked-container p-2 text-body-sm text-on-status-blocked-container" role="alert">
+            Can't mark Completed while tasks are open: {openTasks.join(", ")}.
+          </p>
+        )}
+        <WorkField id={`${pre}-progress`} label={`Progress — ${form.progress}%`}>
+          <Slider
+            id={`${pre}-progress`}
+            min={0}
+            max={100}
+            step={5}
+            value={[form.progress]}
+            onValueChange={([v]) => setProgress(v)}
+            className="py-3"
           />
-        </Field>
-      )}
-      <Field id={`${pre}-status`} label="Status">
-        <NativeSelect id={`${pre}-status`} value={form.status} onChange={(e) => setStatus(e.target.value as Status)}>
-          {statuses.map((s) => (
-            <option key={s} value={s}>
-              {statusLabel[s]}
-            </option>
-          ))}
-        </NativeSelect>
-      </Field>
-      {blockedByTasks && (
-        <p className="rounded-md bg-status-blocked-container p-2 text-body-sm text-on-status-blocked-container" role="alert">
-          Can't mark Completed while tasks are open: {openTasks.join(", ")}.
-        </p>
-      )}
-      <Field id={`${pre}-progress`} label={`Progress — ${form.progress}%`}>
-        <Slider
-          id={`${pre}-progress`}
-          min={0}
-          max={100}
-          step={5}
-          value={[form.progress]}
-          onValueChange={([v]) => setProgress(v)}
-          className="py-3"
-        />
-      </Field>
-      <Field id={`${pre}-note`} label="Note for the client">
-        <Textarea
-          id={`${pre}-note`}
-          value={form.client_note}
-          onChange={(e) => setForm({ ...form, client_note: e.target.value })}
-          placeholder={form.status === "blocked" ? "What is it waiting on?" : "Optional"}
-        />
-      </Field>
-      <VisibleSwitch id={`${pre}-visible`} checked={form.is_visible} onChange={(v) => setForm({ ...form, is_visible: v })} />
-      {showGeometry && (
-        <div className="grid grid-cols-4 gap-2">
-          {(["x", "y", "w", "h"] as const).map((k) => (
-            <Field key={k} id={`${pre}-${k}`} label={k.toUpperCase()}>
-              <Input
-                id={`${pre}-${k}`}
-                type="number"
-                min={k === "w" || k === "h" ? 10 : 0}
-                max={k === "x" || k === "w" ? 600 : 420}
-                value={form[k]}
-                onChange={(e) => setForm({ ...form, [k]: Number(e.target.value) })}
-                className="h-10 px-2"
-              />
-            </Field>
-          ))}
-        </div>
-      )}
-      <Button type="submit" disabled={save.isPending || blockedByTasks || !form.name.trim()} className="min-h-11 w-full">
-        {save.isPending ? "Saving…" : id ? "Save room" : "Add room"}
-      </Button>
+        </WorkField>
+        <WorkField id={`${pre}-note`} label="Note for the client">
+          <Textarea
+            id={`${pre}-note`}
+            value={form.client_note}
+            onChange={(e) => setForm({ ...form, client_note: e.target.value })}
+            placeholder={form.status === "blocked" ? "What is it waiting on?" : "Optional"}
+          />
+        </WorkField>
+        <VisibleSwitch id={`${pre}-visible`} checked={form.is_visible} onChange={(v) => setForm({ ...form, is_visible: v })} />
+        {showGeometry && (
+          <div className="grid grid-cols-4 gap-2">
+            {(["x", "y", "w", "h"] as const).map((k) => (
+              <WorkField key={k} id={`${pre}-${k}`} label={k.toUpperCase()}>
+                <Input
+                  id={`${pre}-${k}`}
+                  type="number"
+                  min={k === "w" || k === "h" ? 10 : 0}
+                  max={k === "x" || k === "w" ? 600 : 420}
+                  value={form[k]}
+                  onChange={(e) => setForm({ ...form, [k]: Number(e.target.value) })}
+                  className="h-10 px-2"
+                />
+              </WorkField>
+            ))}
+          </div>
+        )}
+        <Button type="submit" disabled={save.isPending || blockedByTasks || !form.name.trim()} className="min-h-11 w-full">
+          {save.isPending ? "Saving…" : id ? "Save room" : "Add room"}
+        </Button>
+      </FieldGroup>
     </form>
   );
 }
