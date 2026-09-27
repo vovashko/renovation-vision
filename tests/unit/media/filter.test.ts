@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterPhotos, groupPhotosByDate, dayLabel } from "@/lib/photo-helpers";
+import { filterPhotos, groupPhotosByDate, toLightboxItem } from "@/features/media/domain/photo-helpers";
 import type { Photo } from "@/lib/database.types";
 
 function photo(overrides: Partial<Photo> = {}): Photo {
@@ -57,35 +57,18 @@ describe("filterPhotos", () => {
   });
 });
 
-describe("dayLabel", () => {
-  const now = new Date("2026-04-20T18:00:00");
-
-  it("labels the same calendar day as Today", () => {
-    expect(dayLabel("2026-04-20T08:00:00", now)).toBe("Today");
-  });
-
-  it("labels the previous calendar day as Yesterday", () => {
-    expect(dayLabel("2026-04-19T23:59:00", now)).toBe("Yesterday");
-  });
-
-  it("labels older dates as a short month/day", () => {
-    expect(dayLabel("2026-03-10T12:00:00", now)).toBe("Mar 10");
-  });
-});
-
 describe("groupPhotosByDate", () => {
-  const now = new Date("2026-04-20T18:00:00");
-
-  it("groups consecutive photos sharing a day, preserving input order", () => {
+  it("groups consecutive photos sharing a calendar day, preserving input order", () => {
     const photos = [
       photo({ id: "1", taken_at: "2026-04-20T10:00:00" }),
       photo({ id: "2", taken_at: "2026-04-20T08:00:00" }),
       photo({ id: "3", taken_at: "2026-04-19T16:00:00" }),
       photo({ id: "4", taken_at: "2026-03-10T09:00:00" }),
     ];
-    const groups = groupPhotosByDate(photos, now);
-    expect(groups.map((g) => g.label)).toEqual(["Today", "Yesterday", "Mar 10"]);
+    const groups = groupPhotosByDate(photos);
+    expect(groups).toHaveLength(3);
     expect(groups[0].items.map((p) => p.id)).toEqual(["1", "2"]);
+    expect(groups[0].date).toBe("2026-04-20T10:00:00");
     expect(groups[1].items.map((p) => p.id)).toEqual(["3"]);
     expect(groups[2].items.map((p) => p.id)).toEqual(["4"]);
   });
@@ -96,11 +79,29 @@ describe("groupPhotosByDate", () => {
       photo({ id: "2", taken_at: "2026-04-19T16:00:00" }),
       photo({ id: "3", taken_at: "2026-04-20T08:00:00" }),
     ];
-    const groups = groupPhotosByDate(photos, now);
-    expect(groups.map((g) => g.label)).toEqual(["Today", "Yesterday", "Today"]);
+    const groups = groupPhotosByDate(photos);
+    expect(groups.map((g) => g.items.map((p) => p.id))).toEqual([["1"], ["2"], ["3"]]);
   });
 
   it("returns an empty array for empty input", () => {
-    expect(groupPhotosByDate([], now)).toEqual([]);
+    expect(groupPhotosByDate([])).toEqual([]);
+  });
+});
+
+describe("toLightboxItem", () => {
+  it("uses the caption as the title when present", () => {
+    const item = toLightboxItem(photo({ caption: "New tiles" }), { fallbackTitle: "Site photo", subtitle: "20 Apr", tags: ["Kitchen"] });
+    expect(item).toEqual({
+      src: "https://example.com/path.jpg",
+      alt: "A photo",
+      title: "New tiles",
+      subtitle: "20 Apr",
+      tags: ["Kitchen"],
+    });
+  });
+
+  it("falls back to the given title when there is no caption", () => {
+    const item = toLightboxItem(photo({ caption: "" }), { fallbackTitle: "Site photo" });
+    expect(item.title).toBe("Site photo");
   });
 });

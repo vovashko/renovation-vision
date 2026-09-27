@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +18,7 @@ export function RenderCard({
   onToggleVisible: () => void;
   onEdit: () => void;
 }) {
+  const { t } = useTranslation(["media"]);
   return (
     <Card className={isManager && !render.is_visible ? "overflow-hidden border-dashed" : "overflow-hidden"}>
       <img src={render.url} alt={render.alt} loading="lazy" width={1024} height={768} className="aspect-[4/3] w-full object-cover" />
@@ -25,10 +27,20 @@ export function RenderCard({
         <p className="text-body-md text-on-surface-variant">{render.description}</p>
         {isManager && (
           <div className="mt-2 flex items-center justify-between gap-2">
-            <VisibilityBadge visible={render.is_visible} />
+            <VisibilityBadge visible={render.is_visible} hiddenLabel={t("renderCard.hiddenFromClient")} />
             <div className="flex items-center gap-1">
-              <Switch checked={render.is_visible} onCheckedChange={onToggleVisible} aria-label={`Share ${render.title} with client`} />
-              <Button size="icon" variant="ghost" className="h-9 w-9" onClick={onEdit} aria-label={`Edit ${render.title}`}>
+              <Switch
+                checked={render.is_visible}
+                onCheckedChange={onToggleVisible}
+                aria-label={t("renderCard.shareAria", { title: render.title })}
+              />
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9"
+                onClick={onEdit}
+                aria-label={t("renderCard.editAria", { title: render.title })}
+              >
                 <Icon name="edit" size={20} />
               </Button>
             </div>
