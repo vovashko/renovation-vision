@@ -4,7 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { FormSheet, VisibleSwitch } from "@/components/manager/form-sheet";
+import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { api, type KnowledgeInput } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Knowledge } from "@/lib/database.types";

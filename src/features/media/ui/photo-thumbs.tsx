@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Lightbox } from "@/components/lightbox";
+import { focusRing } from "@/components/ui/focus-ring";
+import { cn } from "@/lib/utils";
 import { toLightboxItem } from "@/lib/photo-helpers";
 import type { Photo } from "@/lib/database.types";
 
@@ -26,7 +28,7 @@ export function PhotoThumbs({
             <button
               onClick={() => setOpen(i)}
               aria-label={`Open photo: ${p.caption || "site photo"}`}
-              className="block w-full overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className={cn("block w-full overflow-hidden rounded-sm", focusRing)}
             >
               {p.url ? (
                 <img src={p.url} alt={p.alt} loading="lazy" width={256} height={256} className="aspect-square w-full object-cover" />

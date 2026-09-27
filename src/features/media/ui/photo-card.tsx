@@ -2,6 +2,8 @@ import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { focusRingInset } from "@/components/ui/focus-ring";
+import { cn } from "@/lib/utils";
 import { dateTime } from "@/lib/format";
 import type { Photo } from "@/lib/database.types";
 
@@ -29,7 +31,7 @@ export function PhotoCard({
     <Card className={isDraft ? "overflow-hidden border-dashed" : "overflow-hidden"}>
       <button
         onClick={onOpen}
-        className="relative block w-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+        className={cn("relative block w-full", focusRingInset)}
         aria-label={`Open photo: ${photo.caption || "site photo"}`}
       >
         {photo.url ? (
@@ -40,7 +42,7 @@ export function PhotoCard({
           </div>
         )}
         {isDraft && (
-          <Badge icon="visibility_off" className="absolute top-3 left-3 bg-inverse-surface text-inverse-on-surface">
+          <Badge icon="visibility_off" variant="scrim" className="absolute top-3 left-3">
             Draft — client can&rsquo;t see
           </Badge>
         )}

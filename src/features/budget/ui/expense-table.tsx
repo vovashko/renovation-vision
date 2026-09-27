@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia } from "@/components/ui/empty";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -61,16 +62,18 @@ export function ExpenseTable({
               <TableCell className="text-right font-medium whitespace-nowrap tabular-nums">{money(e.amount)}</TableCell>
               <TableCell className="text-right">
                 {e.receipt_path && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9"
                     onClick={(ev) => {
                       ev.stopPropagation();
                       onOpenReceipt(e.receipt_path!);
                     }}
                     aria-label="Open receipt"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high"
                   >
                     <Icon name="attach_file" size={20} />
-                  </button>
+                  </Button>
                 )}
               </TableCell>
             </TableRow>

@@ -61,4 +61,42 @@ describe("Item", () => {
     const row = container.firstElementChild!;
     for (const c of ["rounded-xl", "py-3.5", "pl-3.5", "pr-5", "gap-3.5"]) expect(row.className).toContain(c);
   });
+
+  it("has no unconditional outline-none, so a selected outline isn't cancelled", () => {
+    const { container } = render(<Item selected tone="progress" />);
+    const row = container.firstElementChild!;
+    expect(row.className).toContain("outline-2");
+    expect(row.className).toContain("outline-status-progress");
+    expect(row.className).not.toContain("outline-none");
+  });
+
+  it("selected outlines in the given status tone, unselected does not", () => {
+    const { container: done } = render(<Item selected tone="done" />);
+    expect(done.firstElementChild!.className).toContain("outline-status-done");
+    const { container: plain } = render(<Item tone="done" />);
+    expect(plain.firstElementChild!.className).not.toContain("outline-status-done");
+  });
+
+  it("attention adds the outline and a dot", () => {
+    const { container } = render(<Item attention>content</Item>);
+    const row = container.firstElementChild!;
+    expect(row.className).toContain("border-attention-outline");
+    expect(row.querySelector("[aria-hidden]")).toHaveClass("bg-attention");
+  });
+
+  it("attention works with asChild (a single dot, not a React.Children.only crash)", () => {
+    render(
+      <Item asChild attention>
+        <a href="/x">Row</a>
+      </Item>,
+    );
+    const link = screen.getByRole("link", { name: "Row" });
+    expect(link.className).toContain("border-attention-outline");
+    expect(link.querySelector("[aria-hidden]")).toHaveClass("bg-attention");
+  });
+
+  it("ItemTitle size=lg is bigger than the row's own lg title size", () => {
+    render(<ItemTitle size="lg">Big</ItemTitle>);
+    expect(screen.getByText("Big").className).toContain("text-title-lg");
+  });
 });

@@ -1,4 +1,4 @@
-import { initials } from "@/components/chat";
+import { initials } from "@/components/ui/avatar-initials";
 import { cn } from "@/lib/utils";
 
 /** Round profile photo, or initials when there is none. Pass a `size-*` class to resize. */

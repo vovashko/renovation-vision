@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FormSheet, NativeSelect } from "@/components/manager/form-sheet";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { NativeSelect } from "@/components/ui/native-select";
+import { FormSheet } from "@/shared/ui/form-sheet";
 import { PageLoading } from "@/components/page-header";
 import { UploadSheet } from "@/components/photo-upload-sheet";
 import { ExpenseSheet } from "@/components/expense-sheet";
@@ -182,17 +184,21 @@ function ProjectDetailsSheet({
           );
         }}
       >
-        <Field id="pd-name" label="Project name">
+        <Field>
+          <FieldLabel htmlFor="pd-name">Project name</FieldLabel>
           <Input id="pd-name" required value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} className="h-11" />
         </Field>
-        <Field id="pd-address" label="Address">
+        <Field>
+          <FieldLabel htmlFor="pd-address">Address</FieldLabel>
           <Input id="pd-address" value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} className="h-11" />
         </Field>
-        <Field id="pd-client" label="Client name">
+        <Field>
+          <FieldLabel htmlFor="pd-client">Client name</FieldLabel>
           <Input id="pd-client" value={form.client_name ?? ""} onChange={(e) => set("client_name", e.target.value)} className="h-11" />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field id="pd-start" label="Start">
+          <Field>
+            <FieldLabel htmlFor="pd-start">Start</FieldLabel>
             <Input
               id="pd-start"
               type="date"
@@ -201,7 +207,8 @@ function ProjectDetailsSheet({
               className="h-11"
             />
           </Field>
-          <Field id="pd-target" label="Target">
+          <Field>
+            <FieldLabel htmlFor="pd-target">Target</FieldLabel>
             <Input
               id="pd-target"
               type="date"
@@ -211,7 +218,8 @@ function ProjectDetailsSheet({
             />
           </Field>
         </div>
-        <Field id="pd-budget" label="Budget ($)" hint="Spent is calculated from the expenses on the Budget page.">
+        <Field>
+          <FieldLabel htmlFor="pd-budget">Budget ($)</FieldLabel>
           <Input
             id="pd-budget"
             type="number"
@@ -221,8 +229,10 @@ function ProjectDetailsSheet({
             onChange={(e) => set("budget", Number(e.target.value))}
             className="h-11"
           />
+          <FieldDescription>Spent is calculated from the expenses on the Budget page.</FieldDescription>
         </Field>
-        <Field id="pd-schedule" label="Schedule status" hint="Shown on the client's overview. Changing it notifies the client.">
+        <Field>
+          <FieldLabel htmlFor="pd-schedule">Schedule status</FieldLabel>
           <NativeSelect
             id="pd-schedule"
             value={form.schedule_status}
@@ -234,8 +244,10 @@ function ProjectDetailsSheet({
               </option>
             ))}
           </NativeSelect>
+          <FieldDescription>Shown on the client's overview. Changing it notifies the client.</FieldDescription>
         </Field>
-        <Field id="pd-note" label="Schedule note for the client">
+        <Field>
+          <FieldLabel htmlFor="pd-note">Schedule note for the client</FieldLabel>
           <Textarea
             id="pd-note"
             value={form.schedule_note ?? ""}

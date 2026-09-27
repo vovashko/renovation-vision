@@ -137,11 +137,13 @@ function AuthGate() {
   return <Shell />;
 }
 
-/** Tinted panel as wide as the page content below it; scrolls with the page. */
-function ProjectTopBar({ project }: { project?: ProjectSummary }) {
+/** Tinted panel as wide as the page content below it; scrolls with the page. `narrow` matches the
+ * chat page's centered chat panel (`md:max-w-3xl` in routes/project/chat.tsx), instead of the
+ * page-wide `max-w-7xl` every other route uses. */
+function ProjectTopBar({ project, narrow }: { project?: ProjectSummary; narrow?: boolean }) {
   return (
     <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
-      <Card variant="tinted" className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-5">
+      <Card variant="tinted" className={cn("mx-auto flex h-16 w-full items-center gap-3 px-5", narrow ? "max-w-3xl" : "max-w-7xl")}>
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="truncate text-title-md">{project?.name ?? "…"}</span>
           <span className="hidden truncate text-body-sm text-on-surface-variant md:block">{project?.address}</span>
@@ -167,12 +169,13 @@ function Shell() {
   const isOverview = !!projectId && path.replace(/\/$/, "") === `/projects/${projectId}`;
   // Top bar only inside a project, past the Overview. Projects list, Settings and Overview start at the top.
   const showTopBar = !!projectId && !isOverview;
+  const isChat = !!projectId && path.replace(/\/$/, "") === `/projects/${projectId}/chat`;
 
   return (
     <div className="flex min-h-screen w-full bg-surface text-on-surface">
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        {showTopBar && <ProjectTopBar project={project} />}
+        {showTopBar && <ProjectTopBar project={project} narrow={isChat} />}
         <main
           className={cn(
             "min-w-0 flex-1 p-4 md:px-8 md:pb-8",
