@@ -17,7 +17,8 @@ export function MobileTabBar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const { profile } = useAuth();
-  const { t } = useTranslation(["common"]);
+  // "work" is needed for the Progress nav item's `work:nav.progress` label (nav-config.ts).
+  const { t } = useTranslation(["common", "work"]);
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 

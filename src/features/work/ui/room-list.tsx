@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ItemGroup } from "@/components/ui/item";
 import { RoomRow } from "./room-row";
-import type { Status } from "@/lib/status";
+import type { Status } from "@/domain/status";
 
 export type RoomListRoom = { id: string; name: string; status: Status; progress: number; muted?: boolean };
 

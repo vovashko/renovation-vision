@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/icon";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
-import { statusLabel, type Status } from "@/lib/status";
+import type { Status } from "@/domain/status";
+import { useStatusLabel } from "@/i18n";
 import { roomIcon } from "./room-icon";
 
 /**
@@ -26,6 +27,7 @@ export function RoomRow({
   onClick?: () => void;
   children?: ReactNode;
 }) {
+  const statusLabel = useStatusLabel();
   return (
     <Item asChild selected={active} tone={status} className={cn(muted && "opacity-70")}>
       <button type="button" onClick={onClick} aria-pressed={!!active}>
@@ -33,7 +35,7 @@ export function RoomRow({
         <ItemContent>
           <ItemTitle>{name}</ItemTitle>
           <ItemDescription>
-            {statusLabel[status]} · {progress}%
+            {statusLabel(status)} · {progress}%
           </ItemDescription>
           {children}
         </ItemContent>

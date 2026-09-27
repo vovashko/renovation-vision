@@ -9,6 +9,8 @@ export const routes = rootRoute("__root.tsx", [
     index("projects.tsx"),
     route("$projectId", "project/layout.tsx", [
       index("project/overview.tsx"),
+      route("progress", "project/progress.tsx"),
+      // Kept as redirects to progress?view=timeline / progress?view=plan so old links still work.
       route("stages", "project/stages.tsx"),
       route("plan", "project/plan.tsx"),
       route("photos", "project/photos.tsx"),

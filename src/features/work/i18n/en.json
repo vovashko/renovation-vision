@@ -1,1 +1,149 @@
-{}
+{
+  "nav": {
+    "progress": "Progress"
+  },
+  "overview": {
+    "eyebrow": "Active project",
+    "projectFacts": "Project facts",
+    "manager": "Manager",
+    "overallProgress": "Overall progress",
+    "currentlyWorkingOnPrefix": "Currently working on",
+    "scheduleNote": "Schedule note: ",
+    "stageTimeline": "Stage timeline",
+    "allStages": "All stages",
+    "floorPlanVisualisation": "Floor plan visualisation",
+    "openPlan": "Open plan"
+  },
+  "stats": {
+    "started": "Started",
+    "target": "Target: {{date}}",
+    "stagesDone": "Stages done",
+    "onSchedule": "On schedule",
+    "stagesLate_one": "{{count}} stage late",
+    "stagesLate_few": "{{count}} stages late",
+    "stagesLate_many": "{{count}} stages late",
+    "stagesLate_other": "{{count}} stages late",
+    "budgetSpent": "Budget spent",
+    "overBudget": "↑ {{pct}}% over",
+    "budgetUsed": "{{pct}}% used",
+    "ofPlan": "of the {{amount}} plan",
+    "siteManager": "Site manager",
+    "pointOfContact": "Your point of contact",
+    "noManager": "—"
+  },
+  "progress": {
+    "title": "Progress",
+    "descriptionManager": "Tick tasks as the crew finishes them. Clients see visible stages and tasks instantly.",
+    "descriptionClient": "Every stage of your renovation and its checklist, updated by your site manager.",
+    "tabsLabel": "Progress view",
+    "tabTimeline": "Timeline",
+    "tabPlan": "Floor plan",
+    "addStage": "Add stage"
+  },
+  "stageRow": {
+    "progress": "Progress",
+    "progressAriaLabel": "{{name}} progress",
+    "editStage": "Edit {{name}}",
+    "removeTask": "Remove task {{name}}",
+    "removeTaskConfirmTitle": "Remove \"{{name}}\"?",
+    "noteForClient": "Note for client: ",
+    "checklistMismatch": "Checklist is {{done}}/{{total}} done ({{pct}}%). Progress shows {{progress}}%.",
+    "useChecklistPct": "Use {{pct}}%"
+  },
+  "stagesEmpty": {
+    "title": "No stages yet",
+    "description": "Add the first stage — demolition, electrical, flooring — with its dates."
+  },
+  "addTask": {
+    "placeholder": "Add a task…",
+    "nameLabel": "New task name",
+    "roomLabel": "Room this task affects",
+    "noRoom": "No room",
+    "submit": "Add"
+  },
+  "stageForm": {
+    "addTitle": "Add stage",
+    "editTitle": "Edit stage",
+    "description": "Dates, status and progress appear on the client's timeline.",
+    "name": "Stage name",
+    "start": "Start",
+    "end": "End",
+    "status": "Status",
+    "progress": "Progress — {{pct}}%",
+    "note": "Note for the client (optional)",
+    "visibleToClient": "Visible to client",
+    "affects": "Tasks in this stage affect: {{rooms}}.",
+    "save": "Save stage",
+    "saving": "Saving…",
+    "delete": "Delete stage",
+    "deleteConfirmTitle": "Delete stage?",
+    "deleteConfirmDescription": "Delete \"{{name}}\" and its {{count}} tasks?",
+    "saved": "Stage saved — visible in the client app",
+    "removed": "Stage removed",
+    "taskRemoved": "Removed \"{{name}}\"",
+    "endBeforeStart": "End date must be on or after the start date",
+    "statusProgressMismatch": "Completed and 100% always go together"
+  },
+  "plan": {
+    "title": "Floor plan",
+    "descriptionManager": "Select a room to update what the client sees on their plan.",
+    "descriptionClient": "Select a room to see its progress and what is happening there.",
+    "addRoom": "Add room",
+    "addRoomDescription": "Position is in plan units (600 wide × 420 high).",
+    "roomsHeading": "Rooms",
+    "stillToDo": "Still to do",
+    "clickPrompt": "Click any room on the floor plan to view its current renovation status."
+  },
+  "roomsEmpty": {
+    "title": "No rooms yet",
+    "description": "Add rooms with their position on the 600×420 plan grid."
+  },
+  "roomForm": {
+    "name": "Room name",
+    "status": "Status",
+    "progress": "Progress — {{pct}}%",
+    "note": "Note for the client",
+    "notePlaceholder": "Optional",
+    "notePlaceholderBlocked": "What is it waiting on?",
+    "visibleToClient": "Visible to client",
+    "blockedByTasks": "Can't mark Completed while tasks are open: {{tasks}}.",
+    "geometryX": "X",
+    "geometryY": "Y",
+    "geometryW": "W",
+    "geometryH": "H",
+    "save": "Save room",
+    "add": "Add room",
+    "saving": "Saving…",
+    "showGeometry": "Edit position & size",
+    "hideGeometry": "Hide position & size",
+    "delete": "Delete room",
+    "deleteConfirmTitle": "Delete room?",
+    "deleteConfirmDescription": "Delete {{name}}? Photos and tasks keep existing without a room.",
+    "saved": "{{name}} saved — the client's plan is updated",
+    "removed": "Room removed",
+    "statusProgressMismatch": "Completed and 100% always go together"
+  },
+  "selectedRoom": {
+    "label": "Selected room",
+    "progress": "Progress",
+    "progressAriaLabel": "{{name}} progress",
+    "clickPrompt": "Click any room on the floor plan to view its current renovation status."
+  },
+  "floorPlan": {
+    "ariaLabel": "Floor plan",
+    "tileLabel": "{{name}}: {{status}}, {{progress}}%"
+  },
+  "consistency": {
+    "blockedOnSchedule": "{{names}} blocked, but the project still says on schedule.",
+    "roomDoneTaskOpen": "{{room}} is Completed, but \"{{task}}\" is still open.",
+    "stageDoneTasksOpen_one": "{{stage}} is Completed, but {{count}} task is still open.",
+    "stageDoneTasksOpen_few": "{{stage}} is Completed, but {{count}} tasks are still open.",
+    "stageDoneTasksOpen_many": "{{stage}} is Completed, but {{count}} tasks are still open.",
+    "stageDoneTasksOpen_other": "{{stage}} is Completed, but {{count}} tasks are still open.",
+    "stagePendingTasksDone": "{{stage}} is Pending, but some of its tasks are already checked off."
+  },
+  "errors": {
+    "roomDoneTasksOpen": "{{name}} can't be marked Completed while tasks are open: {{tasks}}.",
+    "roomDoneReopenTask": "This room is marked Completed — change its status before adding or re-opening tasks."
+  }
+}
