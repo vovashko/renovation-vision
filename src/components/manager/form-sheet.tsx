@@ -1,10 +1,14 @@
-import type { ComponentProps, ReactNode } from "react";
-import { Icon } from "@/components/ui/icon";
-import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Field as FieldPrimitive, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Compatibility layer over the `ui/field` and `ui/native-select` primitives (added in T03b), kept so
+// pages that haven't moved onto those primitives directly don't break. New code should import
+// `Field`/`FieldLabel`/`FieldDescription` from `@/components/ui/field` and `NativeSelect` from
+// `@/components/ui/native-select` directly — see `src/components/expense-sheet.tsx` for an example.
 
 /** Editing panel: bottom sheet on phones, side sheet on desktop (same pattern as the client app's upload sheet). */
 export function FormSheet({
@@ -34,36 +38,29 @@ export function FormSheet({
   );
 }
 
+/**
+ * @deprecated Thin wrapper over `ui/field`'s `Field`/`FieldLabel`/`FieldDescription`, kept for pages
+ * still on this shape (`id`/`label`/`hint`). New code should compose `ui/field` directly.
+ */
 export function Field({ id, label, hint, children }: { id: string; label: string; hint?: ReactNode; children: ReactNode }) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
+    <FieldPrimitive>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       {children}
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-    </div>
+      {hint && <FieldDescription>{hint}</FieldDescription>}
+    </FieldPrimitive>
   );
 }
-
-// Same box as <Input> so selects and text fields line up.
-export const selectCls =
-  "h-11 w-full appearance-none rounded-md border border-outline-variant bg-surface-container-lowest pr-11 pl-4 text-body-md text-on-surface focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary";
 
 /**
- * Native <select> (keeps the platform picker and accessibility) in the text-field box, with the
- * design system's expand_more icon instead of the browser's arrows.
+ * @deprecated Same box `ui/native-select`'s default classes render. Kept only for pages still using a
+ * raw `<select className={selectCls}>` instead of `<NativeSelect>` from `ui/native-select`.
  */
-export function NativeSelect({ className, wrapperClassName, ...props }: ComponentProps<"select"> & { wrapperClassName?: string }) {
-  return (
-    <div className={cn("relative", wrapperClassName)}>
-      <select className={cn(selectCls, className)} {...props} />
-      <Icon
-        name="expand_more"
-        size={22}
-        className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-on-surface-variant"
-      />
-    </div>
-  );
-}
+export const selectCls =
+  "h-11 w-full min-w-0 appearance-none rounded-md border border-outline-variant bg-surface-container-lowest pr-11 pl-4 text-body-md text-on-surface transition-colors focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary disabled:cursor-not-allowed aria-invalid:border-error";
+
+/** @deprecated Re-exported for existing imports from this file; import from `@/components/ui/native-select` in new code. */
+export { NativeSelect } from "@/components/ui/native-select";
 
 export function VisibleSwitch({
   id,

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FormSheet, NativeSelect } from "@/components/manager/form-sheet";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { FormSheet } from "@/components/manager/form-sheet";
 import { api, type ExpenseInput } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Expense, Stage } from "@/lib/database.types";
@@ -82,7 +83,6 @@ export function ExpenseSheet({
     >
       {form && (
         <form
-          className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
             save.mutate(
@@ -101,92 +101,95 @@ export function ExpenseSheet({
             );
           }}
         >
-          <Field id="ex-desc" label="Description">
-            <Input
-              id="ex-desc"
-              required
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="h-11"
-            />
-          </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field id="ex-amount" label="Amount ($)">
-              <Input
-                id="ex-amount"
-                type="number"
-                min={0.01}
-                step={0.01}
-                required
-                value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                className="h-11"
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="ex-desc">Description</FieldLabel>
+              <Input id="ex-desc" required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field>
+                <FieldLabel htmlFor="ex-amount">Amount ($)</FieldLabel>
+                <Input
+                  id="ex-amount"
+                  type="number"
+                  min={0.01}
+                  step={0.01}
+                  required
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="ex-date">Date</FieldLabel>
+                <Input
+                  id="ex-date"
+                  type="date"
+                  required
+                  value={form.spent_on}
+                  onChange={(e) => setForm({ ...form, spent_on: e.target.value })}
+                />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field>
+                <FieldLabel htmlFor="ex-cat">Category</FieldLabel>
+                <NativeSelect id="ex-cat" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+                  {categories.map((c) => (
+                    <NativeSelectOption key={c}>{c}</NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="ex-stage">Stage</FieldLabel>
+                <NativeSelect id="ex-stage" value={form.stage_id} onChange={(e) => setForm({ ...form, stage_id: e.target.value })}>
+                  <NativeSelectOption value="">—</NativeSelectOption>
+                  {stages.map((s) => (
+                    <NativeSelectOption key={s.id} value={s.id}>
+                      {s.name}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </Field>
+            </div>
+            <Field>
+              <FieldLabel htmlFor="ex-vendor">Vendor</FieldLabel>
+              <Input id="ex-vendor" value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="ex-notes">Vendor notes (internal)</FieldLabel>
+              <Textarea
+                id="ex-notes"
+                value={form.vendor_notes}
+                onChange={(e) => setForm({ ...form, vendor_notes: e.target.value })}
+                placeholder="Contacts, warranty, payment terms…"
               />
             </Field>
-            <Field id="ex-date" label="Date">
-              <Input
-                id="ex-date"
-                type="date"
-                required
-                value={form.spent_on}
-                onChange={(e) => setForm({ ...form, spent_on: e.target.value })}
-                className="h-11"
+            <Field>
+              <FieldLabel htmlFor="ex-receipt">
+                Receipt (internal){expense && expense !== "new" && expense.receipt_path ? " — replace" : ""}
+              </FieldLabel>
+              <input
+                id="ex-receipt"
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => setForm({ ...form, receiptFile: e.target.files?.[0] ?? null })}
+                className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
               />
             </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field id="ex-cat" label="Category">
-              <NativeSelect id="ex-cat" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                {categories.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </NativeSelect>
-            </Field>
-            <Field id="ex-stage" label="Stage">
-              <NativeSelect id="ex-stage" value={form.stage_id} onChange={(e) => setForm({ ...form, stage_id: e.target.value })}>
-                <option value="">—</option>
-                {stages.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </NativeSelect>
-            </Field>
-          </div>
-          <Field id="ex-vendor" label="Vendor">
-            <Input id="ex-vendor" value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} className="h-11" />
-          </Field>
-          <Field id="ex-notes" label="Vendor notes (internal)">
-            <Textarea
-              id="ex-notes"
-              value={form.vendor_notes}
-              onChange={(e) => setForm({ ...form, vendor_notes: e.target.value })}
-              placeholder="Contacts, warranty, payment terms…"
-            />
-          </Field>
-          <div className="space-y-2">
-            <Label htmlFor="ex-receipt">Receipt (internal){expense && expense !== "new" && expense.receipt_path ? " — replace" : ""}</Label>
-            <input
-              id="ex-receipt"
-              type="file"
-              accept="image/*,application/pdf"
-              onChange={(e) => setForm({ ...form, receiptFile: e.target.files?.[0] ?? null })}
-              className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
-            />
-          </div>
-          <Button type="submit" disabled={save.isPending || !form.description.trim() || !(amount > 0)} className="min-h-11 w-full">
-            {save.isPending ? "Saving…" : "Save expense"}
-          </Button>
-          {!isNew && expense && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="min-h-11 w-full text-destructive"
-              onClick={() => confirm("Delete this expense?") && remove.mutate(expense, { onSuccess: onClose })}
-            >
-              Delete expense
+            <Button type="submit" disabled={save.isPending || !form.description.trim() || !(amount > 0)} className="w-full">
+              {save.isPending ? "Saving…" : "Save expense"}
             </Button>
-          )}
+            {!isNew && expense && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-destructive"
+                onClick={() => confirm("Delete this expense?") && remove.mutate(expense, { onSuccess: onClose })}
+              >
+                Delete expense
+              </Button>
+            )}
+          </FieldGroup>
         </form>
       )}
     </FormSheet>
