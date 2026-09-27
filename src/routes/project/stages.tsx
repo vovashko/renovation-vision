@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldGroup } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Note } from "@/components/ui/note";
 import { StageRow, StageRowList } from "@/features/work/ui/stage-row";
 import { StagesEmpty } from "@/features/work/ui/stages-empty";
 import { WorkField } from "@/features/work/ui/work-field";
@@ -108,7 +109,7 @@ function StagesPage() {
                     />
                   )}
                   {isManager && fromChecklist !== null && fromChecklist !== s.progress && s.status !== "done" && (
-                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-surface-container-low px-3 py-2 text-body-sm text-on-surface-variant">
+                    <Note size="sm" className="mt-3 flex flex-wrap items-center justify-between gap-2">
                       <span>
                         Checklist is {done}/{s.tasks.length} done ({fromChecklist}%). Progress shows {s.progress}%.
                       </span>
@@ -122,7 +123,7 @@ function StagesPage() {
                       >
                         Use {Math.min(fromChecklist, 99)}%
                       </button>
-                    </div>
+                    </Note>
                   )}
                   {s.client_note && (
                     <p className="mt-3 text-body-md text-on-surface-variant">
