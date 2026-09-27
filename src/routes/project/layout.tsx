@@ -1,7 +1,6 @@
 import { createFileRoute, Link, Navigate, Outlet, useRouterState } from "@tanstack/react-router";
-import { FolderX } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
 import { PageLoading } from "@/components/page-header";
+import { ProjectEmpty } from "@/shared/ui/project-empty";
 import { useAuth } from "@/lib/auth";
 import { managerOnlySections } from "@/lib/nav";
 import { useProject } from "@/lib/queries";
@@ -25,13 +24,11 @@ function ProjectLayout() {
   if (isLoading) return <PageLoading />;
   if (error) {
     return (
-      <EmptyState
-        className="mx-auto mt-10 max-w-md"
-        icon={FolderX}
+      <ProjectEmpty
         title="Project not available"
         text="It doesn't exist, or you're not a member of it."
         action={
-          <Link to="/" className="text-sm text-primary hover:underline">
+          <Link to="/" className="text-label-lg text-primary hover:underline">
             Back
           </Link>
         }

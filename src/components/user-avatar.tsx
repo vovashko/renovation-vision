@@ -1,7 +1,7 @@
 import { initials } from "@/components/chat";
 import { cn } from "@/lib/utils";
 
-/** Round profile photo, or initials when there is none. */
+/** Round profile photo, or initials when there is none. Pass a `size-*` class to resize. */
 export function UserAvatar({ name, src, className }: { name: string; src?: string | null; className?: string }) {
   return src ? (
     <img src={src} alt="" className={cn("size-9 shrink-0 rounded-full object-cover", className)} />

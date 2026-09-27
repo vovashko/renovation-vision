@@ -1,10 +1,10 @@
-import { ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-/** Header badge so the portal is never mistaken for the client app. */
-export function ManagerBadge() {
+/** Chip that marks a manager's account in the profile panel, so it's never mistaken for a client's. */
+export function ManagerBadge({ onPanel = false, className }: { onPanel?: boolean; className?: string } = {}) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold tracking-wide text-background uppercase">
-      <ShieldCheck className="h-3.5 w-3.5" /> Manager
-    </span>
+    <Badge variant="default" size="compact" icon="verified_user" onPanel={onPanel} className={className}>
+      Manager
+    </Badge>
   );
 }
