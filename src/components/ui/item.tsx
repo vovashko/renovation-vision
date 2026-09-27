@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -19,8 +19,10 @@ function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Sepa
   return <Separator data-slot="item-separator" orientation="horizontal" className={cn("my-0 bg-outline-variant", className)} {...props} />;
 }
 
+// `tone` sets the color a selected row outlines in (the status tones, or plain "neutral"). It only
+// draws anything once `selected` is true — see the compound variants below.
 const itemVariants = cva(
-  "group/item flex flex-wrap items-center text-left text-on-surface transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none [a]:cursor-pointer [a]:hover:bg-surface-container-low [button]:cursor-pointer [button]:hover:bg-surface-container-low",
+  "group/item relative flex flex-wrap items-center text-left text-on-surface transition-colors duration-150 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none [a]:cursor-pointer [a]:hover:bg-surface-container-low [button]:cursor-pointer [button]:hover:bg-surface-container-low",
   {
     variants: {
       variant: {
@@ -32,17 +34,53 @@ const itemVariants = cva(
         default: "gap-3 rounded-lg py-2 pr-3.5 pl-2",
         lg: "gap-3.5 rounded-xl py-3.5 pr-5 pl-3.5",
       },
+      tone: {
+        neutral: "",
+        done: "",
+        progress: "",
+        pending: "",
+        blocked: "",
+      },
+      selected: { true: "", false: "" },
+      // Over budget / late: orange outline plus an 8px dot at the top right (the spec's attention card).
+      attention: { true: "relative border-attention-outline", false: "" },
     },
-    defaultVariants: { variant: "default", size: "default" },
+    compoundVariants: [
+      { selected: true, tone: "neutral", className: "outline-2 -outline-offset-2 outline-outline" },
+      { selected: true, tone: "done", className: "outline-2 -outline-offset-2 outline-status-done" },
+      { selected: true, tone: "progress", className: "outline-2 -outline-offset-2 outline-status-progress" },
+      { selected: true, tone: "pending", className: "outline-2 -outline-offset-2 outline-outline" },
+      { selected: true, tone: "blocked", className: "outline-2 -outline-offset-2 outline-status-blocked" },
+    ],
+    defaultVariants: { variant: "default", size: "default", tone: "neutral", selected: false, attention: false },
   },
 );
 
 type ItemProps = React.ComponentProps<"div"> & VariantProps<typeof itemVariants> & { asChild?: boolean };
 
-function Item({ className, variant = "default", size = "default", asChild = false, ...props }: ItemProps) {
+function Item({
+  className,
+  variant = "default",
+  size = "default",
+  tone = "neutral",
+  selected = false,
+  attention = false,
+  asChild = false,
+  children,
+  ...props
+}: ItemProps) {
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp data-slot="item" data-variant={variant} data-size={size} className={cn(itemVariants({ variant, size }), className)} {...props} />
+    <Comp
+      data-slot="item"
+      data-variant={variant}
+      data-size={size}
+      className={cn(itemVariants({ variant, size, tone, selected, attention }), className)}
+      {...props}
+    >
+      {attention && <span aria-hidden className="absolute top-3 right-3 size-2 rounded-full bg-attention" />}
+      <Slottable>{children}</Slottable>
+    </Comp>
   );
 }
 
@@ -109,17 +147,21 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="item-title"
-      className={cn(
-        "flex w-fit min-w-0 items-center gap-2 text-label-lg text-on-surface group-data-[size=lg]/item:text-title-md",
-        className,
-      )}
-      {...props}
-    />
-  );
+// Default title size follows the parent Item's own size (label-lg, bumped to title-md when the row
+// is `size="lg"`). Pass `size="lg"` on the title itself for a bigger heading regardless of the row's
+// size (the projects list, knowledge entries) — that value wins over the group-data default.
+const itemTitleVariants = cva("flex w-fit min-w-0 items-center gap-2 text-label-lg text-on-surface", {
+  variants: {
+    size: {
+      default: "group-data-[size=lg]/item:text-title-md",
+      lg: "text-title-lg",
+    },
+  },
+  defaultVariants: { size: "default" },
+});
+
+function ItemTitle({ className, size = "default", ...props }: React.ComponentProps<"div"> & VariantProps<typeof itemTitleVariants>) {
+  return <div data-slot="item-title" className={cn(itemTitleVariants({ size }), className)} {...props} />;
 }
 
 function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {

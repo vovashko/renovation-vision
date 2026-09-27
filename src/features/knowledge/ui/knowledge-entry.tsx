@@ -12,7 +12,7 @@ export function KnowledgeEntryItem({ entry, onEdit, onToggle }: { entry: Knowled
   return (
     <Item size="lg" className={cn(!entry.is_visible && "border-dashed")}>
       <ItemHeader>
-        <ItemTitle className="text-title-md">{entry.title}</ItemTitle>
+        <ItemTitle size="lg">{entry.title}</ItemTitle>
         <ItemActions>
           <Button size="icon" variant="ghost" className="h-9 w-9 shrink-0" onClick={onEdit} aria-label={`Edit ${entry.title}`}>
             <Icon name="edit" size={20} />

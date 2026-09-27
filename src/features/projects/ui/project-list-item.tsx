@@ -9,16 +9,19 @@ import type { ProjectSummary } from "@/lib/database.types";
 /** One row of the manager's project list, linking to that project's overview. */
 export function ProjectListItem({ project }: { project: ProjectSummary }) {
   const budget = budgetSummary(project);
+  const behind = project.schedule_status !== "on_schedule";
   return (
-    <Item asChild size="lg">
+    <Item asChild size="lg" attention={behind || budget.over}>
       <Link to="/projects/$projectId" params={{ projectId: project.id }}>
         <ItemHeader>
           <ItemContent>
-            <ItemTitle className="truncate text-title-lg">{project.name}</ItemTitle>
+            <ItemTitle size="lg" className="truncate">
+              {project.name}
+            </ItemTitle>
             <ItemDescription className="line-clamp-none">{project.address}</ItemDescription>
           </ItemContent>
           <ItemActions className="flex-wrap justify-end">
-            {project.schedule_status !== "on_schedule" && (
+            {behind && (
               <Badge variant="attention" size="compact" icon="schedule">
                 {scheduleLabel[project.schedule_status]}
               </Badge>
