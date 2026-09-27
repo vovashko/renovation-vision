@@ -17,6 +17,8 @@ const badgeVariants = cva("inline-flex items-center gap-2 whitespace-nowrap roun
       attention: "bg-attention-container text-on-attention-container",
       assist: "border border-outline-variant bg-surface-container-lowest text-on-surface",
       live: "border border-outline-variant bg-surface-container-lowest text-on-surface",
+      // Filter chip: unselected is the same box as `assist`; the selected chip fills primary.
+      filter: "border border-outline-variant bg-surface-container-lowest text-on-surface",
       "filter-selected": "bg-primary text-on-primary",
       // shadcn names kept for existing callers
       default: "bg-secondary-container text-on-secondary-container",
