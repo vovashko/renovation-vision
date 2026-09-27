@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { initials } from "@/components/chat";
+import { initials } from "@/components/ui/avatar-initials";
 
 describe("initials", () => {
   it("takes the first letter of the first and last name", () => {

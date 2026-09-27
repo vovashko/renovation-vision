@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { AvatarInitials } from "@/components/ui/avatar-initials";
 import { PresenceDot } from "@/components/ui/presence-dot";
-import { initials } from "@/components/chat";
+import { initials } from "@/components/ui/avatar-initials";
 
 /** The other side of the conversation: name, presence and role, above the message list. */
 export function ChatHeader({
