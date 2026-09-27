@@ -18,3 +18,20 @@ additional_redirect_urls = ["http://localhost:3001"]
 
 [auth.email]
 enable_confirmations = false
+
+# Local stack trimmed to what the app uses, so it fits a small (10 GB) Docker disk.
+# Realtime (chat), Storage (media) and Inbucket (auth emails) stay on.
+[studio]
+enabled = false
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[storage.image_transformation]
+enabled = false
+
+[inbucket]
+enabled = true
