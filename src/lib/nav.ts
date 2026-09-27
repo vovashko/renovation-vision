@@ -1,4 +1,12 @@
+/** @deprecated moved to @/shared/ui/nav-config (i18n `labelKey`, `roles`, `placement`). This shim goes away in T17. */
+import en from "@/i18n/common/en.json";
+import { projectNav as navConfig } from "@/shared/ui/nav-config";
+
+export { managerOnlySections, projectPath } from "@/shared/ui/nav-config";
+
+/** @deprecated Use `NavItem` from @/shared/ui/nav-config. */
 export type NavItem = {
+  /** English label. */
   title: string;
   /** Path segment after /projects/$projectId ("" is the overview). */
   section: string;
@@ -7,20 +15,10 @@ export type NavItem = {
   managerOnly?: boolean;
 };
 
-export const projectNav: NavItem[] = [
-  { title: "Overview", section: "", icon: "grid_view" },
-  { title: "Stages", section: "stages", icon: "checklist" },
-  { title: "Plan", section: "plan", icon: "floor" },
-  { title: "Photos", section: "photos", icon: "photo_camera" },
-  { title: "Design", section: "design", icon: "palette" },
-  { title: "Budget", section: "budget", icon: "account_balance_wallet", managerOnly: true },
-  { title: "Chat", section: "chat", icon: "chat_bubble" },
-  { title: "Updates", section: "updates", icon: "notifications", managerOnly: true },
-  { title: "AI knowledge", section: "knowledge", icon: "menu_book", managerOnly: true },
-  { title: "Team", section: "team", icon: "group", managerOnly: true },
-];
-
-export const managerOnlySections = projectNav.filter((i) => i.managerOnly).map((i) => i.section);
-
-export const projectPath = (projectId: string, section: string) =>
-  section ? `/projects/${projectId}/${section}` : `/projects/${projectId}`;
+/** @deprecated English labels. Use `projectNav` / `navItemsFor` from @/shared/ui/nav-config with `t(item.labelKey)`. */
+export const projectNav: NavItem[] = navConfig.map((i) => ({
+  title: en.nav[i.key as keyof typeof en.nav],
+  section: i.section,
+  icon: i.icon,
+  ...(i.roles.includes("client") ? {} : { managerOnly: true }),
+}));

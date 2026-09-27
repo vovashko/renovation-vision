@@ -36,6 +36,9 @@ jobs:
 
       - name: Set up Supabase CLI
         uses: supabase/setup-cli@v1
+        with:
+          # Keep in step with the local CLI: config.toml uses sections older CLIs reject (e.g. [local_smtp]).
+          version: 2.118.0
 
       - name: Start Supabase
         run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector

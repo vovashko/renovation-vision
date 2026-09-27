@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { I18nextProvider, useTranslation } from "react-i18next";
 import {
   Outlet,
   Link,
@@ -21,6 +22,9 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { useProject } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import type { ProjectSummary } from "@/lib/database.types";
+import type { I18n } from "@/i18n";
+import { applyRequestLocale } from "@/i18n/request-locale";
+import { ConfirmProvider } from "@/shared/ui/confirm-dialog";
 
 import appCss from "../styles.css?url";
 import logoMark from "@/assets/renovision-mark.svg";
@@ -64,7 +68,9 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient; i18n: I18n }>()({
+  // Server: switch this request's i18n instance to the request's locale before rendering.
+  beforeLoad: ({ context }) => applyRequestLocale(context.i18n),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -97,8 +103,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  const { i18n } = Route.useRouteContext();
   return (
-    <html lang="en">
+    <I18nextProvider i18n={i18n} defaultNS="common">
+      <Document>{children}</Document>
+    </I18nextProvider>
+  );
+}
+
+/** `<html lang>` follows the current language, including after a switch on /settings. */
+function Document({ children }: { children: React.ReactNode }) {
+  const { i18n } = useTranslation();
+  return (
+    <html lang={i18n.language}>
       <head>
         <HeadContent />
       </head>
@@ -116,7 +133,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider delayDuration={300}>
-          <AuthGate />
+          <ConfirmProvider>
+            <AuthGate />
+          </ConfirmProvider>
           <Toaster position="top-center" richColors={false} />
         </TooltipProvider>
       </AuthProvider>

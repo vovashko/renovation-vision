@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { daysLate, daysUntil, budgetStatus } from "@/lib/attention";
+import { daysLate, daysUntil, budgetStatus } from "@/domain/attention";
 
 describe("daysLate", () => {
   const today = new Date(2026, 3, 20); // Apr 20, 2026

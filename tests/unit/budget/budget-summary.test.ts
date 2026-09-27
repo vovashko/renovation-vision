@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { budgetSummary, expensesTotal } from "@/lib/budget";
+import { budgetSummary, expensesTotal } from "@/domain/budget";
 
 describe("budgetSummary", () => {
   it("handles a zero budget", () => {

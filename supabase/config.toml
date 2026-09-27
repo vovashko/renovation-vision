@@ -33,5 +33,5 @@ enabled = false
 [storage.image_transformation]
 enabled = false
 
-[inbucket]
+[local_smtp]
 enabled = true

@@ -39,6 +39,9 @@ jobs:
       - name: Set up Supabase CLI
         if: steps.check.outputs.ready == 'true'
         uses: supabase/setup-cli@v1
+        with:
+          # Keep in step with the local CLI: config.toml uses sections older CLIs reject (e.g. [local_smtp]).
+          version: 2.118.0
 
       - name: Link the demo project
         if: steps.check.outputs.ready == 'true'

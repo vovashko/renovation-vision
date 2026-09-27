@@ -1,0 +1,82 @@
+{
+  "app": {
+    "name": "RenoVision"
+  },
+  "actions": {
+    "add": "Dodaj",
+    "back": "Wstecz",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "confirm": "Potwierdź",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "remove": "Usuń",
+    "retry": "Spróbuj ponownie",
+    "save": "Zapisz"
+  },
+  "state": {
+    "loading": "Ładowanie…",
+    "saving": "Zapisywanie…",
+    "saved": "Zapisano",
+    "empty": "Nic tu jeszcze nie ma"
+  },
+  "status": {
+    "done": "Ukończone",
+    "progress": "W toku",
+    "pending": "Oczekuje",
+    "blocked": "Wstrzymane"
+  },
+  "schedule": {
+    "on_schedule": "Zgodnie z planem",
+    "at_risk": "Zagrożony",
+    "delayed": "Opóźniony"
+  },
+  "attention": {
+    "daysLate_one": "{{count}} dzień opóźnienia",
+    "daysLate_few": "{{count}} dni opóźnienia",
+    "daysLate_many": "{{count}} dni opóźnienia",
+    "daysLate_other": "{{count}} dnia opóźnienia",
+    "overBudget": "{{pct}}% ponad budżet"
+  },
+  "nav": {
+    "overview": "Przegląd",
+    "stages": "Etapy",
+    "plan": "Plan",
+    "photos": "Zdjęcia",
+    "design": "Projekt",
+    "budget": "Budżet",
+    "chat": "Czat",
+    "updates": "Aktualności",
+    "knowledge": "Wiedza AI",
+    "team": "Zespół",
+    "allProjects": "Wszystkie projekty",
+    "settings": "Ustawienia",
+    "more": "Więcej",
+    "morePages": "Więcej stron",
+    "home": "Strona główna RenoVision",
+    "profile": "Profil",
+    "openProfile": "{{name}}, otwórz profil",
+    "yourProfile": "Twój profil"
+  },
+  "confirm": {
+    "title": "Czy na pewno?",
+    "confirm": "Potwierdź",
+    "cancel": "Anuluj"
+  },
+  "table": {
+    "empty": "Brak wierszy"
+  },
+  "form": {
+    "required": "To pole jest wymagane",
+    "invalid": "Nieprawidłowa wartość",
+    "invalidEmail": "Podaj prawidłowy adres e-mail"
+  },
+  "errors": {
+    "generic": "Coś poszło nie tak"
+  },
+  "language": {
+    "label": "Język",
+    "en": "English",
+    "pl": "Polski"
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { deriveStatus, progressForStatus, statusForProgress } from "@/lib/status-progress";
+import { deriveStatus, progressForStatus, statusForProgress } from "@/domain/progress";
 
 describe("deriveStatus", () => {
   it("0% is pending", () => {

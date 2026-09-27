@@ -1,0 +1,8 @@
+{
+  "title": "Settings",
+  "description": "App settings.",
+  "language": {
+    "title": "Language",
+    "description": "The language RenoVision uses on this device."
+  }
+}
