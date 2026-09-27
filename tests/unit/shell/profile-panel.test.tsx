@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { ProfilePanel } from "@/components/profile-panel";
 import { useAuth } from "@/lib/auth";
 
@@ -13,9 +13,6 @@ function authValue(overrides: Partial<ReturnType<typeof useAuth>> = {}) {
     userId: "u1",
     email: "jane@example.com",
     profile: { id: "u1", full_name: "Jane Doe", avatar_url: null, account_type: "client" as const },
-    isDemo: false,
-    demoRole: "client" as const,
-    switchDemoRole: vi.fn(),
     signIn: vi.fn(),
     sendMagicLink: vi.fn(),
     signOut: vi.fn(),
@@ -34,21 +31,9 @@ describe("ProfilePanel", () => {
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
   });
 
-  it("in demo mode, switching persona calls switchDemoRole", () => {
-    const switchDemoRole = vi.fn();
-    mockedUseAuth.mockReturnValue(authValue({ isDemo: true, demoRole: "client", switchDemoRole }));
+  it("offers sign out", () => {
+    mockedUseAuth.mockReturnValue(authValue());
     render(<ProfilePanel open onOpenChange={() => {}} />);
-
-    fireEvent.click(screen.getByRole("button", { name: "manager" }));
-
-    expect(switchDemoRole).toHaveBeenCalledWith("manager");
-  });
-
-  it("outside demo mode, offers sign out instead of the persona switch", () => {
-    mockedUseAuth.mockReturnValue(authValue({ isDemo: false }));
-    render(<ProfilePanel open onOpenChange={() => {}} />);
-
-    expect(screen.queryByRole("group", { name: "Demo persona" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /sign out/i })).toBeInTheDocument();
   });
 });

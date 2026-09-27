@@ -10,3 +10,4 @@ bun.lock
 routeTree.gen.ts
 docs
 supabase
+src/domain/db.types.ts

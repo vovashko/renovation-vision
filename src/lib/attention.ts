@@ -1,4 +1,3 @@
-import { isDemo } from "./supabase";
 import { parseDate } from "./format";
 import type { Status } from "@/lib/status";
 
@@ -9,11 +8,8 @@ import type { Status } from "@/lib/status";
  *   - over budget: spent > budget
  */
 
-/** The demo data is set on Apr 20, 2026, the same "today" the client app's demo uses. */
-export const DEMO_TODAY = new Date(2026, 3, 20, 12);
-
 export function projectToday(): Date {
-  return isDemo ? DEMO_TODAY : new Date();
+  return new Date();
 }
 
 const DAY = 86_400_000;

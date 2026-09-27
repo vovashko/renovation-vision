@@ -1,5 +1,4 @@
 import { supabase, INTERNAL_BUCKET, MEDIA_BUCKET } from "./supabase";
-import { demoApi } from "./demo-api";
 import { fileExt } from "./format";
 import type {
   ActivityEntry,
@@ -432,4 +431,4 @@ const supabaseApi: Api = {
   },
 };
 
-export const api: Api = supabase ? supabaseApi : demoApi;
+export const api: Api = supabaseApi;
