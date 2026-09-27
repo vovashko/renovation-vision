@@ -1,1 +1,107 @@
-{}
+{
+  "newProject": {
+    "title": "Nowy projekt",
+    "description": "Zostajesz jego kierownikiem. Dodaj etapy, pomieszczenia i klienta w następnym kroku.",
+    "name": "Nazwa projektu",
+    "address": "Adres",
+    "clientName": "Nazwa klienta",
+    "clientNameHint": "Wyświetlana w aplikacji.",
+    "start": "Start",
+    "target": "Termin",
+    "budget": "Budżet",
+    "submit": "Utwórz projekt"
+  },
+  "list": {
+    "title": "Twoje projekty",
+    "description": "Wszystko, co tu zaktualizujesz, pojawi się w widoku klienta w RenoVision.",
+    "newProject": "Nowy projekt",
+    "emptyTitle": "Brak projektów",
+    "emptyDescription": "Utwórz projekt, a następnie zaproś klienta ze strony Zespół.",
+    "created": "Projekt utworzony",
+    "overBudget": "Ponad budżet",
+    "now": "Teraz: {{stage}}",
+    "overallProgress": "Postęp ogólny",
+    "client": "Klient",
+    "target": "Termin",
+    "spent": "Wydano"
+  },
+  "home": {
+    "emptyTitle": "Brak projektu",
+    "emptyDescription": "Twój kierownik budowy nie dodał Cię jeszcze do projektu. Poproś go o zaproszenie na e-mail."
+  },
+  "layout": {
+    "notAvailableTitle": "Projekt niedostępny",
+    "notAvailableText": "Nie istnieje albo nie jesteś jego uczestnikiem."
+  },
+  "details": {
+    "title": "Szczegóły projektu",
+    "description": "Wszystko tutaj jest widoczne dla klienta.",
+    "name": "Nazwa projektu",
+    "address": "Adres",
+    "clientName": "Nazwa klienta",
+    "start": "Start",
+    "target": "Termin",
+    "budget": "Budżet",
+    "budgetHint": "Kwota wydana jest liczona na podstawie wydatków na stronie Budżet.",
+    "scheduleStatus": "Status harmonogramu",
+    "scheduleStatusHint": "Widoczny w przeglądzie klienta. Zmiana powiadamia klienta.",
+    "scheduleNote": "Notatka o harmonogramie dla klienta",
+    "scheduleNotePlaceholder": "Dlaczego harmonogram wygląda tak, jak wygląda — prostymi słowami.",
+    "submit": "Zapisz szczegóły",
+    "saved": "Projekt zaktualizowany — aplikacja klienta pokazuje to już teraz"
+  },
+  "client": {
+    "contactSaved": "Zapisano kontakt do klienta"
+  },
+  "shortcuts": {
+    "heading": "Skróty",
+    "uploadPhoto": "Dodaj zdjęcie",
+    "addExpense": "Dodaj wydatek",
+    "messageClient": "Napisz do klienta",
+    "updateStages": "Aktualizuj etapy",
+    "updateRooms": "Aktualizuj pomieszczenia",
+    "editProject": "Edytuj projekt"
+  },
+  "status": {
+    "label": "Status projektu",
+    "onTrack": "Zgodnie z planem",
+    "needsAttention_one": "{{count}} sprawa wymaga Twojej uwagi",
+    "needsAttention_few": "{{count}} sprawy wymagają Twojej uwagi",
+    "needsAttention_many": "{{count}} spraw wymaga Twojej uwagi",
+    "needsAttention_other": "{{count}} sprawy wymagają Twojej uwagi",
+    "allClear": "Nic nie jest wstrzymane ani opóźnione.",
+    "workingOnLabel": "W trakcie:",
+    "overallProgress": "Postęp ogólny",
+    "noteForClient": "Notatka dla klienta: ",
+    "stagesDone": "Ukończone etapy",
+    "stagesDoneValue": "{{done}} z {{total}}",
+    "target": "Termin",
+    "pastTarget": "Po terminie",
+    "daysLeft": "Dni do terminu",
+    "daysLeftValue_one": "{{count}} dzień",
+    "daysLeftValue_few": "{{count}} dni",
+    "daysLeftValue_many": "{{count}} dni",
+    "daysLeftValue_other": "{{count}} dnia",
+    "budgetUsed": "Wykorzystany budżet"
+  },
+  "issues": {
+    "heading": "Wymaga uwagi",
+    "stageBlocked": "{{name}} jest wstrzymany",
+    "roomBlocked": "{{name}} jest wstrzymane",
+    "stageLate": "{{name}}: {{late}}",
+    "stageLateDetail": "Termin: {{date}} · ukończono {{progress}}%",
+    "overBudgetDetail": "Wydano {{spent}} z {{budget}}"
+  },
+  "consistency": {
+    "blockedOnSchedule_one": "{{count}} rzecz jest wstrzymana, a projekt nadal ma status „zgodnie z planem”",
+    "blockedOnSchedule_few": "{{count}} rzeczy są wstrzymane, a projekt nadal ma status „zgodnie z planem”",
+    "blockedOnSchedule_many": "{{count}} rzeczy jest wstrzymanych, a projekt nadal ma status „zgodnie z planem”",
+    "blockedOnSchedule_other": "{{count}} rzeczy są wstrzymane, a projekt nadal ma status „zgodnie z planem”",
+    "roomDoneTaskOpen": "{{room}} jest oznaczone jako ukończone, ale zadanie „{{task}}” jest wciąż otwarte",
+    "stageDoneTasksOpen_one": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadanie jest wciąż otwarte",
+    "stageDoneTasksOpen_few": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadania są wciąż otwarte",
+    "stageDoneTasksOpen_many": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadań jest wciąż otwartych",
+    "stageDoneTasksOpen_other": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadania są wciąż otwarte",
+    "stagePendingTasksDone": "{{stage}} oczekuje, ale część jego zadań jest już zaznaczona jako wykonana"
+  }
+}

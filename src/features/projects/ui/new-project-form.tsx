@@ -1,60 +1,46 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useZodForm } from "@/shared/hooks/use-zod-form";
+import { FormField } from "@/shared/ui/form-field";
+import { newProjectSchema, type NewProjectValues } from "../domain/schemas";
 
-export type NewProjectFormState = {
-  name: string;
-  address: string;
-  client_name: string;
-  start_date: string;
-  target_date: string;
-  budget: string;
-};
+/** The "New project" sheet's form. */
+export function NewProjectForm({ onSubmit, saving }: { onSubmit: (values: NewProjectValues) => void; saving: boolean }) {
+  const { t } = useTranslation(["projects", "common"]);
+  const form = useZodForm(newProjectSchema, { name: "", address: "", client_name: "", start_date: "", target_date: "", budget: 0 });
 
-/** The "New project" sheet's form fields. */
-export function NewProjectForm({
-  form,
-  onChange,
-  onSubmit,
-  saving,
-}: {
-  form: NewProjectFormState;
-  onChange: (form: NewProjectFormState) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  saving: boolean;
-}) {
-  const set = (k: keyof NewProjectFormState) => (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...form, [k]: e.target.value });
   return (
-    <form onSubmit={onSubmit}>
+    <form noValidate onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="np-name">Project name</FieldLabel>
-          <Input id="np-name" required value={form.name} onChange={set("name")} />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="np-address">Address</FieldLabel>
-          <Input id="np-address" value={form.address} onChange={set("address")} />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="np-client">Client name (as shown in the app)</FieldLabel>
-          <Input id="np-client" value={form.client_name} onChange={set("client_name")} />
-        </Field>
+        <FormField control={form.control} name="name" label={t("newProject.name")}>
+          {(field) => <Input {...field} />}
+        </FormField>
+        <FormField control={form.control} name="address" label={t("newProject.address")}>
+          {(field) => <Input {...field} />}
+        </FormField>
+        <FormField
+          control={form.control}
+          name="client_name"
+          label={t("newProject.clientName")}
+          description={t("newProject.clientNameHint")}
+        >
+          {(field) => <Input {...field} />}
+        </FormField>
         <div className="grid grid-cols-2 gap-3">
-          <Field>
-            <FieldLabel htmlFor="np-start">Start</FieldLabel>
-            <Input id="np-start" type="date" value={form.start_date} onChange={set("start_date")} />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="np-target">Target</FieldLabel>
-            <Input id="np-target" type="date" value={form.target_date} onChange={set("target_date")} />
-          </Field>
+          <FormField control={form.control} name="start_date" label={t("newProject.start")}>
+            {(field) => <Input type="date" {...field} />}
+          </FormField>
+          <FormField control={form.control} name="target_date" label={t("newProject.target")}>
+            {(field) => <Input type="date" {...field} />}
+          </FormField>
         </div>
-        <Field>
-          <FieldLabel htmlFor="np-budget">Budget ($)</FieldLabel>
-          <Input id="np-budget" type="number" min={0} step={100} value={form.budget} onChange={set("budget")} />
-        </Field>
-        <Button type="submit" disabled={saving || !form.name.trim()} className="w-full">
-          {saving ? "Creating…" : "Create project"}
+        <FormField control={form.control} name="budget" label={t("newProject.budget")}>
+          {(field) => <Input type="number" min={0} step={100} {...field} />}
+        </FormField>
+        <Button type="submit" disabled={saving} className="w-full">
+          {saving ? t("common:state.saving") : t("newProject.submit")}
         </Button>
       </FieldGroup>
     </form>
