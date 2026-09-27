@@ -31,7 +31,16 @@ export type Project = Pick<
   | "updated_at"
 >;
 
-export type ProjectSummary = Views<"project_summary">;
+// Postgres marks every view column nullable, so the generated view row can't be used as is: the base columns
+// come from `projects` (non-null there) and the aggregates are coalesced in the view's SQL.
+type SummaryView = Views<"project_summary">;
+export type ProjectSummary = Project & {
+  overall_progress: NonNullable<SummaryView["overall_progress"]>;
+  stages_done: NonNullable<SummaryView["stages_done"]>;
+  stages_total: NonNullable<SummaryView["stages_total"]>;
+  current_stage: SummaryView["current_stage"];
+  manager_name: SummaryView["manager_name"];
+};
 
 export type ProjectInternal = Pick<
   Tables<"project_internal">,
