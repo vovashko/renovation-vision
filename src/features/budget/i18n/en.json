@@ -1,1 +1,67 @@
-{}
+{
+  "page": {
+    "title": "Budget & expenses",
+    "description": "The client sees the budget and the spent total. Line items, vendors and receipts stay internal.",
+    "addExpense": "Add expense"
+  },
+  "stats": {
+    "budget": "Budget",
+    "clientSeesBudget": "Client sees this",
+    "spent": "Spent",
+    "clientSeesSpent": "Client sees this total",
+    "overBudget": "Over budget",
+    "remaining": "Remaining",
+    "leftToSpend": "Left to spend",
+    "used": "Used",
+    "projectComplete": "Project {{pct}}% complete"
+  },
+  "expenses": {
+    "heading": "Expenses",
+    "date": "Date",
+    "description": "Description",
+    "vendor": "Vendor",
+    "stage": "Stage",
+    "noStage": "—",
+    "amount": "Amount",
+    "openReceipt": "Open receipt",
+    "total": "Total spent",
+    "emptyTitle": "No expenses yet",
+    "emptyDescription": "Spent stays at {{amount}} until you add some."
+  },
+  "internalNotes": {
+    "title": "Internal budget notes",
+    "placeholder": "Contingency, quotes, margins…",
+    "save": "Save notes",
+    "saved": "Internal notes saved"
+  },
+  "sheet": {
+    "addTitle": "Add expense",
+    "editTitle": "Edit expense",
+    "description": "Only the new spent total reaches the client.",
+    "descriptionLabel": "Description",
+    "amount": "Amount",
+    "amountPositive": "Enter an amount greater than 0",
+    "date": "Date",
+    "category": "Category",
+    "stage": "Stage",
+    "stageNone": "—",
+    "vendor": "Vendor",
+    "vendorNotes": "Vendor notes (internal)",
+    "vendorNotesPlaceholder": "Contacts, warranty, payment terms…",
+    "receipt": "Receipt (internal)",
+    "receiptReplace": "Receipt (internal) — replace",
+    "save": "Save expense",
+    "saved": "Expense saved — spent total updated",
+    "delete": "Delete expense",
+    "deleted": "Expense deleted",
+    "deleteConfirmTitle": "Delete this expense?"
+  },
+  "category": {
+    "Labour": "Labour",
+    "Materials": "Materials",
+    "Permits": "Permits",
+    "Disposal": "Disposal",
+    "Equipment": "Equipment",
+    "Other": "Other"
+  }
+}
