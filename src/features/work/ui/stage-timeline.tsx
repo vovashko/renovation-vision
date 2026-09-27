@@ -1,9 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { statusTone } from "@/lib/status-ui";
-import { lateLabel } from "@/lib/attention";
-import type { Status } from "@/lib/status";
+import type { Status } from "@/domain/status";
 
 export type TimelineStage = {
   id: string;
@@ -17,6 +17,7 @@ export type TimelineStage = {
 
 /** The client overview's compact stage list ("Stage list item" in the spec). */
 export function StageTimeline({ stages, onSelect }: { stages: TimelineStage[]; onSelect: (stage: TimelineStage) => void }) {
+  const { t } = useTranslation(["work", "common"]);
   return (
     <ItemGroup>
       {stages.map((s, i) => (
@@ -32,12 +33,17 @@ export function StageTimeline({ stages, onSelect }: { stages: TimelineStage[]; o
               </ItemDescription>
               {s.lateDays > 0 && (
                 <Badge variant="attention" size="compact" icon="schedule" className="mt-1.5">
-                  {lateLabel(s.lateDays)}
+                  {t("common:attention.daysLate", { count: s.lateDays })}
                 </Badge>
               )}
             </ItemContent>
             <ItemActions>
-              <ProgressBar value={s.progress} tone={statusTone[s.status]} className="w-16 sm:w-[140px]" aria-label={`${s.name} progress`} />
+              <ProgressBar
+                value={s.progress}
+                tone={statusTone[s.status]}
+                className="w-16 sm:w-[140px]"
+                aria-label={t("work:stageRow.progressAriaLabel", { name: s.name })}
+              />
               <span className="w-10 text-right text-label-lg tabular-nums">{s.progress}%</span>
             </ItemActions>
           </button>

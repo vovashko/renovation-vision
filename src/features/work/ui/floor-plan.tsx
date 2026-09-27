@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { statusLabel, type Status } from "@/lib/status";
+import type { Status } from "@/domain/status";
+import { useStatusLabel } from "@/i18n";
 import { statusContainer, statusOutline } from "@/lib/status-ui";
 import { Card } from "@/components/ui/card";
 import { StatusLegend } from "@/components/status-pill";
@@ -44,6 +46,8 @@ export function FloorPlan({
   onSelect?: (room: FloorPlanRoom) => void;
   detail?: ReactNode;
 }) {
+  const { t } = useTranslation("work");
+  const statusLabel = useStatusLabel();
   const active = rooms.find((r) => r.id === activeId) ?? null;
 
   return (
@@ -53,7 +57,7 @@ export function FloorPlan({
           className="relative w-full overflow-hidden rounded-lg bg-surface-container"
           style={{ aspectRatio: `${GRID_W} / ${GRID_H}` }}
           role="group"
-          aria-label="Floor plan"
+          aria-label={t("floorPlan.ariaLabel")}
         >
           {rooms.map((r) => {
             const isActive = active?.id === r.id;
@@ -64,7 +68,7 @@ export function FloorPlan({
                 type="button"
                 onClick={() => onSelect?.(r)}
                 aria-pressed={onSelect ? isActive : undefined}
-                aria-label={`${r.name}: ${statusLabel[r.status]}, ${r.progress}%`}
+                aria-label={t("floorPlan.tileLabel", { name: r.name, status: statusLabel(r.status), progress: r.progress })}
                 style={{
                   left: pct(r.x + GAP, GRID_W),
                   top: pct(r.y + GAP, GRID_H),
@@ -97,7 +101,7 @@ export function FloorPlan({
           (active ? (
             <SelectedRoomPanel room={active} />
           ) : (
-            <p className="text-body-md text-on-surface-variant">Click any room on the floor plan to view its current renovation status.</p>
+            <p className="text-body-md text-on-surface-variant">{t("selectedRoom.clickPrompt")}</p>
           ))}
       </Card>
     </div>

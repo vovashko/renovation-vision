@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { buttonVariants } from "@/components/ui/button";
 import { Note } from "@/components/ui/note";
@@ -8,12 +9,12 @@ import { OverviewStats } from "@/features/work/ui/overview-stats";
 import { StageTimeline } from "@/features/work/ui/stage-timeline";
 import { FloorPlan } from "@/features/work/ui/floor-plan";
 import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
+import { useProject, useRooms, useStages } from "@/features/work/hooks/queries";
 import { ManagerOverview } from "@/components/manager/manager-overview";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
-import { useProject, useRooms, useStages } from "@/lib/queries";
-import { daysLate } from "@/lib/attention";
-import { shortDate } from "@/lib/format";
+import { daysLate } from "@/domain/attention";
+import { useFormat } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/$projectId/")({
@@ -33,6 +34,8 @@ function ProjectHome() {
 const sectionLink = cn(buttonVariants({ variant: "ghost" }), "-mr-3 shrink-0");
 
 function ClientOverview({ projectId }: { projectId: string }) {
+  const { t } = useTranslation(["work", "common"]);
+  const format = useFormat();
   const navigate = useNavigate();
   const { data: project } = useProject(projectId);
   const { data: stages } = useStages(projectId);
@@ -62,7 +65,7 @@ function ClientOverview({ projectId }: { projectId: string }) {
 
       {project.schedule_note && (
         <Note className="-mt-4">
-          <span className="font-medium text-on-surface">Schedule note: </span>
+          <span className="font-medium text-on-surface">{t("work:overview.scheduleNote")}</span>
           {project.schedule_note}
         </Note>
       )}
@@ -70,10 +73,10 @@ function ClientOverview({ projectId }: { projectId: string }) {
       <section aria-labelledby="stage-timeline">
         <div className="mb-3 flex items-end justify-between gap-3">
           <h2 id="stage-timeline" className="text-title-lg">
-            Stage timeline
+            {t("work:overview.stageTimeline")}
           </h2>
-          <Link to="/projects/$projectId/stages" params={params} className={sectionLink}>
-            All stages
+          <Link to="/projects/$projectId/progress" search={{ view: "timeline" }} params={params} className={sectionLink}>
+            {t("work:overview.allStages")}
             <Icon name="arrow_forward" size={20} />
           </Link>
         </div>
@@ -82,22 +85,22 @@ function ClientOverview({ projectId }: { projectId: string }) {
             id: s.id,
             name: s.name,
             status: s.status,
-            start: shortDate(s.start_date),
-            end: shortDate(s.end_date),
+            start: format.date(s.start_date, "short"),
+            end: format.date(s.end_date, "short"),
             progress: s.progress,
             lateDays: daysLate(s),
           }))}
-          onSelect={(s) => navigate({ to: "/projects/$projectId/stages", params, hash: s.id })}
+          onSelect={(s) => navigate({ to: "/projects/$projectId/progress", params, search: { view: "timeline" }, hash: s.id })}
         />
       </section>
 
       <section aria-labelledby="floor-plan">
         <div className="mb-3 flex items-end justify-between gap-3">
           <h2 id="floor-plan" className="text-title-lg">
-            Floor plan visualisation
+            {t("work:overview.floorPlanVisualisation")}
           </h2>
-          <Link to="/projects/$projectId/plan" params={params} className={sectionLink}>
-            Open plan
+          <Link to="/projects/$projectId/progress" search={{ view: "plan" }} params={params} className={sectionLink}>
+            {t("work:overview.openPlan")}
             <Icon name="arrow_forward" size={20} />
           </Link>
         </div>

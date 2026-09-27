@@ -39,7 +39,8 @@ export function AppSidebar() {
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const isManager = useAuth().profile?.account_type === "manager";
   const items = navItemsFor(isManager ? "manager" : "client");
-  const { t } = useTranslation(["common"]);
+  // "work" is needed for the Progress nav item's `work:nav.progress` label (nav-config.ts).
+  const { t } = useTranslation(["common", "work"]);
 
   return (
     <Rail>

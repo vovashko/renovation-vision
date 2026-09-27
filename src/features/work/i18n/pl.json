@@ -1,1 +1,149 @@
-{}
+{
+  "nav": {
+    "progress": "Postęp"
+  },
+  "overview": {
+    "eyebrow": "Aktywny projekt",
+    "projectFacts": "Informacje o projekcie",
+    "manager": "Kierownik",
+    "overallProgress": "Postęp ogólny",
+    "currentlyWorkingOnPrefix": "Obecnie w trakcie:",
+    "scheduleNote": "Uwaga harmonogramowa: ",
+    "stageTimeline": "Oś czasu etapów",
+    "allStages": "Wszystkie etapy",
+    "floorPlanVisualisation": "Wizualizacja rzutu",
+    "openPlan": "Otwórz rzut"
+  },
+  "stats": {
+    "started": "Rozpoczęto",
+    "target": "Termin: {{date}}",
+    "stagesDone": "Etapy ukończone",
+    "onSchedule": "Zgodnie z planem",
+    "stagesLate_one": "{{count}} etap opóźniony",
+    "stagesLate_few": "{{count}} etapy opóźnione",
+    "stagesLate_many": "{{count}} etapów opóźnionych",
+    "stagesLate_other": "{{count}} etapu opóźnionego",
+    "budgetSpent": "Wydany budżet",
+    "overBudget": "↑ {{pct}}% ponad budżet",
+    "budgetUsed": "{{pct}}% wykorzystane",
+    "ofPlan": "z planowanych {{amount}}",
+    "siteManager": "Kierownik budowy",
+    "pointOfContact": "Twoja osoba kontaktowa",
+    "noManager": "—"
+  },
+  "progress": {
+    "title": "Postęp",
+    "descriptionManager": "Odznaczaj zadania w miarę postępu ekipy. Klienci od razu widzą widoczne etapy i zadania.",
+    "descriptionClient": "Każdy etap Twojego remontu i jego lista zadań, aktualizowane przez kierownika budowy.",
+    "tabsLabel": "Widok postępu",
+    "tabTimeline": "Oś czasu",
+    "tabPlan": "Rzut",
+    "addStage": "Dodaj etap"
+  },
+  "stageRow": {
+    "progress": "Postęp",
+    "progressAriaLabel": "Postęp: {{name}}",
+    "editStage": "Edytuj {{name}}",
+    "removeTask": "Usuń zadanie {{name}}",
+    "removeTaskConfirmTitle": "Usunąć „{{name}}”?",
+    "noteForClient": "Uwaga dla klienta: ",
+    "checklistMismatch": "Lista zadań: {{done}}/{{total}} ukończone ({{pct}}%). Postęp pokazuje {{progress}}%.",
+    "useChecklistPct": "Użyj {{pct}}%"
+  },
+  "stagesEmpty": {
+    "title": "Brak etapów",
+    "description": "Dodaj pierwszy etap — wyburzenia, elektrykę, podłogi — wraz z datami."
+  },
+  "addTask": {
+    "placeholder": "Dodaj zadanie…",
+    "nameLabel": "Nazwa nowego zadania",
+    "roomLabel": "Pomieszczenie, którego dotyczy zadanie",
+    "noRoom": "Brak pomieszczenia",
+    "submit": "Dodaj"
+  },
+  "stageForm": {
+    "addTitle": "Dodaj etap",
+    "editTitle": "Edytuj etap",
+    "description": "Daty, status i postęp pojawiają się na osi czasu klienta.",
+    "name": "Nazwa etapu",
+    "start": "Początek",
+    "end": "Koniec",
+    "status": "Status",
+    "progress": "Postęp — {{pct}}%",
+    "note": "Uwaga dla klienta (opcjonalnie)",
+    "visibleToClient": "Widoczne dla klienta",
+    "affects": "Zadania w tym etapie dotyczą: {{rooms}}.",
+    "save": "Zapisz etap",
+    "saving": "Zapisywanie…",
+    "delete": "Usuń etap",
+    "deleteConfirmTitle": "Usunąć etap?",
+    "deleteConfirmDescription": "Usunąć „{{name}}” i jego {{count}} zadań?",
+    "saved": "Etap zapisany — widoczny w aplikacji klienta",
+    "removed": "Etap usunięty",
+    "taskRemoved": "Usunięto „{{name}}”",
+    "endBeforeStart": "Data końcowa musi być taka sama lub późniejsza niż data początkowa",
+    "statusProgressMismatch": "Ukończone i 100% zawsze idą razem"
+  },
+  "plan": {
+    "title": "Rzut",
+    "descriptionManager": "Wybierz pomieszczenie, aby zaktualizować to, co widzi klient na swoim planie.",
+    "descriptionClient": "Wybierz pomieszczenie, aby zobaczyć jego postęp i to, co się w nim dzieje.",
+    "addRoom": "Dodaj pomieszczenie",
+    "addRoomDescription": "Pozycja w jednostkach planu (600 szerokości × 420 wysokości).",
+    "roomsHeading": "Pomieszczenia",
+    "stillToDo": "Pozostało do zrobienia",
+    "clickPrompt": "Kliknij dowolne pomieszczenie na rzucie, aby zobaczyć jego aktualny status remontu."
+  },
+  "roomsEmpty": {
+    "title": "Brak pomieszczeń",
+    "description": "Dodaj pomieszczenia wraz z ich pozycją na siatce planu 600×420."
+  },
+  "roomForm": {
+    "name": "Nazwa pomieszczenia",
+    "status": "Status",
+    "progress": "Postęp — {{pct}}%",
+    "note": "Uwaga dla klienta",
+    "notePlaceholder": "Opcjonalnie",
+    "notePlaceholderBlocked": "Na co czeka?",
+    "visibleToClient": "Widoczne dla klienta",
+    "blockedByTasks": "Nie można oznaczyć jako ukończone, gdy zadania są otwarte: {{tasks}}.",
+    "geometryX": "X",
+    "geometryY": "Y",
+    "geometryW": "Szer.",
+    "geometryH": "Wys.",
+    "save": "Zapisz pomieszczenie",
+    "add": "Dodaj pomieszczenie",
+    "saving": "Zapisywanie…",
+    "showGeometry": "Edytuj pozycję i rozmiar",
+    "hideGeometry": "Ukryj pozycję i rozmiar",
+    "delete": "Usuń pomieszczenie",
+    "deleteConfirmTitle": "Usunąć pomieszczenie?",
+    "deleteConfirmDescription": "Usunąć {{name}}? Zdjęcia i zadania pozostaną bez przypisanego pomieszczenia.",
+    "saved": "{{name}} zapisane — plan klienta zaktualizowany",
+    "removed": "Pomieszczenie usunięte",
+    "statusProgressMismatch": "Ukończone i 100% zawsze idą razem"
+  },
+  "selectedRoom": {
+    "label": "Wybrane pomieszczenie",
+    "progress": "Postęp",
+    "progressAriaLabel": "Postęp: {{name}}",
+    "clickPrompt": "Kliknij dowolne pomieszczenie na rzucie, aby zobaczyć jego aktualny status remontu."
+  },
+  "floorPlan": {
+    "ariaLabel": "Rzut",
+    "tileLabel": "{{name}}: {{status}}, {{progress}}%"
+  },
+  "consistency": {
+    "blockedOnSchedule": "{{names}} zablokowane, a projekt nadal ma status „zgodnie z planem”.",
+    "roomDoneTaskOpen": "{{room}} jest ukończone, ale „{{task}}” jest wciąż otwarte.",
+    "stageDoneTasksOpen_one": "{{stage}} jest ukończony, ale {{count}} zadanie jest wciąż otwarte.",
+    "stageDoneTasksOpen_few": "{{stage}} jest ukończony, ale {{count}} zadania są wciąż otwarte.",
+    "stageDoneTasksOpen_many": "{{stage}} jest ukończony, ale {{count}} zadań jest wciąż otwartych.",
+    "stageDoneTasksOpen_other": "{{stage}} jest ukończony, ale {{count}} zadania jest wciąż otwarte.",
+    "stagePendingTasksDone": "{{stage}} ma status „oczekuje”, ale część jego zadań jest już odznaczona."
+  },
+  "errors": {
+    "roomDoneTasksOpen": "{{name}} nie może być oznaczone jako ukończone, gdy zadania są otwarte: {{tasks}}.",
+    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań."
+  }
+}

@@ -1,43 +1,50 @@
+import { useTranslation } from "react-i18next";
 import { Stat, StatChange, StatDelta, StatLabel, StatValue } from "@/components/ui/stat";
-import { budgetStatus, daysLate } from "@/lib/attention";
-import { longDate, money } from "@/lib/format";
+import { budgetStatus, daysLate } from "@/domain/attention";
+import { useFormat } from "@/i18n";
 import type { ProjectSummary, Stage } from "@/lib/database.types";
+
+const DATE_STYLE = "long";
 
 /** The four project-facts stat cards on the client overview. */
 export function OverviewStats({ project, stages }: { project: ProjectSummary; stages: Stage[] }) {
+  const { t } = useTranslation("work");
+  const format = useFormat();
   const budget = budgetStatus(project);
   const lateStages = stages.filter((s) => daysLate(s) > 0).length;
+  const started = format.date(project.start_date, DATE_STYLE);
+  const target = format.date(project.target_date, DATE_STYLE);
 
   return (
-    <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Project facts">
+    <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label={t("overview.projectFacts")}>
       <Stat>
-        <StatLabel>Started</StatLabel>
-        <StatValue>{longDate(project.start_date)}</StatValue>
-        <StatChange>Target: {longDate(project.target_date)}</StatChange>
+        <StatLabel>{t("stats.started")}</StatLabel>
+        <StatValue>{started}</StatValue>
+        <StatChange>{t("stats.target", { date: target })}</StatChange>
       </Stat>
       <Stat>
-        <StatLabel>Stages done</StatLabel>
+        <StatLabel>{t("stats.stagesDone")}</StatLabel>
         <StatValue unit={`/ ${project.stages_total}`}>{project.stages_done}</StatValue>
         <StatChange>
           <StatDelta tone={lateStages ? "attention" : "good"}>
-            {lateStages ? `${lateStages} ${lateStages === 1 ? "stage" : "stages"} late` : "On schedule"}
+            {lateStages ? t("stats.stagesLate", { count: lateStages }) : t("stats.onSchedule")}
           </StatDelta>
         </StatChange>
       </Stat>
       <Stat variant={budget.over ? "attention" : "default"}>
-        <StatLabel>Budget spent</StatLabel>
-        <StatValue>{money(project.spent)}</StatValue>
+        <StatLabel>{t("stats.budgetSpent")}</StatLabel>
+        <StatValue>{format.money(project.spent)}</StatValue>
         <StatChange>
           <StatDelta tone={budget.over ? "attention" : "good"}>
-            {budget.over ? `↑ ${budget.overPct}% over` : `${budget.usedPct}% used`}
-          </StatDelta>
-          of the {money(project.budget)} plan
+            {budget.over ? t("stats.overBudget", { pct: budget.overPct }) : t("stats.budgetUsed", { pct: budget.usedPct })}
+          </StatDelta>{" "}
+          {t("stats.ofPlan", { amount: format.money(project.budget) })}
         </StatChange>
       </Stat>
       <Stat>
-        <StatLabel>Site manager</StatLabel>
-        <StatValue>{project.manager_name || "—"}</StatValue>
-        <StatChange>Your point of contact</StatChange>
+        <StatLabel>{t("stats.siteManager")}</StatLabel>
+        <StatValue>{project.manager_name || t("stats.noManager")}</StatValue>
+        <StatChange>{t("stats.pointOfContact")}</StatChange>
       </Stat>
     </section>
   );

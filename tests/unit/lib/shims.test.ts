@@ -29,10 +29,11 @@ describe("deprecated src/lib shims", () => {
   });
 
   it("nav items keep their English titles and managerOnly flags", () => {
+    // Stages and the floor plan merged into one Progress page (T13); its title comes from the
+    // work namespace since there's no common:nav key for it.
     expect(projectNav.map((i) => i.title)).toEqual([
       "Overview",
-      "Stages",
-      "Plan",
+      "Progress",
       "Photos",
       "Design",
       "Budget",

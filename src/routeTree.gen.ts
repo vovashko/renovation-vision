@@ -20,6 +20,7 @@ import { Route as projectDesignRouteImport } from './routes/project/design'
 import { Route as projectKnowledgeRouteImport } from './routes/project/knowledge'
 import { Route as projectPhotosRouteImport } from './routes/project/photos'
 import { Route as projectPlanRouteImport } from './routes/project/plan'
+import { Route as projectProgressRouteImport } from './routes/project/progress'
 import { Route as projectStagesRouteImport } from './routes/project/stages'
 import { Route as projectTeamRouteImport } from './routes/project/team'
 import { Route as projectUpdatesRouteImport } from './routes/project/updates'
@@ -79,6 +80,11 @@ const projectPlanRoute = projectPlanRouteImport.update({
   path: '/plan',
   getParentRoute: () => projectLayoutRoute,
 } as any)
+const projectProgressRoute = projectProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => projectLayoutRoute,
+} as any)
 const projectStagesRoute = projectStagesRouteImport.update({
   id: '/stages',
   path: '/stages',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
   '/projects/$projectId/photos': typeof projectPhotosRoute
   '/projects/$projectId/plan': typeof projectPlanRoute
+  '/projects/$projectId/progress': typeof projectProgressRoute
   '/projects/$projectId/stages': typeof projectStagesRoute
   '/projects/$projectId/team': typeof projectTeamRoute
   '/projects/$projectId/updates': typeof projectUpdatesRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
   '/projects/$projectId/photos': typeof projectPhotosRoute
   '/projects/$projectId/plan': typeof projectPlanRoute
+  '/projects/$projectId/progress': typeof projectProgressRoute
   '/projects/$projectId/stages': typeof projectStagesRoute
   '/projects/$projectId/team': typeof projectTeamRoute
   '/projects/$projectId/updates': typeof projectUpdatesRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
   '/projects/$projectId/photos': typeof projectPhotosRoute
   '/projects/$projectId/plan': typeof projectPlanRoute
+  '/projects/$projectId/progress': typeof projectProgressRoute
   '/projects/$projectId/stages': typeof projectStagesRoute
   '/projects/$projectId/team': typeof projectTeamRoute
   '/projects/$projectId/updates': typeof projectUpdatesRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/knowledge'
     | '/projects/$projectId/photos'
     | '/projects/$projectId/plan'
+    | '/projects/$projectId/progress'
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/knowledge'
     | '/projects/$projectId/photos'
     | '/projects/$projectId/plan'
+    | '/projects/$projectId/progress'
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/knowledge'
     | '/projects/$projectId/photos'
     | '/projects/$projectId/plan'
+    | '/projects/$projectId/progress'
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
@@ -279,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof projectPlanRouteImport
       parentRoute: typeof projectLayoutRoute
     }
+    '/projects/$projectId/progress': {
+      id: '/projects/$projectId/progress'
+      path: '/progress'
+      fullPath: '/projects/$projectId/progress'
+      preLoaderRoute: typeof projectProgressRouteImport
+      parentRoute: typeof projectLayoutRoute
+    }
     '/projects/$projectId/stages': {
       id: '/projects/$projectId/stages'
       path: '/stages'
@@ -311,6 +330,7 @@ interface projectLayoutRouteChildren {
   projectKnowledgeRoute: typeof projectKnowledgeRoute
   projectPhotosRoute: typeof projectPhotosRoute
   projectPlanRoute: typeof projectPlanRoute
+  projectProgressRoute: typeof projectProgressRoute
   projectStagesRoute: typeof projectStagesRoute
   projectTeamRoute: typeof projectTeamRoute
   projectUpdatesRoute: typeof projectUpdatesRoute
@@ -324,6 +344,7 @@ const projectLayoutRouteChildren: projectLayoutRouteChildren = {
   projectKnowledgeRoute: projectKnowledgeRoute,
   projectPhotosRoute: projectPhotosRoute,
   projectPlanRoute: projectPlanRoute,
+  projectProgressRoute: projectProgressRoute,
   projectStagesRoute: projectStagesRoute,
   projectTeamRoute: projectTeamRoute,
   projectUpdatesRoute: projectUpdatesRoute,

@@ -90,14 +90,14 @@
     "reason": "Layout-only: the chat panel's own fixed/responsive positioning and safe-area math."
   },
   {
-    "file": "routes/project/plan.tsx",
+    "file": "features/work/ui/room-form.tsx",
     "snippet": "gap-1 text-body-sm text-destructive hover:underline",
-    "reason": "One-off destructive inline link with icon; not a styled Button."
+    "reason": "One-off destructive inline link with icon; not a styled Button. Moved here from plan.tsx (T13: progress page)."
   },
   {
-    "file": "routes/project/plan.tsx",
+    "file": "features/work/ui/room-form.tsx",
     "snippet": "bg-status-blocked-container p-2 text-body-sm text-on-status-blocked-container",
-    "reason": "One-off inline validation message (blocked-by-open-tasks) in the room form."
+    "reason": "One-off inline validation message (blocked-by-open-tasks) in the room form. Moved here from plan.tsx (T13: progress page)."
   },
   {
     "file": "shared/ui/form-sheet.tsx",
