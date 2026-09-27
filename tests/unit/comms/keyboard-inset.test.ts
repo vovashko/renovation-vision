@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
+import { useKeyboardInset } from "@/features/comms/hooks/use-keyboard-inset";
 
 // jsdom doesn't implement `visualViewport` or `matchMedia` — stand in for both so the
 // hook's resize/scroll listeners and its coarse-pointer check have something to read.

@@ -1,1 +1,67 @@
-{}
+{
+  "chat": {
+    "tabs": {
+      "ariaLabel": "Tryb czatu",
+      "people": "Kierownik projektu",
+      "ai": "Zapytaj AI"
+    },
+    "header": {
+      "online": "Online",
+      "offline": "Offline",
+      "clientRole_one": "Klient · {{count}} osoba",
+      "clientRole_few": "Klient · {{count}} osoby",
+      "clientRole_many": "Klient · {{count}} osób",
+      "clientRole_other": "Klient · {{count}} osoby",
+      "noClientInvited": "Nie zaproszono jeszcze klienta",
+      "defaultClientName": "Klient",
+      "defaultManagerName": "Kierownik projektu",
+      "formerMember": "Były członek zespołu"
+    },
+    "empty": {
+      "managerDescription": "Brak wiadomości. Napisz coś — klient otrzyma powiadomienie.",
+      "clientDescription": "Brak wiadomości. Zapytaj kierownika projektu o cokolwiek związanego z projektem."
+    },
+    "composer": {
+      "managerPlaceholder": "Napisz do klienta…",
+      "clientPlaceholder": "Napisz do kierownika projektu…",
+      "attach": "Załącz plik",
+      "removeAttachment": "Usuń załącznik",
+      "send": "Wyślij",
+      "empty": "Napisz wiadomość lub dodaj załącznik",
+      "tooLong": "Wiadomość jest zbyt długa"
+    },
+    "handOverTemplate": "Cześć {{name}}, pytanie: {{question}}"
+  },
+  "updates": {
+    "title": "Aktualności",
+    "description": "Zmiany statusu, opublikowane zdjęcia i nowe wizualizacje automatycznie powiadamiają klienta.",
+    "announcement": {
+      "heading": "Wyślij ogłoszenie",
+      "titleLabel": "Tytuł",
+      "titlePlaceholder": "np. Brak wody w czwartek",
+      "bodyLabel": "Wiadomość",
+      "linkLabel": "Otwiera się w aplikacji klienta",
+      "noLink": "Bez linku",
+      "inviteFirst": "Najpierw zaproś klienta",
+      "submit_one": "Wyślij do {{count}} klienta",
+      "submit_few": "Wyślij do {{count}} klientów",
+      "submit_many": "Wyślij do {{count}} klientów",
+      "submit_other": "Wyślij do {{count}} klienta",
+      "sentToast": "Wysłano do klienta"
+    },
+    "sent": {
+      "heading": "Wysłane do klienta",
+      "empty": "Nie wysłano jeszcze żadnych powiadomień.",
+      "readBy": "przeczytane przez {{read}} z {{total}}",
+      "opens": "otwiera {{link}}"
+    },
+    "inbox": {
+      "heading": "Twoja skrzynka odbiorcza",
+      "systemSender": "System"
+    },
+    "activity": {
+      "heading": "Dziennik aktywności",
+      "empty": "Zmiany w tym projekcie będą się tu pojawiać."
+    }
+  }
+}

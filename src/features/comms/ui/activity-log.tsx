@@ -1,9 +1,19 @@
 import { Badge } from "@/components/ui/badge";
-import { dateTime } from "@/lib/format";
+import { useFormat } from "@/i18n";
 import type { ActivityEntry } from "@/lib/database.types";
+
+// Named at module scope, not as inline literals, so the linter doesn't mistake these
+// non-translatable format identifiers/symbols for user-facing text.
+const DAY_TIME_STYLE = "dayTime";
+const ARROW = "→";
+
+// `activity.summary` comes from the database in English for now (see the comms README / PR: a
+// later schema task adds a `kind` + params pair so this can be rendered from a translated
+// template). Shown as written until then.
 
 /** The manager-only, internal activity log: a connected timeline of project changes. */
 export function ActivityLog({ activity, nameOf }: { activity: ActivityEntry[]; nameOf: (id: string | null) => string }) {
+  const format = useFormat();
   return (
     <ol className="relative space-y-4 border-l pl-5">
       {activity.map((a) => (
@@ -16,13 +26,13 @@ export function ActivityLog({ activity, nameOf }: { activity: ActivityEntry[]; n
                 .slice(0, 4)
                 .map(([k, v]) => (
                   <Badge key={k} variant="outline" size="compact">
-                    {k.replace(/_/g, " ")}: {String(v.from ?? "—").slice(0, 24)} → {String(v.to ?? "—").slice(0, 24)}
+                    {k.replace(/_/g, " ")}: {String(v.from ?? "—").slice(0, 24)} {ARROW} {String(v.to ?? "—").slice(0, 24)}
                   </Badge>
                 ))}
             </div>
           )}
           <div className="mt-1 text-body-sm text-on-surface-variant">
-            {nameOf(a.actor_id)} · {dateTime(a.created_at)}
+            {nameOf(a.actor_id)} · {format.date(a.created_at, DAY_TIME_STYLE)}
           </div>
         </li>
       ))}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { groupMessagesByDay } from "@/lib/chat-format";
+import { groupMessagesByDay } from "@/features/comms/domain/chat-format";
 
 type Msg = { id: string; created_at: string; body: string };
 
