@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import type { ProjectSummary } from "@/lib/database.types";
 import type { I18n } from "@/i18n";
 import { applyRequestLocale } from "@/i18n/request-locale";
+import { ConfirmProvider } from "@/shared/ui/confirm-dialog";
 
 import appCss from "../styles.css?url";
 import logoMark from "@/assets/renovision-mark.svg";
@@ -132,7 +133,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider delayDuration={300}>
-          <AuthGate />
+          <ConfirmProvider>
+            <AuthGate />
+          </ConfirmProvider>
           <Toaster position="top-center" richColors={false} />
         </TooltipProvider>
       </AuthProvider>

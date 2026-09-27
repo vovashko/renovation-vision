@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { api } from "./api";
 
 export const keys = {
@@ -38,6 +38,9 @@ export const useCrew = (id: string) => useQuery({ queryKey: keys.crew(id), query
 export const useKnowledge = (id: string) => useQuery({ queryKey: keys.knowledge(id), queryFn: () => api.listKnowledge(id) });
 
 /**
+ * @deprecated use `useMutationWithToast` from @/shared/hooks/use-mutation-with-toast (pass the
+ * project keys to `invalidate` yourself). This shim goes away in T17.
+ *
  * Mutation that toasts the outcome and refreshes the affected data, plus the
  * project summary, activity log and notifications (triggers update those server-side).
  */
@@ -46,24 +49,8 @@ export function useSave<V>(
   fn: (vars: V) => Promise<unknown>,
   opts: { invalidate: (readonly unknown[])[]; success?: string | ((vars: V) => string) },
 ) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: fn,
-    onSuccess: (_d, vars) => {
-      const msg = typeof opts.success === "function" ? opts.success(vars) : opts.success;
-      if (msg) toast.success(msg);
-    },
-    onError: (e: Error) => toast.error(e.message),
-    onSettled: () => {
-      for (const k of [
-        ...opts.invalidate,
-        keys.project(projectId),
-        keys.projects,
-        keys.activity(projectId),
-        keys.notifications(projectId),
-      ]) {
-        void qc.invalidateQueries({ queryKey: k });
-      }
-    },
+  return useMutationWithToast(fn, {
+    success: opts.success,
+    invalidate: [...opts.invalidate, keys.project(projectId), keys.projects, keys.activity(projectId), keys.notifications(projectId)],
   });
 }
