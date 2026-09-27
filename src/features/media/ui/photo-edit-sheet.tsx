@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FieldLabel } from "@/components/ui/field";
 import { FormSheet } from "@/shared/ui/form-sheet";
+import { FormField } from "@/shared/ui/form-field";
+import { useZodForm } from "@/shared/hooks/use-zod-form";
+import { useConfirm } from "@/shared/ui/use-confirm";
 import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
-import { api, type PhotoPatch } from "@/lib/api";
-import { keys, useSave } from "@/lib/queries";
+import { photoEditSchema } from "@/features/media/domain/schemas";
+import { useDeletePhoto, useUpdatePhoto } from "@/features/media/hooks/use-photos";
 import type { Photo, Room, Stage } from "@/lib/database.types";
 
 /** Manager sheet: edit a photo's caption, alt text, stage and room, or delete it. */
@@ -23,15 +26,30 @@ export function PhotoEditSheet({
   stages: Stage[];
   rooms: Room[];
 }) {
-  const [draft, setDraft] = useState<{ caption: string; alt: string; stage_id: string; room_id: string } | null>(null);
+  const { t } = useTranslation(["media", "common"]);
+  const confirm = useConfirm();
+  const form = useZodForm(photoEditSchema, { caption: "", alt: "", stageId: "", roomId: "" });
   const [lastId, setLastId] = useState<string | null>(null);
-  if (photo && photo.id !== lastId) {
-    setLastId(photo.id);
-    setDraft({ caption: photo.caption, alt: photo.alt, stage_id: photo.stage_id ?? "", room_id: photo.room_id ?? "" });
-  }
-  const inv = { invalidate: [keys.photos(projectId), keys.renders(projectId)] };
-  const update = useSave(projectId, (patch: PhotoPatch) => api.updatePhoto(photo!.id, patch), { ...inv, success: "Photo updated" });
-  const remove = useSave(projectId, (p: Photo) => api.deletePhoto(p), { ...inv, success: "Photo deleted" });
+  useEffect(() => {
+    if (photo && photo.id !== lastId) {
+      setLastId(photo.id);
+      form.reset({ caption: photo.caption, alt: photo.alt, stageId: photo.stage_id ?? "", roomId: photo.room_id ?? "" });
+    }
+  }, [photo, lastId, form]);
+
+  const update = useUpdatePhoto(projectId);
+  const remove = useDeletePhoto(projectId);
+
+  const submit = form.handleSubmit((values) => {
+    if (!photo) return;
+    update.mutate(
+      {
+        id: photo.id,
+        patch: { caption: values.caption, alt: values.alt, stage_id: values.stageId || null, room_id: values.roomId || null },
+      },
+      { onSuccess: onClose },
+    );
+  });
 
   return (
     <FormSheet
@@ -42,48 +60,34 @@ export function PhotoEditSheet({
           setLastId(null);
         }
       }}
-      title="Edit photo"
+      title={t("photoEditSheet.title")}
     >
-      {photo && draft && (
-        <div className="flex flex-col gap-4">
+      {photo && (
+        <form noValidate onSubmit={submit} className="flex flex-col gap-4">
           {photo.url && <img src={photo.url} alt={photo.alt} className="aspect-[4/3] w-full rounded-md object-cover" />}
-          <Field>
-            <FieldLabel htmlFor="ed-caption">Caption</FieldLabel>
-            <Textarea id="ed-caption" value={draft.caption} onChange={(e) => setDraft({ ...draft, caption: e.target.value })} />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="ed-alt">Image description (for screen readers)</FieldLabel>
-            <Textarea id="ed-alt" value={draft.alt} onChange={(e) => setDraft({ ...draft, alt: e.target.value })} />
-          </Field>
-          <StageRoomFields
-            prefix="ed"
-            stages={stages}
-            rooms={rooms}
-            stageId={draft.stage_id}
-            roomId={draft.room_id}
-            onStage={(v) => setDraft({ ...draft, stage_id: v })}
-            onRoom={(v) => setDraft({ ...draft, room_id: v })}
-          />
-          <Button
-            className="min-h-11 w-full"
-            disabled={update.isPending}
-            onClick={() =>
-              update.mutate(
-                { caption: draft.caption, alt: draft.alt, stage_id: draft.stage_id || null, room_id: draft.room_id || null },
-                { onSuccess: onClose },
-              )
-            }
-          >
-            Save changes
+          <FormField control={form.control} name="caption" label={t("fields.caption")}>
+            {(field) => <Textarea {...field} />}
+          </FormField>
+          <FormField control={form.control} name="alt" label={t("fields.altLabel")}>
+            {(field) => <Textarea {...field} />}
+          </FormField>
+          <StageRoomFields control={form.control} stages={stages} rooms={rooms} />
+          <Button type="submit" className="min-h-11 w-full" disabled={update.isPending}>
+            {t("photoEditSheet.save")}
           </Button>
           <Button
+            type="button"
             variant="ghost"
             className="min-h-11 w-full gap-2 text-destructive"
-            onClick={() => confirm("Delete this photo for everyone?") && remove.mutate(photo, { onSuccess: onClose })}
+            onClick={async () => {
+              if (await confirm({ title: t("photoEditSheet.deleteConfirmTitle"), destructive: true })) {
+                remove.mutate(photo, { onSuccess: onClose });
+              }
+            }}
           >
-            <Icon name="delete" size={20} /> Delete photo
+            <Icon name="delete" size={20} /> {t("photoEditSheet.delete")}
           </Button>
-        </div>
+        </form>
       )}
     </FormSheet>
   );

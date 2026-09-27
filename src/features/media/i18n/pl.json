@@ -1,1 +1,150 @@
-{}
+{
+  "photosPage": {
+    "heading": "Zdjęcia z budowy",
+    "metaDescription": "Dodawaj zdjęcia z budowy, trzymaj wersje robocze prywatnie i publikuj je dla klienta.",
+    "descriptionManager": "Nowe zdjęcia zaczynają jako prywatne wersje robocze. Opublikuj je, gdy będą gotowe dla klienta.",
+    "descriptionClient": "Zdjęcia postępu prac od Twojego kierownika budowy.",
+    "addPhotos": "Dodaj zdjęcia",
+    "emptyFiltered": "Żadne zdjęcie nie pasuje do tego filtra.",
+    "emptyDrafts": "Brak wersji roboczych — wszystko opublikowane.",
+    "emptyManager": "Nie ma jeszcze zdjęć. Dodaj dzisiejszy postęp prac.",
+    "emptyClient": "Nie ma jeszcze zdjęć. Twój kierownik budowy udostępni tu zdjęcia postępu prac."
+  },
+  "designPage": {
+    "heading": "Planowana aranżacja",
+    "metaDescription": "Dodawaj wizualizacje projektowe i pary zdjęć przed/po dla każdego pomieszczenia.",
+    "descriptionManager": "Wizualizacje pokazują klientowi, jak będzie wyglądać każde pomieszczenie po zakończeniu.",
+    "descriptionClient": "Jak będzie wyglądać każde pomieszczenie po zakończeniu.",
+    "addRender": "Dodaj wizualizację",
+    "emptyTitle": "Nie ma jeszcze wizualizacji",
+    "emptyManager": "Dodaj wizualizacje projektanta, aby klient mógł zobaczyć docelowy wygląd.",
+    "emptyClient": "Wizualizacje projektowe pojawią się tutaj, gdy Twój projektant je udostępni."
+  },
+  "filters": {
+    "byStatus": "Filtruj według statusu",
+    "allCount": "Wszystkie ({{count}})",
+    "draftsCount": "Wersje robocze ({{count}})",
+    "publishedCount": "Opublikowane ({{count}})",
+    "byStage": "Filtruj według etapu",
+    "allStages": "Wszystkie etapy",
+    "byRoom": "Filtruj według pomieszczenia",
+    "allRooms": "Wszystkie pomieszczenia",
+    "noStage": "Brak etapu",
+    "noRoom": "Brak pomieszczenia"
+  },
+  "fields": {
+    "stage": "Etap",
+    "room": "Pomieszczenie",
+    "caption": "Podpis",
+    "altLabel": "Opis obrazu (dla czytników ekranu)"
+  },
+  "photo": {
+    "fallbackCaption": "Zdjęcie z budowy"
+  },
+  "photoCard": {
+    "openAria": "Otwórz zdjęcie: {{caption}}",
+    "fileMissing": "Brak pliku",
+    "draftBadge": "Wersja robocza — klient nie widzi",
+    "noCaption": "Brak podpisu",
+    "publish": "Opublikuj",
+    "unpublish": "Cofnij publikację",
+    "editAria": "Edytuj zdjęcie",
+    "draftTag": "Wersja robocza",
+    "publishedTag": "Opublikowane"
+  },
+  "photoEditSheet": {
+    "title": "Edytuj zdjęcie",
+    "save": "Zapisz zmiany",
+    "delete": "Usuń zdjęcie",
+    "deleteConfirmTitle": "Usunąć to zdjęcie dla wszystkich?"
+  },
+  "uploadSheet": {
+    "title": "Dodaj zdjęcia z budowy",
+    "description": "Oznacz etap i pomieszczenie, aby klient mógł je filtrować.",
+    "images": "Zdjęcia",
+    "captionPlaceholder": "Co się dzisiaj zmieniło?",
+    "publishNow": "Opublikuj dla klienta teraz",
+    "uploading": "Przesyłanie…",
+    "submitPublish_one": "Opublikuj {{count}} zdjęcie",
+    "submitPublish_few": "Opublikuj {{count}} zdjęcia",
+    "submitPublish_many": "Opublikuj {{count}} zdjęć",
+    "submitPublish_other": "Opublikuj {{count}} zdjęcia",
+    "submitSave_one": "Zapisz {{count}} wersję roboczą",
+    "submitSave_few": "Zapisz {{count}} wersje robocze",
+    "submitSave_many": "Zapisz {{count}} wersji roboczych",
+    "submitSave_other": "Zapisz {{count}} wersji roboczych"
+  },
+  "upload": {
+    "filesRequired": "Wybierz co najmniej jedno zdjęcie",
+    "publishedToast_one": "Opublikowano {{count}} zdjęcie",
+    "publishedToast_few": "Opublikowano {{count}} zdjęcia",
+    "publishedToast_many": "Opublikowano {{count}} zdjęć",
+    "publishedToast_other": "Opublikowano {{count}} zdjęcia",
+    "savedToast_one": "Zapisano {{count}} wersję roboczą",
+    "savedToast_few": "Zapisano {{count}} wersje robocze",
+    "savedToast_many": "Zapisano {{count}} wersji roboczych",
+    "savedToast_other": "Zapisano {{count}} wersji roboczych"
+  },
+  "toast": {
+    "published": "Opublikowano — klient może to teraz zobaczyć",
+    "unpublished": "Przeniesiono z powrotem do wersji roboczych",
+    "photoUpdated": "Zaktualizowano zdjęcie",
+    "photoDeleted": "Usunięto zdjęcie"
+  },
+  "lightbox": {
+    "viewerAria": "Podgląd zdjęcia: {{title}}",
+    "counter": "{{current}} / {{total}}",
+    "closeAria": "Zamknij podgląd",
+    "prevAria": "Poprzednie zdjęcie",
+    "nextAria": "Następne zdjęcie"
+  },
+  "beforeAfter": {
+    "afterAlt": "{{label}}, planowana wizualizacja",
+    "beforeAlt": "{{label}}, obecne zdjęcie z budowy",
+    "now": "Teraz",
+    "planned": "Planowane",
+    "compareAria": "Porównaj obecny i planowany widok: {{label}}"
+  },
+  "renderCard": {
+    "hiddenFromClient": "Ukryte przed klientem",
+    "shareAria": "Udostępnij {{title}} klientowi",
+    "editAria": "Edytuj {{title}}"
+  },
+  "renderCompare": {
+    "heading": "{{room}}: obecnie i po zmianach",
+    "noteReady": "Klient widzi ten suwak na swojej stronie Aranżacji.",
+    "noteWaiting": "Klient zobaczy ten suwak na swojej stronie Aranżacji, gdy wizualizacja i zdjęcie zostaną udostępnione."
+  },
+  "renderSections": {
+    "noRoomHeading": "Niepowiązane z pomieszczeniem",
+    "seeOnPlan": "Zobacz na planie",
+    "emptyManager": "Klient widzi: wizualizacje dla {{room}} są wciąż przygotowywane przez projektanta.",
+    "emptyClient": "Wizualizacje dla {{room}} są wciąż przygotowywane przez projektanta."
+  },
+  "renderSheet": {
+    "addTitle": "Dodaj wizualizację",
+    "editTitle": "Edytuj wizualizację",
+    "description": "Nowe wizualizacje pozostają ukryte, dopóki ich nie udostępnisz.",
+    "imageNew": "Obraz",
+    "imageReplace": "Zamień obraz (opcjonalnie)",
+    "titleLabel": "Tytuł",
+    "descriptionLabel": "Opis",
+    "descriptionPlaceholder": "Materiały, kolory, elementy wyposażenia.",
+    "compareLabel": "Przed/po: obecne zdjęcie z budowy (opcjonalnie)",
+    "compareHint": "Dodaje suwak porównujący to zdjęcie z wizualizacją.",
+    "comparePhotoNone": "Brak",
+    "draftSuffix": "(wersja robocza)",
+    "shareLabel": "Udostępnij klientowi",
+    "saving": "Zapisywanie…",
+    "save": "Zapisz wizualizację",
+    "delete": "Usuń wizualizację",
+    "deleteConfirmTitle": "Usunąć tę wizualizację?"
+  },
+  "render": {
+    "fileRequired": "Wybierz obraz dla wizualizacji",
+    "savedToast": "Zapisano wizualizację",
+    "deletedToast": "Usunięto wizualizację",
+    "hiddenToast": "Ukryto przed klientem",
+    "sharedToast": "Udostępniono klientowi"
+  }
+}

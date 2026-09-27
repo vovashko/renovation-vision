@@ -1,4 +1,5 @@
-import { FilterChips } from "@/components/filter-chips";
+import { useTranslation } from "react-i18next";
+import { FilterChips } from "@/features/media/ui/filter-chips";
 import type { Room, Stage } from "@/lib/database.types";
 
 export type PhotoStatusFilter = "all" | "draft" | "published";
@@ -29,36 +30,28 @@ export function PhotoFilters({
   roomId: string;
   onRoomChange: (v: string) => void;
 }) {
+  const { t } = useTranslation(["media"]);
+  const ALL = "all";
+  const statusOptions = [
+    { value: ALL, label: t("filters.allCount", { count: totalCount }) },
+    { value: "draft", label: t("filters.draftsCount", { count: draftCount }) },
+    { value: "published", label: t("filters.publishedCount", { count: totalCount - draftCount }) },
+  ];
+  const stageOptions = [{ value: ALL, label: t("filters.allStages") }, ...stages.map((s) => ({ value: s.id, label: s.name }))];
+  const roomOptions = [{ value: ALL, label: t("filters.allRooms") }, ...rooms.map((r) => ({ value: r.id, label: r.name }))];
+
   return (
     <div className="flex flex-col gap-1">
       {isManager && (
         <FilterChips
-          label="Filter by status"
+          label={t("filters.byStatus")}
           value={status}
           onChange={(v) => onStatusChange(v as PhotoStatusFilter)}
-          options={[
-            { value: "all", label: `All (${totalCount})` },
-            { value: "draft", label: `Drafts (${draftCount})` },
-            { value: "published", label: `Published (${totalCount - draftCount})` },
-          ]}
+          options={statusOptions}
         />
       )}
-      {stages.length > 0 && (
-        <FilterChips
-          label="Filter by stage"
-          value={stageId}
-          onChange={onStageChange}
-          options={[{ value: "all", label: "All stages" }, ...stages.map((s) => ({ value: s.id, label: s.name }))]}
-        />
-      )}
-      {rooms.length > 0 && (
-        <FilterChips
-          label="Filter by room"
-          value={roomId}
-          onChange={onRoomChange}
-          options={[{ value: "all", label: "All rooms" }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
-        />
-      )}
+      {stages.length > 0 && <FilterChips label={t("filters.byStage")} value={stageId} onChange={onStageChange} options={stageOptions} />}
+      {rooms.length > 0 && <FilterChips label={t("filters.byRoom")} value={roomId} onChange={onRoomChange} options={roomOptions} />}
     </div>
   );
 }

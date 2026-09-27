@@ -1,30 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { PhotoFilters, type PhotoStatusFilter } from "@/features/media/ui/photo-filters";
 import { PhotoGrid } from "@/features/media/ui/photo-grid";
 import { PhotoEditSheet } from "@/features/media/ui/photo-edit-sheet";
-import { Lightbox } from "@/components/lightbox";
-import { UploadSheet } from "@/components/photo-upload-sheet";
+import { Lightbox } from "@/features/media/ui/lightbox";
+import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
+import { usePhotos, useUpdatePhoto } from "@/features/media/hooks/use-photos";
+import { filterPhotos, groupPhotosByDate, toLightboxItem } from "@/features/media/domain/photo-helpers";
 import { useAuth } from "@/lib/auth";
+import { useRooms, useStages } from "@/lib/queries";
 import { PageHeader, PageLoading } from "@/components/page-header";
-import { api, type PhotoPatch } from "@/lib/api";
-import { keys, usePhotos, useRooms, useSave, useStages } from "@/lib/queries";
-import { filterPhotos, groupPhotosByDate, toLightboxItem } from "@/lib/photo-helpers";
+import { useFormat } from "@/i18n";
 import type { Photo } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/photos")({
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
-      { title: "Site photos — RenoVision" },
-      { name: "description", content: "Upload site photos, keep drafts private and publish them to the client." },
+      { title: `${match.context.i18n.t("media:photosPage.heading")} — RenoVision` },
+      { name: "description", content: match.context.i18n.t("media:photosPage.metaDescription") },
     ],
   }),
   component: PhotosPage,
 });
 
 function PhotosPage() {
+  const { t } = useTranslation(["media", "common"]);
+  const format = useFormat();
   const { projectId } = Route.useParams();
   const isManager = useAuth().profile?.account_type === "manager";
   const { data: photos, isLoading } = usePhotos(projectId);
@@ -36,16 +40,7 @@ function PhotosPage() {
   const [uploading, setUploading] = useState(false);
   const [editing, setEditing] = useState<Photo | null>(null);
   const [open, setOpen] = useState<number | null>(null);
-  const inv = { invalidate: [keys.photos(projectId), keys.renders(projectId)] };
-  const update = useSave(projectId, ({ id, patch }: { id: string; patch: PhotoPatch }) => api.updatePhoto(id, patch), {
-    ...inv,
-    success: ({ patch }) =>
-      patch.status === "published"
-        ? "Published — the client can see it now"
-        : patch.status === "draft"
-          ? "Moved back to drafts"
-          : "Photo updated",
-  });
+  const update = useUpdatePhoto(projectId);
 
   const byStatus = useMemo(() => {
     const all = photos ?? [];
@@ -57,30 +52,26 @@ function PhotosPage() {
 
   if (isLoading || !photos) return <PageLoading />;
   const drafts = photos.filter((p) => p.status === "draft").length;
-  const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name ?? "No stage";
-  const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name ?? "No room";
+  const stageName = (id: string | null) => stages.find((s) => s.id === id)?.name ?? t("filters.noStage");
+  const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name ?? t("filters.noRoom");
   const filtering = stageId !== "all" || roomId !== "all";
   const emptyText = filtering
-    ? "No photos match this filter."
+    ? t("photosPage.emptyFiltered")
     : status === "draft"
-      ? "No drafts — everything is published."
+      ? t("photosPage.emptyDrafts")
       : isManager
-        ? "No photos yet. Add today's progress."
-        : "No photos yet. Your site manager will share progress photos here.";
+        ? t("photosPage.emptyManager")
+        : t("photosPage.emptyClient");
 
   return (
     <div className="mx-auto w-full max-w-6xl">
       <PageHeader
-        title="Site photos"
-        description={
-          isManager
-            ? "Uploads start as private drafts. Publish when they're ready for the client."
-            : "Progress photos from your site manager."
-        }
+        title={t("photosPage.heading")}
+        description={isManager ? t("photosPage.descriptionManager") : t("photosPage.descriptionClient")}
         actions={
           isManager && (
             <Button onClick={() => setUploading(true)} className="min-h-11 gap-2">
-              <Icon name="add_photo_alternate" size={22} /> Add photos
+              <Icon name="add_photo_alternate" size={22} /> {t("photosPage.addPhotos")}
             </Button>
           )
         }
@@ -117,11 +108,15 @@ function PhotosPage() {
 
       <Lightbox
         items={filtered.map((p) =>
-          toLightboxItem(p, [
-            stageName(p.stage_id),
-            roomName(p.room_id),
-            ...(isManager ? [p.status === "draft" ? "Draft" : "Published"] : []),
-          ]),
+          toLightboxItem(p, {
+            fallbackTitle: t("photo.fallbackCaption"),
+            subtitle: format.date(p.taken_at, "dayTime"),
+            tags: [
+              stageName(p.stage_id),
+              roomName(p.room_id),
+              ...(isManager ? [p.status === "draft" ? t("photoCard.draftTag") : t("photoCard.publishedTag")] : []),
+            ],
+          }),
         )}
         index={open}
         onClose={() => setOpen(null)}

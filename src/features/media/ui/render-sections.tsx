@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,45 +23,51 @@ export function RenderSections({
   onToggleVisible: (render: Render) => void;
   onEdit: (render: Render) => void;
 }) {
+  const { t } = useTranslation(["media"]);
   return (
     <div className="flex flex-col gap-8">
-      {groups.map((g) => (
-        <section key={g.room?.id ?? "none"} aria-label={g.room?.name ?? "No room"} className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-x-3">
-            <h2 className="text-title-lg">{g.room?.name ?? "Not linked to a room"}</h2>
-            {g.room && (
-              <Link
-                to="/projects/$projectId/plan"
-                params={{ projectId }}
-                search={{ room: g.room.id }}
-                className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11")}
-              >
-                See on plan
-                <Icon name="arrow_forward" size={20} />
-              </Link>
-            )}
-          </div>
-          {g.items.length === 0 ? (
-            <MediaEmpty
-              icon="palette"
-              compact
-              text={`${isManager ? "The client sees " : ""}"Renders for ${g.room?.name} are still being prepared by the designer."`}
-            />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {g.items.map((r) => (
-                <RenderCard
-                  key={r.id}
-                  render={r}
-                  isManager={isManager}
-                  onToggleVisible={() => onToggleVisible(r)}
-                  onEdit={() => onEdit(r)}
-                />
-              ))}
+      {groups.map((g) => {
+        const roomName = g.room?.name ?? t("renderSections.noRoomHeading");
+        return (
+          <section key={g.room?.id ?? "none"} aria-label={roomName} className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-3">
+              <h2 className="text-title-lg">{roomName}</h2>
+              {g.room && (
+                <Link
+                  to="/projects/$projectId/plan"
+                  params={{ projectId }}
+                  search={{ room: g.room.id }}
+                  className={cn(buttonVariants({ variant: "ghost" }), "-mr-3 min-h-11")}
+                >
+                  {t("renderSections.seeOnPlan")}
+                  <Icon name="arrow_forward" size={20} />
+                </Link>
+              )}
             </div>
-          )}
-        </section>
-      ))}
+            {g.items.length === 0 ? (
+              <MediaEmpty
+                icon="palette"
+                compact
+                text={
+                  isManager ? t("renderSections.emptyManager", { room: roomName }) : t("renderSections.emptyClient", { room: roomName })
+                }
+              />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {g.items.map((r) => (
+                  <RenderCard
+                    key={r.id}
+                    render={r}
+                    isManager={isManager}
+                    onToggleVisible={() => onToggleVisible(r)}
+                    onEdit={() => onEdit(r)}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }

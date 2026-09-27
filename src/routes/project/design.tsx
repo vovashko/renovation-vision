@@ -1,29 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
-import { FilterChips } from "@/components/filter-chips";
+import { FilterChips } from "@/features/media/ui/filter-chips";
 import { RenderCompare } from "@/features/media/ui/render-compare";
 import { RenderSections, type RenderGroup } from "@/features/media/ui/render-sections";
 import { RenderSheet } from "@/features/media/ui/render-sheet";
 import { MediaEmpty } from "@/features/media/ui/media-empty";
+import { usePhotos } from "@/features/media/hooks/use-photos";
+import { useRenders, useToggleRenderVisible } from "@/features/media/hooks/use-renders";
 import { useAuth } from "@/lib/auth";
+import { useRooms } from "@/lib/queries";
 import { PageHeader, PageLoading } from "@/components/page-header";
-import { api } from "@/lib/api";
-import { keys, usePhotos, useRenders, useRooms, useSave } from "@/lib/queries";
 import type { Render } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/design")({
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
-      { title: "Design renders — RenoVision" },
-      { name: "description", content: "Upload design renders and before/after pairs for each room." },
+      { title: `${match.context.i18n.t("media:designPage.heading")} — RenoVision` },
+      { name: "description", content: match.context.i18n.t("media:designPage.metaDescription") },
     ],
   }),
   component: DesignPage,
 });
 
 function DesignPage() {
+  const { t } = useTranslation(["media"]);
   const { projectId } = Route.useParams();
   const isManager = useAuth().profile?.account_type === "manager";
   const { data: renders, isLoading } = useRenders(projectId);
@@ -31,10 +34,7 @@ function DesignPage() {
   const { data: photos = [] } = usePhotos(projectId);
   const [roomId, setRoomId] = useState("all");
   const [editing, setEditing] = useState<Render | "new" | null>(null);
-  const toggle = useSave(projectId, (r: Render) => api.saveRender(projectId, { id: r.id, is_visible: !r.is_visible }), {
-    invalidate: [keys.renders(projectId)],
-    success: (r) => (r.is_visible ? "Hidden from the client" : "Shared with the client"),
-  });
+  const toggle = useToggleRenderVisible(projectId);
 
   const shownRooms = useMemo(() => (roomId === "all" ? rooms : rooms.filter((r) => r.id === roomId)), [rooms, roomId]);
 
@@ -50,14 +50,12 @@ function DesignPage() {
   return (
     <div className="mx-auto w-full max-w-6xl">
       <PageHeader
-        title="Planned design"
-        description={
-          isManager ? "Renders show the client how each room will look when finished." : "How each room will look when it is finished."
-        }
+        title={t("designPage.heading")}
+        description={isManager ? t("designPage.descriptionManager") : t("designPage.descriptionClient")}
         actions={
           isManager && (
             <Button onClick={() => setEditing("new")} className="min-h-11 gap-2">
-              <Icon name="add_photo_alternate" size={22} /> Add render
+              <Icon name="add_photo_alternate" size={22} /> {t("designPage.addRender")}
             </Button>
           )
         }
@@ -66,10 +64,10 @@ function DesignPage() {
       {rooms.length > 0 && (
         <div className="mt-5">
           <FilterChips
-            label="Filter by room"
+            label={t("filters.byRoom")}
             value={roomId}
             onChange={setRoomId}
-            options={[{ value: "all", label: "All rooms" }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
+            options={[{ value: "all", label: t("filters.allRooms") }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
           />
         </div>
       )}
@@ -81,11 +79,7 @@ function DesignPage() {
             title={compare.title}
             before={comparePhoto.url}
             after={compare.url}
-            note={
-              isManager
-                ? `The client sees this slider on their Design page${compare.is_visible && comparePhoto.status === "published" ? "." : " once both the render and the photo are shared."}`
-                : undefined
-            }
+            managerNote={isManager ? (compare.is_visible && comparePhoto.status === "published" ? "ready" : "waiting") : undefined}
           />
         </div>
       )}
@@ -94,12 +88,8 @@ function DesignPage() {
         <div className="mt-6">
           <MediaEmpty
             icon="palette"
-            title="No renders yet"
-            text={
-              isManager
-                ? "Add the designer's renders so the client can see the finished look."
-                : "Design renders will appear here once your designer shares them."
-            }
+            title={t("designPage.emptyTitle")}
+            text={isManager ? t("designPage.emptyManager") : t("designPage.emptyClient")}
           />
         </div>
       )}

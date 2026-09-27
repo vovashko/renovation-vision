@@ -1,1 +1,142 @@
-{}
+{
+  "photosPage": {
+    "heading": "Site photos",
+    "metaDescription": "Upload site photos, keep drafts private and publish them to the client.",
+    "descriptionManager": "Uploads start as private drafts. Publish when they're ready for the client.",
+    "descriptionClient": "Progress photos from your site manager.",
+    "addPhotos": "Add photos",
+    "emptyFiltered": "No photos match this filter.",
+    "emptyDrafts": "No drafts — everything is published.",
+    "emptyManager": "No photos yet. Add today's progress.",
+    "emptyClient": "No photos yet. Your site manager will share progress photos here."
+  },
+  "designPage": {
+    "heading": "Planned design",
+    "metaDescription": "Upload design renders and before/after pairs for each room.",
+    "descriptionManager": "Renders show the client how each room will look when finished.",
+    "descriptionClient": "How each room will look when it is finished.",
+    "addRender": "Add render",
+    "emptyTitle": "No renders yet",
+    "emptyManager": "Add the designer's renders so the client can see the finished look.",
+    "emptyClient": "Design renders will appear here once your designer shares them."
+  },
+  "filters": {
+    "byStatus": "Filter by status",
+    "allCount": "All ({{count}})",
+    "draftsCount": "Drafts ({{count}})",
+    "publishedCount": "Published ({{count}})",
+    "byStage": "Filter by stage",
+    "allStages": "All stages",
+    "byRoom": "Filter by room",
+    "allRooms": "All rooms",
+    "noStage": "No stage",
+    "noRoom": "No room"
+  },
+  "fields": {
+    "stage": "Stage",
+    "room": "Room",
+    "caption": "Caption",
+    "altLabel": "Image description (for screen readers)"
+  },
+  "photo": {
+    "fallbackCaption": "Site photo"
+  },
+  "photoCard": {
+    "openAria": "Open photo: {{caption}}",
+    "fileMissing": "File missing",
+    "draftBadge": "Draft — client can't see",
+    "noCaption": "No caption",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "editAria": "Edit photo",
+    "draftTag": "Draft",
+    "publishedTag": "Published"
+  },
+  "photoEditSheet": {
+    "title": "Edit photo",
+    "save": "Save changes",
+    "delete": "Delete photo",
+    "deleteConfirmTitle": "Delete this photo for everyone?"
+  },
+  "uploadSheet": {
+    "title": "Add site photos",
+    "description": "Tag the stage and room so the client can filter them.",
+    "images": "Images",
+    "captionPlaceholder": "What changed today?",
+    "publishNow": "Publish to client now",
+    "uploading": "Uploading…",
+    "submitPublish_one": "Publish {{count}} photo",
+    "submitPublish_other": "Publish {{count}} photos",
+    "submitSave_one": "Save {{count}} draft",
+    "submitSave_other": "Save {{count}} drafts"
+  },
+  "upload": {
+    "filesRequired": "Choose at least one photo",
+    "publishedToast_one": "Published {{count}} photo",
+    "publishedToast_other": "Published {{count}} photos",
+    "savedToast_one": "Saved {{count}} draft",
+    "savedToast_other": "Saved {{count}} drafts"
+  },
+  "toast": {
+    "published": "Published — the client can see it now",
+    "unpublished": "Moved back to drafts",
+    "photoUpdated": "Photo updated",
+    "photoDeleted": "Photo deleted"
+  },
+  "lightbox": {
+    "viewerAria": "Photo viewer: {{title}}",
+    "counter": "{{current}} / {{total}}",
+    "closeAria": "Close viewer",
+    "prevAria": "Previous photo",
+    "nextAria": "Next photo"
+  },
+  "beforeAfter": {
+    "afterAlt": "{{label}}, planned render",
+    "beforeAlt": "{{label}}, current site photo",
+    "now": "Now",
+    "planned": "Planned",
+    "compareAria": "Compare current and planned {{label}}"
+  },
+  "renderCard": {
+    "hiddenFromClient": "Hidden from client",
+    "shareAria": "Share {{title}} with client",
+    "editAria": "Edit {{title}}"
+  },
+  "renderCompare": {
+    "heading": "{{room}}: now vs. planned",
+    "noteReady": "The client sees this slider on their Design page.",
+    "noteWaiting": "The client sees this slider on their Design page once both the render and the photo are shared."
+  },
+  "renderSections": {
+    "noRoomHeading": "Not linked to a room",
+    "seeOnPlan": "See on plan",
+    "emptyManager": "The client sees: renders for {{room}} are still being prepared by the designer.",
+    "emptyClient": "Renders for {{room}} are still being prepared by the designer."
+  },
+  "renderSheet": {
+    "addTitle": "Add render",
+    "editTitle": "Edit render",
+    "description": "New renders stay hidden until you share them.",
+    "imageNew": "Image",
+    "imageReplace": "Replace image (optional)",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Materials, colours, fixtures.",
+    "compareLabel": "Before/after: current site photo (optional)",
+    "compareHint": "Adds a slider comparing this photo with the render.",
+    "comparePhotoNone": "None",
+    "draftSuffix": "(draft)",
+    "shareLabel": "Share with client",
+    "saving": "Saving…",
+    "save": "Save render",
+    "delete": "Delete render",
+    "deleteConfirmTitle": "Delete this render?"
+  },
+  "render": {
+    "fileRequired": "Choose an image for the render",
+    "savedToast": "Render saved",
+    "deletedToast": "Render deleted",
+    "hiddenToast": "Hidden from the client",
+    "sharedToast": "Shared with the client"
+  }
+}

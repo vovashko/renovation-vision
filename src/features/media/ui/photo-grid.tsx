@@ -1,6 +1,7 @@
 import { PhotoCard } from "@/features/media/ui/photo-card";
 import { MediaEmpty } from "@/features/media/ui/media-empty";
-import type { PhotoGroup } from "@/lib/photo-helpers";
+import { useFormat } from "@/i18n";
+import type { PhotoGroup } from "@/features/media/domain/photo-helpers";
 import type { Photo } from "@/lib/database.types";
 
 /** The Photos page's main grid: photos grouped by date, or an empty state when the filter matches nothing. */
@@ -23,31 +24,36 @@ export function PhotoGrid({
   onTogglePublish: (photo: Photo) => void;
   onEdit: (photo: Photo) => void;
 }) {
+  const format = useFormat();
+
   if (groups.length === 0) {
     return <MediaEmpty text={emptyText} />;
   }
 
   return (
     <div className="flex flex-col gap-8">
-      {groups.map((g) => (
-        <section key={g.label} aria-label={g.label} className="flex flex-col gap-3">
-          <h2 className="text-label-lg text-on-surface-variant">{g.label}</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {g.items.map((p) => (
-              <PhotoCard
-                key={p.id}
-                photo={p}
-                stageName={stageName(p.stage_id)}
-                roomName={roomName(p.room_id)}
-                isManager={isManager}
-                onOpen={() => onOpen(p)}
-                onTogglePublish={() => onTogglePublish(p)}
-                onEdit={() => onEdit(p)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      {groups.map((g) => {
+        const label = format.dayLabel(g.date);
+        return (
+          <section key={g.date} aria-label={label} className="flex flex-col gap-3">
+            <h2 className="text-label-lg text-on-surface-variant">{label}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {g.items.map((p) => (
+                <PhotoCard
+                  key={p.id}
+                  photo={p}
+                  stageName={stageName(p.stage_id)}
+                  roomName={roomName(p.room_id)}
+                  isManager={isManager}
+                  onOpen={() => onOpen(p)}
+                  onTogglePublish={() => onTogglePublish(p)}
+                  onEdit={() => onEdit(p)}
+                />
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

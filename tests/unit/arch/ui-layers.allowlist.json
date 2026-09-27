@@ -1,26 +1,26 @@
 [
   {
-    "file": "components/before-after.tsx",
+    "file": "features/media/ui/before-after.tsx",
     "snippet": "has-[input:focus-visible]:outline-2",
     "reason": "Layout + a focus-visible outline for the custom before/after slider container; a one-off compare widget, not reused elsewhere."
   },
   {
-    "file": "components/before-after.tsx",
+    "file": "features/media/ui/before-after.tsx",
     "snippet": "[clip-path:inset(0_calc(100%-var(--pos))_0_0)]",
     "reason": "Layout-only: the clip-path reveal driven by the drag slider's --pos variable."
   },
   {
-    "file": "components/before-after.tsx",
+    "file": "features/media/ui/before-after.tsx",
     "snippet": "-translate-y-1/2 items-center justify-center rounded-full bg-primary",
     "reason": "One-off drag-handle circle for the compare slider; not reused."
   },
   {
-    "file": "components/filter-chips.tsx",
+    "file": "features/media/ui/filter-chips.tsx",
     "snippet": "[scrollbar-width:none]",
     "reason": "Layout-only: the horizontal chip scroller and its px reset at the md breakpoint."
   },
   {
-    "file": "components/lightbox.tsx",
+    "file": "features/media/ui/lightbox.tsx",
     "snippet": "pt-[max(0.75rem,env(safe-area-inset-top))]",
     "reason": "Layout-only: the viewer's header row plus safe-area padding."
   },
