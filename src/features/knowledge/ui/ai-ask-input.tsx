@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Icon } from "@/components/ui/icon";
 
@@ -15,6 +16,7 @@ export function AiAskInput({
   onClear?: () => void;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation("knowledge");
   return (
     <form
       className="p-4 pt-2"
@@ -26,7 +28,7 @@ export function AiAskInput({
       <InputGroup>
         {onClear && (
           <InputGroupAddon align="inline-start">
-            <InputGroupButton type="button" onClick={onClear} aria-label="Clear chat">
+            <InputGroupButton type="button" onClick={onClear} aria-label={t("assistant.clearAria")}>
               <Icon name="delete" size={18} />
             </InputGroupButton>
           </InputGroupAddon>
@@ -34,11 +36,11 @@ export function AiAskInput({
         <InputGroupInput
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Ask about your project…"
-          aria-label="Ask the AI assistant"
+          placeholder={t("assistant.askPlaceholder")}
+          aria-label={t("assistant.askAria")}
         />
         <InputGroupAddon align="inline-end">
-          <InputGroupButton type="submit" variant="default" disabled={disabled} aria-label="Send question">
+          <InputGroupButton type="submit" variant="default" disabled={disabled} aria-label={t("assistant.sendAria")}>
             <Icon name="send" size={20} />
           </InputGroupButton>
         </InputGroupAddon>

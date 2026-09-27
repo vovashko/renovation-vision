@@ -1,1 +1,118 @@
-{}
+{
+  "meta": {
+    "description": "Facts the client's AI assistant can use when answering questions."
+  },
+  "page": {
+    "title": "AI knowledge",
+    "description": "The client's “Ask AI” assistant answers from project data plus the visible entries here.",
+    "addEntry": "Add entry",
+    "empty": {
+      "title": "Nothing yet",
+      "description": "Add answers to the questions clients ask most — working hours, deliveries, why something is blocked."
+    }
+  },
+  "entry": {
+    "editAria": "Edit {{title}}",
+    "toggleAria": "Let the assistant use {{title}}",
+    "hiddenLabel": "Internal only"
+  },
+  "sheet": {
+    "addTitle": "Add knowledge",
+    "editTitle": "Edit knowledge",
+    "description": "Write it the way you'd explain it to the client.",
+    "titleLabel": "Topic or question",
+    "contentLabel": "Answer",
+    "tagsLabel": "Tags",
+    "tagsHint": "Comma separated, e.g. kitchen, delivery",
+    "visibleLabel": "Assistant may use this with the client",
+    "save": "Save",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete this entry?"
+  },
+  "toast": {
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "shown": "The assistant can use this now",
+    "hidden": "The assistant will no longer use this"
+  },
+  "assistant": {
+    "empty": {
+      "title": "Ask about your renovation",
+      "description": "Answers come from your project's stages, plan, budget and photos."
+    },
+    "thinking": "Thinking…",
+    "thinkingAria": "Assistant is thinking",
+    "askPlaceholder": "Ask about your project…",
+    "askAria": "Ask the AI assistant",
+    "sendAria": "Send question",
+    "clearAria": "Clear chat",
+    "suggestionsAria": "Suggested questions",
+    "disclaimer": "AI answers are based on project data. For decisions, confirm with your site manager.",
+    "askManager": "Ask {{name}} about this",
+    "basedOn": "Based on: {{sources}}",
+    "suggestions": {
+      "next": "What's next on my project?",
+      "blocked": "Is anything blocked?",
+      "budget": "How much of the budget is spent?",
+      "finish": "When will everything be finished?",
+      "photos": "Show me the latest updates"
+    },
+    "links": {
+      "overview": "Overview →",
+      "stages": "View stages →",
+      "plan": "Open plan →",
+      "photos": "See photos →",
+      "design": "Planned look →"
+    },
+    "sources": {
+      "room": "Plan: {{name}} status",
+      "stage": "Stage {{index}}: {{name}}",
+      "project": {
+        "budget": "Project budget",
+        "progress": "Overall progress",
+        "dates": "Project dates"
+      },
+      "photo": "Site photo, {{date}}",
+      "fact": "Site manager note: {{title}}",
+      "section": {
+        "plan": "Plan: room statuses",
+        "stages": "Stages",
+        "overview": "Project overview"
+      }
+    },
+    "answer": {
+      "blocked_one": "{{names}} is blocked at {{progress}}%.",
+      "blocked_other": "{{names}} are blocked at {{progress}}%.",
+      "blockedNoNote": "Your site manager hasn't added a reason yet — ask them in chat.",
+      "nothingBlocked": "Nothing is blocked right now.",
+      "budget": "{{spent}} of the {{budget}} budget is spent ({{pct}}%), leaving {{remaining}}. The project is {{overallProgress}}% complete overall.",
+      "stage": {
+        "main": "{{name}} runs {{startDate}} – {{endDate}}. It's currently {{status}} ({{progress}}%).",
+        "nextTask": " Next task: {{task}}."
+      },
+      "next": {
+        "current": "Right now the team is working on {{stages}}.",
+        "noneCurrent": "No stage is in progress right now.",
+        "empty": "There are no active or upcoming stages right now.",
+        "stageItem": "{{name}} ({{progress}}%, until {{endDate}})",
+        "joiner": " and ",
+        "openTasks": " Remaining tasks: {{tasks}}.",
+        "upcoming": " Next up is {{name}}, starting {{startDate}}."
+      },
+      "finish": {
+        "plain": "The target completion date is {{targetDate}}.",
+        "withStage": "The target completion date is {{targetDate}}, ending with {{name}} ({{startDate}} – {{endDate}}).",
+        "progress": " {{done}} of {{total}} stages are complete."
+      },
+      "photos": {
+        "empty": "No photos have been shared yet.",
+        "list": "Latest updates: {{captions}}."
+      },
+      "room": "{{name}} is {{status}} at {{progress}}%.",
+      "fallback": {
+        "main": "I can only answer from the project data. The project is {{overallProgress}}% complete; I can tell you about stages, dates, the budget, room statuses, blocked items and recent photos. For anything else, ask {{managerName}}.",
+        "defaultManager": "your site manager"
+      }
+    }
+  }
+}

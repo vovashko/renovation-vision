@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
@@ -7,15 +8,14 @@ import { ItemGroup } from "@/components/ui/item";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { KnowledgeEntryItem } from "@/features/knowledge/ui/knowledge-entry";
 import { KnowledgeSheet } from "@/features/knowledge/ui/knowledge-sheet";
-import { api } from "@/lib/api";
-import { keys, useKnowledge, useSave } from "@/lib/queries";
+import { useKnowledge, useToggleKnowledgeVisible } from "@/features/knowledge/hooks/use-knowledge";
 import type { Knowledge } from "@/lib/database.types";
 
 export const Route = createFileRoute("/projects/$projectId/knowledge")({
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
-      { title: "AI knowledge — RenoVision" },
-      { name: "description", content: "Facts the client's AI assistant can use when answering questions." },
+      { title: `${match.context.i18n.t("knowledge:page.title")} — RenoVision` },
+      { name: "description", content: match.context.i18n.t("knowledge:meta.description") },
     ],
   }),
   component: KnowledgePage,
@@ -23,22 +23,20 @@ export const Route = createFileRoute("/projects/$projectId/knowledge")({
 
 function KnowledgePage() {
   const { projectId } = Route.useParams();
+  const { t } = useTranslation("knowledge");
   const { data: entries, isLoading } = useKnowledge(projectId);
   const [editing, setEditing] = useState<Knowledge | "new" | null>(null);
-  const toggle = useSave(projectId, (k: Knowledge) => api.saveKnowledge(projectId, { id: k.id, is_visible: !k.is_visible }), {
-    invalidate: [keys.knowledge(projectId)],
-    success: (k) => (k.is_visible ? "The assistant will no longer use this" : "The assistant can use this now"),
-  });
+  const toggle = useToggleKnowledgeVisible(projectId);
   if (isLoading || !entries) return <PageLoading />;
 
   return (
     <div className="mx-auto w-full max-w-5xl">
       <PageHeader
-        title="AI knowledge"
-        description="The client's “Ask AI” assistant answers from project data plus the visible entries here."
+        title={t("page.title")}
+        description={t("page.description")}
         actions={
           <Button onClick={() => setEditing("new")} className="gap-2">
-            <Icon name="add" size={20} /> Add entry
+            <Icon name="add" size={20} /> {t("page.addEntry")}
           </Button>
         }
       />
@@ -46,10 +44,8 @@ function KnowledgePage() {
         <Empty className="mt-6">
           <EmptyHeader>
             <EmptyMedia variant="icon" icon="menu_book" />
-            <EmptyTitle>Nothing yet</EmptyTitle>
-            <EmptyDescription>
-              Add answers to the questions clients ask most — working hours, deliveries, why something is blocked.
-            </EmptyDescription>
+            <EmptyTitle>{t("page.empty.title")}</EmptyTitle>
+            <EmptyDescription>{t("page.empty.description")}</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
