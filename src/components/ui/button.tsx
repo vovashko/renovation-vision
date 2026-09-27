@@ -21,6 +21,9 @@ const buttonVariants = cva(
         ghost: "state-layer bg-transparent px-3 text-primary",
         link: "state-layer bg-transparent px-3 text-primary",
         destructive: "bg-error text-on-error hover:bg-error/92 active:bg-error/88",
+        // A control sitting directly on a photo (the lightbox nav/close buttons): a dark
+        // translucent scrim so it reads against any image, white icon, white focus ring.
+        scrim: "bg-black/50 text-white hover:bg-black/60 focus-visible:outline-white",
       },
       size: {
         default: "",

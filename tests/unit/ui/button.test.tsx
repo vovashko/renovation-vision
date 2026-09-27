@@ -44,4 +44,16 @@ describe("Button", () => {
     expect(button.className).toContain("size-11");
     expect(button.className).toContain("rounded-full");
   });
+
+  it("scrim variant is a dark translucent control for sitting on a photo", () => {
+    render(
+      <Button variant="scrim" aria-label="Next">
+        Next
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Next" });
+    expect(button.className).toContain("bg-black/50");
+    expect(button.className).toContain("text-white");
+    expect(button.className).toContain("focus-visible:outline-white");
+  });
 });

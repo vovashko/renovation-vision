@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusPill } from "@/components/status-pill";
+import { focusRing } from "@/components/ui/focus-ring";
 import { lateLabel } from "@/lib/attention";
 import { cn } from "@/lib/utils";
 import type { Status } from "@/lib/status";
@@ -111,7 +112,7 @@ export function StageRow({
                     role="checkbox"
                     aria-checked={t.done}
                     onClick={() => onToggleTask(t, i)}
-                    className="flex min-h-10 flex-1 items-center gap-3 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    className={cn("flex min-h-10 flex-1 items-center gap-3 rounded-md text-left", focusRing)}
                   >
                     <CheckBox done={t.done} />
                     {label}

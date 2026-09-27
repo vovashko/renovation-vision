@@ -20,7 +20,7 @@ export function BeforeAfter({ before, after, label }: { before: string; after: s
           <Icon name="code" size={22} />
         </div>
       </div>
-      <Badge icon={null} size="compact" className="absolute top-3 left-3 bg-inverse-surface text-inverse-on-surface">
+      <Badge icon={null} size="compact" variant="scrim" className="absolute top-3 left-3">
         Now
       </Badge>
       <Badge icon={null} size="compact" variant="filter-selected" className="absolute top-3 right-3">
