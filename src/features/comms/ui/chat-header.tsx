@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { AvatarInitials } from "@/components/ui/avatar-initials";
 import { PresenceDot } from "@/components/ui/presence-dot";
@@ -16,6 +17,7 @@ export function ChatHeader({
   online: boolean;
   actions?: ReactNode;
 }) {
+  const { t } = useTranslation("comms");
   return (
     <Item variant="plain" size="lg" className="gap-3 px-4 py-3">
       <ItemMedia>
@@ -25,7 +27,7 @@ export function ChatHeader({
         <ItemTitle className="truncate">{name}</ItemTitle>
         <ItemDescription className="line-clamp-none flex items-center gap-1.5">
           <PresenceDot online={online} />
-          {online ? "Online" : "Offline"} · {roleLabel}
+          {online ? t("chat.header.online") : t("chat.header.offline")} · {roleLabel}
         </ItemDescription>
       </ItemContent>
       {actions && <ItemActions>{actions}</ItemActions>}

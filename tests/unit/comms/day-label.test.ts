@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { dayLabel } from "@/lib/chat-format";
+import { dayLabel } from "@/features/comms/domain/chat-format";
 
 describe("dayLabel", () => {
   const today = new Date(2026, 3, 20, 15, 0, 0); // Apr 20, 2026, 15:00 local

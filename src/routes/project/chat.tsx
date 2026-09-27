@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { ChatHeader } from "@/features/comms/ui/chat-header";
 import { ChatModeTabs, type ChatMode } from "@/features/comms/ui/chat-mode-tabs";
@@ -9,11 +9,14 @@ import { ChatComposer } from "@/features/comms/ui/chat-composer";
 import { ChatEmpty } from "@/features/comms/ui/chat-empty";
 import { AiChat } from "@/features/comms/ui/ai-chat";
 import { PageLoading } from "@/components/page-header";
-import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { keys, useMembers, useMessages, useProject, useSave } from "@/lib/queries";
-import { groupMessagesByDay } from "@/lib/chat-format";
-import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
+import { useMembers, useProject } from "@/lib/queries";
+import { groupMessagesByDay } from "@/features/comms/domain/chat-format";
+import { canSendMessage } from "@/features/comms/domain/schemas";
+import { useChatRealtime } from "@/features/comms/hooks/use-chat-realtime";
+import { useMarkChatRead, useMessages, useSendMessage } from "@/features/comms/hooks/use-messages";
+import { usePresence, type PresenceMember } from "@/features/comms/hooks/use-presence";
+import { useKeyboardInset } from "@/features/comms/hooks/use-keyboard-inset";
 
 export const Route = createFileRoute("/projects/$projectId/chat")({
   head: () => ({
@@ -24,8 +27,8 @@ export const Route = createFileRoute("/projects/$projectId/chat")({
 
 function ChatPage() {
   const { projectId } = Route.useParams();
+  const { t } = useTranslation(["comms", "common"]);
   const { userId, profile } = useAuth();
-  const qc = useQueryClient();
   const { data: project } = useProject(projectId);
   const { data: members = [] } = useMembers(projectId);
   const { data: messages, isLoading } = useMessages(projectId);
@@ -33,14 +36,16 @@ function ChatPage() {
   const [tab, setTab] = useState<ChatMode>("people");
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [online, setOnline] = useState<string[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const keyboard = useKeyboardInset();
-  const send = useSave(projectId, (v: { body: string; file: File | null }) => api.sendMessage(projectId, v.body, v.file), {
-    invalidate: [keys.messages(projectId)],
-  });
+  const send = useSendMessage(projectId);
+  const markRead = useMarkChatRead(projectId);
+
+  const me: PresenceMember | null =
+    userId && profile ? { id: userId, name: profile.full_name, role: isManager ? "manager" : "client" } : null;
+  const online = usePresence(projectId, me);
 
   // Mobile: pin the panel between the header and the tab bar (managers have no mobile tab bar), or
   // above the on-screen keyboard while typing.
@@ -52,45 +57,39 @@ function ChatPage() {
         ? "env(safe-area-inset-bottom)"
         : "calc(5rem + env(safe-area-inset-bottom))";
 
-  useEffect(
-    () => api.subscribeMessages(projectId, () => void qc.invalidateQueries({ queryKey: keys.messages(projectId) })),
-    [projectId, qc],
-  );
-  useEffect(() => {
-    if (!userId || !profile) return;
-    return api.joinPresence(projectId, { id: userId, name: profile.full_name, role: isManager ? "manager" : "client" }, setOnline);
-  }, [projectId, userId, profile, isManager]);
+  useChatRealtime(projectId);
   useEffect(() => {
     if (tab !== "people") return;
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    if (messages?.length) void api.markChatRead(projectId);
-  }, [messages, projectId, tab]);
+    if (messages?.length) markRead.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, tab]);
 
   if (isLoading || !messages) return <PageLoading />;
 
-  const nameOf = (id: string) => members.find((m) => m.user_id === id)?.profile.full_name ?? "Former member";
+  const nameOf = (id: string) => members.find((m) => m.user_id === id)?.profile.full_name ?? t("chat.header.formerMember");
   const clients = members.filter((m) => m.role === "client");
   const managers = members.filter((m) => m.role === "manager");
   // The other side of the conversation: clients for a manager, the site manager for a client.
   const others = isManager ? clients : managers;
   const othersOnline = others.some((c) => online.includes(c.user_id));
   const otherName = isManager
-    ? project?.client_name || clients.map((c) => c.profile.full_name).join(" & ") || "Client"
-    : managers.map((m) => m.profile.full_name).join(" & ") || project?.manager_name || "Site manager";
+    ? project?.client_name || clients.map((c) => c.profile.full_name).join(" & ") || t("chat.header.defaultClientName")
+    : managers.map((m) => m.profile.full_name).join(" & ") || project?.manager_name || t("chat.header.defaultManagerName");
   const otherRole = isManager
     ? clients.length
-      ? `Client · ${clients.length} member${clients.length > 1 ? "s" : ""}`
-      : "No client invited yet"
-    : "Site manager";
-  const managerFirstName = (managers[0]?.profile.full_name ?? project?.manager_name ?? "your manager").split(" ")[0];
+      ? t("chat.header.clientRole", { count: clients.length })
+      : t("chat.header.noClientInvited")
+    : t("chat.header.defaultManagerName");
+  const managerFirstName = (managers[0]?.profile.full_name ?? project?.manager_name ?? t("chat.header.defaultManagerName")).split(" ")[0];
 
   const handOver = (q: string) => {
-    setText(q ? `Hi ${managerFirstName}, question: ${q}` : "");
+    setText(q ? t("chat.handOverTemplate", { name: managerFirstName, question: q }) : "");
     setTab("people");
     setTimeout(() => inputRef.current?.focus(), 50);
   };
   const submit = () => {
-    if (!text.trim() && !file) return;
+    if (!canSendMessage(text, !!file)) return;
     send.mutate(
       { body: text.trim(), file },
       {
@@ -128,11 +127,7 @@ function ChatPage() {
               {messages.length === 0 && (
                 <ChatEmpty
                   icon="chat_bubble"
-                  description={
-                    isManager
-                      ? "No messages yet. Say hello — your client gets a notification."
-                      : "No messages yet. Ask your site manager anything about the project."
-                  }
+                  description={isManager ? t("chat.empty.managerDescription") : t("chat.empty.clientDescription")}
                 />
               )}
               <MessageList groups={dayGroups} currentUserId={userId} nameOf={nameOf} />
@@ -152,8 +147,8 @@ function ChatPage() {
               onChange={setText}
               onSend={submit}
               onAttach={() => fileRef.current?.click()}
-              placeholder={isManager ? "Message your client…" : "Message your manager…"}
-              disabled={send.isPending || (!text.trim() && !file)}
+              placeholder={isManager ? t("chat.composer.managerPlaceholder") : t("chat.composer.clientPlaceholder")}
+              disabled={send.isPending || !canSendMessage(text, !!file)}
               attachment={file ? { name: file.name, onRemove: () => setFile(null) } : undefined}
             />
           </>

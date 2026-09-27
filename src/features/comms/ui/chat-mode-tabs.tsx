@@ -1,38 +1,44 @@
+import { useTranslation } from "react-i18next";
 import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 
 export type ChatMode = "people" | "ai";
 
-const TABS: { key: ChatMode; label: string }[] = [
-  { key: "people", label: "Site manager" },
-  { key: "ai", label: "Ask AI" },
-];
+// A top-level lookup, not an inline ternary, so the linter doesn't mistake these mode
+// identifiers (not user-facing text) for a literal string inside the JSX keyboard handler.
+const OTHER_MODE: Record<ChatMode, ChatMode> = { people: "ai", ai: "people" };
 
 /** People/AI segmented tab control above the chat panel. */
 export function ChatModeTabs({ mode, onChange, panelId }: { mode: ChatMode; onChange: (mode: ChatMode) => void; panelId: string }) {
+  const { t } = useTranslation("comms");
+  const tabs: { key: ChatMode; label: string }[] = [
+    { key: "people", label: t("chat.tabs.people") },
+    { key: "ai", label: t("chat.tabs.ai") },
+  ];
+
   return (
     <div className="px-4 pt-4 pb-2">
       <SegmentedControl
         role="tablist"
-        aria-label="Chat mode"
+        aria-label={t("chat.tabs.ariaLabel")}
         onKeyDown={(e) => {
           if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-          const next = mode === "people" ? "ai" : "people";
+          const next = OTHER_MODE[mode];
           onChange(next);
           document.getElementById(`chat-tab-${next}`)?.focus();
         }}
       >
-        {TABS.map((t) => (
+        {tabs.map((tab) => (
           <SegmentedControlItem
-            key={t.key}
-            id={`chat-tab-${t.key}`}
+            key={tab.key}
+            id={`chat-tab-${tab.key}`}
             role="tab"
-            aria-selected={mode === t.key}
+            aria-selected={mode === tab.key}
             aria-controls={panelId}
-            tabIndex={mode === t.key ? 0 : -1}
-            active={mode === t.key}
-            onClick={() => onChange(t.key)}
+            tabIndex={mode === tab.key ? 0 : -1}
+            active={mode === tab.key}
+            onClick={() => onChange(tab.key)}
           >
-            {t.label}
+            {tab.label}
           </SegmentedControlItem>
         ))}
       </SegmentedControl>

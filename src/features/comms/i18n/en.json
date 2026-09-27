@@ -1,1 +1,63 @@
-{}
+{
+  "chat": {
+    "tabs": {
+      "ariaLabel": "Chat mode",
+      "people": "Site manager",
+      "ai": "Ask AI"
+    },
+    "header": {
+      "online": "Online",
+      "offline": "Offline",
+      "clientRole_one": "Client · {{count}} member",
+      "clientRole_other": "Client · {{count}} members",
+      "noClientInvited": "No client invited yet",
+      "defaultClientName": "Client",
+      "defaultManagerName": "Site manager",
+      "formerMember": "Former member"
+    },
+    "empty": {
+      "managerDescription": "No messages yet. Say hello — your client gets a notification.",
+      "clientDescription": "No messages yet. Ask your site manager anything about the project."
+    },
+    "composer": {
+      "managerPlaceholder": "Message your client…",
+      "clientPlaceholder": "Message your manager…",
+      "attach": "Attach",
+      "removeAttachment": "Remove attachment",
+      "send": "Send",
+      "empty": "Write a message or attach a file",
+      "tooLong": "Message is too long"
+    },
+    "handOverTemplate": "Hi {{name}}, question: {{question}}"
+  },
+  "updates": {
+    "title": "Updates",
+    "description": "Status changes, published photos and new renders notify your client automatically.",
+    "announcement": {
+      "heading": "Send an announcement",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Water off on Thursday",
+      "bodyLabel": "Message",
+      "linkLabel": "Opens in the client app",
+      "noLink": "No link",
+      "inviteFirst": "Invite a client first",
+      "submit_one": "Send to {{count}} client",
+      "submit_other": "Send to {{count}} clients",
+      "sentToast": "Sent to your client"
+    },
+    "sent": {
+      "heading": "Sent to client",
+      "empty": "No notifications sent yet.",
+      "readBy": "read by {{read}} of {{total}}",
+      "opens": "opens {{link}}"
+    },
+    "inbox": {
+      "heading": "Your inbox",
+      "systemSender": "System"
+    },
+    "activity": {
+      "heading": "Activity log",
+      "empty": "Changes to this project will be listed here."
+    }
+  }
+}
