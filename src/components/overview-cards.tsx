@@ -6,7 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { Field, FormSheet } from "@/components/manager/form-sheet";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Note } from "@/components/ui/note";
+import { FormSheet } from "@/shared/ui/form-sheet";
 import { UserAvatar } from "@/components/user-avatar";
 import { api, type ClientContact, type CrewInput } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
@@ -100,10 +102,10 @@ export function StatusCard({
       </div>
 
       {note && (
-        <p className="rounded-lg bg-surface-container-low px-4 py-3 text-body-md text-on-surface-variant">
+        <Note>
           <span className="font-medium text-on-surface">Note for the client: </span>
           {note}
-        </p>
+        </Note>
       )}
 
       {issues.length > 0 && (
@@ -404,7 +406,8 @@ export function ClientContactSheet({
           );
         }}
       >
-        <Field id="cc-phone" label="Phone">
+        <Field>
+          <FieldLabel htmlFor="cc-phone">Phone</FieldLabel>
           <Input
             id="cc-phone"
             type="tel"
@@ -413,7 +416,8 @@ export function ClientContactSheet({
             onChange={(e) => setForm({ ...form, client_phone: e.target.value })}
           />
         </Field>
-        <Field id="cc-email" label="Email">
+        <Field>
+          <FieldLabel htmlFor="cc-email">Email</FieldLabel>
           <Input
             id="cc-email"
             type="email"
@@ -471,17 +475,21 @@ export function CrewSheet({
           save.mutate(isNew ? values : { id: (person as CrewMember).id, ...values }, { onSuccess: onClose });
         }}
       >
-        <Field id="cr-name" label="Name">
+        <Field>
+          <FieldLabel htmlFor="cr-name">Name</FieldLabel>
           <Input id="cr-name" required autoComplete="off" value={form.name} onChange={set("name")} />
         </Field>
-        <Field id="cr-trade" label="Role or trade">
+        <Field>
+          <FieldLabel htmlFor="cr-trade">Role or trade</FieldLabel>
           <Input id="cr-trade" autoComplete="off" value={form.trade} onChange={set("trade")} placeholder="Electrician, site lead…" />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="cr-phone" label="Phone">
+          <Field>
+            <FieldLabel htmlFor="cr-phone">Phone</FieldLabel>
             <Input id="cr-phone" type="tel" autoComplete="off" value={form.phone} onChange={set("phone")} />
           </Field>
-          <Field id="cr-email" label="Email">
+          <Field>
+            <FieldLabel htmlFor="cr-email">Email</FieldLabel>
             <Input id="cr-email" type="email" autoComplete="off" value={form.email} onChange={set("email")} />
           </Field>
         </div>

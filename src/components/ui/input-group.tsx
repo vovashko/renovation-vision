@@ -88,6 +88,9 @@ const inputGroupButtonVariants = cva("gap-1.5 shadow-none", {
     size: {
       sm: "h-8 rounded-md px-3 text-label-md",
       "icon-sm": "size-8 rounded-full px-0",
+      // Full 44px touch target, for a control that's the composer's main action (attach, send)
+      // rather than an inline addon.
+      icon: "size-11 rounded-full px-0",
     },
   },
   defaultVariants: { size: "icon-sm" },

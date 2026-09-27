@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
-import { ChatAvatar } from "@/components/chat";
+import { ChatAvatar } from "@/components/ui/avatar-initials";
 import { dateTime } from "@/lib/format";
 import type { Member } from "@/lib/database.types";
 

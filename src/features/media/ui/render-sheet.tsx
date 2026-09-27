@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { FormSheet, VisibleSwitch } from "@/components/manager/form-sheet";
+import { FileInput } from "@/components/ui/file-input";
+import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { api, type RenderInput } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Photo, Render, Room } from "@/lib/database.types";
@@ -90,13 +91,11 @@ export function RenderSheet({
         >
           <Field>
             <FieldLabel htmlFor="rn-file">{isNew ? "Image" : "Replace image (optional)"}</FieldLabel>
-            <input
+            <FileInput
               id="rn-file"
-              type="file"
               accept="image/*"
               required={isNew}
               onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })}
-              className="block w-full text-body-md text-on-surface-variant file:mr-3 file:h-10 file:rounded-full file:border-0 file:bg-secondary-container file:px-6 file:text-label-lg file:text-on-secondary-container"
             />
           </Field>
           <Field>

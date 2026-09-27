@@ -77,14 +77,7 @@ export function Lightbox({ items, index, onClose }: { items: LightboxItem[]; ind
         <span className="text-label-lg text-white/80" aria-live="polite">
           {i + 1} / {items.length}
         </span>
-        <Button
-          ref={closeRef}
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          aria-label="Close viewer"
-          className="text-white focus-visible:outline-white"
-        >
+        <Button ref={closeRef} variant="scrim" size="icon" onClick={onClose} aria-label="Close viewer">
           <Icon name="close" size={22} />
         </Button>
       </div>
@@ -92,22 +85,10 @@ export function Lightbox({ items, index, onClose }: { items: LightboxItem[]; ind
         <img src={item.src} alt={item.alt} className="max-h-full max-w-full rounded-md object-contain select-none" draggable={false} />
         {items.length > 1 && (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={prev}
-              aria-label="Previous photo"
-              className="absolute left-2 bg-black/50 text-white focus-visible:outline-white"
-            >
+            <Button variant="scrim" size="icon" onClick={prev} aria-label="Previous photo" className="absolute left-2">
               <Icon name="chevron_left" size={22} />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={next}
-              aria-label="Next photo"
-              className="absolute right-2 bg-black/50 text-white focus-visible:outline-white"
-            >
+            <Button variant="scrim" size="icon" onClick={next} aria-label="Next photo" className="absolute right-2">
               <Icon name="chevron_right" size={22} />
             </Button>
           </>

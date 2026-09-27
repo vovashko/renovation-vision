@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { UserAvatar } from "@/components/user-avatar";
 import { ProfilePanel } from "@/components/profile-panel";
-import { TabBar, TabBarItem, TabBarRow } from "@/shared/ui/tab-bar";
+import { TabBar, TabBarItem, TabBarRow } from "@/components/ui/tab-bar";
 import { useAuth } from "@/lib/auth";
 import { projectNav, projectPath } from "@/lib/nav";
 

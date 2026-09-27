@@ -31,4 +31,15 @@ function AvatarInitials({ className, tone = "surface", initials, ...props }: Ava
   );
 }
 
-export { AvatarInitials };
+/** First + last initial of a name (or the first two letters of a single word; "?" for an empty name). */
+export function initials(name: string) {
+  const words = name.split(" ").filter((w) => /^[a-z]/i.test(w));
+  return (words.length > 1 ? words[0][0] + words[words.length - 1][0] : (words[0] ?? "?").slice(0, 2)).toUpperCase();
+}
+
+/** `AvatarInitials` computed straight from a name — the common case (chat header, member rows). */
+function ChatAvatar({ name, className }: { name: string; className?: string }) {
+  return <AvatarInitials initials={initials(name)} className={className} />;
+}
+
+export { AvatarInitials, ChatAvatar };

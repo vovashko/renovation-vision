@@ -109,7 +109,20 @@ UI code has three layers:
 
 Icons are Material Symbols names passed to `ui/icon` (or a primitive's `icon` prop), never `lucide-react`.
 
-Primitives: `Button`, `Badge`, `Card`, `Progress`/`ProgressBar`, `Input`, `InputGroup` (addons, `search` variant), `NativeSelect`,
-`Field` (label, description, error), `Item` (list rows, `lg` for stage rows), `Empty` (empty states), `Stat` (stat cards),
-`Rail` (desktop navigation rail), `Sheet`, `Dialog`, `Tabs`, `Switch`, `Tooltip`, `DropdownMenu`, `Popover` and the rest of
-`src/components/ui/`.
+Primitives: `Button` (variants include `scrim`, for a control sitting directly on a photo), `Badge` (`scrim` likewise, for a tag
+on a photo), `Card`, `Progress`/`ProgressBar`, `Input`, `InputGroup` (addons, `search` variant; `InputGroupButton` has an `icon`
+size for a full 44px touch target, alongside the default 32px inline `icon-sm`), `NativeSelect`, `FileInput` (a styled
+`<input type="file">`, `default`/`compact`), `Field` (label, description, error), `Note` (a tinted informational aside),
+`Item` (list rows: `size="lg"` for stage rows, `selected`/`tone` for a status-colored outline, `attention` for the
+over-budget/late outline + dot, `ItemTitle size="lg"` for a bigger heading than the row's own size caps at), `Empty` (empty
+states), `Stat` (stat cards), `Rail` (desktop navigation rail), `TabBar`/`TabBarItem`/`TabBarRow` (phone bottom navigation),
+`Sheet`, `Dialog`, `Tabs`, `Switch`, `Tooltip`, `DropdownMenu`, `Popover` and the rest of `src/components/ui/`.
+`src/shared/ui/form-sheet.tsx` (`FormSheet`, `VisibleSwitch`) is the one editing-panel shell shared well beyond a single
+feature, so it lives at the feature layer rather than under a specific `features/*/ui`.
+
+**Guard:** `tests/unit/arch/ui-layers.test.ts` scans `src/**/*.tsx` outside `src/components/ui/` and fails the moment any file
+there imports `lucide-react`, hardcodes a color/background/border in an inline `style={{ … }}`, or has a `className="…"` literal
+of 70+ characters that isn't in `tests/unit/arch/ui-layers.allowlist.json`. When you hit that last one, first try moving the
+styling into a primitive or variant; if it's genuinely a one-off (layout-only, or too specific to a single row to generalize),
+add an entry to the allowlist — `{ "file", "snippet", "reason" }`, one line explaining why it can't move — instead of widening
+the regex or reaching for `lucide-react`.

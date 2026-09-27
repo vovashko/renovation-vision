@@ -20,6 +20,9 @@ const badgeVariants = cva("inline-flex items-center gap-2 whitespace-nowrap roun
       // Filter chip: unselected is the same box as `assist`; the selected chip fills primary.
       filter: "border border-outline-variant bg-surface-container-lowest text-on-surface",
       "filter-selected": "bg-primary text-on-primary",
+      // A tag sitting directly on a photo (before/after "Now", a draft photo's flag): a dark
+      // translucent-reading fill that holds up against any image, unlike a token container color.
+      scrim: "bg-inverse-surface text-inverse-on-surface",
       // shadcn names kept for existing callers
       default: "bg-secondary-container text-on-secondary-container",
       secondary: "bg-secondary-container text-on-secondary-container",

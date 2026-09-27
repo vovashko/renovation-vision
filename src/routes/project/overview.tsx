@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { buttonVariants } from "@/components/ui/button";
+import { Note } from "@/components/ui/note";
 import { ProjectHeader } from "@/features/work/ui/project-header";
 import { OverviewStats } from "@/features/work/ui/overview-stats";
 import { StageTimeline } from "@/features/work/ui/stage-timeline";
@@ -60,10 +61,10 @@ function ClientOverview({ projectId }: { projectId: string }) {
       <OverviewStats project={project} stages={stages} />
 
       {project.schedule_note && (
-        <p className="-mt-4 rounded-lg bg-surface-container-low px-4 py-3 text-body-md text-on-surface-variant">
+        <Note className="-mt-4">
           <span className="font-medium text-on-surface">Schedule note: </span>
           {project.schedule_note}
-        </p>
+        </Note>
       )}
 
       <section aria-labelledby="stage-timeline">

@@ -27,7 +27,7 @@ export const ChatComposer = forwardRef<
           </InputGroupAddon>
         )}
         <InputGroupAddon align="inline-start">
-          <InputGroupButton type="button" onClick={onAttach} aria-label="Attach">
+          <InputGroupButton type="button" size="icon" onClick={onAttach} aria-label="Attach">
             <Icon name="attach_file" size={20} />
           </InputGroupButton>
         </InputGroupAddon>
@@ -45,7 +45,7 @@ export const ChatComposer = forwardRef<
           aria-label={placeholder}
         />
         <InputGroupAddon align="inline-end">
-          <InputGroupButton type="button" variant="default" onClick={onSend} disabled={disabled} aria-label="Send">
+          <InputGroupButton type="button" variant="default" size="icon" onClick={onSend} disabled={disabled} aria-label="Send">
             <Icon name="send" size={20} />
           </InputGroupButton>
         </InputGroupAddon>
