@@ -35,7 +35,7 @@
     "reason": "One-off wrapper for the two-row contact list on the tinted client card."
   },
   {
-    "file": "features/comms/ui/ai-thinking.tsx",
+    "file": "features/knowledge/ui/ai-thinking.tsx",
     "snippet": "animate-bounce rounded-full bg-primary [animation-delay:-0.15s]",
     "reason": "One-off animated dot for the AI-thinking indicator; not reused."
   },

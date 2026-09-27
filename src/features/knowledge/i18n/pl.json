@@ -1,1 +1,120 @@
-{}
+{
+  "meta": {
+    "description": "Fakty, z których może korzystać asystent AI klienta."
+  },
+  "page": {
+    "title": "Wiedza AI",
+    "description": "Asystent klienta „Zapytaj AI” odpowiada na podstawie danych projektu oraz widocznych tu wpisów.",
+    "addEntry": "Dodaj wpis",
+    "empty": {
+      "title": "Nic tu jeszcze nie ma",
+      "description": "Dodaj odpowiedzi na najczęstsze pytania klientów — godziny pracy, dostawy, powody wstrzymania prac."
+    }
+  },
+  "entry": {
+    "editAria": "Edytuj {{title}}",
+    "toggleAria": "Pozwól asystentowi korzystać z „{{title}}”",
+    "hiddenLabel": "Tylko wewnętrznie"
+  },
+  "sheet": {
+    "addTitle": "Dodaj wiedzę",
+    "editTitle": "Edytuj wiedzę",
+    "description": "Napisz to tak, jak wyjaśniłbyś to klientowi.",
+    "titleLabel": "Temat lub pytanie",
+    "contentLabel": "Odpowiedź",
+    "tagsLabel": "Tagi",
+    "tagsHint": "Oddzielone przecinkami, np. kuchnia, dostawa",
+    "visibleLabel": "Asystent może to wykorzystać w rozmowie z klientem",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "deleteConfirmTitle": "Usunąć ten wpis?"
+  },
+  "toast": {
+    "saved": "Zapisano",
+    "deleted": "Usunięto",
+    "shown": "Asystent może teraz z tego korzystać",
+    "hidden": "Asystent nie będzie już z tego korzystać"
+  },
+  "assistant": {
+    "empty": {
+      "title": "Zapytaj o swój remont",
+      "description": "Odpowiedzi pochodzą z etapów, planu, budżetu i zdjęć Twojego projektu."
+    },
+    "thinking": "Myślę…",
+    "thinkingAria": "Asystent się zastanawia",
+    "askPlaceholder": "Zapytaj o swój projekt…",
+    "askAria": "Zapytaj asystenta AI",
+    "sendAria": "Wyślij pytanie",
+    "clearAria": "Wyczyść czat",
+    "suggestionsAria": "Podpowiedzi pytań",
+    "disclaimer": "Odpowiedzi AI opierają się na danych projektu. W ważnych sprawach potwierdź je u swojego kierownika budowy.",
+    "askManager": "Zapytaj o to {{name}}",
+    "basedOn": "Na podstawie: {{sources}}",
+    "suggestions": {
+      "next": "Co dalej w moim projekcie?",
+      "blocked": "Czy coś jest zablokowane?",
+      "budget": "Ile budżetu wydano?",
+      "finish": "Kiedy wszystko będzie skończone?",
+      "photos": "Pokaż mi najnowsze zdjęcia"
+    },
+    "links": {
+      "overview": "Przegląd →",
+      "stages": "Zobacz etapy →",
+      "plan": "Otwórz plan →",
+      "photos": "Zobacz zdjęcia →",
+      "design": "Planowany wygląd →"
+    },
+    "sources": {
+      "room": "Plan: status – {{name}}",
+      "stage": "Etap {{index}}: {{name}}",
+      "project": {
+        "budget": "Budżet projektu",
+        "progress": "Postęp ogólny",
+        "dates": "Terminy projektu"
+      },
+      "photo": "Zdjęcie z budowy, {{date}}",
+      "fact": "Notatka kierownika: {{title}}",
+      "section": {
+        "plan": "Plan: statusy pomieszczeń",
+        "stages": "Etapy",
+        "overview": "Przegląd projektu"
+      }
+    },
+    "answer": {
+      "blocked_one": "{{names}} jest zablokowane w {{progress}}%.",
+      "blocked_few": "{{names}} są zablokowane w {{progress}}%.",
+      "blocked_many": "{{names}} jest zablokowanych w {{progress}}%.",
+      "blocked_other": "{{names}} jest zablokowane w {{progress}}%.",
+      "blockedNoNote": "Twój kierownik budowy nie dodał jeszcze powodu — zapytaj go na czacie.",
+      "nothingBlocked": "Nic obecnie nie jest zablokowane.",
+      "budget": "{{spent}} z budżetu {{budget}} zostało wydane ({{pct}}%), pozostało {{remaining}}. Projekt jest ukończony w {{overallProgress}}%.",
+      "stage": {
+        "main": "{{name}} trwa od {{startDate}} do {{endDate}}. Obecny status: {{status}} ({{progress}}%).",
+        "nextTask": " Następne zadanie: {{task}}."
+      },
+      "next": {
+        "current": "Obecnie zespół pracuje nad: {{stages}}.",
+        "noneCurrent": "Żaden etap nie jest teraz w trakcie realizacji.",
+        "empty": "Obecnie nie ma żadnych aktywnych ani nadchodzących etapów.",
+        "stageItem": "{{name}} ({{progress}}%, do {{endDate}})",
+        "joiner": " i ",
+        "openTasks": " Pozostałe zadania: {{tasks}}.",
+        "upcoming": " Następny w kolejności: {{name}}, start {{startDate}}."
+      },
+      "finish": {
+        "plain": "Docelowy termin zakończenia to {{targetDate}}.",
+        "withStage": "Docelowy termin zakończenia to {{targetDate}}, projekt kończy się etapem {{name}} ({{startDate}} – {{endDate}}).",
+        "progress": " Ukończono {{done}} z {{total}} etapów."
+      },
+      "photos": {
+        "empty": "Nie udostępniono jeszcze żadnych zdjęć.",
+        "list": "Najnowsze aktualizacje: {{captions}}."
+      },
+      "room": "{{name}}: status {{status}} na poziomie {{progress}}%.",
+      "fallback": {
+        "main": "Mogę odpowiadać wyłącznie na podstawie danych projektu. Projekt jest ukończony w {{overallProgress}}%; mogę powiedzieć o etapach, terminach, budżecie, statusach pomieszczeń, wstrzymanych pracach i najnowszych zdjęciach. W innych sprawach zapytaj: {{managerName}}.",
+        "defaultManager": "swojego kierownika budowy"
+      }
+    }
+  }
+}
