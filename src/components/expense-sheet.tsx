@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { FormSheet } from "@/components/manager/form-sheet";
+import { FileInput } from "@/components/ui/file-input";
+import { FormSheet } from "@/shared/ui/form-sheet";
 import { api, type ExpenseInput } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
 import type { Expense, Stage } from "@/lib/database.types";
@@ -168,12 +169,11 @@ export function ExpenseSheet({
               <FieldLabel htmlFor="ex-receipt">
                 Receipt (internal){expense && expense !== "new" && expense.receipt_path ? " — replace" : ""}
               </FieldLabel>
-              <input
+              <FileInput
                 id="ex-receipt"
-                type="file"
+                variant="compact"
                 accept="image/*,application/pdf"
                 onChange={(e) => setForm({ ...form, receiptFile: e.target.files?.[0] ?? null })}
-                className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-muted file:px-4 file:text-sm file:font-medium"
               />
             </Field>
             <Button type="submit" disabled={save.isPending || !form.description.trim() || !(amount > 0)} className="w-full">

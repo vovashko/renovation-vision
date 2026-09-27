@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Switch } from "@/components/ui/switch";
+import { FileInput } from "@/components/ui/file-input";
 import { Textarea } from "@/components/ui/textarea";
-import { FormSheet } from "@/components/manager/form-sheet";
+import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
 import { api, type PhotoMeta } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";
@@ -51,14 +51,7 @@ export function UploadSheet({
       <div className="flex flex-col gap-4">
         <Field>
           <FieldLabel htmlFor="photo-files">Images</FieldLabel>
-          <input
-            id="photo-files"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-            className="block w-full text-body-md text-on-surface-variant file:mr-3 file:h-10 file:rounded-full file:border-0 file:bg-secondary-container file:px-6 file:text-label-lg file:text-on-secondary-container"
-          />
+          <FileInput id="photo-files" accept="image/*" multiple onChange={(e) => setFiles(Array.from(e.target.files ?? []))} />
           {files.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
               {files.map((f) => (
@@ -80,12 +73,7 @@ export function UploadSheet({
           <FieldLabel htmlFor="up-caption">Caption</FieldLabel>
           <Textarea id="up-caption" value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="What changed today?" />
         </Field>
-        <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-outline-variant px-3">
-          <FieldLabel htmlFor="up-publish" className="font-normal">
-            Publish to client now
-          </FieldLabel>
-          <Switch id="up-publish" checked={publish} onCheckedChange={setPublish} />
-        </div>
+        <VisibleSwitch id="up-publish" checked={publish} onChange={setPublish} label="Publish to client now" />
         <Button
           disabled={!files.length || upload.isPending}
           className="min-h-11 w-full"

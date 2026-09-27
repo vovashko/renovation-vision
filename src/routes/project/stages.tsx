@@ -12,7 +12,7 @@ import { StagesEmpty } from "@/features/work/ui/stages-empty";
 import { WorkField } from "@/features/work/ui/work-field";
 import { statusLabel, statuses, type Status } from "@/lib/status";
 import { deriveStatus, progressForStatus, statusForProgress } from "@/lib/status-progress";
-import { FormSheet, VisibleSwitch } from "@/components/manager/form-sheet";
+import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/components/manager/visibility-badge";
 import { useAuth } from "@/lib/auth";

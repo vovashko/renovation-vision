@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { FormSheet } from "@/components/manager/form-sheet";
+import { FormSheet } from "@/shared/ui/form-sheet";
 import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
 import { api, type PhotoPatch } from "@/lib/api";
 import { keys, useSave } from "@/lib/queries";

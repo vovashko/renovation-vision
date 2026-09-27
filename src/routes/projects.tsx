@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { ItemGroup } from "@/components/ui/item";
-import { FormSheet } from "@/components/manager/form-sheet";
+import { FormSheet } from "@/shared/ui/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { NewProjectForm, type NewProjectFormState } from "@/features/projects/ui/new-project-form";
 import { ProjectListItem } from "@/features/projects/ui/project-list-item";
