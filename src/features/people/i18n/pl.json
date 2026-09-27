@@ -1,1 +1,63 @@
-{}
+{
+  "team": {
+    "pageTitle": "Zespół",
+    "pageDescription": "Klienci widzą w aplikacji RenoVision widoczne dla nich dane projektu. Kierownicy mogą tu edytować wszystko.",
+    "emptyDescription": "Brak członków zespołu.",
+    "addByEmail": "Dodaj po e-mailu",
+    "addByEmailHint": "Muszą najpierw mieć konto RenoVision.",
+    "role": "Rola",
+    "add": "Dodaj",
+    "clientBadge": "Klient",
+    "managerBadge": "Kierownik",
+    "you": "(Ty)",
+    "lastRead": "Ostatnio czytał(a) czat {{when}}",
+    "neverRead": "Jeszcze nie otworzył(a) czatu",
+    "removeAria": "Usuń {{name}}",
+    "removeConfirmTitle": "Usunąć {{name}} z tego projektu?",
+    "added": "Dodano {{email}}",
+    "removed": "Usunięto {{name}}",
+    "heading": "Zespół w tym projekcie",
+    "addPerson": "Dodaj osobę",
+    "projectManager": "Kierownik projektu",
+    "addCrewHint": "Dodaj kierownika budowy i wykonawców, aby ich numery były zawsze pod ręką."
+  },
+  "client": {
+    "heading": "Klient",
+    "editAria": "Edytuj dane kontaktowe klienta",
+    "fallbackName": "Klient",
+    "inApp": "W aplikacji: {{names}}",
+    "notInvited": "Jeszcze nie zaproszono do aplikacji",
+    "noPhone": "Brak numeru telefonu",
+    "noEmail": "Brak adresu e-mail",
+    "message": "Wiadomość",
+    "call": "Zadzwoń",
+    "email": "E-mail"
+  },
+  "clientContact": {
+    "title": "Kontakt do klienta",
+    "description": "Te dane widzą tylko kierownicy.",
+    "phone": "Telefon",
+    "email": "E-mail",
+    "submit": "Zapisz kontakt"
+  },
+  "crew": {
+    "addTitle": "Dodaj osobę",
+    "editTitle": "Edytuj osobę",
+    "description": "Ekipa i wykonawcy na budowie. Tę listę widzą tylko kierownicy.",
+    "name": "Imię i nazwisko",
+    "trade": "Rola lub zawód",
+    "tradePlaceholder": "Elektryk, kierownik budowy…",
+    "phone": "Telefon",
+    "email": "E-mail",
+    "submitAdd": "Dodaj osobę",
+    "submitSave": "Zapisz zmiany",
+    "remove": "Usuń z projektu",
+    "removeConfirmTitle": "Usunąć {{name}} z tego projektu?",
+    "noContact": "Brak danych kontaktowych",
+    "callAria": "Zadzwoń do {{name}}",
+    "emailAria": "Napisz e-mail do {{name}}",
+    "editAria": "Edytuj {{name}}",
+    "saved": "Zapisano {{name}}",
+    "removed": "Usunięto {{name}}"
+  }
+}

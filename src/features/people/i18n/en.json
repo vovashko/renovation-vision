@@ -1,1 +1,63 @@
-{}
+{
+  "team": {
+    "pageTitle": "Team",
+    "pageDescription": "Clients see visible project data in the RenoVision app. Managers can edit everything here.",
+    "emptyDescription": "No members yet.",
+    "addByEmail": "Add by email",
+    "addByEmailHint": "They need a RenoVision account first.",
+    "role": "Role",
+    "add": "Add",
+    "clientBadge": "Client",
+    "managerBadge": "Manager",
+    "you": "(you)",
+    "lastRead": "Last read chat {{when}}",
+    "neverRead": "Hasn't opened the chat yet",
+    "removeAria": "Remove {{name}}",
+    "removeConfirmTitle": "Remove {{name}} from this project?",
+    "added": "Added {{email}}",
+    "removed": "Removed {{name}}",
+    "heading": "Team on this project",
+    "addPerson": "Add person",
+    "projectManager": "Project manager",
+    "addCrewHint": "Add the site lead and trades so their numbers are one tap away."
+  },
+  "client": {
+    "heading": "Client",
+    "editAria": "Edit client contact details",
+    "fallbackName": "Client",
+    "inApp": "In the app: {{names}}",
+    "notInvited": "Not invited to the app yet",
+    "noPhone": "No phone number yet",
+    "noEmail": "No email yet",
+    "message": "Message",
+    "call": "Call",
+    "email": "Email"
+  },
+  "clientContact": {
+    "title": "Client contact",
+    "description": "Only managers see these details.",
+    "phone": "Phone",
+    "email": "Email",
+    "submit": "Save contact"
+  },
+  "crew": {
+    "addTitle": "Add a person",
+    "editTitle": "Edit person",
+    "description": "Site crew and trades. Only managers see this list.",
+    "name": "Name",
+    "trade": "Role or trade",
+    "tradePlaceholder": "Electrician, site lead…",
+    "phone": "Phone",
+    "email": "Email",
+    "submitAdd": "Add person",
+    "submitSave": "Save changes",
+    "remove": "Remove from project",
+    "removeConfirmTitle": "Remove {{name}} from this project?",
+    "noContact": "No contact details",
+    "callAria": "Call {{name}}",
+    "emailAria": "Email {{name}}",
+    "editAria": "Edit {{name}}",
+    "saved": "Saved {{name}}",
+    "removed": "Removed {{name}}"
+  }
+}

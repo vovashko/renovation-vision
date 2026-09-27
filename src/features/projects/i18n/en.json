@@ -1,1 +1,99 @@
-{}
+{
+  "newProject": {
+    "title": "New project",
+    "description": "You become its manager. Add stages, rooms and your client next.",
+    "name": "Project name",
+    "address": "Address",
+    "clientName": "Client name",
+    "clientNameHint": "As shown in the app.",
+    "start": "Start",
+    "target": "Target",
+    "budget": "Budget",
+    "submit": "Create project"
+  },
+  "list": {
+    "title": "Your projects",
+    "description": "Everything you update here appears in the client's RenoVision view.",
+    "newProject": "New project",
+    "emptyTitle": "No projects yet",
+    "emptyDescription": "Create a project, then invite your client from the Team page.",
+    "created": "Project created",
+    "overBudget": "Over budget",
+    "now": "Now: {{stage}}",
+    "overallProgress": "Overall progress",
+    "client": "Client",
+    "target": "Target",
+    "spent": "Spent"
+  },
+  "home": {
+    "emptyTitle": "No project yet",
+    "emptyDescription": "Your site manager hasn't added you to a project. Ask them to invite you by email."
+  },
+  "layout": {
+    "notAvailableTitle": "Project not available",
+    "notAvailableText": "It doesn't exist, or you're not a member of it."
+  },
+  "details": {
+    "title": "Project details",
+    "description": "Everything here is visible to the client.",
+    "name": "Project name",
+    "address": "Address",
+    "clientName": "Client name",
+    "start": "Start",
+    "target": "Target",
+    "budget": "Budget",
+    "budgetHint": "Spent is calculated from the expenses on the Budget page.",
+    "scheduleStatus": "Schedule status",
+    "scheduleStatusHint": "Shown on the client's overview. Changing it notifies the client.",
+    "scheduleNote": "Schedule note for the client",
+    "scheduleNotePlaceholder": "Why the schedule is what it is, in plain words.",
+    "submit": "Save details",
+    "saved": "Project updated — the client app shows it now"
+  },
+  "client": {
+    "contactSaved": "Client contact saved"
+  },
+  "shortcuts": {
+    "heading": "Shortcuts",
+    "uploadPhoto": "Upload photo",
+    "addExpense": "Add expense",
+    "messageClient": "Message client",
+    "updateStages": "Update stages",
+    "updateRooms": "Update rooms",
+    "editProject": "Edit project"
+  },
+  "status": {
+    "label": "Project status",
+    "onTrack": "On track",
+    "needsAttention_one": "{{count}} thing needs your attention",
+    "needsAttention_other": "{{count}} things need your attention",
+    "allClear": "Nothing is blocked or late.",
+    "workingOnLabel": "Working on",
+    "overallProgress": "Overall progress",
+    "noteForClient": "Note for the client: ",
+    "stagesDone": "Stages done",
+    "stagesDoneValue": "{{done}} of {{total}}",
+    "target": "Target",
+    "pastTarget": "Past target",
+    "daysLeft": "Days left",
+    "daysLeftValue_one": "{{count}} day",
+    "daysLeftValue_other": "{{count}} days",
+    "budgetUsed": "Budget used"
+  },
+  "issues": {
+    "heading": "Needs attention",
+    "stageBlocked": "{{name}} is blocked",
+    "roomBlocked": "{{name}} is blocked",
+    "stageLate": "{{name}} is {{late}}",
+    "stageLateDetail": "Was due {{date}} · {{progress}}% done",
+    "overBudgetDetail": "{{spent}} spent of {{budget}}"
+  },
+  "consistency": {
+    "blockedOnSchedule_one": "{{count}} thing is blocked, but the project still says on schedule",
+    "blockedOnSchedule_other": "{{count}} things are blocked, but the project still says on schedule",
+    "roomDoneTaskOpen": "{{room}} is marked done, but \"{{task}}\" is still open",
+    "stageDoneTasksOpen_one": "{{stage}} is marked done, but {{count}} task is still open",
+    "stageDoneTasksOpen_other": "{{stage}} is marked done, but {{count}} tasks are still open",
+    "stagePendingTasksDone": "{{stage}} is pending, but some of its tasks are already checked"
+  }
+}

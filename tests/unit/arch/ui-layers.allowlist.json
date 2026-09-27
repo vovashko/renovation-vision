@@ -30,7 +30,7 @@
     "reason": "One-off sizing + safe-area padding for the phone-only \"More\" sheet."
   },
   {
-    "file": "components/overview-cards.tsx",
+    "file": "features/people/ui/client-card.tsx",
     "snippet": "divide-y divide-outline-variant overflow-hidden rounded-lg bg-surface-container-lowest",
     "reason": "One-off wrapper for the two-row contact list on the tinted client card."
   },
