@@ -1,5 +1,9 @@
 -- Demo seed: "Maple Street Apartment", exactly as the Renovision client app shows it,
--- with two data inconsistencies fixed:
+-- with two data inconsistencies fixed. All the dates below are written as if "today"
+-- were 2026-04-20; a block at the end of this file shifts every one of them by
+-- `current_date - date '2026-04-20'`, so the same timeline (finished stages behind,
+-- one in-progress stage straddling today, pending stages ahead) lands on the real
+-- current date instead of a hardcoded one.
 --
 --   1. Bedroom 2 is Blocked, but the project said "On schedule".
 --      -> schedule_status = 'at_risk' with a note explaining the block.
@@ -236,5 +240,50 @@ insert into public.ai_knowledge (project_id, title, content, tags, is_visible, c
   ('b0000000-0000-4000-8000-000000000001', 'Oak flooring', 'The oak planks were delivered on Apr 20 and acclimatise for 48 hours before install. Two spare boxes are kept for future repairs.', '{flooring,oak}', true, 'a0000000-0000-4000-8000-000000000001'),
   ('b0000000-0000-4000-8000-000000000001', 'Kitchen cabinets', 'Cabinets are delivered at the start of the Kitchen Install stage (May 9). The countertop is templated once the cabinets are fixed.', '{kitchen}', true, 'a0000000-0000-4000-8000-000000000001'),
   ('b0000000-0000-4000-8000-000000000001', 'Cabinet supplier fallback (internal)', 'If the cabinet delivery slips past May 12, switch to the Hallmark stock range — 10 days lead time, $900 more.', '{kitchen,internal}', false, 'a0000000-0000-4000-8000-000000000001');
+
+-- ---------------------------------------------------------------------------
+-- Shift the whole timeline from the fixed 2026-04-20 anchor above onto the
+-- real current date, keeping every gap between dates (and so every stage's
+-- status relative to "today") exactly as authored.
+-- ---------------------------------------------------------------------------
+update public.projects set
+  start_date = start_date + (current_date - date '2026-04-20'),
+  target_date = target_date + (current_date - date '2026-04-20')
+where id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.project_members set
+  last_read_at = last_read_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.stages set
+  start_date = start_date + (current_date - date '2026-04-20'),
+  end_date = end_date + (current_date - date '2026-04-20')
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.tasks set
+  completed_at = completed_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001' and completed_at is not null;
+
+update public.photos set
+  taken_at = taken_at + (current_date - date '2026-04-20') * interval '1 day',
+  published_at = published_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.expenses set
+  spent_on = spent_on + (current_date - date '2026-04-20')
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.messages set
+  created_at = created_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.notifications set
+  created_at = created_at + (current_date - date '2026-04-20') * interval '1 day',
+  read_at = read_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.activity_log set
+  created_at = created_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001';
 
 set session_replication_role = origin;

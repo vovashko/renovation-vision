@@ -1,22 +1,46 @@
-// Uploads the demo images to Storage at the paths referenced by supabase/seed.sql.
-// The images are the Renovision client app's own assets (read-only), so both apps show the same pictures.
+// Uploads the seed images to Storage at the paths referenced by supabase/seed.sql.
+// The service role key bypasses Storage RLS, so this works against a freshly
+// reset database before any auth session exists.
 //
-//   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node supabase/scripts/upload-seed-media.mjs
+//   node supabase/scripts/upload-seed-media.mjs
 //
-// Requires @supabase/supabase-js (installed in renotrack-manager/).
+// Reads SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY from the environment when set
+// (used by the hosted-demo reseed workflow), otherwise shells out to
+// `supabase status -o env` for the local stack's values.
+import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createClient } from "@supabase/supabase-js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const require = createRequire(resolve(root, "renotrack-manager/package.json"));
-const { createClient } = require("@supabase/supabase-js");
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+function localStatusEnv() {
+  let out;
+  try {
+    out = execFileSync("supabase", ["status", "-o", "env"], { cwd: root, encoding: "utf8" });
+  } catch (err) {
+    console.error("Could not read `supabase status -o env` — is the local stack running (`supabase start`)?");
+    console.error(err.message);
+    process.exit(1);
+  }
+  const env = {};
+  for (const line of out.split("\n")) {
+    const m = /^([A-Z_]+)="?(.*?)"?$/.exec(line.trim());
+    if (m) env[m[1]] = m[2];
+  }
+  return env;
+}
+
+let url = process.env.SUPABASE_URL;
+let key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
-  console.error("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
+  const env = localStatusEnv();
+  url ??= env.API_URL;
+  key ??= env.SERVICE_ROLE_KEY;
+}
+if (!url || !key) {
+  console.error("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (see `supabase status -o env`).");
   process.exit(1);
 }
 
@@ -38,10 +62,13 @@ const files = {
 };
 
 const supabase = createClient(url, key, { auth: { persistSession: false } });
+let failed = false;
 for (const [path, asset] of Object.entries(files)) {
-  const body = await readFile(resolve(root, "src/assets", asset));
+  const body = await readFile(resolve(root, "supabase/seed-media", asset));
   const { error } = await supabase.storage
     .from("project-media")
     .upload(`${PROJECT}/${path}`, body, { contentType: "image/jpeg", upsert: true });
+  if (error) failed = true;
   console.log(error ? `✗ ${path}: ${error.message}` : `✓ ${path}`);
 }
+if (failed) process.exit(1);
