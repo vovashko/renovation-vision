@@ -1,0 +1,107 @@
+[
+  {
+    "file": "components/before-after.tsx",
+    "snippet": "has-[input:focus-visible]:outline-2",
+    "reason": "Layout + a focus-visible outline for the custom before/after slider container; a one-off compare widget, not reused elsewhere."
+  },
+  {
+    "file": "components/before-after.tsx",
+    "snippet": "[clip-path:inset(0_calc(100%-var(--pos))_0_0)]",
+    "reason": "Layout-only: the clip-path reveal driven by the drag slider's --pos variable."
+  },
+  {
+    "file": "components/before-after.tsx",
+    "snippet": "-translate-y-1/2 items-center justify-center rounded-full bg-primary",
+    "reason": "One-off drag-handle circle for the compare slider; not reused."
+  },
+  {
+    "file": "components/filter-chips.tsx",
+    "snippet": "[scrollbar-width:none]",
+    "reason": "Layout-only: the horizontal chip scroller and its px reset at the md breakpoint."
+  },
+  {
+    "file": "components/lightbox.tsx",
+    "snippet": "pt-[max(0.75rem,env(safe-area-inset-top))]",
+    "reason": "Layout-only: the viewer's header row plus safe-area padding."
+  },
+  {
+    "file": "components/mobile-nav.tsx",
+    "snippet": "pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+    "reason": "One-off sizing + safe-area padding for the phone-only \"More\" sheet."
+  },
+  {
+    "file": "components/overview-cards.tsx",
+    "snippet": "divide-y divide-outline-variant overflow-hidden rounded-lg bg-surface-container-lowest",
+    "reason": "One-off wrapper for the two-row contact list on the tinted client card."
+  },
+  {
+    "file": "features/comms/ui/ai-thinking.tsx",
+    "snippet": "animate-bounce rounded-full bg-primary [animation-delay:-0.15s]",
+    "reason": "One-off animated dot for the AI-thinking indicator; not reused."
+  },
+  {
+    "file": "features/media/ui/photo-card.tsx",
+    "snippet": "aspect-[4/3] w-full items-center justify-center bg-surface-container-high",
+    "reason": "One-off missing-image placeholder box."
+  },
+  {
+    "file": "features/media/ui/photo-thumbs.tsx",
+    "snippet": "aspect-square w-full items-center justify-center bg-surface-container-high",
+    "reason": "One-off broken-image placeholder box, sized for the thumbnail grid."
+  },
+  {
+    "file": "features/media/ui/photo-thumbs.tsx",
+    "snippet": "bg-inverse-surface/60 text-title-md text-inverse-on-surface",
+    "reason": "One-off \"+N more\" overlay on the last thumbnail."
+  },
+  {
+    "file": "features/projects/ui/project-list-item.tsx",
+    "snippet": "gap-x-4 gap-y-1 text-body-sm text-on-surface-variant",
+    "reason": "Layout-only footer line (client / target / spent) of the project row."
+  },
+  {
+    "file": "features/work/ui/project-header.tsx",
+    "snippet": "gap-x-12 gap-y-6 px-5 py-5 md:px-7 md:py-6",
+    "reason": "Layout-only card padding/gap for the client overview header."
+  },
+  {
+    "file": "features/work/ui/project-header.tsx",
+    "snippet": "size-7 shrink-0 place-items-center rounded-full bg-surface-container-high",
+    "reason": "One-off manager-icon tile."
+  },
+  {
+    "file": "features/work/ui/stage-row.tsx",
+    "snippet": "size-[22px] shrink-0 place-items-center rounded-[7px] bg-primary",
+    "reason": "One-off checked-task marker, sized to the timeline's 22px checkbox."
+  },
+  {
+    "file": "features/work/ui/stage-row.tsx",
+    "snippet": "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+    "reason": "One-off hover/focus-reveal remove-task button."
+  },
+  {
+    "file": "routes/__root.tsx",
+    "snippet": "flex min-h-screen items-center justify-center text-body-md text-on-surface-variant",
+    "reason": "One-off full-page loading state, shown once before the app shell exists."
+  },
+  {
+    "file": "routes/project/chat.tsx",
+    "snippet": "top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)]",
+    "reason": "Layout-only: the chat panel's own fixed/responsive positioning and safe-area math."
+  },
+  {
+    "file": "routes/project/plan.tsx",
+    "snippet": "gap-1 text-body-sm text-destructive hover:underline",
+    "reason": "One-off destructive inline link with icon; not a styled Button."
+  },
+  {
+    "file": "routes/project/plan.tsx",
+    "snippet": "bg-status-blocked-container p-2 text-body-sm text-on-status-blocked-container",
+    "reason": "One-off inline validation message (blocked-by-open-tasks) in the room form."
+  },
+  {
+    "file": "shared/ui/form-sheet.tsx",
+    "snippet": "rounded-md border px-3",
+    "reason": "Layout-only label+switch row shared by every VisibleSwitch call site; no color values."
+  }
+]

@@ -143,10 +143,7 @@ function AuthGate() {
 function ProjectTopBar({ project, narrow }: { project?: ProjectSummary; narrow?: boolean }) {
   return (
     <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
-      <Card
-        variant="tinted"
-        className={cn("mx-auto flex h-16 w-full items-center gap-3 px-5", narrow ? "max-w-3xl" : "max-w-7xl")}
-      >
+      <Card variant="tinted" className={cn("mx-auto flex h-16 w-full items-center gap-3 px-5", narrow ? "max-w-3xl" : "max-w-7xl")}>
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="truncate text-title-md">{project?.name ?? "…"}</span>
           <span className="hidden truncate text-body-sm text-on-surface-variant md:block">{project?.address}</span>
