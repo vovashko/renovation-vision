@@ -1,15 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, DollarSign, TrendingUp, User } from "lucide-react";
-import { ProjectHeaderCard } from "@/components/project-header-card";
-import { Stat } from "@/components/stat-card";
-import { StageTimelineRow } from "@/components/stage-timeline-row";
-import { FloorPlan, RoomDetail } from "@/components/floor-plan";
+import { Icon } from "@/components/ui/icon";
+import { buttonVariants } from "@/components/ui/button";
+import { ProjectHeader } from "@/features/work/ui/project-header";
+import { OverviewStats } from "@/features/work/ui/overview-stats";
+import { StageTimeline } from "@/features/work/ui/stage-timeline";
+import { FloorPlan } from "@/features/work/ui/floor-plan";
+import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
 import { ManagerOverview } from "@/components/manager/manager-overview";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
 import { useProject, useRooms, useStages } from "@/lib/queries";
-import { longDate, money, scheduleFill, scheduleLabel, shortDate } from "@/lib/format";
+import { daysLate } from "@/lib/attention";
+import { shortDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
@@ -25,6 +29,8 @@ function ProjectHome() {
   return isManager ? <ManagerOverview projectId={projectId} /> : <ClientOverview projectId={projectId} />;
 }
 
+const sectionLink = cn(buttonVariants({ variant: "ghost" }), "-mr-3 shrink-0");
+
 function ClientOverview({ projectId }: { projectId: string }) {
   const navigate = useNavigate();
   const { data: project } = useProject(projectId);
@@ -39,76 +45,59 @@ function ClientOverview({ projectId }: { projectId: string }) {
   if (!project || !stages || !rooms) return <PageLoading />;
 
   const activeRoom = rooms.find((r) => r.id === roomId);
+  const params = { projectId };
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
-      <ProjectHeaderCard
+      <ProjectHeader
         name={project.name}
         address={project.address}
         managerName={project.manager_name}
         progress={project.overall_progress}
         currentStage={project.current_stage}
-        badges={
-          <span
-            className="rounded-full px-3 py-1 text-xs font-medium text-white"
-            style={{ background: scheduleFill[project.schedule_status] }}
-          >
-            {scheduleLabel[project.schedule_status]}
-          </span>
-        }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={Calendar} label="Started" value={longDate(project.start_date)} sub={`Target: ${longDate(project.target_date)}`} />
-        <Stat
-          icon={TrendingUp}
-          label="Stages done"
-          value={`${project.stages_done}/${project.stages_total}`}
-          sub={
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full" style={{ background: scheduleFill[project.schedule_status] }} />
-              {scheduleLabel[project.schedule_status]}
-            </span>
-          }
-        />
-        <Stat icon={DollarSign} label="Budget" value={money(project.budget)} sub={`Spent ${money(project.spent)}`} />
-        <Stat icon={User} label="Site manager" value={project.manager_name || "—"} sub="Your point of contact" />
-      </section>
+      <OverviewStats project={project} stages={stages} />
 
       {project.schedule_note && (
-        <p className="-mt-4 rounded-xl border bg-card p-4 text-sm text-muted-foreground shadow-[var(--shadow-soft)]">
-          <span className="font-medium text-foreground">Schedule note: </span>
+        <p className="-mt-4 rounded-lg bg-surface-container-low px-4 py-3 text-body-md text-on-surface-variant">
+          <span className="font-medium text-on-surface">Schedule note: </span>
           {project.schedule_note}
         </p>
       )}
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Stage timeline</h2>
-          <Link to="/projects/$projectId/stages" params={{ projectId }} className="text-sm text-primary hover:underline">
-            All stages →
+      <section aria-labelledby="stage-timeline">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <h2 id="stage-timeline" className="text-title-lg">
+            Stage timeline
+          </h2>
+          <Link to="/projects/$projectId/stages" params={params} className={sectionLink}>
+            All stages
+            <Icon name="arrow_forward" size={20} />
           </Link>
         </div>
-        <div className="space-y-3">
-          {stages.map((s) => (
-            <StageTimelineRow
-              key={s.id}
-              name={s.name}
-              status={s.status}
-              start={shortDate(s.start_date)}
-              end={shortDate(s.end_date)}
-              progress={s.progress}
-              onClick={() => navigate({ to: "/projects/$projectId/stages", params: { projectId }, hash: s.id })}
-            />
-          ))}
-        </div>
+        <StageTimeline
+          stages={stages.map((s) => ({
+            id: s.id,
+            name: s.name,
+            status: s.status,
+            start: shortDate(s.start_date),
+            end: shortDate(s.end_date),
+            progress: s.progress,
+            lateDays: daysLate(s),
+          }))}
+          onSelect={(s) => navigate({ to: "/projects/$projectId/stages", params, hash: s.id })}
+        />
       </section>
 
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-xl font-semibold">Floor plan visualisation</h2>
-          <Link to="/projects/$projectId/plan" params={{ projectId }} className="text-sm text-primary hover:underline">
-            Open plan →
+      <section aria-labelledby="floor-plan">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <h2 id="floor-plan" className="text-title-lg">
+            Floor plan visualisation
+          </h2>
+          <Link to="/projects/$projectId/plan" params={params} className={sectionLink}>
+            Open plan
+            <Icon name="arrow_forward" size={20} />
           </Link>
         </div>
         <FloorPlan
@@ -117,9 +106,9 @@ function ClientOverview({ projectId }: { projectId: string }) {
           onSelect={(r) => setRoomId(r.id)}
           detail={
             activeRoom && (
-              <RoomDetail room={activeRoom}>
-                {activeRoom.client_note && <p className="mt-5 text-sm text-muted-foreground">{activeRoom.client_note}</p>}
-              </RoomDetail>
+              <SelectedRoomPanel room={activeRoom}>
+                {activeRoom.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{activeRoom.client_note}</p>}
+              </SelectedRoomPanel>
             )
           }
         />
