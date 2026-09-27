@@ -6,23 +6,27 @@ import { UserAvatar } from "@/components/user-avatar";
 import { ProfilePanel } from "@/components/profile-panel";
 import { TabBar, TabBarItem, TabBarRow } from "@/components/ui/tab-bar";
 import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
 
-// TODO(later task): this bar is client-only for now (see __root.tsx); make it role-aware.
-const tabs = navItemsFor("client", "tab");
-const more = navItemsFor("client", "more");
-
-/** Client phone navigation (below md); managers keep the desktop nav rail. */
-export function MobileTabBar() {
+/**
+ * Phone bottom navigation (below md; `ui/tab-bar`'s `TabBar` is `md:hidden`, so this renders
+ * unconditionally and CSS alone decides whether it shows). Both roles get it now: managers work on
+ * site from their phones too. The desktop rail (`app-rail.tsx`) shows every section above md.
+ */
+export function BottomNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const { profile } = useAuth();
-  // "work" is needed for the Progress nav item's `work:nav.progress` label (nav-config.ts).
-  const { t } = useTranslation(["common", "work"]);
+  const role = useNavRole();
+  const isManager = role === "manager";
+  const tabs = navItemsFor(role, "tab");
+  const more = navItemsFor(role, "more");
+  const { t } = useTranslation(["common"]);
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Outside a project (only reachable at /settings): a single row back to the project.
+  // Outside a project (reachable at /settings, and at /projects for a manager): a single row back.
   if (!projectId) {
     return (
       <TabBar>
@@ -33,7 +37,8 @@ export function MobileTabBar() {
     );
   }
 
-  const moreActive = more.some((m) => projectPath(projectId, m.section) === path) || path === "/settings";
+  const moreActive =
+    more.some((m) => projectPath(projectId, m.section) === path) || path === "/settings" || (isManager && path === "/projects");
   const name = profile?.full_name ?? "";
 
   return (
@@ -75,6 +80,13 @@ export function MobileTabBar() {
                 </TabBarRow>
               );
             })}
+            {isManager && (
+              <TabBarRow asChild icon="folder_open" active={path === "/projects"}>
+                <Link to="/projects" onClick={() => setOpen(false)}>
+                  {t("nav.allProjects")}
+                </Link>
+              </TabBarRow>
+            )}
           </div>
           <div className="mx-1 mt-2 border-t border-outline-variant pt-2">
             <TabBarRow asChild icon="settings" active={path === "/settings"}>

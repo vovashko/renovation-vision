@@ -7,6 +7,7 @@ import { Rail, RailContent, RailFooter, RailGroup, RailHeader, RailItem, RailLog
 import { UserAvatar } from "@/components/user-avatar";
 import { ProfilePanel } from "@/components/profile-panel";
 import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
 
 /** Avatar row pinned at the very bottom of the rail; opens the profile panel instead of navigating. */
@@ -30,17 +31,18 @@ function ProfileRailItem() {
 }
 
 /**
- * Desktop navigation rail (md and up; phones use the bottom bar in `mobile-nav.tsx`). Keeps the
- * existing role logic: managers see "All projects" plus every section; clients never see a
- * manager-only one (`shared/ui/nav-config.ts`).
+ * Desktop navigation rail (md and up; phones use `bottom-nav.tsx`'s bottom bar; `ui/rail` itself is
+ * `hidden md:block`, so this component renders unconditionally and CSS alone decides whether it
+ * shows). Keeps the existing role logic: managers see "All projects" plus every section; clients
+ * never see a manager-only one (`shared/ui/nav-config.ts`).
  */
-export function AppSidebar() {
+export function AppRail() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
-  const isManager = useAuth().profile?.account_type === "manager";
-  const items = navItemsFor(isManager ? "manager" : "client");
-  // "work" is needed for the Progress nav item's `work:nav.progress` label (nav-config.ts).
-  const { t } = useTranslation(["common", "work"]);
+  const role = useNavRole();
+  const isManager = role === "manager";
+  const items = navItemsFor(role);
+  const { t } = useTranslation(["common"]);
 
   return (
     <Rail>

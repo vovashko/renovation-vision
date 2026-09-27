@@ -1,13 +1,9 @@
 import type en from "@/i18n/common/en.json";
-import type work from "@/features/work/i18n/en.json";
 import type { ProjectRole } from "@/lib/database.types";
 
-/**
- * A label under `common:nav.*`, or, when a section's owning feature has no shared `common` key for
- * it (see README → Internationalization: "you can't edit common"), a `<feature>:nav.*` key from
- * that feature's own namespace.
- */
-export type NavLabelKey = `common:nav.${keyof typeof en.nav}` | `work:nav.${keyof typeof work.nav}`;
+/** A label under `common:nav.*`, rendered with `t(item.labelKey)`. Every nav label lives in the
+ * shared `common` namespace (T19), so both the rail and the phone bar only need `useTranslation(["common"])`. */
+export type NavLabelKey = `common:nav.${keyof typeof en.nav}`;
 
 export type NavItem = {
   /** Stable id for React keys and tests. */
@@ -30,9 +26,8 @@ const managers: ProjectRole[] = ["manager"];
 /** Project sections, in rail order. */
 export const projectNav: NavItem[] = [
   { key: "overview", section: "", icon: "grid_view", labelKey: "common:nav.overview", roles: everyone, placement: "tab" },
-  // Stages + the floor plan merged into one Progress page with a timeline/plan tab (T13). No
-  // `common:nav.progress` key exists (features can't edit `common`), hence the `work:` namespace key.
-  { key: "progress", section: "progress", icon: "checklist", labelKey: "work:nav.progress", roles: everyone, placement: "tab" },
+  // Stages + the floor plan merged into one Progress page with a timeline/plan tab (T13).
+  { key: "progress", section: "progress", icon: "checklist", labelKey: "common:nav.progress", roles: everyone, placement: "tab" },
   { key: "photos", section: "photos", icon: "photo_camera", labelKey: "common:nav.photos", roles: everyone, placement: "tab" },
   { key: "design", section: "design", icon: "palette", labelKey: "common:nav.design", roles: everyone, placement: "more" },
   {

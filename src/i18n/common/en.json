@@ -40,6 +40,7 @@
     "overview": "Overview",
     "stages": "Stages",
     "plan": "Plan",
+    "progress": "Progress",
     "photos": "Photos",
     "design": "Design",
     "budget": "Budget",
@@ -55,6 +56,11 @@
     "profile": "Profile",
     "openProfile": "{{name}}, open profile",
     "yourProfile": "Your profile"
+  },
+  "quickActions": {
+    "label": "Quick actions",
+    "uploadPhoto": "Upload photo",
+    "addExpense": "Add expense"
   },
   "confirm": {
     "title": "Are you sure?",

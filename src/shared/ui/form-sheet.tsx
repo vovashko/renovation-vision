@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 // Used across manager, media, knowledge and project sheets — a generic editing-panel shell, not
 // manager-specific, hence living here rather than under components/manager/.
@@ -21,10 +20,9 @@ export function FormSheet({
   description?: string;
   children: ReactNode;
 }) {
-  const isMobile = useIsMobile();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side={isMobile ? "bottom" : "right"} className="max-h-[90dvh] overflow-y-auto md:max-h-none">
+      <SheetContent side="responsive" className="max-h-[90dvh] overflow-y-auto md:max-h-none">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           {description && <SheetDescription>{description}</SheetDescription>}
