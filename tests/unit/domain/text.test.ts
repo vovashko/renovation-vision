@@ -1,14 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseDate, slugify, fileExt } from "@/lib/format";
-
-describe("parseDate", () => {
-  it("parses 'YYYY-MM-DD' as a local date with no timezone shift", () => {
-    const d = parseDate("2026-04-20");
-    expect(d.getFullYear()).toBe(2026);
-    expect(d.getMonth()).toBe(3); // 0-indexed: April
-    expect(d.getDate()).toBe(20);
-  });
-});
+import { fileExt, slugify } from "@/domain/text";
 
 describe("slugify", () => {
   it("lowercases and hyphenates", () => {
