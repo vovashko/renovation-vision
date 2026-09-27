@@ -21,37 +21,80 @@ signed-in user's role.
 
 ```sh
 bun install
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-With an empty `.env`, the app runs in **demo mode**: an in-memory copy of
-`supabase/seed.sql` stands in for Supabase, so you can run the app with no
-backend at all. To use a real (or local) Supabase project, fill in
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+The app always talks to a real Supabase project — there is no demo/in-memory mode. Fill in
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local` before running `bun run dev`;
+without them the app shows a clear "Supabase is not configured" screen instead of a blank page.
+See **Local Supabase** below to get those two values from a local stack.
 
-To run Supabase locally (requires Docker and the `supabase` CLI):
+## Local Supabase
+
+Requires [Docker](https://www.docker.com) and the [Supabase CLI](https://supabase.com/docs/guides/cli)
+(`brew install supabase/tap/supabase`, or see the docs for other platforms).
 
 ```sh
-supabase start
-supabase db reset
+supabase start                  # boots Postgres, Auth, Storage, Studio, ...
+supabase status -o env          # prints API_URL and PUBLISHABLE_KEY (among others)
 ```
+
+Copy `API_URL` → `VITE_SUPABASE_URL` and `PUBLISHABLE_KEY` (or `ANON_KEY` on older CLI output) →
+`VITE_SUPABASE_PUBLISHABLE_KEY` into `.env.local`. Then:
+
+```sh
+bun run db:reset   # supabase db reset (migrations + seed.sql) + uploads the seed photos/renders
+bun run dev
+```
+
+Sign in with one of the seeded demo accounts (see `supabase/seed.sql` for the full list):
+
+| Role    | Email                   | Password          |
+| ------- | ----------------------- | ----------------- |
+| Manager | `jonas@renovision.demo` | `renovision-demo` |
+| Client  | `sarah@renovision.demo` | `renovision-demo` |
+
+Useful scripts: `bun run db:start` (`supabase start`), `bun run db:reset` (reset + reseed media),
+`bun run db:types` (regenerate `src/domain/db.types.ts` from the running local schema).
+
+**Several agents/processes can share one running local stack** (same ports, same containers) — just
+point each at the same `.env.local` values. Only **one** of them should run `supabase db reset` or
+`supabase stop` at a time, since that affects everyone sharing the stack.
+
+### Hosted demo
+
+The hosted demo is a real, separately-provisioned Supabase project seeded the same way. A scheduled
+workflow (`.github/workflows/demo-reseed.yml`) resets and reseeds it nightly (and on manual dispatch),
+so it never accumulates stray edits from people trying it out. It needs three repository secrets:
+
+| Secret                      | What it is                                                        |
+| --------------------------- | ----------------------------------------------------------------- |
+| `SUPABASE_ACCESS_TOKEN`     | A Supabase personal access token (Account → Access Tokens)        |
+| `SUPABASE_DEMO_PROJECT_REF` | The hosted demo project's ref — **never** a real customer project |
+| `SUPABASE_DEMO_DB_PASSWORD` | That project's Postgres password                                  |
+
+Without all three, the workflow skips its steps rather than failing. Setting `VITE_DEMO_HINT=true` in
+the demo deployment's environment shows the table above under the sign-in form.
 
 ## Scripts
 
-| Script                 | What it does                                         |
-| ---------------------- | ---------------------------------------------------- |
-| `bun run dev`          | Start the dev server                                 |
-| `bun run build`        | Production build                                     |
-| `bun run build:dev`    | Development-mode build                               |
-| `bun run preview`      | Preview a production build                           |
-| `bun run lint`         | ESLint                                               |
-| `bun run format`       | Prettier, writing changes                            |
-| `bun run format:check` | Prettier, check only (used in CI)                    |
-| `bun run typecheck`    | `tsc --noEmit`                                       |
-| `bun run test`         | Unit tests (vitest)                                  |
-| `bun run test:watch`   | Unit tests in watch mode                             |
-| `bun run test:db`      | SQL/RLS tests against a local Supabase instance      |
-| `bun run verify`       | lint + format:check + typecheck + test — the CI gate |
+| Script                 | What it does                                              |
+| ---------------------- | --------------------------------------------------------- |
+| `bun run dev`          | Start the dev server                                      |
+| `bun run build`        | Production build                                          |
+| `bun run build:dev`    | Development-mode build                                    |
+| `bun run preview`      | Preview a production build                                |
+| `bun run lint`         | ESLint                                                    |
+| `bun run format`       | Prettier, writing changes                                 |
+| `bun run format:check` | Prettier, check only (used in CI)                         |
+| `bun run typecheck`    | `tsc --noEmit`                                            |
+| `bun run test`         | Unit tests (vitest)                                       |
+| `bun run test:watch`   | Unit tests in watch mode                                  |
+| `bun run test:db`      | SQL/RLS tests against a local Supabase instance           |
+| `bun run verify`       | lint + format:check + typecheck + test — the CI gate      |
+| `bun run db:start`     | `supabase start`                                          |
+| `bun run db:reset`     | `supabase db reset` + upload the seed media               |
+| `bun run db:types`     | Regenerate `src/domain/db.types.ts` from the local schema |
 
 ## Routes
 

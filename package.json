@@ -16,6 +16,9 @@
     "test:watch": "vitest",
     "test:db": "bash tests/db/run.sh",
     "verify": "bun run lint && bun run format:check && bun run typecheck && bun run test",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset && node supabase/scripts/upload-seed-media.mjs",
+    "db:types": "supabase gen types typescript --local > src/domain/db.types.ts",
     "deploy:preview": "bun run build && wrangler deploy --env preview",
     "deploy": "bun run build && wrangler deploy --env production"
   },
