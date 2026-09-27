@@ -1,195 +1,97 @@
-// Row types for the shared RenoVision Supabase schema (supabase/migrations at the repo root).
-// Keep in sync with the migrations, or regenerate with `supabase gen types typescript`.
-import type { Status } from "@/lib/status";
+// App-facing row types for the shared RenoVision Supabase schema, derived from the generated
+// `src/domain/db.types.ts` (regenerate with `bun run db:types` after a migration change).
+// Each exported type below picks exactly the columns the portal reads/writes, plus a few
+// app-side extras computed by the API layer (Photo/Render `url`, Stage `tasks`, Message
+// `attachment_url`, Member `profile`) that don't exist as columns.
+import type { Database } from "@/domain/db.types";
 
-export type ProjectRole = "manager" | "client";
-export type ScheduleStatus = "on_schedule" | "at_risk" | "delayed";
-export type PhotoStatus = "draft" | "published";
+export type Tables<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Row"];
+export type Views<T extends keyof Database["public"]["Views"]> = Database["public"]["Views"][T]["Row"];
+export type Enums<T extends keyof Database["public"]["Enums"]> = Database["public"]["Enums"][T];
 
-export type Profile = {
-  id: string;
-  full_name: string;
-  avatar_url: string | null;
-  account_type: "manager" | "client";
-};
+export type ProjectRole = Enums<"project_role">;
+export type ScheduleStatus = Enums<"schedule_status">;
+export type PhotoStatus = Enums<"photo_status">;
 
-export type Project = {
-  id: string;
-  name: string;
-  address: string;
-  client_name: string;
-  start_date: string | null;
-  target_date: string | null;
-  budget: number;
-  spent: number;
-  schedule_status: ScheduleStatus;
-  schedule_note: string;
-  created_at: string;
-  updated_at: string;
-};
+export type Profile = Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "account_type">;
 
-export type ProjectSummary = Project & {
-  overall_progress: number;
-  stages_done: number;
-  stages_total: number;
-  current_stage: string | null;
-  manager_name: string | null;
-};
+export type Project = Pick<
+  Tables<"projects">,
+  | "id"
+  | "name"
+  | "address"
+  | "client_name"
+  | "start_date"
+  | "target_date"
+  | "budget"
+  | "spent"
+  | "schedule_status"
+  | "schedule_note"
+  | "created_at"
+  | "updated_at"
+>;
 
-export type ProjectInternal = {
-  project_id: string;
-  internal_budget_notes: string;
-  /** Manager-only contact details for the client (Overview client card). */
-  client_phone: string;
-  client_email: string;
-  updated_at: string;
-};
+export type ProjectSummary = Views<"project_summary">;
+
+export type ProjectInternal = Pick<
+  Tables<"project_internal">,
+  "project_id" | "internal_budget_notes" | "client_phone" | "client_email" | "updated_at"
+>;
 
 /** Site crew and trades (not app users). Manager-only. */
-export type CrewMember = {
-  id: string;
-  project_id: string;
-  name: string;
-  trade: string;
-  phone: string;
-  email: string;
-  sort_order: number;
-};
+export type CrewMember = Pick<Tables<"project_crew">, "id" | "project_id" | "name" | "trade" | "phone" | "email" | "sort_order">;
 
-export type Member = {
-  project_id: string;
-  user_id: string;
-  role: ProjectRole;
-  last_read_at: string | null;
-  created_at: string;
+export type Member = Pick<Tables<"project_members">, "project_id" | "user_id" | "role" | "last_read_at" | "created_at"> & {
   profile: Pick<Profile, "id" | "full_name" | "avatar_url">;
 };
 
-export type Room = {
-  id: string;
-  project_id: string;
-  key: string;
-  name: string;
-  status: Status;
-  progress: number;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  client_note: string;
-  sort_order: number;
-  is_visible: boolean;
-};
+export type Room = Pick<
+  Tables<"rooms">,
+  "id" | "project_id" | "key" | "name" | "status" | "progress" | "x" | "y" | "w" | "h" | "client_note" | "sort_order" | "is_visible"
+>;
 
-export type Task = {
-  id: string;
-  project_id: string;
-  stage_id: string;
-  room_id: string | null;
-  name: string;
-  done: boolean;
-  sort_order: number;
-  is_visible: boolean;
-};
+export type Task = Pick<Tables<"tasks">, "id" | "project_id" | "stage_id" | "room_id" | "name" | "done" | "sort_order" | "is_visible">;
 
-export type Stage = {
-  id: string;
-  project_id: string;
-  key: string;
-  name: string;
-  status: Status;
-  progress: number;
-  start_date: string;
-  end_date: string;
-  client_note: string;
-  sort_order: number;
-  is_visible: boolean;
-  tasks: Task[];
-};
+export type Stage = Pick<
+  Tables<"stages">,
+  "id" | "project_id" | "key" | "name" | "status" | "progress" | "start_date" | "end_date" | "client_note" | "sort_order" | "is_visible"
+> & { tasks: Task[] };
 
-export type Photo = {
-  id: string;
-  project_id: string;
-  stage_id: string | null;
-  room_id: string | null;
-  storage_path: string;
-  alt: string;
-  caption: string;
-  taken_at: string;
-  uploaded_by: string | null;
-  status: PhotoStatus;
-  published_at: string | null;
+export type Photo = Pick<
+  Tables<"photos">,
+  "id" | "project_id" | "stage_id" | "room_id" | "storage_path" | "alt" | "caption" | "taken_at" | "uploaded_by" | "status" | "published_at"
+> & {
   /** Signed URL, resolved by the API layer. */
   url: string;
 };
 
-export type Render = {
-  id: string;
-  project_id: string;
-  room_id: string | null;
-  storage_path: string;
-  alt: string;
-  title: string;
-  description: string;
-  compare_photo_id: string | null;
-  sort_order: number;
-  is_visible: boolean;
-  url: string;
-};
+export type Render = Pick<
+  Tables<"renders">,
+  "id" | "project_id" | "room_id" | "storage_path" | "alt" | "title" | "description" | "compare_photo_id" | "sort_order" | "is_visible"
+> & { url: string };
 
-export type Expense = {
-  id: string;
-  project_id: string;
-  stage_id: string | null;
-  category: string;
-  description: string;
-  vendor: string;
-  vendor_notes: string;
-  amount: number;
-  spent_on: string;
-  receipt_path: string | null;
-};
+export type Expense = Pick<
+  Tables<"expenses">,
+  "id" | "project_id" | "stage_id" | "category" | "description" | "vendor" | "vendor_notes" | "amount" | "spent_on" | "receipt_path"
+>;
 
-export type Message = {
-  id: string;
-  project_id: string;
-  sender_id: string;
-  body: string;
-  attachment_path: string | null;
-  created_at: string;
+export type Message = Pick<Tables<"messages">, "id" | "project_id" | "sender_id" | "body" | "attachment_path" | "created_at"> & {
   attachment_url?: string | null;
 };
 
-export type Notification = {
-  id: string;
-  project_id: string;
-  recipient_id: string;
-  kind: string;
-  title: string;
-  body: string;
-  link: string | null;
-  created_at: string;
-  read_at: string | null;
-};
+export type Notification = Pick<
+  Tables<"notifications">,
+  "id" | "project_id" | "recipient_id" | "kind" | "title" | "body" | "link" | "created_at" | "read_at"
+>;
 
-export type ActivityEntry = {
-  id: number;
-  project_id: string;
-  actor_id: string | null;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  summary: string;
+export type ActivityEntry = Omit<
+  Pick<
+    Tables<"activity_log">,
+    "id" | "project_id" | "actor_id" | "action" | "entity_type" | "entity_id" | "summary" | "changes" | "created_at"
+  >,
+  "changes"
+> & {
   changes: Record<string, { from: unknown; to: unknown }>;
-  created_at: string;
 };
 
-export type Knowledge = {
-  id: string;
-  project_id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  is_visible: boolean;
-  updated_at: string;
-};
+export type Knowledge = Pick<Tables<"ai_knowledge">, "id" | "project_id" | "title" | "content" | "tags" | "is_visible" | "updated_at">;
