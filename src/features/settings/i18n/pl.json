@@ -4,5 +4,20 @@
   "language": {
     "title": "Język",
     "description": "Język, w którym RenoVision działa na tym urządzeniu."
+  },
+  "account": {
+    "title": "Konto",
+    "description": "Tak serwer widzi Twoją bieżącą sesję.",
+    "unavailable": "Niedostępne",
+    "twoFactor": {
+      "title": "Uwierzytelnianie dwuskładnikowe",
+      "on": "Włączone",
+      "off": "Wyłączone"
+    },
+    "type": {
+      "title": "Typ konta",
+      "manager": "Kierownik",
+      "client": "Klient"
+    }
   }
 }

@@ -20,4 +20,6 @@ export const keys = {
   activity: (id: string) => ["activity", id] as const,
   knowledge: (id: string) => ["knowledge", id] as const,
   crew: (id: string) => ["crew", id] as const,
+  /** The signed-in user as the server sees them (`getMe`), per user id. */
+  me: (userId: string) => ["me", userId] as const,
 };
