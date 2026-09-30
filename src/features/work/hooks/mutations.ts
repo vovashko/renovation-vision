@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { translateWorkError } from "../domain/errors";
 import { workRepo, type RoomInput, type StageInput, type TaskInput } from "../data/work.repo";

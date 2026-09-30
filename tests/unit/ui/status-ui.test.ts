@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { statuses } from "@/lib/status";
+import { statuses } from "@/domain/status";
 import {
   statusChip,
   statusTone,
@@ -9,7 +9,7 @@ import {
   statusTileSvg,
   statusStroke,
   statusOutline,
-} from "@/lib/status-ui";
+} from "@/components/ui/status-ui";
 
 const maps = {
   statusChip,

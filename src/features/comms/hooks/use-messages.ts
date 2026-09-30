@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { commsRepo } from "@/features/comms/data/comms.repo";
 

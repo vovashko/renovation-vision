@@ -9,8 +9,9 @@ import { OverviewStats } from "@/features/work/ui/overview-stats";
 import { StageTimeline } from "@/features/work/ui/stage-timeline";
 import { FloorPlan } from "@/features/work/ui/floor-plan";
 import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
-import { useProject, useRooms, useStages } from "@/features/work/hooks/queries";
-import { ManagerOverview } from "@/components/manager/manager-overview";
+import { useRooms, useStages } from "@/features/work/hooks";
+import { useProject } from "@/features/projects/hooks";
+import { ManagerOverview } from "@/features/projects/ui/manager-overview";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
 import { daysLate } from "@/domain/attention";
@@ -50,6 +51,18 @@ function ClientOverview({ projectId }: { projectId: string }) {
 
   const activeRoom = rooms.find((r) => r.id === roomId);
   const params = { projectId };
+  const timelineSearch = { view: "timeline" as const };
+  const planSearch = { view: "plan" as const };
+  const timelineStages = stages.map((s) => ({
+    id: s.id,
+    name: s.name,
+    status: s.status,
+    start: format.date(s.start_date, "short"),
+    end: format.date(s.end_date, "short"),
+    progress: s.progress,
+    lateDays: daysLate(s),
+  }));
+  const goToStage = (s: { id: string }) => navigate({ to: "/projects/$projectId/progress", params, search: timelineSearch, hash: s.id });
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8">
@@ -75,23 +88,12 @@ function ClientOverview({ projectId }: { projectId: string }) {
           <h2 id="stage-timeline" className="text-title-lg">
             {t("work:overview.stageTimeline")}
           </h2>
-          <Link to="/projects/$projectId/progress" search={{ view: "timeline" }} params={params} className={sectionLink}>
+          <Link to="/projects/$projectId/progress" search={timelineSearch} params={params} className={sectionLink}>
             {t("work:overview.allStages")}
             <Icon name="arrow_forward" size={20} />
           </Link>
         </div>
-        <StageTimeline
-          stages={stages.map((s) => ({
-            id: s.id,
-            name: s.name,
-            status: s.status,
-            start: format.date(s.start_date, "short"),
-            end: format.date(s.end_date, "short"),
-            progress: s.progress,
-            lateDays: daysLate(s),
-          }))}
-          onSelect={(s) => navigate({ to: "/projects/$projectId/progress", params, search: { view: "timeline" }, hash: s.id })}
-        />
+        <StageTimeline stages={timelineStages} onSelect={goToStage} />
       </section>
 
       <section aria-labelledby="floor-plan">
@@ -99,7 +101,7 @@ function ClientOverview({ projectId }: { projectId: string }) {
           <h2 id="floor-plan" className="text-title-lg">
             {t("work:overview.floorPlanVisualisation")}
           </h2>
-          <Link to="/projects/$projectId/progress" search={{ view: "plan" }} params={params} className={sectionLink}>
+          <Link to="/projects/$projectId/progress" search={planSearch} params={params} className={sectionLink}>
             {t("work:overview.openPlan")}
             <Icon name="arrow_forward" size={20} />
           </Link>

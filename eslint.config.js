@@ -45,6 +45,14 @@ export default tseslint.config(
               message:
                 "TanStack Start does not use the Next.js `server-only` package. Rename the module to `*.server.ts` or mark it with `@tanstack/react-start/server-only`.",
             },
+            {
+              name: "@/lib/api",
+              message: "@/lib/api was removed in T17. Use a repository from features/<f>/data via features/<f>/hooks.",
+            },
+            {
+              name: "@/lib/queries",
+              message: "@/lib/queries was removed in T17. Cache keys live in @/shared/query-keys; hooks live in features/<f>/hooks.",
+            },
           ],
         },
       ],
@@ -52,13 +60,13 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
-  // Layer boundaries (README → Architecture). Warnings for now: they are W2c's list of imports to move.
-  // These use the typescript-eslint variant of the rule so they don't replace the `server-only` error above.
+  // Layer boundaries (README → Architecture). These use the typescript-eslint variant of the rule
+  // so they don't replace the `server-only`/`@/lib/api`/`@/lib/queries` errors above.
   {
     files: ["src/routes/**/*.{ts,tsx}", "src/features/*/ui/**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
-        "warn",
+        "error",
         {
           paths: [
             { name: "@/lib/supabase", message: "Routes and feature UI don't talk to Supabase: use a hook from features/<f>/hooks." },
@@ -78,7 +86,7 @@ export default tseslint.config(
     files: ["src/domain/**/*.ts"],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
-        "warn",
+        "error",
         {
           patterns: [
             { group: ["react", "react-dom", "react/*", "react-dom/*"], message: "src/domain is pure: no React." },
@@ -89,16 +97,24 @@ export default tseslint.config(
       ],
     },
   },
-  // User-visible text in feature and shared UI goes through i18next (`t(...)`). Warnings for now: the
-  // count is W2c's translation to-do list. Attribute values that are identifiers rather than text
-  // (classes, routes, ids, icon names, variants, ARIA references, data-*) are ignored; `aria-label`,
-  // `title`, `placeholder`, `alt` and component props like `label` are checked.
+  // User-visible text in feature UI, shared UI, routes and the remaining top-level components goes
+  // through i18next (`t(...)`). `src/components/ui/**` (the design system primitives) is excluded:
+  // primitives take their text via props, not literal JSX text. Attribute values that are
+  // identifiers rather than text (classes, routes, ids, icon names, variants, ARIA references,
+  // data-*) are ignored; `aria-label`, `title`, `placeholder`, `alt` and component props like
+  // `label` are checked.
   {
-    files: ["src/features/*/ui/**/*.{ts,tsx}", "src/shared/**/*.{ts,tsx}"],
+    files: [
+      "src/features/*/ui/**/*.{ts,tsx}",
+      "src/shared/**/*.{ts,tsx}",
+      "src/routes/**/*.{ts,tsx}",
+      "src/components/*.tsx",
+      "src/components/manager/**/*.{ts,tsx}",
+    ],
     plugins: { i18next },
     rules: {
       "i18next/no-literal-string": [
-        "warn",
+        "error",
         {
           mode: "jsx-only",
           "jsx-attributes": {
@@ -146,10 +162,34 @@ export default tseslint.config(
               "preserveAspectRatio",
               "data-.*",
               "aria-(?!label$|description$|placeholder$|roledescription$|valuetext$).*",
+              "defaultNS",
+              "fallbackNS",
+              "ns",
             ],
           },
           callees: {
-            exclude: ["i18n(ext)?", "t", "cn", "cva", "clsx", "twMerge", "require", "includes", "startsWith", "endsWith"],
+            // `useFormat()`'s methods take a locale-bound style/currency token ("short", "dayTime",
+            // "PLN"…), never user-facing text, so calls like `format.date(d, "short")` are exempt.
+            exclude: [
+              "i18n(ext)?",
+              "t",
+              "cn",
+              "cva",
+              "clsx",
+              "twMerge",
+              "require",
+              "includes",
+              "startsWith",
+              "endsWith",
+              "date",
+              "money",
+              "dayLabel",
+            ],
+          },
+          "object-properties": {
+            // Route search/params and small enum-like values, never user-facing text: `search={{
+            // view: "timeline" }}`, `navigate({ to: "...", search: { view } })`, `{ status: "pending" }`.
+            exclude: ["to", "view", "status", "room"],
           },
           words: {
             // Numbers, punctuation and separators on their own ("·", "—", "%", "×"), and CONSTANT_CASE.

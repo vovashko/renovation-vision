@@ -11,7 +11,7 @@ vi.mock("@tanstack/react-router", () => ({
   useRouterState: vi.fn(),
 }));
 vi.mock("@/shared/ui/nav-role", () => ({ useNavRole: vi.fn() }));
-vi.mock("@/lib/queries", () => ({ useStages: () => ({ data: [] }), useRooms: () => ({ data: [] }) }));
+vi.mock("@/features/work/hooks", () => ({ useStages: () => ({ data: [] }), useRooms: () => ({ data: [] }) }));
 
 // The upload/expense sheets have their own coverage (media/budget); stub them here to a minimal
 // dialog so this test only asserts that QuickActions opens the right one.

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageLoading } from "@/components/page-header";
-import { ExpenseSheet } from "@/components/expense-sheet";
-import { UploadSheet } from "@/components/photo-upload-sheet";
+import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
+import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { ClientCard } from "@/features/people/ui/client-card";
 import { ClientContactSheet } from "@/features/people/ui/client-contact-sheet";
 import { CrewSheet } from "@/features/people/ui/crew-sheet";
@@ -14,8 +14,7 @@ import { useClientContact, useProject } from "../hooks";
 import { ProjectDetailsSheet } from "./project-details-sheet";
 import { ShortcutsCard, type Shortcut } from "./shortcuts-card";
 import { StatusCard } from "./status-card";
-// `stages`/`rooms` belong to the work feature (T-work), not yet migrated off the shared shim.
-import { useRooms, useStages } from "@/lib/queries";
+import { useRooms, useStages } from "@/features/work/hooks";
 import type { CrewMember } from "@/lib/database.types";
 
 type Sheet = "details" | "contact" | "photo" | "expense" | null;

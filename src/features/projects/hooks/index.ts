@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { projectsRepo, type ClientContact, type NewProject, type ProjectPatch } from "../data/projects.repo";
 

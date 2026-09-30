@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
@@ -13,9 +14,10 @@ export function PageHeader({ title, description, actions }: { title: string; des
 }
 
 export function PageLoading() {
+  const { t } = useTranslation(["common"]);
   return (
     <div className="py-16 text-center text-body-md text-on-surface-variant" role="status">
-      Loading…
+      {t("common:state.loading")}
     </div>
   );
 }

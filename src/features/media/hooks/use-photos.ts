@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { mediaRepo, type PhotoMeta, type PhotoPatch } from "@/features/media/data/media.repo";
 import type { Photo } from "@/lib/database.types";

@@ -8,7 +8,7 @@ import { StatusPill } from "@/components/status-pill";
 import { focusRing } from "@/components/ui/focus-ring";
 import { cn } from "@/lib/utils";
 import type { Status } from "@/domain/status";
-import { statusMarker, statusTone } from "@/lib/status-ui";
+import { statusMarker, statusTone } from "@/components/ui/status-ui";
 
 export type StageRowTask = { id?: string; name: string; done: boolean; muted?: boolean };
 

@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { TabBarRow } from "@/components/ui/tab-bar";
 import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
-import { useRooms, useStages } from "@/lib/queries";
+import { useRooms, useStages } from "@/features/work/hooks";
 import { useNavRole } from "@/shared/ui/nav-role";
 import { projectPath } from "@/shared/ui/nav-config";
 

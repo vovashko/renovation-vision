@@ -1,4 +1,4 @@
-import type { Status } from "@/lib/status";
+import type { Status } from "@/domain/status";
 import type { ProgressTone } from "@/components/ui/progress";
 
 // Literal class strings per status so Tailwind generates them (no inline colors).
