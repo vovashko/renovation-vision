@@ -50,7 +50,13 @@ describe("rateLimit (in-memory fallback: no binding)", () => {
     expect(response.status).toBe(429);
     expect(response.headers.get("retry-after")).toBe(String(error!.retryAfter));
     expect(await response.json()).toEqual({
-      error: { code: "RATE_LIMITED", message: "Too many requests. Try again shortly.", requestId: "req-1", reason: "rate_limit_email", retryAfter: error!.retryAfter },
+      error: {
+        code: "RATE_LIMITED",
+        message: "Too many requests. Try again shortly.",
+        requestId: "req-1",
+        reason: "rate_limit_email",
+        retryAfter: error!.retryAfter,
+      },
     });
   });
 
@@ -60,8 +66,12 @@ describe("rateLimit (in-memory fallback: no binding)", () => {
     await expect(runServerMiddleware([rateLimit({ key: "email" })], { context: { user: USER } })).rejects.toBeInstanceOf(ServerFnError);
 
     // another user, the same user under another policy, and an anonymous caller are unaffected
-    await expect(runServerMiddleware([rateLimit({ key: "email" })], { context: { user: { id: "someone-else" } } })).resolves.toMatchObject({ handlerCalled: true });
-    await expect(runServerMiddleware([rateLimit({ key: "invite" })], { context: { user: USER } })).resolves.toMatchObject({ handlerCalled: true });
+    await expect(runServerMiddleware([rateLimit({ key: "email" })], { context: { user: { id: "someone-else" } } })).resolves.toMatchObject({
+      handlerCalled: true,
+    });
+    await expect(runServerMiddleware([rateLimit({ key: "invite" })], { context: { user: USER } })).resolves.toMatchObject({
+      handlerCalled: true,
+    });
     await expect(runServerMiddleware([rateLimit({ key: "email" })])).resolves.toMatchObject({ handlerCalled: true });
   });
 
@@ -115,7 +125,10 @@ describe("wrangler.jsonc", () => {
     ratelimits?: Binding[];
     env: Record<string, { ratelimits?: Binding[] }>;
   };
-  const scopes: [string, Binding[] | undefined][] = [["top level", config.ratelimits], ...Object.entries(config.env).map(([name, env]) => [`env.${name}`, env.ratelimits] as [string, Binding[] | undefined])];
+  const scopes: [string, Binding[] | undefined][] = [
+    ["top level", config.ratelimits],
+    ...Object.entries(config.env).map(([name, env]) => [`env.${name}`, env.ratelimits] as [string, Binding[] | undefined]),
+  ];
 
   it.each(scopes)("%s declares every RATE_LIMITS policy with the same limit and period", (_scope, bindings) => {
     expect(bindings).toBeDefined();

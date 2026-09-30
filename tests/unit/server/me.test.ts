@@ -20,7 +20,12 @@ function contextWith(accountType: string | null): AuthContext {
 
 describe("getMe (loadMe)", () => {
   it("returns the verified user plus their account type, read as the user", async () => {
-    await expect(loadMe(contextWith("manager"))).resolves.toEqual({ id: "user-1", email: "jonas@renovision.demo", aal: "aal2", accountType: "manager" });
+    await expect(loadMe(contextWith("manager"))).resolves.toEqual({
+      id: "user-1",
+      email: "jonas@renovision.demo",
+      aal: "aal2",
+      accountType: "manager",
+    });
   });
 
   it("reports a missing profile as a null account type", async () => {

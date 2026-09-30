@@ -4,7 +4,11 @@ import { sha256Hex } from "@/lib/sha256";
 
 function capture(level: LogLevel = "debug") {
   const lines: { level: LogLevel; json: Record<string, unknown> }[] = [];
-  const log = createLogger({ level, sink: (lvl, line) => lines.push({ level: lvl, json: JSON.parse(line) }), now: () => new Date("2026-09-30T12:00:00.000Z") });
+  const log = createLogger({
+    level,
+    sink: (lvl, line) => lines.push({ level: lvl, json: JSON.parse(line) }),
+    now: () => new Date("2026-09-30T12:00:00.000Z"),
+  });
   return { log, lines };
 }
 
@@ -78,8 +82,20 @@ describe("logger", () => {
   it("redacts sensitive keys and Supabase keys", () => {
     const { log, lines } = capture();
     const secret = ["sb", "secret", "abc123"].join("_");
-    log.info("config", { password: "hunter2", accessToken: "abc", authorization: "Basic xyz", apiKeyPresent: true, detail: `key=${secret}` });
-    expect(lines[0].json).toMatchObject({ password: "[redacted]", accessToken: "[redacted]", authorization: "[redacted]", apiKeyPresent: true, detail: "key=[supabase-key]" });
+    log.info("config", {
+      password: "hunter2",
+      accessToken: "abc",
+      authorization: "Basic xyz",
+      apiKeyPresent: true,
+      detail: `key=${secret}`,
+    });
+    expect(lines[0].json).toMatchObject({
+      password: "[redacted]",
+      accessToken: "[redacted]",
+      authorization: "[redacted]",
+      apiKeyPresent: true,
+      detail: "key=[supabase-key]",
+    });
   });
 
   it("leaves ids, dates, IPs and plain numbers alone", () => {

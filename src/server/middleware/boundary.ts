@@ -29,9 +29,12 @@ function validationIssues(error: unknown): ValidationIssue[] | undefined {
     }
   }
   if (!Array.isArray(raw) || raw.length === 0) return undefined;
-  if (!raw.every((issue) => issue && typeof issue === "object" && typeof (issue as { message?: unknown }).message === "string")) return undefined;
+  if (!raw.every((issue) => issue && typeof issue === "object" && typeof (issue as { message?: unknown }).message === "string"))
+    return undefined;
   return raw.map((issue: { message: string; path?: unknown[] }) => ({
-    path: (issue.path ?? []).map((segment) => (segment && typeof segment === "object" && "key" in segment ? String(segment.key) : String(segment))).join("."),
+    path: (issue.path ?? [])
+      .map((segment) => (segment && typeof segment === "object" && "key" in segment ? String(segment.key) : String(segment)))
+      .join("."),
     message: issue.message,
   }));
 }

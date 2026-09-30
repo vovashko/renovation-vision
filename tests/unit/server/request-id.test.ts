@@ -6,10 +6,15 @@ vi.mock("@tanstack/react-start/server", () => ({
 }));
 
 const { requestIdMiddleware } = await import("@/server/middleware/request-id");
-const { getRequestContext, resolveRequestId, runWithRequestContext, updateRequestContext } = await import("@/server/request-context.server");
+const { getRequestContext, resolveRequestId, runWithRequestContext, updateRequestContext } =
+  await import("@/server/request-context.server");
 const { logger } = await import("@/lib/logger");
 
-type Server = (opts: { request: Request; pathname: string; next: (o?: { context?: Record<string, unknown> }) => Promise<unknown> }) => Promise<unknown>;
+type Server = (opts: {
+  request: Request;
+  pathname: string;
+  next: (o?: { context?: Record<string, unknown> }) => Promise<unknown>;
+}) => Promise<unknown>;
 const server = requestIdMiddleware.options.server as unknown as Server;
 
 /** Runs the middleware for `headers`; inside `next` it logs a line, then returns what next saw. */
@@ -41,7 +46,13 @@ describe("requestIdMiddleware", () => {
     expect(seen.context).toEqual({ requestId: "edge-abc-123456" });
     expect(seen.store).toMatchObject({ requestId: "edge-abc-123456", route: "/_serverFn/abc" });
     expect(h.responseHeaders["x-request-id"]).toBe("edge-abc-123456");
-    expect(h.lines[0]).toMatchObject({ level: "info", msg: "inside the request", requestId: "edge-abc-123456", route: "/_serverFn/abc", email: "[email]" });
+    expect(h.lines[0]).toMatchObject({
+      level: "info",
+      msg: "inside the request",
+      requestId: "edge-abc-123456",
+      route: "/_serverFn/abc",
+      email: "[email]",
+    });
   });
 
   it("generates a UUID when there is no header", async () => {
@@ -53,7 +64,7 @@ describe("requestIdMiddleware", () => {
   });
 
   it("replaces an unsafe incoming id (log/header injection, too short, too long)", async () => {
-    expect(resolveRequestId("abcdefgh\n{\"level\":\"error\"}")).not.toContain("level"); // (Headers itself refuses a raw newline)
+    expect(resolveRequestId('abcdefgh\n{"level":"error"}')).not.toContain("level"); // (Headers itself refuses a raw newline)
     for (const bad of ["short", "x".repeat(200), "<script>alert(1)</script>", "id with spaces ok?"]) {
       const seen = await run({ "x-request-id": bad });
       expect(seen.context?.requestId).not.toBe(bad);

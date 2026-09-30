@@ -16,7 +16,10 @@ function createRateLimitMiddleware(key: RateLimitKey) {
   return createMiddleware({ type: "function" }).server(async ({ next, context }) => {
     const result = await checkRateLimit(key, rateLimitSubject(context));
     if (!result.ok) {
-      throw new ServerFnError("RATE_LIMITED", "Too many requests. Try again shortly.", { retryAfter: result.retryAfter, reason: `rate_limit_${key}` });
+      throw new ServerFnError("RATE_LIMITED", "Too many requests. Try again shortly.", {
+        retryAfter: result.retryAfter,
+        reason: `rate_limit_${key}`,
+      });
     }
     return next();
   });

@@ -14,7 +14,13 @@ describe("parseServerEnv", () => {
     const result = parseServerEnv({});
     expect(result).toEqual({
       ok: true,
-      env: { appEnv: "development", supabaseSecretKey: undefined, supabaseSecretKeySource: undefined, brevoApiKey: undefined, sentryDsn: undefined },
+      env: {
+        appEnv: "development",
+        supabaseSecretKey: undefined,
+        supabaseSecretKeySource: undefined,
+        brevoApiKey: undefined,
+        sentryDsn: undefined,
+      },
     });
   });
 
@@ -27,13 +33,18 @@ describe("parseServerEnv", () => {
     const both = parseServerEnv({ SUPABASE_SECRET_KEY: SECRET, SUPABASE_SERVICE_ROLE_KEY: legacyJwt("service_role") });
     expect(both.ok && both.env).toMatchObject({ supabaseSecretKey: SECRET, supabaseSecretKeySource: "SUPABASE_SECRET_KEY" });
     const legacy = parseServerEnv({ SUPABASE_SERVICE_ROLE_KEY: legacyJwt("service_role") });
-    expect(legacy.ok && legacy.env).toMatchObject({ supabaseSecretKey: legacyJwt("service_role"), supabaseSecretKeySource: "SUPABASE_SERVICE_ROLE_KEY" });
+    expect(legacy.ok && legacy.env).toMatchObject({
+      supabaseSecretKey: legacyJwt("service_role"),
+      supabaseSecretKeySource: "SUPABASE_SERVICE_ROLE_KEY",
+    });
   });
 
   it("names the variable when the publishable key is put where the secret key belongs", () => {
     const result = parseServerEnv({ SUPABASE_SECRET_KEY: PUBLISHABLE });
     expect(result.ok).toBe(false);
-    expect(!result.ok && result.message).toMatch(/SUPABASE_SECRET_KEY holds the publishable \(anon\) key.*sb_secret_.*\.dev\.vars.*wrangler secret put/s);
+    expect(!result.ok && result.message).toMatch(
+      /SUPABASE_SECRET_KEY holds the publishable \(anon\) key.*sb_secret_.*\.dev\.vars.*wrangler secret put/s,
+    );
   });
 
   it("rejects the legacy anon JWT as the secret key", () => {
@@ -48,8 +59,14 @@ describe("parseServerEnv", () => {
   });
 
   it("rejects an unknown APP_ENV and a malformed SENTRY_DSN", () => {
-    expect(parseServerEnv({ APP_ENV: "staging" })).toEqual({ ok: false, message: expect.stringMatching(/APP_ENV must be one of development, preview, production, test.*"staging"/) });
-    expect(parseServerEnv({ SENTRY_DSN: "not-a-dsn" })).toEqual({ ok: false, message: expect.stringMatching(/SENTRY_DSN must look like https:\/\/<key>@<host>\/<project-id>/) });
+    expect(parseServerEnv({ APP_ENV: "staging" })).toEqual({
+      ok: false,
+      message: expect.stringMatching(/APP_ENV must be one of development, preview, production, test.*"staging"/),
+    });
+    expect(parseServerEnv({ SENTRY_DSN: "not-a-dsn" })).toEqual({
+      ok: false,
+      message: expect.stringMatching(/SENTRY_DSN must look like https:\/\/<key>@<host>\/<project-id>/),
+    });
     expect(parseServerEnv({ SENTRY_DSN: "https://abc@o1.ingest.sentry.io/123" }).ok).toBe(true);
   });
 });
@@ -64,7 +81,9 @@ describe("getServerEnv / requireSupabaseSecretKey (reading cloudflare:workers en
   it("throws an EnvError that says how to set a missing secret key", () => {
     resetWorkerEnv({});
     expect(() => requireSupabaseSecretKey()).toThrow(EnvError);
-    expect(() => requireSupabaseSecretKey()).toThrow(/SUPABASE_SECRET_KEY is not set.*SUPABASE_SERVICE_ROLE_KEY.*\.dev\.vars.*wrangler secret put/s);
+    expect(() => requireSupabaseSecretKey()).toThrow(
+      /SUPABASE_SECRET_KEY is not set.*SUPABASE_SERVICE_ROLE_KEY.*\.dev\.vars.*wrangler secret put/s,
+    );
   });
 
   it("throws an EnvError for a malformed value", () => {

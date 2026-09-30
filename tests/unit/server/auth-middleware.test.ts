@@ -25,7 +25,9 @@ vi.mock("@/lib/supabase/server", () => ({
       accessToken: options.accessToken,
       auth: { getSession: async () => ({ data: { session: h.cookieSession }, error: null }) },
       from: () => ({
-        select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: h.accountType ? { account_type: h.accountType } : null, error: null }) }) }),
+        select: () => ({
+          eq: () => ({ maybeSingle: async () => ({ data: h.accountType ? { account_type: h.accountType } : null, error: null }) }),
+        }),
       }),
       rpc: async (fn: string, args: { p_project: string }) => ({ data: h.projectRoles[`${fn}:${args.p_project}`] ?? false, error: null }),
     };
@@ -40,8 +42,17 @@ const { parseBearer, userFromClaims } = await import("@/server/auth.server");
 
 const USER_ID = "a0000000-0000-4000-8000-000000000001";
 const PROJECT_ID = "b0000000-0000-4000-8000-000000000001";
-const claims = (extra: Record<string, unknown> = {}) => ({ sub: USER_ID, role: "authenticated", email: "jonas@renovision.demo", aal: "aal1", ...extra });
-const invalidJwt = (message: string) => ({ data: null, error: Object.assign(new Error(message), { name: "AuthInvalidJwtError", status: 400 }) });
+const claims = (extra: Record<string, unknown> = {}) => ({
+  sub: USER_ID,
+  role: "authenticated",
+  email: "jonas@renovision.demo",
+  aal: "aal1",
+  ...extra,
+});
+const invalidJwt = (message: string) => ({
+  data: null,
+  error: Object.assign(new Error(message), { name: "AuthInvalidJwtError", status: 400 }),
+});
 
 async function expectServerError(promise: Promise<unknown>, status: number, code: string, reason?: string) {
   const error = await promise.then(
@@ -65,7 +76,9 @@ beforeEach(() => {
 describe("requireUser", () => {
   it("401s without an Authorization header or a cookie session", async () => {
     const error = await expectServerError(runServerMiddleware([requireUser]), 401, "UNAUTHORIZED", "missing_token");
-    expect(error.toBody("req-1")).toEqual({ error: { code: "UNAUTHORIZED", message: "Missing access token", requestId: "req-1", reason: "missing_token" } });
+    expect(error.toBody("req-1")).toEqual({
+      error: { code: "UNAUTHORIZED", message: "Missing access token", requestId: "req-1", reason: "missing_token" },
+    });
     expect(h.getClaims).not.toHaveBeenCalled();
   });
 
@@ -89,7 +102,10 @@ describe("requireUser", () => {
 
   it("503s (not 401) when the JWKS/Auth endpoint can't be reached", async () => {
     h.headers.authorization = "Bearer some.valid.looking";
-    h.getClaims.mockResolvedValue({ data: null, error: Object.assign(new Error("fetch failed"), { name: "AuthRetryableFetchError", status: 0 }) });
+    h.getClaims.mockResolvedValue({
+      data: null,
+      error: Object.assign(new Error("fetch failed"), { name: "AuthRetryableFetchError", status: 0 }),
+    });
     await expectServerError(runServerMiddleware([requireUser]), 503, "UNAVAILABLE");
   });
 
@@ -181,13 +197,23 @@ describe("requireProjectRole", () => {
   const anyMember = requireProjectRole((input: { projectId: string }) => input.projectId, "member");
 
   it("403s a non-member", async () => {
-    await expectServerError(runServerMiddleware([anyMember], { data: { projectId: PROJECT_ID } }), 403, "FORBIDDEN", "project_member_required");
+    await expectServerError(
+      runServerMiddleware([anyMember], { data: { projectId: PROJECT_ID } }),
+      403,
+      "FORBIDDEN",
+      "project_member_required",
+    );
   });
 
   it("403s a member without the required role", async () => {
     h.projectRoles[`is_project_member:${PROJECT_ID}`] = true;
     h.projectRoles[`is_project_manager:${PROJECT_ID}`] = false;
-    await expectServerError(runServerMiddleware([managerOnly], { data: { projectId: PROJECT_ID } }), 403, "FORBIDDEN", "project_manager_required");
+    await expectServerError(
+      runServerMiddleware([managerOnly], { data: { projectId: PROJECT_ID } }),
+      403,
+      "FORBIDDEN",
+      "project_manager_required",
+    );
   });
 
   it("passes a member (and a manager for the manager check) and adds projectId to the context", async () => {
@@ -227,7 +253,12 @@ describe("pure helpers", () => {
   });
 
   it("userFromClaims defaults aal to aal1 and a missing email to null", () => {
-    expect(userFromClaims({ sub: USER_ID, role: "authenticated" })).toEqual({ id: USER_ID, email: null, aal: "aal1", role: "authenticated" });
+    expect(userFromClaims({ sub: USER_ID, role: "authenticated" })).toEqual({
+      id: USER_ID,
+      email: null,
+      aal: "aal1",
+      role: "authenticated",
+    });
     expect(() => userFromClaims({ role: "authenticated" })).toThrow(ServerFnError);
   });
 });

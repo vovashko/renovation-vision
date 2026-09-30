@@ -59,7 +59,9 @@ export async function verifyAccessToken(token: string): Promise<AuthUser> {
  * Authenticates the current request: the Bearer token if there is an Authorization header,
  * otherwise the Supabase session cookies. Throws a 401 ServerFnError when neither yields a valid token.
  */
-export async function authenticateRequest(authorization: string | null | undefined = getRequestHeader("authorization")): Promise<AuthContext> {
+export async function authenticateRequest(
+  authorization: string | null | undefined = getRequestHeader("authorization"),
+): Promise<AuthContext> {
   const bearer = parseBearer(authorization);
   if (bearer) {
     const user = await verifyAccessToken(bearer);
@@ -99,7 +101,9 @@ export async function hasProjectRole(ctx: AuthContext, projectId: string, role: 
 export function parseProjectId(candidate: unknown): string {
   const parsed = z.string().uuid().safeParse(candidate);
   if (!parsed.success) {
-    throw new ServerFnError("BAD_REQUEST", "A valid project id is required", { issues: [{ path: "projectId", message: "Expected a UUID" }] });
+    throw new ServerFnError("BAD_REQUEST", "A valid project id is required", {
+      issues: [{ path: "projectId", message: "Expected a UUID" }],
+    });
   }
   return parsed.data;
 }

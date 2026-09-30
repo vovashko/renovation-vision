@@ -12,7 +12,10 @@ const client = serverFnBoundary.options.client as unknown as (opts: { next: () =
 const lines: Record<string, unknown>[] = [];
 beforeEach(() => {
   lines.length = 0;
-  for (const method of ["log", "warn", "error"] as const) vi.spyOn(console, method).mockImplementation((line: string) => void lines.push(JSON.parse(line)));
+  const capture = (line: string) => void lines.push(JSON.parse(line));
+  vi.spyOn(console, "log").mockImplementation(capture);
+  vi.spyOn(console, "warn").mockImplementation(capture);
+  vi.spyOn(console, "error").mockImplementation(capture);
 });
 afterEach(() => vi.restoreAllMocks());
 

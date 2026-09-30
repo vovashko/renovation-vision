@@ -43,7 +43,10 @@ export type ServerEnv = {
 };
 
 /** Empty or whitespace-only values count as unset (so `.dev.vars` can list a name with no value). */
-const optionalString = z.preprocess((value) => (typeof value === "string" && value.trim() === "" ? undefined : value), z.string().trim().optional());
+const optionalString = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().trim().optional(),
+);
 
 function secretKeyProblem(name: string, value: string): string | undefined {
   if (isSupabaseSecretKey(value)) return undefined;
@@ -83,7 +86,11 @@ export function parseServerEnv(source: Record<string, unknown>): { ok: true; env
   const parsed = serverSchema.safeParse(source);
   if (!parsed.success) return { ok: false, message: `Server env is misconfigured: ${parsed.error.issues[0].message}` };
   const data = parsed.data;
-  const supabaseSecretKeySource = data.SUPABASE_SECRET_KEY ? "SUPABASE_SECRET_KEY" : data.SUPABASE_SERVICE_ROLE_KEY ? "SUPABASE_SERVICE_ROLE_KEY" : undefined;
+  const supabaseSecretKeySource = data.SUPABASE_SECRET_KEY
+    ? "SUPABASE_SECRET_KEY"
+    : data.SUPABASE_SERVICE_ROLE_KEY
+      ? "SUPABASE_SERVICE_ROLE_KEY"
+      : undefined;
   return {
     ok: true,
     env: {
@@ -106,7 +113,9 @@ export function getServerEnv(): ServerEnv {
 /** The Supabase secret key, or an `EnvError` saying how to set it. Prefers SUPABASE_SECRET_KEY over the legacy name. */
 export function requireSupabaseSecretKey(env: ServerEnv = getServerEnv()): string {
   if (!env.supabaseSecretKey) {
-    throw new EnvError(`Server env is not configured: SUPABASE_SECRET_KEY is not set (the legacy SUPABASE_SERVICE_ROLE_KEY is accepted too). ${WHERE}`);
+    throw new EnvError(
+      `Server env is not configured: SUPABASE_SECRET_KEY is not set (the legacy SUPABASE_SERVICE_ROLE_KEY is accepted too). ${WHERE}`,
+    );
   }
   return env.supabaseSecretKey;
 }

@@ -6,6 +6,59 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
+// The base `no-restricted-imports` rule, built per scope (flat config replaces a rule's options
+// wholesale, so every scope below repeats the always-on entries). See README → Server functions &
+// security; tests/unit/arch/boundaries.test.ts duplicates the server rules as a plain fs guard.
+function restrictedImports({ admin = true, createServerFn = true, serverInternals = false } = {}) {
+  const paths = [
+    {
+      name: "server-only",
+      message:
+        "TanStack Start does not use the Next.js `server-only` package. Rename the module to `*.server.ts` or mark it with `@tanstack/react-start/server-only`.",
+    },
+    {
+      name: "@/lib/api",
+      message: "@/lib/api was removed in T17. Use a repository from features/<f>/data via features/<f>/hooks.",
+    },
+    {
+      name: "@/lib/queries",
+      message: "@/lib/queries was removed in T17. Cache keys live in @/shared/query-keys; hooks live in features/<f>/hooks.",
+    },
+  ];
+  const patterns = [];
+  if (createServerFn) {
+    paths.push({
+      name: "@tanstack/react-start",
+      importNames: ["createServerFn"],
+      message: "Build server functions from authedFn/publicFn in @/server/fn, so they always get the error boundary, auth and rate limit.",
+    });
+  }
+  if (admin) {
+    patterns.push({
+      regex: "(^|/)supabase/admin(\\.ts)?$",
+      message: "The admin Supabase client bypasses RLS: only src/server/** may import it, after authorizing the caller.",
+    });
+  }
+  if (serverInternals) {
+    patterns.push(
+      {
+        regex: "^@/server/(?!(functions/[^/.]+|errors)$)",
+        message:
+          "Client-facing code may import only server functions (@/server/functions/*) and @/server/errors; the rest of src/server is server-side plumbing.",
+      },
+      {
+        regex: "\\.server(\\.ts)?$",
+        message: "*.server.ts modules are server-only (TanStack Start import protection); call a server function instead.",
+      },
+      {
+        regex: "^@/lib/(env|supabase/server)$",
+        message: "Server env and the server Supabase clients are server-only: use them from src/server/**.",
+      },
+    );
+  }
+  return ["error", { paths, patterns }];
+}
+
 export default tseslint.config(
   {
     ignores: [
@@ -36,26 +89,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "no-restricted-imports": [
-        "error",
-        {
-          paths: [
-            {
-              name: "server-only",
-              message:
-                "TanStack Start does not use the Next.js `server-only` package. Rename the module to `*.server.ts` or mark it with `@tanstack/react-start/server-only`.",
-            },
-            {
-              name: "@/lib/api",
-              message: "@/lib/api was removed in T17. Use a repository from features/<f>/data via features/<f>/hooks.",
-            },
-            {
-              name: "@/lib/queries",
-              message: "@/lib/queries was removed in T17. Cache keys live in @/shared/query-keys; hooks live in features/<f>/hooks.",
-            },
-          ],
-        },
-      ],
+      "no-restricted-imports": restrictedImports(),
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
@@ -206,6 +240,27 @@ export default tseslint.config(
         ...globals.node,
       },
     },
+    rules: {
+      // Tests exercise the admin client and the server-function runtime directly.
+      "no-restricted-imports": restrictedImports({ admin: false, createServerFn: false }),
+    },
+  },
+  // Server boundaries (README → Server functions & security).
+  // - Only src/server/** may import the admin Supabase client (it bypasses RLS).
+  // - Only src/server/fn.ts calls createServerFn; everything else builds on authedFn/publicFn.
+  // - Client-facing code (features, routes, components, shared, domain, i18n) imports server
+  //   functions and @/server/errors only, never middleware, *.server.ts, env or server clients.
+  {
+    files: ["src/server/**/*.{ts,tsx}"],
+    rules: { "no-restricted-imports": restrictedImports({ admin: false }) },
+  },
+  {
+    files: ["src/server/fn.ts"],
+    rules: { "no-restricted-imports": restrictedImports({ admin: false, createServerFn: false }) },
+  },
+  {
+    files: ["src/{features,routes,components,shared,domain,i18n}/**/*.{ts,tsx}"],
+    rules: { "no-restricted-imports": restrictedImports({ serverInternals: true }) },
   },
   eslintConfigPrettier,
 );
