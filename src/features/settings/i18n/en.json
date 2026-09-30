@@ -4,5 +4,20 @@
   "language": {
     "title": "Language",
     "description": "The language RenoVision uses on this device."
+  },
+  "account": {
+    "title": "Account",
+    "description": "As the server sees your current session.",
+    "unavailable": "Unavailable",
+    "twoFactor": {
+      "title": "Two-factor authentication",
+      "on": "On",
+      "off": "Off"
+    },
+    "type": {
+      "title": "Account type",
+      "manager": "Manager",
+      "client": "Client"
+    }
   }
 }

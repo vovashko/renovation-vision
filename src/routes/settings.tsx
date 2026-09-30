@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/page-header";
+import { AccountCard } from "@/features/settings/ui/account-card";
 import { LanguageForm } from "@/features/settings/ui/language-form";
 
 export const Route = createFileRoute("/settings")({
@@ -21,6 +22,7 @@ function SettingsPage() {
     <div className="mx-auto w-full max-w-7xl">
       <PageHeader title={t("title")} />
       <LanguageForm className="mt-6 max-w-md" />
+      <AccountCard className="mt-4 max-w-md" />
     </div>
   );
 }

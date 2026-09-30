@@ -124,10 +124,12 @@ no `.output/`). There are two Worker environments, defined in `wrangler.jsonc`:
 
 First time only: `wrangler login`.
 
-Secrets (`SUPABASE_SERVICE_ROLE_KEY`, `BREVO_API_KEY`, `SENTRY_DSN`) are not set via
-`vars`. Copy `.dev.vars.example` to `.dev.vars` (gitignored) for local `wrangler dev`,
+Secrets (`SUPABASE_SECRET_KEY`, `BREVO_API_KEY`, `SENTRY_DSN`) are not set via
+`vars`. Copy `.dev.vars.example` to `.dev.vars` (gitignored) for `bun run dev`, `bun run preview` and `wrangler dev`,
 and set remote secrets per environment with `wrangler secret put <NAME> --env <preview|production>`.
-The app runs with none of them set — public config only lives in `vars.APP_ENV`.
+Pages and `getMe` run with none of them set; the admin Supabase client fails with a clear message until
+`SUPABASE_SECRET_KEY` is set. Public config lives in `vars.APP_ENV`; the rate limiters are `ratelimits` bindings
+(see **Server functions & security**).
 
 ## Architecture
 
@@ -151,7 +153,8 @@ src/shared/ui/         app-level pieces used across features: ConfirmDialog/useC
                        FormSheet, VisibilityBadge/InternalBadge, nav-config
 src/shared/hooks/      useMutationWithToast, useZodForm
 src/i18n/              i18next setup, locale resolution, the `common` namespace, useFormat()
-src/server/            createServerFn handlers and middleware (later)
+src/server/            server functions (functions/), their builders (fn.ts) and middleware (middleware/); see
+                       **Server functions & security**
 src/components/ui/     the design system (see UI conventions), including status-ui.ts's status→class maps
 src/routes/            route files: they compose feature components and hooks, nothing else
 ```
@@ -161,12 +164,126 @@ use `domain`, `shared` and `i18n`. A feature never imports another feature's `da
 feature's `hooks` (most commonly) or `domain` entry point instead — e.g. `features/knowledge/ui/ai-chat.tsx` reads
 the project, stages/rooms and photos via `@/features/projects/hooks`, `@/features/work/hooks` and
 `@/features/media/hooks`, never their repositories directly. `src/lib/` only holds cross-cutting non-UI code that
-isn't domain or a feature's: `auth.tsx`, `supabase.ts`, `database.types.ts`, `utils.ts`, `error-capture.ts`,
-`error-page.ts`. The `src/lib/{api,queries,status,attention,…}` shims from the feature split (W2c) are gone (T17);
+isn't domain or a feature's: `auth.tsx`, `supabase/` (`@/lib/supabase` is the browser client; `server.ts` and
+`admin.ts` are server-only), `env.ts` (server-only), `logger.ts`, `database.types.ts`, `utils.ts`,
+`error-capture.ts`, `error-page.ts`. The `src/lib/{api,queries,status,attention,…}` shims from the feature split (W2c) are gone (T17);
 everything imports `@/domain/*`, `@/shared/*`, `@/i18n` and `features/<f>/{hooks,domain}` directly.
 
 Lint enforces the boundaries above as errors (see **Lint rules**), and
 `tests/unit/arch/boundaries.test.ts` duplicates the same checks as a guard that isn't config-dependent.
+
+## Server functions & security
+
+Most data still flows browser → Supabase: supabase-js sends the user's JWT and Postgres RLS decides. Anything that
+needs a secret, a privileged write, email, or a check RLS can't express goes through a **server function**
+(TanStack Start `createServerFn`, running in the Worker). Every server function is authenticated, authorized,
+rate-limited and logged by default, because it is built from one of two builders:
+
+```
+browser ──(RPC + Authorization: Bearer <access token>)──▶ server function
+   serverFnBoundary → requireUser → rateLimit("default") → [requireAal2 | requireAccountType | requireProjectRole | rateLimit(...)]
+   → .validator(zod) → handler({ data, context: { user, supabase } })
+                          context.supabase = Supabase AS THE USER (RLS applies)
+                          getAdminSupabase() = secret key, bypasses RLS: src/server/** only, after authorizing
+```
+
+### Writing one
+
+Put it in `src/server/functions/<name>.ts`, start from `authedFn` (or `publicFn` for anonymous callers), always pass
+a zod schema to `.validator()`, and call it from a `features/<f>/hooks` hook (like any repository):
+
+```ts
+// src/server/functions/rename-project.ts
+export const renameProject = authedFn({ method: "POST" })
+  .middleware([requireProjectRole((input: { projectId: string }) => input.projectId, "manager")])
+  .validator(z.object({ projectId: z.string().uuid(), name: z.string().trim().min(1).max(120) }))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("projects").update({ name: data.name }).eq("id", data.projectId);
+    if (error) throw error; // logged; the browser gets a generic 500 with the request id
+    return { ok: true };
+  });
+
+// features/projects/hooks: useMutationWithToast((vars) => renameProject({ data: vars }), { … })
+```
+
+Keep server-only logic out of the function/middleware files' top level (the Start compiler only strips what sits
+inside `.handler()`/`.server()` from the browser build): put helpers in a `*.server.ts` module, like
+`src/server/functions/me.server.ts`. `getMe` (`src/server/functions/me.ts`, used by `useMe()` on `/settings`) is the
+reference example.
+
+### Middleware (`src/server/middleware/`)
+
+| Middleware                                      | What it does                                                                                                                                                                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requireUser` (in `authedFn`)                   | Browser half attaches `Authorization: Bearer <access_token>` from the Supabase session. Server half verifies it (or the session cookies, for T21) and puts `user: { id, email, aal, role }` and `supabase` in context. 401 otherwise. |
+| `requireAal2`                                   | 403 (`reason: "aal2_required"`) unless the session is MFA-verified.                                                                                                                                                                   |
+| `requireAccountType("manager", …)`              | 403 unless `profiles.account_type` is one of those (today `manager` \| `client`); adds `accountType`.                                                                                                                                 |
+| `requireProjectRole(pick, role)`                | 403 unless the caller is `manager` / `client` / `member` (any) of the project `pick(input)` returns, checked with `is_project_manager/client/member` as the user. `pick` sees the **raw** input; a non-UUID is a 400.                 |
+| `rateLimit({ key })` (default in both builders) | 429 + `Retry-After` past the policy in `src/server/rate-limits.ts` (`default` 120/min, `invite` 10/min, `email` 5/min), per user, or per `cf-connecting-ip` when anonymous.                                                           |
+| `serverFnBoundary` (in both builders)           | Logs every call; maps errors to the responses below; rethrows them as `ServerFnError` in the browser.                                                                                                                                 |
+| `requestIdMiddleware` (request middleware)      | Every request gets an id (a safe incoming `x-request-id`, or a UUID): in logs, `context.requestId`, the `x-request-id` response header and the 500 page.                                                                              |
+
+`src/start.ts` also installs TanStack Start's CSRF middleware for server-function requests (`Sec-Fetch-Site`,
+`Origin` or `Referer` must be same-origin; otherwise 403).
+
+**JWT verification.** `auth.getClaims(token)` (supabase-js 2.117): tokens signed with an asymmetric key (ES256 on the
+local CLI stack and new hosted projects) are verified locally with WebCrypto against the project's JWKS
+(`/auth/v1/.well-known/jwks.json`, cached per isolate for 10 minutes). Projects still on the legacy HS256 secret fall
+back to one `auth/v1/user` call per request. Signature and expiry are always enforced; anonymous sign-ins and
+non-`authenticated` roles are rejected; a signed-out token stays valid until it expires (≤ 1 h).
+
+### Errors
+
+Throw `ServerFnError(code, message, { reason?, retryAfter?, issues? })` from `@/server/errors`. The response is JSON with
+header `x-rv-error: 1`:
+
+```json
+{ "error": { "code": "UNAUTHORIZED", "message": "Missing access token", "requestId": "3f0c…", "reason": "missing_token" } }
+```
+
+| Code           | Status | When                                                                                     |
+| -------------- | ------ | ---------------------------------------------------------------------------------------- |
+| `BAD_REQUEST`  | 400    | `.validator()` failed (`error.issues: [{ path, message }]`), or a bad project id         |
+| `UNAUTHORIZED` | 401    | no, malformed, expired or badly signed token (`reason`: `missing_token`/`invalid_token`) |
+| `FORBIDDEN`    | 403    | AAL2, account type or project role check failed                                          |
+| `NOT_FOUND`    | 404    | yours to throw                                                                           |
+| `RATE_LIMITED` | 429    | over a rate limit (`Retry-After` header and `error.retryAfter`, seconds)                 |
+| `INTERNAL`     | 500    | anything unexpected; details are only in the log, the browser gets the request id        |
+| `UNAVAILABLE`  | 503    | the Supabase Auth/JWKS endpoint couldn't be reached                                      |
+
+In the browser, `isServerFnError(e) && e.code === "RATE_LIMITED"` etc.
+
+### Logging
+
+`logger` (`@/lib/logger`) writes one JSON line per call, which Workers Logs indexes: `level`, `msg`, `time`,
+`requestId`, `route`/`fn`, `userId` and your fields; `logger.child({ … })` adds fields to every line. The request
+context (`src/server/request-context.server.ts`, AsyncLocalStorage) supplies the request id, route, function name and
+user automatically. `userId` is logged as `u_` + a 12-char SHA-256 prefix; emails, phone numbers, JWTs, Bearer tokens
+and Supabase keys are scrubbed from messages and fields, and password/secret/token/cookie/apikey-like fields are
+redacted. Don't `console.log` on the server.
+
+### Env and secrets
+
+`src/lib/env.ts` (server-only) validates, with messages that name the variable: the public `VITE_SUPABASE_*` pair (and
+refuses a secret key in any `VITE_*` variable), and the Worker's `APP_ENV`, `SUPABASE_SECRET_KEY` (the legacy
+`SUPABASE_SERVICE_ROLE_KEY` is accepted as a fallback), `BREVO_API_KEY` and `SENTRY_DSN`. It reads them from
+`import { env } from "cloudflare:workers"`: the one object that carries every binding, including the rate limiters,
+the same in `vite dev`, `vite preview` and production (unit tests alias it to `tests/stubs/cloudflare-workers.ts`).
+Locally, put them in `.dev.vars` (see `.dev.vars.example`; for the local stack `SUPABASE_SECRET_KEY` is the
+`SECRET_KEY` line of `supabase status -o env`); remotely, `wrangler secret put SUPABASE_SECRET_KEY --env <preview|production>`.
+
+### What's enforced
+
+- **Client build:** `src/lib/env.ts`, `src/lib/supabase/{server,admin}.ts` import `@tanstack/react-start/server-only`,
+  and `*.server.ts` modules are denied in the client environment by TanStack Start's import protection, so a
+  browser import fails the build. `dist/client` contains no secret variable names or values.
+- **Lint + `tests/unit/arch/boundaries.test.ts`:** the admin client only in `src/server/**`, `createServerFn` only in
+  `src/server/fn.ts`, client-facing code imports only `@/server/functions/*` and `@/server/errors` (see **Lint rules**).
+- **Tests:** `tests/unit/server/*` (auth, rate limit, request id, error boundary), `tests/unit/lib/{env,logger}.test.ts`;
+  the rate-limit test also fails if `wrangler.jsonc`'s `ratelimits` drift from `src/server/rate-limits.ts`.
+- **Rate limits** are Workers Rate Limiting bindings (`ratelimits` in `wrangler.jsonc`, repeated per env with their
+  own `namespace_id`s; Miniflare simulates them locally). Without a binding an in-memory, per-isolate limiter takes
+  over and says so once in the log.
 
 ## Internationalization
 
@@ -290,6 +407,11 @@ Each feature's mutations call it directly, passing `@/shared/query-keys` keys to
   not import `@/lib/supabase`, `@/lib/api` or `@/features/*/data`; `src/domain/**` may not import React,
   `@supabase/*` or `@/components/**`. A base `no-restricted-imports` error also bans `@/lib/api` and `@/lib/queries`
   everywhere (both were deleted in T17; the rule is just a guard against reintroducing them).
+- **Server boundaries** (base `no-restricted-imports`, built per scope by `restrictedImports()` in
+  `eslint.config.js`): `@/lib/supabase/admin` only from `src/server/**`; `createServerFn` only in `src/server/fn.ts`;
+  `src/{features,routes,components,shared,domain,i18n}/**` may import `@/server/functions/*` and `@/server/errors`
+  but no other `src/server` module, no `*.server.ts`, and neither `@/lib/env` nor `@/lib/supabase/server`. See
+  **Server functions & security**.
 - **No literal strings** (`i18next/no-literal-string`) in `src/features/*/ui/**`, `src/shared/**`, `src/routes/**`,
   `src/components/*.tsx` and `src/components/manager/**` (not `src/components/ui/**`, where primitives take their
   text via props): JSX text and user-visible attributes (`label`, `title`, `placeholder`, `alt`, `aria-label`…) go
@@ -298,8 +420,8 @@ Each feature's mutations call it directly, passing `@/shared/query-keys` keys to
   params and enum-like values (`to`, `view`, `status`, `room`) and `useFormat()`'s style-token arguments
   (`format.date(d, "short")`) — see `eslint.config.js` for the exact lists.
 
-`tests/unit/arch/boundaries.test.ts` duplicates the layer-boundary rules (plus "no `@deprecated` shim left in
-src/lib") as a plain fs/regex guard that keeps working even if the eslint config is ever loosened.
+`tests/unit/arch/boundaries.test.ts` duplicates the layer-boundary and server-boundary rules (plus "no `@deprecated`
+shim left in src/lib") as a plain fs/regex guard that keeps working even if the eslint config is ever loosened.
 
 ## Design system
 

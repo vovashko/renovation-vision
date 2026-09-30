@@ -1,6 +1,20 @@
-# Local Worker secrets for `wrangler dev`. Copy to `.dev.vars` (gitignored) and fill in as needed.
+# Local Worker secrets and vars for `bun run dev`, `bun run preview` and `wrangler dev`.
+# Copy to `.dev.vars` (gitignored) and fill in as needed; the server reads them from
+# `import { env } from "cloudflare:workers"` (src/lib/env.ts), validated with clear messages.
 # Remote secrets are set per environment with `wrangler secret put <NAME> --env <preview|production>`.
+# Keep comments on their own lines: dotenv would read `KEY= # text` as part of the value.
 
-SUPABASE_SERVICE_ROLE_KEY= # Server-side Supabase key for privileged operations; never expose to the client.
-BREVO_API_KEY= # Transactional email (Brevo/Sendinblue) API key.
-SENTRY_DSN= # Sentry project DSN for server-side error reporting.
+# Server-side Supabase secret key (sb_secret_…). Bypasses RLS; only src/server/** may use it,
+# through @/lib/supabase/admin. Never put it in a VITE_* variable.
+# Local stack: the SECRET_KEY line of `supabase status -o env`.
+# The legacy name SUPABASE_SERVICE_ROLE_KEY (a service_role JWT) is still accepted as a fallback.
+SUPABASE_SECRET_KEY=
+
+# Overrides wrangler.jsonc → vars.APP_ENV: development | preview | production | test.
+APP_ENV=development
+
+# Transactional email (Brevo) API key. Optional until email lands (T24).
+BREVO_API_KEY=
+
+# Sentry project DSN for server-side error reporting (https://<key>@<host>/<project-id>). Optional (T26).
+SENTRY_DSN=

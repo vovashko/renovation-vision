@@ -3,7 +3,10 @@
 Per-user app settings. Today: the UI language (the `locale` cookie; `profiles.locale` once that column exists).
 
 - **Routes:** `/settings`
-- **UI:** `LanguageForm` (the reference example of the react-hook-form + zod pattern)
+- **UI:** `LanguageForm` (the reference example of the react-hook-form + zod pattern); `AccountCard` (two-factor
+  status and account type as the server reports them)
+- **Hooks:** `useMe()` calls the `getMe` server function (`src/server/functions/me.ts`), the reference example of a
+  hook over a server function
 - **i18n namespace:** `settings` (`useTranslation(["settings", "common"])`)
 
 Layers (README → Architecture): `domain/` pure rules (optional, shared ones live in `src/domain`) · `data/`
