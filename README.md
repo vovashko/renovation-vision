@@ -140,25 +140,33 @@ src/features/<f>/      f ∈ projects | work | media | budget | comms | people |
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js
-  hooks/               TanStack Query hooks, query keys and mutations (the "controllers")
+  hooks/               TanStack Query hooks and mutations (the "controllers"); an index.ts barrel
+                       when another feature or a route needs more than one of this feature's hooks
   ui/                  small, named components that compose src/components/ui primitives
   i18n/{en,pl}.json    the feature's translation namespace
+src/shared/query-keys.ts app-wide TanStack Query cache keys (`keys.project(id)`, `keys.stages(id)`…), shared so
+                       cross-feature invalidation stays consistent (e.g. work and budget mutations invalidate
+                       `project`/`projects`/`activity`/`notifications`, which the projects feature's overview reads)
 src/shared/ui/         app-level pieces used across features: ConfirmDialog/useConfirm, DataTable, FormField,
-                       FormSheet, nav-config
+                       FormSheet, VisibilityBadge/InternalBadge, nav-config
 src/shared/hooks/      useMutationWithToast, useZodForm
 src/i18n/              i18next setup, locale resolution, the `common` namespace, useFormat()
 src/server/            createServerFn handlers and middleware (later)
-src/components/ui/     the design system (see UI conventions)
+src/components/ui/     the design system (see UI conventions), including status-ui.ts's status→class maps
 src/routes/            route files: they compose feature components and hooks, nothing else
 ```
 
 Dependencies point one way: `routes → features/<f>/{ui,hooks} → features/<f>/data → supabase`, and everything may
-use `domain`, `shared` and `i18n`. `src/lib/{status,attention,consistency,format,status-progress,budget,nav}.ts` are
-deprecated re-export shims for code that hasn't moved yet (they keep English output); new code imports from
-`@/domain/*`, `@/shared/*` and `@/i18n`. `src/lib/api.ts` and `src/lib/queries.ts` still hold every feature's data
-access until each feature moves its part into `features/<f>/data` and `features/<f>/hooks`.
+use `domain`, `shared` and `i18n`. A feature never imports another feature's `data/`; it goes through the other
+feature's `hooks` (most commonly) or `domain` entry point instead — e.g. `features/knowledge/ui/ai-chat.tsx` reads
+the project, stages/rooms and photos via `@/features/projects/hooks`, `@/features/work/hooks` and
+`@/features/media/hooks`, never their repositories directly. `src/lib/` only holds cross-cutting non-UI code that
+isn't domain or a feature's: `auth.tsx`, `supabase.ts`, `database.types.ts`, `utils.ts`, `error-capture.ts`,
+`error-page.ts`. The `src/lib/{api,queries,status,attention,…}` shims from the feature split (W2c) are gone (T17);
+everything imports `@/domain/*`, `@/shared/*`, `@/i18n` and `features/<f>/{hooks,domain}` directly.
 
-Lint enforces the boundaries (as warnings until the move is done, see **Lint rules**).
+Lint enforces the boundaries above as errors (see **Lint rules**), and
+`tests/unit/arch/boundaries.test.ts` duplicates the same checks as a guard that isn't config-dependent.
 
 ## Internationalization
 
@@ -266,7 +274,8 @@ sorted. With no rows it shows an `Empty` state instead.
 
 **`useMutationWithToast(fn, opts)`** (`@/shared/hooks/use-mutation-with-toast`) is a TanStack mutation that toasts
 `opts.success` (already translated) or the error's message, and invalidates `opts.invalidate` once it settles.
-`useSave` in `src/lib/queries.ts` is now a shim over it.
+Each feature's mutations call it directly, passing `@/shared/query-keys` keys to `invalidate` themselves (the old
+`useSave` shim that did this for you was removed in T17).
 
 **`nav-config`** (`@/shared/ui/nav-config`) lists the project sections as
 `{ key, section, icon, labelKey, roles, placement }`: the rail shows `navItemsFor(role)`, the phone bar
@@ -275,15 +284,22 @@ sorted. With no rows it shows an `Empty` state instead.
 
 ## Lint rules
 
-`bun run lint` must report 0 errors. Two families of rules are warnings for now; their counts are the to-do list
-for moving each feature onto the layers above:
+`bun run lint` must report 0 errors. Since T17 these are hard errors, not warnings:
 
 - **Layer boundaries** (`@typescript-eslint/no-restricted-imports`): `src/routes/**` and `src/features/*/ui/**` may
   not import `@/lib/supabase`, `@/lib/api` or `@/features/*/data`; `src/domain/**` may not import React,
-  `@supabase/*` or `@/components/**`.
-- **No literal strings** (`i18next/no-literal-string`) in `src/features/*/ui/**` and `src/shared/**`: JSX text and
-  user-visible attributes (`label`, `title`, `placeholder`, `alt`, `aria-label`…) go through `t(...)`. Identifier-like
-  attributes (`className`, `to`, `href`, `type`, `id`, `icon`, `variant`, `data-*`, ARIA id references…) are ignored.
+  `@supabase/*` or `@/components/**`. A base `no-restricted-imports` error also bans `@/lib/api` and `@/lib/queries`
+  everywhere (both were deleted in T17; the rule is just a guard against reintroducing them).
+- **No literal strings** (`i18next/no-literal-string`) in `src/features/*/ui/**`, `src/shared/**`, `src/routes/**`,
+  `src/components/*.tsx` and `src/components/manager/**` (not `src/components/ui/**`, where primitives take their
+  text via props): JSX text and user-visible attributes (`label`, `title`, `placeholder`, `alt`, `aria-label`…) go
+  through `t(...)`. Identifier-like attributes (`className`, `to`, `href`, `type`, `id`, `icon`, `variant`, `data-*`,
+  ARIA id references…) are ignored, as are a handful of identifier-like object-property keys used for route search
+  params and enum-like values (`to`, `view`, `status`, `room`) and `useFormat()`'s style-token arguments
+  (`format.date(d, "short")`) — see `eslint.config.js` for the exact lists.
+
+`tests/unit/arch/boundaries.test.ts` duplicates the layer-boundary rules (plus "no `@deprecated` shim left in
+src/lib") as a plain fs/regex guard that keeps working even if the eslint config is ever loosened.
 
 ## Design system
 

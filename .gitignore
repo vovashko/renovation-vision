@@ -29,6 +29,9 @@ supabase/.branches/
 !.vscode/extensions.json
 .idea
 .DS_Store
+
+# Claude Code agent worktrees
+.claude/
 *.suo
 *.ntvs*
 *.njsproj
