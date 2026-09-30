@@ -1,4 +1,9 @@
-export function renderErrorPage(): string {
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
+
+/** The branded 500 page. `requestId` is shown as a reference so a user's report can be matched to the log line. */
+export function renderErrorPage(options: { requestId?: string } = {}): string {
+  const reference = options.requestId ? `\n      <p class="ref">Reference: <code>${escapeHtml(options.requestId)}</code></p>` : "";
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -14,6 +19,7 @@ export function renderErrorPage(): string {
       a, button { padding: 0.5rem 1rem; border-radius: 0.375rem; font: inherit; cursor: pointer; text-decoration: none; border: 1px solid transparent; }
       .primary { background: #111; color: #fff; }
       .secondary { background: #fff; color: #111; border-color: #d1d5db; }
+      .ref { font-size: 0.8125rem; margin: 1.5rem 0 0; }
     </style>
   </head>
   <body>
@@ -23,7 +29,7 @@ export function renderErrorPage(): string {
       <div class="actions">
         <button class="primary" onclick="location.reload()">Try again</button>
         <a class="secondary" href="/">Go home</a>
-      </div>
+      </div>${reference}
     </div>
   </body>
 </html>`;

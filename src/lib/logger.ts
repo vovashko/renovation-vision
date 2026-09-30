@@ -5,8 +5,8 @@
 //   logger.error(error, { stage: "upload" });   // or logger.error("upload failed", { err: error })
 //
 // One line per call: {"level","msg","time","requestId","route","fn","userId",...fields}. Request
-// context (requestId, route/fn, userId) comes from the active request automatically: src/server's
-// request context registers itself with `setLogContextProvider`. Every line is scrubbed:
+// context (requestId, route/fn, userId) comes from the active request automatically:
+// src/server/request-context.server.ts registers itself with `setLogContextProvider`. Every line is scrubbed:
 // - `userId` is replaced by a short SHA-256 prefix ("u_1a2b3c4d5e6f"), stable across lines, so a
 //   user's requests can be correlated without logging who they are;
 // - emails, phone numbers, JWTs, Bearer tokens and Supabase keys inside any string become
@@ -102,7 +102,7 @@ let contextProvider: () => LogFields | undefined = () => undefined;
 
 /**
  * Lets the server attach the active request's context (requestId, route/fn, userId) to every line.
- * src/server/request-context.ts calls this once; nothing else should.
+ * src/server/request-context.server.ts calls this once; nothing else should.
  */
 export function setLogContextProvider(provider: () => LogFields | undefined) {
   contextProvider = provider;

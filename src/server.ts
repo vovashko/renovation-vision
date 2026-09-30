@@ -3,6 +3,7 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { logger } from "./lib/logger";
+import { getRequestContext, REQUEST_ID_HEADER, resolveRequestId, runWithRequestContext } from "./server/request-context.server";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -20,9 +21,10 @@ async function getServerEntry(): Promise<ServerEntry> {
 }
 
 function brandedErrorResponse(): Response {
-  return new Response(renderErrorPage(), {
+  const requestId = getRequestContext()?.requestId;
+  return new Response(renderErrorPage({ requestId }), {
     status: 500,
-    headers: { "content-type": "text/html; charset=utf-8" },
+    headers: { "content-type": "text/html; charset=utf-8", ...(requestId ? { [REQUEST_ID_HEADER]: requestId } : {}) },
   });
 }
 
@@ -64,14 +66,20 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 }
 
 export default {
-  async fetch(request: Request, env: unknown, ctx: unknown) {
-    try {
-      const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
-      logger.error(error, { phase: "worker" });
-      return brandedErrorResponse();
-    }
+  fetch(request: Request, env: unknown, ctx: unknown) {
+    // Open the request context here, outermost, so even a failure outside TanStack Start's
+    // middleware is logged (and shown on the error page) with the request id that
+    // requestIdMiddleware then reuses.
+    const requestId = resolveRequestId(request.headers.get(REQUEST_ID_HEADER));
+    return runWithRequestContext({ requestId, route: new URL(request.url).pathname }, async () => {
+      try {
+        const handler = await getServerEntry();
+        const response = await handler.fetch(request, env, ctx);
+        return await normalizeCatastrophicSsrResponse(response);
+      } catch (error) {
+        logger.error(error, { phase: "worker" });
+        return brandedErrorResponse();
+      }
+    });
   },
 };

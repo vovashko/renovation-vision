@@ -15,6 +15,15 @@
   "vars": {
     "APP_ENV": "development",
   },
+  // Workers Rate Limiting bindings, one per policy in src/server/middleware/rate-limit.ts (RATE_LIMITS
+  // holds the same numbers; a unit test fails if they drift). `period` is 10 or 60 seconds.
+  // `ratelimits` is not inherited, so each env below repeats it with its own namespace_id
+  // (a namespace is an account-wide counter: preview and production must not share one).
+  "ratelimits": [
+    { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "1001", "simple": { "limit": 120, "period": 60 } },
+    { "name": "RATE_LIMIT_INVITE", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
+    { "name": "RATE_LIMIT_EMAIL", "namespace_id": "1003", "simple": { "limit": 5, "period": 60 } },
+  ],
   "env": {
     // `bun run deploy:preview` — a scratch Worker for reviewing branches before they merge.
     "preview": {
@@ -22,6 +31,11 @@
       "vars": {
         "APP_ENV": "preview",
       },
+      "ratelimits": [
+        { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "2001", "simple": { "limit": 120, "period": 60 } },
+        { "name": "RATE_LIMIT_INVITE", "namespace_id": "2002", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RATE_LIMIT_EMAIL", "namespace_id": "2003", "simple": { "limit": 5, "period": 60 } },
+      ],
     },
     // `bun run deploy` — the live Worker.
     "production": {
@@ -29,6 +43,11 @@
       "vars": {
         "APP_ENV": "production",
       },
+      "ratelimits": [
+        { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "3001", "simple": { "limit": 120, "period": 60 } },
+        { "name": "RATE_LIMIT_INVITE", "namespace_id": "3002", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RATE_LIMIT_EMAIL", "namespace_id": "3003", "simple": { "limit": 5, "period": 60 } },
+      ],
     },
   },
 }
