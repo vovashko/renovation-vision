@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import { knowledgeRepo, type KnowledgeInput } from "@/features/knowledge/data/knowledge.repo";
 import type { Knowledge } from "@/lib/database.types";
 

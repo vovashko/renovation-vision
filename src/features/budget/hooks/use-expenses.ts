@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import type { Expense } from "@/lib/database.types";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { budgetRepo, type ExpenseInput } from "../data/budget.repo";
