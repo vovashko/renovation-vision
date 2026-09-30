@@ -47,15 +47,9 @@ function ChatPage() {
     userId && profile ? { id: userId, name: profile.full_name, role: isManager ? "manager" : "client" } : null;
   const online = usePresence(projectId, me);
 
-  // Mobile: pin the panel between the header and the tab bar (managers have no mobile tab bar), or
+  // Mobile: pin the panel between the header and the phone bottom bar (both roles have one now), or
   // above the on-screen keyboard while typing.
-  const mobileBottom = keyboard.inset
-    ? `${keyboard.inset}px`
-    : keyboard.open
-      ? "0px"
-      : isManager
-        ? "env(safe-area-inset-bottom)"
-        : "calc(5rem + env(safe-area-inset-bottom))";
+  const mobileBottom = keyboard.inset ? `${keyboard.inset}px` : keyboard.open ? "0px" : "calc(5rem + env(safe-area-inset-bottom))";
 
   useChatRealtime(projectId);
   useEffect(() => {

@@ -40,6 +40,14 @@ const sheetVariants = cva(
         left: "inset-y-0 left-0 h-full w-3/4 rounded-r-xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-lg",
         right:
           "inset-y-0 right-0 h-full w-3/4 rounded-l-xl data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-lg",
+        // CSS-only responsive sheet: a bottom sheet on phones, a right side-panel from md up (same
+        // breakpoint the phone bottom bar/rail switch on) — no JS breakpoint decides the side.
+        responsive: cn(
+          "inset-x-0 bottom-0 w-full rounded-t-xl",
+          "max-md:data-[state=closed]:slide-out-to-bottom max-md:data-[state=open]:slide-in-from-bottom",
+          "md:inset-y-0 md:left-auto md:h-full md:w-3/4 md:max-w-lg md:rounded-tr-none md:rounded-bl-xl",
+          "md:data-[state=closed]:slide-out-to-right md:data-[state=open]:slide-in-from-right",
+        ),
       },
     },
     defaultVariants: {

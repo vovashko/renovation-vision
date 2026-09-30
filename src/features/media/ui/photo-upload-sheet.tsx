@@ -10,19 +10,22 @@ import { uploadPhotosSchema } from "@/features/media/domain/schemas";
 import { useUploadPhotos } from "@/features/media/hooks/use-photos";
 import type { Room, Stage } from "@/lib/database.types";
 
-/** "Add site photos" panel: used on the Photos page and by the Overview shortcut. */
+/** "Add site photos" panel: used on the Photos page, the Overview shortcut and the quick-actions FAB. */
 export function UploadSheet({
   projectId,
   open,
   onOpenChange,
   stages,
   rooms,
+  capture = false,
 }: {
   projectId: string;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   stages: Stage[];
   rooms: Room[];
+  /** Opens straight to the camera on a phone (the quick-actions FAB's "Upload photo"). */
+  capture?: boolean;
 }) {
   const { t } = useTranslation(["media", "common"]);
   const current = stages.find((s) => s.status === "progress")?.id ?? "";
@@ -58,6 +61,7 @@ export function UploadSheet({
                 id={field.id}
                 accept="image/*"
                 multiple
+                capture={capture ? "environment" : undefined}
                 aria-invalid={field["aria-invalid"]}
                 aria-describedby={field["aria-describedby"]}
                 onChange={(e) => field.onChange(Array.from(e.target.files ?? []))}

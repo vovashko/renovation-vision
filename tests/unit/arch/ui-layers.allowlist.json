@@ -25,7 +25,7 @@
     "reason": "Layout-only: the viewer's header row plus safe-area padding."
   },
   {
-    "file": "components/mobile-nav.tsx",
+    "file": "shared/ui/bottom-nav.tsx",
     "snippet": "pb-[max(1.5rem,env(safe-area-inset-bottom))]",
     "reason": "One-off sizing + safe-area padding for the phone-only \"More\" sheet."
   },

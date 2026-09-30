@@ -1,7 +1,23 @@
 import { describe, it, expect } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import en from "@/i18n/common/en.json";
-import work from "@/features/work/i18n/en.json";
+import pl from "@/i18n/common/pl.json";
+import workEn from "@/features/work/i18n/en.json";
+import workPl from "@/features/work/i18n/pl.json";
 import { managerOnlySections, navItemsFor, projectNav, projectPath, projectRoute } from "@/shared/ui/nav-config";
+
+const routesConfigSource = fs.readFileSync(path.resolve(__dirname, "../../../src/routes.config.ts"), "utf8");
+
+/** Resolve a `labelKey` against the right namespace's JSON (mirrors what `t(item.labelKey)` does). */
+function labelExists(labelKey: string, common: typeof en, work: typeof workEn) {
+  if (labelKey.startsWith("work:nav.")) {
+    const key = labelKey.replace("work:nav.", "") as keyof typeof work.nav;
+    return Boolean(work.nav[key]);
+  }
+  const key = labelKey.replace("common:nav.", "") as keyof typeof common.nav;
+  return Boolean(common.nav[key]);
+}
 
 describe("nav-config", () => {
   it("keeps the current sections, in rail order", () => {
@@ -19,15 +35,20 @@ describe("nav-config", () => {
     ]);
   });
 
-  it("every label is a common:nav or work:nav key that exists", () => {
+  it("every label is a common:nav or work:nav key that exists in both en and pl", () => {
     for (const item of projectNav) {
-      if (item.labelKey.startsWith("work:nav.")) {
-        const key = item.labelKey.replace("work:nav.", "") as keyof typeof work.nav;
-        expect(work.nav[key], item.labelKey).toBeTruthy();
+      expect(labelExists(item.labelKey, en, workEn), `${item.labelKey} (en)`).toBe(true);
+      expect(labelExists(item.labelKey, pl, workPl), `${item.labelKey} (pl)`).toBe(true);
+    }
+  });
+
+  it("every section maps to a registered route in routes.config.ts", () => {
+    for (const item of projectNav) {
+      if (item.section === "") {
+        expect(routesConfigSource).toContain('index("project/overview.tsx")');
         continue;
       }
-      const key = item.labelKey.replace("common:nav.", "") as keyof typeof en.nav;
-      expect(en.nav[key], item.labelKey).toBeTruthy();
+      expect(routesConfigSource, item.section).toMatch(new RegExp(`route\\("${item.section}",`));
     }
   });
 
@@ -40,6 +61,11 @@ describe("nav-config", () => {
   it("puts four client sections in the phone tab bar and the rest under More", () => {
     expect(navItemsFor("client", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "chat"]);
     expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design"]);
+  });
+
+  it("puts the same four tabs in the phone tab bar for a manager, with the rest under More", () => {
+    expect(navItemsFor("manager", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "chat"]);
+    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual(["design", "budget", "updates", "knowledge", "team"]);
   });
 
   it("builds section URLs and router targets", () => {

@@ -33,6 +33,9 @@ const buttonVariants = cva(
         // Round icon button with a 22px icon. Use variant "outline" on tinted panels
         // (white fill) and "tonal" on white surfaces.
         icon: "size-11 rounded-full px-0",
+        // Material 3 floating action button: 56px, 16px corners, elevated, pinned above the phone
+        // bottom bar with a safe-area gap. The phone-only quick actions trigger (`shared/ui/quick-actions.tsx`).
+        fab: "fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom)+1rem)] z-40 size-14 rounded-2xl px-0 shadow-float md:hidden",
       },
     },
     defaultVariants: {
