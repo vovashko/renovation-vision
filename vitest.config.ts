@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // The Workers runtime module only exists inside workerd; unit tests get a mutable stub.
+      "cloudflare:workers": fileURLToPath(new URL("./tests/stubs/cloudflare-workers.ts", import.meta.url)),
     },
   },
   test: {
