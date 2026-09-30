@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { keys } from "@/lib/queries";
+import { keys } from "@/shared/query-keys";
 import { workRepo } from "../data/work.repo";
 
-// Same query keys as `@/lib/queries` (imported, not redefined) so the cache stays shared with
-// features that haven't moved off the old shim yet — see README → Architecture.
-
-export const useProject = (projectId: string | undefined) =>
-  useQuery({ queryKey: keys.project(projectId ?? ""), queryFn: () => workRepo.getProject(projectId!), enabled: !!projectId });
+// `project` itself belongs to the projects feature (`@/features/projects/hooks`); this file only
+// owns stages and rooms, keyed the same way (`@/shared/query-keys`) so invalidation stays shared.
 
 export const useStages = (projectId: string) =>
   useQuery({ queryKey: keys.stages(projectId), queryFn: () => workRepo.listStages(projectId) });

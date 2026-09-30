@@ -3,8 +3,10 @@
 Project chat, the AI assistant, announcements, notifications and the activity log: `messages`, `notifications`, `activity_log`, the `mark_chat_read` and `notify_project_clients` RPCs.
 
 - **Routes:** `/chat`, `/updates`
-- **UI:** `MessageList`, `ChatComposer`, `AiChat`, `AnnouncementForm`, `NotificationItem`, `ActivityLog`
+- **UI:** `MessageList`, `ChatComposer`, `AnnouncementForm`, `NotificationItem`, `ActivityLog`
 - **i18n namespace:** `comms` (`useTranslation(["comms", "common"])`)
+
+`/chat`'s "Ask AI" tab is `AiChat` from `@/features/knowledge/ui/ai-chat` — see that feature's README.
 
 Layers (README → Architecture): `domain/` pure rules (optional, shared ones live in `src/domain`) · `data/`
 the repository, the only code that imports supabase-js · `hooks/` TanStack Query hooks, keys and mutations ·

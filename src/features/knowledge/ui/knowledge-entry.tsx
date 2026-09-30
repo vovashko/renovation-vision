@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemHeader, ItemTitle } from "@/components/ui/item";
 import { Switch } from "@/components/ui/switch";
-import { VisibilityBadge } from "@/components/manager/visibility-badge";
+import { VisibilityBadge } from "@/shared/ui/visibility-badge";
 import { cn } from "@/lib/utils";
 import type { Knowledge } from "@/lib/database.types";
 

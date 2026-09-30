@@ -91,17 +91,5 @@
     "stageLate": "{{name}}: {{late}}",
     "stageLateDetail": "Termin: {{date}} · ukończono {{progress}}%",
     "overBudgetDetail": "Wydano {{spent}} z {{budget}}"
-  },
-  "consistency": {
-    "blockedOnSchedule_one": "{{count}} rzecz jest wstrzymana, a projekt nadal ma status „zgodnie z planem”",
-    "blockedOnSchedule_few": "{{count}} rzeczy są wstrzymane, a projekt nadal ma status „zgodnie z planem”",
-    "blockedOnSchedule_many": "{{count}} rzeczy jest wstrzymanych, a projekt nadal ma status „zgodnie z planem”",
-    "blockedOnSchedule_other": "{{count}} rzeczy są wstrzymane, a projekt nadal ma status „zgodnie z planem”",
-    "roomDoneTaskOpen": "{{room}} jest oznaczone jako ukończone, ale zadanie „{{task}}” jest wciąż otwarte",
-    "stageDoneTasksOpen_one": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadanie jest wciąż otwarte",
-    "stageDoneTasksOpen_few": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadania są wciąż otwarte",
-    "stageDoneTasksOpen_many": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadań jest wciąż otwartych",
-    "stageDoneTasksOpen_other": "{{stage}} jest oznaczony jako ukończony, ale {{count}} zadania są wciąż otwarte",
-    "stagePendingTasksDone": "{{stage}} oczekuje, ale część jego zadań jest już zaznaczona jako wykonana"
   }
 }

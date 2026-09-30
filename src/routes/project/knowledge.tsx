@@ -27,6 +27,7 @@ function KnowledgePage() {
   const { data: entries, isLoading } = useKnowledge(projectId);
   const [editing, setEditing] = useState<Knowledge | "new" | null>(null);
   const toggle = useToggleKnowledgeVisible(projectId);
+  const startNewEntry = () => setEditing("new");
   if (isLoading || !entries) return <PageLoading />;
 
   return (
@@ -35,7 +36,7 @@ function KnowledgePage() {
         title={t("page.title")}
         description={t("page.description")}
         actions={
-          <Button onClick={() => setEditing("new")} className="gap-2">
+          <Button onClick={startNewEntry} className="gap-2">
             <Icon name="add" size={20} /> {t("page.addEntry")}
           </Button>
         }

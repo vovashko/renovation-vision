@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { statuses, type Status } from "@/domain/status";
 import { useStatusLabel } from "@/i18n";
-import { statusBg, statusChip } from "@/lib/status-ui";
+import { statusBg, statusChip } from "@/components/ui/status-ui";
 
 /** Status chip. `sm` is the compact chip used inside cards; `onPanel` gives it a white fill. */
 export function StatusPill({

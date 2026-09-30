@@ -11,7 +11,7 @@ import { MediaEmpty } from "@/features/media/ui/media-empty";
 import { usePhotos } from "@/features/media/hooks/use-photos";
 import { useRenders, useToggleRenderVisible } from "@/features/media/hooks/use-renders";
 import { useAuth } from "@/lib/auth";
-import { useRooms } from "@/lib/queries";
+import { useRooms } from "@/features/work/hooks";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import type { Render } from "@/lib/database.types";
 
@@ -46,6 +46,13 @@ function DesignPage() {
     ...shownRooms.map((room) => ({ room, items: renders.filter((r) => r.room_id === room.id) })),
     ...(roomId === "all" ? [{ room: null, items: renders.filter((r) => !r.room_id) }] : []),
   ].filter((g) => g.room || g.items.length);
+  const startNewRender = () => setEditing("new");
+  const roomFilterOptions = [{ value: "all", label: t("filters.allRooms") }, ...rooms.map((r) => ({ value: r.id, label: r.name }))];
+  const compareManagerNote = isManager
+    ? compare && comparePhoto && compare.is_visible && comparePhoto.status === "published"
+      ? "ready"
+      : "waiting"
+    : undefined;
 
   return (
     <div className="mx-auto w-full max-w-6xl">
@@ -54,7 +61,7 @@ function DesignPage() {
         description={isManager ? t("designPage.descriptionManager") : t("designPage.descriptionClient")}
         actions={
           isManager && (
-            <Button onClick={() => setEditing("new")} className="min-h-11 gap-2">
+            <Button onClick={startNewRender} className="min-h-11 gap-2">
               <Icon name="add_photo_alternate" size={22} /> {t("designPage.addRender")}
             </Button>
           )
@@ -63,12 +70,7 @@ function DesignPage() {
 
       {rooms.length > 0 && (
         <div className="mt-5">
-          <FilterChips
-            label={t("filters.byRoom")}
-            value={roomId}
-            onChange={setRoomId}
-            options={[{ value: "all", label: t("filters.allRooms") }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
-          />
+          <FilterChips label={t("filters.byRoom")} value={roomId} onChange={setRoomId} options={roomFilterOptions} />
         </div>
       )}
 
@@ -79,7 +81,7 @@ function DesignPage() {
             title={compare.title}
             before={comparePhoto.url}
             after={compare.url}
-            managerNote={isManager ? (compare.is_visible && comparePhoto.status === "published" ? "ready" : "waiting") : undefined}
+            managerNote={compareManagerNote}
           />
         </div>
       )}

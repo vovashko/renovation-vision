@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Note } from "@/components/ui/note";
 import { FormSheet } from "@/shared/ui/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
-import { VisibilityBadge } from "@/components/manager/visibility-badge";
+import { VisibilityBadge } from "@/shared/ui/visibility-badge";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { useAuth } from "@/lib/auth";
 import { StageRow, StageRowList } from "@/features/work/ui/stage-row";
@@ -19,8 +19,7 @@ import { RoomList } from "@/features/work/ui/room-list";
 import { RoomsEmpty } from "@/features/work/ui/rooms-empty";
 import { RoomEditor, RoomForm } from "@/features/work/ui/room-form";
 import { ProgressTabs, type ProgressView } from "@/features/work/ui/progress-tabs";
-import { useRooms, useStages } from "@/features/work/hooks/queries";
-import { useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks/mutations";
+import { useRooms, useStages, useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks";
 import { daysLate } from "@/domain/attention";
 import { deriveStatus } from "@/domain/progress";
 import { useFormat } from "@/i18n";
@@ -75,6 +74,7 @@ function ProgressPage() {
     const ok = await confirm({ title: t("work:stageRow.removeTaskConfirmTitle", { name: task.name }), destructive: true });
     if (ok) removeTask.mutate(task);
   };
+  const startNewStage = () => setEditingStage("new");
 
   if (stagesLoading || roomsLoading || !stages || !rooms) return <PageLoading />;
 
@@ -89,7 +89,7 @@ function ProgressPage() {
         actions={
           isManager &&
           (search.view === "timeline" ? (
-            <Button onClick={() => setEditingStage("new")} className="min-h-11 gap-2">
+            <Button onClick={startNewStage} className="min-h-11 gap-2">
               <Icon name="add" size={20} /> {t("work:progress.addStage")}
             </Button>
           ) : (

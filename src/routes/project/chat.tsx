@@ -7,16 +7,19 @@ import { ChatModeTabs, type ChatMode } from "@/features/comms/ui/chat-mode-tabs"
 import { MessageList } from "@/features/comms/ui/message-list";
 import { ChatComposer } from "@/features/comms/ui/chat-composer";
 import { ChatEmpty } from "@/features/comms/ui/chat-empty";
-import { AiChat } from "@/features/comms/ui/ai-chat";
+import { AiChat } from "@/features/knowledge/ui/ai-chat";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
-import { useMembers, useProject } from "@/lib/queries";
+import { useProject } from "@/features/projects/hooks";
+import { useMembers } from "@/features/people/hooks";
 import { groupMessagesByDay } from "@/features/comms/domain/chat-format";
 import { canSendMessage } from "@/features/comms/domain/schemas";
 import { useChatRealtime } from "@/features/comms/hooks/use-chat-realtime";
 import { useMarkChatRead, useMessages, useSendMessage } from "@/features/comms/hooks/use-messages";
 import { usePresence, type PresenceMember } from "@/features/comms/hooks/use-presence";
 import { useKeyboardInset } from "@/features/comms/hooks/use-keyboard-inset";
+
+const CHAT_PANEL_ID = "chat-panel";
 
 export const Route = createFileRoute("/projects/$projectId/chat")({
   head: () => ({
@@ -103,10 +106,10 @@ function ChatPage() {
       style={{ "--chat-bottom": mobileBottom } as React.CSSProperties}
       className="fixed inset-x-0 top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)] bottom-(--chat-bottom) z-20 flex flex-col overflow-hidden md:static md:mx-auto md:h-[calc(100dvh-9rem)] md:w-full md:max-w-3xl"
     >
-      {!isManager && <ChatModeTabs mode={tab} onChange={setTab} panelId="chat-panel" />}
+      {!isManager && <ChatModeTabs mode={tab} onChange={setTab} panelId={CHAT_PANEL_ID} />}
 
       <div
-        id="chat-panel"
+        id={CHAT_PANEL_ID}
         role={isManager ? undefined : "tabpanel"}
         aria-labelledby={isManager ? undefined : `chat-tab-${tab}`}
         className="flex min-h-0 flex-1 flex-col"

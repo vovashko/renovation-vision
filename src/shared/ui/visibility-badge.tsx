@@ -1,25 +1,28 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 
 /**
  * Tells the manager what the client will (not) see. Reuses the status chip's `done` (filled) / `pending`
  * (hollow, dashed) treatment as a visible / hidden metaphor, rather than a bespoke chip style.
  */
-export function VisibilityBadge({ visible, hiddenLabel = "Hidden from client" }: { visible: boolean; hiddenLabel?: string }) {
+export function VisibilityBadge({ visible, hiddenLabel }: { visible: boolean; hiddenLabel?: string }) {
+  const { t } = useTranslation(["common"]);
   return visible ? (
     <Badge variant="status-done" size="compact" icon="visibility">
-      Client sees this
+      {t("visibility.clientSees")}
     </Badge>
   ) : (
     <Badge variant="status-pending" size="compact" icon="visibility_off">
-      {hiddenLabel}
+      {hiddenLabel ?? t("visibility.hiddenFromClient")}
     </Badge>
   );
 }
 
 export function InternalBadge() {
+  const { t } = useTranslation(["common"]);
   return (
     <Badge variant="status-pending" size="compact" icon="lock">
-      Internal — never shown to clients
+      {t("visibility.internalNote")}
     </Badge>
   );
 }

@@ -11,7 +11,7 @@ import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { usePhotos, useUpdatePhoto } from "@/features/media/hooks/use-photos";
 import { filterPhotos, groupPhotosByDate, toLightboxItem } from "@/features/media/domain/photo-helpers";
 import { useAuth } from "@/lib/auth";
-import { useRooms, useStages } from "@/lib/queries";
+import { useRooms, useStages } from "@/features/work/hooks";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { useFormat } from "@/i18n";
 import type { Photo } from "@/lib/database.types";

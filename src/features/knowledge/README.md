@@ -8,8 +8,7 @@ the assistant reads knowledge entries as one of its data sources.
 - **UI:** `KnowledgeEntry`, `KnowledgeSheet`, `AiChat`, `AiAnswerMessage`, `AiAskInput`, `AiSuggestions`, `AiThinking`
 - **i18n namespace:** `knowledge` (`useTranslation(["knowledge", "common"])`)
 
-`features/comms/ui/ai-chat.tsx` re-exports `AiChat` from here, since `/chat` still imports it from
-that path. `src/lib/ai-assistant.ts` re-exports the assistant's types from `domain/assistant.ts`.
+`/chat` (in `features/comms`) imports `AiChat` directly from here for its "Ask AI" tab.
 
 ## The assistant
 

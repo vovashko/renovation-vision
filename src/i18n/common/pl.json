@@ -84,5 +84,28 @@
     "label": "Język",
     "en": "English",
     "pl": "Polski"
-  }
+  },
+  "visibility": {
+    "clientSees": "Klient to widzi",
+    "hiddenFromClient": "Ukryte przed klientem",
+    "internalNote": "Wewnętrzne — nigdy nie pokazywane klientom"
+  },
+  "role": {
+    "manager": "Kierownik"
+  },
+  "profile": {
+    "title": "Profil",
+    "description": "Szczegóły Twojego konta.",
+    "signOut": "Wyloguj się"
+  },
+  "notFound": {
+    "heading": "Nie znaleziono strony",
+    "description": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+    "goHome": "Strona główna"
+  },
+  "errorBoundary": {
+    "heading": "Coś poszło nie tak",
+    "retry": "Spróbuj ponownie"
+  },
+  "overallProgress": "Ogólny postęp"
 }

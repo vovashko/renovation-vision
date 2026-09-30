@@ -1,1 +1,20 @@
-{}
+{
+  "signIn": {
+    "logoAlt": "RenoVision",
+    "title": "Zaloguj się",
+    "subtitle": "Klienci i kierownicy budowy logują się tutaj.",
+    "email": "E-mail",
+    "password": "Hasło",
+    "submit": "Zaloguj się",
+    "submitting": "Logowanie…",
+    "magicLink": "Wyślij mi link do logowania e-mailem",
+    "emailRequired": "Najpierw podaj swój adres e-mail",
+    "magicLinkSent": "Sprawdź skrzynkę pocztową, aby znaleźć link do logowania"
+  },
+  "demoHint": {
+    "heading": "Konta demo",
+    "manager": "Kierownik",
+    "client": "Klient",
+    "password": "Hasło"
+  }
+}

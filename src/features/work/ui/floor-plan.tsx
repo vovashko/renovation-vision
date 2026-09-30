@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { Status } from "@/domain/status";
 import { useStatusLabel } from "@/i18n";
-import { statusContainer, statusOutline } from "@/lib/status-ui";
+import { statusContainer, statusOutline } from "@/components/ui/status-ui";
 import { Card } from "@/components/ui/card";
 import { StatusLegend } from "@/components/status-pill";
 import { SelectedRoomPanel, type SelectedRoom } from "./selected-room-panel";

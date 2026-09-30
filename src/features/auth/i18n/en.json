@@ -1,1 +1,20 @@
-{}
+{
+  "signIn": {
+    "logoAlt": "RenoVision",
+    "title": "Sign in",
+    "subtitle": "Clients and site managers sign in here.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "magicLink": "Email me a sign-in link",
+    "emailRequired": "Enter your email first",
+    "magicLinkSent": "Check your inbox for a sign-in link"
+  },
+  "demoHint": {
+    "heading": "Demo accounts",
+    "manager": "Manager",
+    "client": "Client",
+    "password": "Password"
+  }
+}

@@ -87,13 +87,5 @@
     "stageLate": "{{name}} is {{late}}",
     "stageLateDetail": "Was due {{date}} · {{progress}}% done",
     "overBudgetDetail": "{{spent}} spent of {{budget}}"
-  },
-  "consistency": {
-    "blockedOnSchedule_one": "{{count}} thing is blocked, but the project still says on schedule",
-    "blockedOnSchedule_other": "{{count}} things are blocked, but the project still says on schedule",
-    "roomDoneTaskOpen": "{{room}} is marked done, but \"{{task}}\" is still open",
-    "stageDoneTasksOpen_one": "{{stage}} is marked done, but {{count}} task is still open",
-    "stageDoneTasksOpen_other": "{{stage}} is marked done, but {{count}} tasks are still open",
-    "stagePendingTasksDone": "{{stage}} is pending, but some of its tasks are already checked"
   }
 }

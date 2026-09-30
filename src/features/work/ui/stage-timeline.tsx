@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { statusTone } from "@/lib/status-ui";
+import { statusTone } from "@/components/ui/status-ui";
 import type { Status } from "@/domain/status";
 
 export type TimelineStage = {

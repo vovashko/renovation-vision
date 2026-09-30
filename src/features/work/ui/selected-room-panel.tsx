@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { StatusPill } from "@/components/status-pill";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { statusTone } from "@/lib/status-ui";
+import { statusTone } from "@/components/ui/status-ui";
 import type { Status } from "@/domain/status";
 
 export type SelectedRoom = { name: string; status: Status; progress: number };

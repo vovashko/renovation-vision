@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { InternalBadge } from "@/components/manager/visibility-badge";
+import { InternalBadge } from "@/shared/ui/visibility-badge";
 import { useInternalNotes, useUpdateInternalNotes } from "../hooks/use-internal-notes";
 
 /** Manager-only notes on the Budget page — margins, quotes, contingency — never shown to the client. */

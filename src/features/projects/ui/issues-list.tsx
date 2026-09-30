@@ -29,7 +29,7 @@ type Row = { title: string; detail?: string; link?: Pick<LinkProps, "to" | "para
 
 /** The manager overview's "needs attention" list: blocked/late stages and rooms, the budget, then data checks. */
 export function IssuesList({ issues, projectId, onOpenDetails }: { issues: ProjectIssue[]; projectId: string; onOpenDetails: () => void }) {
-  const { t } = useTranslation(["projects", "common"]);
+  const { t } = useTranslation(["projects", "work", "common"]);
   const format = useFormat();
   if (!issues.length) return null;
 
@@ -63,7 +63,7 @@ export function IssuesList({ issues, projectId, onOpenDetails }: { issues: Proje
         };
       case "inconsistency": {
         const w = issue.issue;
-        const title = t(`consistency.${w.kind}`, w);
+        const title = t(`work:consistency.${w.kind}`, w);
         if (w.to === "overview") return { title, onClick: onOpenDetails };
         return { title, link: { to: w.to === "stages" ? "/projects/$projectId/stages" : "/projects/$projectId/plan", params } };
       }

@@ -1,7 +1,7 @@
 // The only place in `features/work` that imports supabase-js (README → Architecture). Ported from
 // `src/lib/api.ts` (read-only reference; not edited here — see the W2c task notes).
 import { supabase } from "@/lib/supabase";
-import type { ProjectSummary, Room, Stage, Task } from "@/lib/database.types";
+import type { Room, Stage, Task } from "@/lib/database.types";
 
 export type StageInput = Partial<Omit<Stage, "tasks" | "project_id">>;
 export type TaskInput = Partial<Omit<Task, "project_id">> & { stage_id: string };
@@ -15,18 +15,7 @@ async function must<T>(p: PromiseLike<Result<T>>): Promise<T> {
   return data as T;
 }
 
-const toNumber = <T extends Record<string, unknown>>(row: T, ...fields: (keyof T)[]) => {
-  for (const f of fields) (row as Record<string, unknown>)[f as string] = Number(row[f]);
-  return row;
-};
-
 export const workRepo = {
-  /** The project_summary view row — the "projects" feature owns this table; work's overview needs it too. */
-  async getProject(id: string): Promise<ProjectSummary> {
-    const row = await must(supabase.from("project_summary").select("*").eq("id", id).single());
-    return toNumber(row as unknown as ProjectSummary, "budget", "spent");
-  },
-
   async listStages(projectId: string): Promise<Stage[]> {
     return must(
       supabase

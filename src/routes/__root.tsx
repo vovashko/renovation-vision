@@ -20,7 +20,7 @@ import { BottomNav } from "@/shared/ui/bottom-nav";
 import { QuickActions } from "@/shared/ui/quick-actions";
 import { LoginScreen } from "@/components/login-screen";
 import { AuthProvider, useAuth } from "@/lib/auth";
-import { useProject } from "@/lib/queries";
+import { useProject } from "@/features/projects/hooks";
 import { cn } from "@/lib/utils";
 import type { ProjectSummary } from "@/lib/database.types";
 import type { I18n } from "@/i18n";
@@ -31,15 +31,16 @@ import appCss from "../styles.css?url";
 import logoMark from "@/assets/renovision-mark.svg";
 
 function NotFoundComponent() {
+  const { t } = useTranslation(["common"]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface px-4">
       <div className="max-w-md text-center">
         <h1 className="text-display text-on-surface">404</h1>
-        <h2 className="mt-4 text-title-lg text-on-surface">Page not found</h2>
-        <p className="mt-2 text-body-md text-on-surface-variant">The page you're looking for doesn't exist or has been moved.</p>
+        <h2 className="mt-4 text-title-lg text-on-surface">{t("common:notFound.heading")}</h2>
+        <p className="mt-2 text-body-md text-on-surface-variant">{t("common:notFound.description")}</p>
         <div className="mt-6">
           <Link to="/" className={buttonVariants()}>
-            Go home
+            {t("common:notFound.goHome")}
           </Link>
         </div>
       </div>
@@ -50,10 +51,11 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { t } = useTranslation(["common"]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-title-lg text-on-surface">Something went wrong</h1>
+        <h1 className="text-title-lg text-on-surface">{t("common:errorBoundary.heading")}</h1>
         <p className="mt-2 text-body-md text-on-surface-variant">{error instanceof Error ? error.message : String(error)}</p>
         <button
           onClick={() => {
@@ -62,7 +64,7 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
           }}
           className={cn(buttonVariants(), "mt-6")}
         >
-          Try again
+          {t("common:errorBoundary.retry")}
         </button>
       </div>
     </div>
@@ -146,10 +148,11 @@ function RootComponent() {
 
 function AuthGate() {
   const { status } = useAuth();
+  const { t } = useTranslation(["common"]);
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center text-body-md text-on-surface-variant" role="status">
-        Loading…
+        {t("common:state.loading")}
       </div>
     );
   }
@@ -161,6 +164,7 @@ function AuthGate() {
  * chat page's centered chat panel (`md:max-w-3xl` in routes/project/chat.tsx), instead of the
  * page-wide `max-w-7xl` every other route uses. */
 function ProjectTopBar({ project, narrow }: { project?: ProjectSummary; narrow?: boolean }) {
+  const { t } = useTranslation(["common"]);
   return (
     <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 md:px-8 md:pt-4">
       <Card variant="tinted" className={cn("mx-auto flex h-16 w-full items-center gap-3 px-5", narrow ? "max-w-3xl" : "max-w-7xl")}>
@@ -169,7 +173,7 @@ function ProjectTopBar({ project, narrow }: { project?: ProjectSummary; narrow?:
           <span className="hidden truncate text-body-sm text-on-surface-variant md:block">{project?.address}</span>
           {project && (
             <div className="mt-1 flex items-center gap-2 md:hidden">
-              <Progress value={project.overall_progress} onPanel aria-label="Overall progress" className="flex-1" />
+              <Progress value={project.overall_progress} onPanel aria-label={t("common:overallProgress")} className="flex-1" />
               <span className="text-label-sm text-on-surface-variant tabular-nums">{project.overall_progress}%</span>
             </div>
           )}

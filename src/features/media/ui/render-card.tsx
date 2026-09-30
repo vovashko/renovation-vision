@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { VisibilityBadge } from "@/components/manager/visibility-badge";
+import { VisibilityBadge } from "@/shared/ui/visibility-badge";
 import type { Render } from "@/lib/database.types";
 
 /** One design render tile: image, title, description and (for managers) the visibility toggle and edit action. */
