@@ -7,9 +7,10 @@
 import "@tanstack/react-start/server-only";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { getCookies, setCookie } from "@tanstack/react-start/server";
+import { getCookies, getRequest, setCookie } from "@tanstack/react-start/server";
 import type { Database } from "@/domain/db.types";
 import { getPublicEnv } from "@/lib/env";
+import { SESSION_COOKIE_OPTIONS } from "./cookies";
 
 export type ServerSupabase = SupabaseClient<Database>;
 
@@ -21,8 +22,10 @@ const NO_BROWSER_SESSION = { persistSession: false, autoRefreshToken: false, det
  * - `{ accessToken }` (a verified JWT from an `Authorization: Bearer` header): every PostgREST,
  *   Storage and RPC call sends that token, so RLS sees `auth.uid()` = the token's `sub`.
  * - no token: reads (and on refresh, writes) the Supabase session cookies through TanStack Start's
- *   `getCookies`/`setCookie`, via `@supabase/ssr`. Today sessions live in localStorage, so there
- *   are no such cookies yet; this is the path T21's cookie sessions will use.
+ *   `getCookies`/`setCookie`, via `@supabase/ssr` (the browser client stores the session in those
+ *   cookies since T21). One cookie client per request: getSession in the root route and every
+ *   server function called during the same SSR pass share it, so an expired token is refreshed
+ *   (and the new cookies written) once, not once per caller.
  *
  * Must run inside a request (it touches the request's cookies).
  */
@@ -34,7 +37,11 @@ export function createServerSupabase(options: { accessToken?: string } = {}): Se
       global: { headers: { Authorization: `Bearer ${options.accessToken}` } },
     });
   }
-  return createServerClient<Database>(url, key, {
+  const request = currentRequest();
+  const cached = request && cookieClients.get(request);
+  if (cached) return cached;
+  const client = createServerClient<Database>(url, key, {
+    cookieOptions: SESSION_COOKIE_OPTIONS,
     cookies: {
       getAll: () => Object.entries(getCookies()).map(([name, value]) => ({ name, value })),
       setAll: (cookies) => {
@@ -44,6 +51,19 @@ export function createServerSupabase(options: { accessToken?: string } = {}): Se
       },
     },
   });
+  if (request) cookieClients.set(request, client);
+  return client;
+}
+
+const cookieClients = new WeakMap<object, ServerSupabase>();
+
+function currentRequest(): object | undefined {
+  try {
+    const request: unknown = getRequest();
+    return request && typeof request === "object" ? request : undefined;
+  } catch {
+    return undefined; // outside a request (unit tests)
+  }
 }
 
 let verifier: { client: ServerSupabase; url: string; key: string } | undefined;
