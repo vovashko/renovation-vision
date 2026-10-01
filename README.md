@@ -390,6 +390,65 @@ There is no AAL2/MFA redirect yet: T22 adds it together with the 2FA screens, se
 screen when `public.staff_mfa_required()` returns `true` (see **Roles & 2FA enforcement** above).
 `context.auth.user.aal` and `context.auth.profile.account_type` are already in the router context for it.
 
+## Security headers
+
+`src/server/middleware/security-headers.ts` is a request middleware (registered in `src/start.ts`, outside
+`errorMiddleware` so the branded 500 page gets it too) that adds a fixed set of headers to **HTML responses only**
+(checked by `content-type`; server-function JSON, CSRF's plain-text 403 and static assets pass through untouched):
+
+- **`Content-Security-Policy`:** `default-src 'self'`, `base-uri 'self'`, `object-src 'none'`, `frame-ancestors 'none'`,
+  `form-action 'self'`, `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+  `font-src https://fonts.gstatic.com`, `img-src 'self' data: blob: <VITE_SUPABASE_URL origin>` and
+  `connect-src 'self' <VITE_SUPABASE_URL> <its ws(s):// origin>` (Realtime). A `script-src` nonce: see below.
+- **`Strict-Transport-Security: max-age=31536000; includeSubDomains`** — present on every built response (`vite preview`,
+  `wrangler dev`, production), omitted only under `vite dev` (plain http, no real TLS to pin).
+- **`X-Content-Type-Options: nosniff`**, **`Referrer-Policy: strict-origin-when-cross-origin`**,
+  **`Permissions-Policy: camera=(self), microphone=(), geolocation=()`**.
+- **`vite dev` relaxations** (gated on `import.meta.env.DEV`, i.e. never in a built bundle): `script-src` gets
+  `'unsafe-eval'` and `connect-src` gets `ws:`, both for Vite's HMR client.
+
+**No script nonce (yet).** TanStack Start (1.170, `@tanstack/router-core`) can stamp a per-request nonce onto its
+inline hydration scripts — `createHydrationScripts`/`getSsrBodyScriptParts` both read `router.options.ssr?.nonce` —
+but wiring a nonce through means passing `ssr: { nonce }` to `createRouter()` in `src/router.tsx` and threading a
+per-request value into it. That file belongs to the cookie-sessions/router task (T21), so this PR didn't touch it;
+`script-src` uses `'self' 'unsafe-inline'` as the tightest working fallback until a nonce is wired through. A
+clearly-named `SENTRY_INGEST_HOST` placeholder in the same file is where the observability task adds the Sentry
+ingest host to `connect-src`.
+
+`tests/unit/server/security-headers.test.ts` covers the header set (every header present, the CSP directives,
+HSTS and the dev relaxations) and that non-HTML responses are left alone.
+
+## Uploads
+
+Site photos and design renders (`features/media`) are validated and sanitized client-side before upload
+(`features/media/domain/upload.ts`, `strip-exif.ts` — pure rules kept separate from the canvas work so they're
+unit-testable):
+
+- **Mime type and size**, checked against the `project-media` bucket's rules: jpeg/png/webp/heic for photos
+  (jpeg/png/webp only for renders — a render is never HEIC), 15 MB max. A rejected file shows a translated error on
+  the form field (the upload/render zod schemas call `validateFile`).
+- **EXIF/GPS stripping.** A standard raster image (jpeg/png/webp) is re-encoded: `createImageBitmap` decodes it,
+  the longest edge is capped at 2560px, and it's redrawn to a canvas (`OffscreenCanvas` when available) and
+  exported as JPEG at quality 0.9 — redrawing drops every metadata segment, EXIF/GPS included. The capture date
+  (EXIF `DateTimeOriginal`, read with [`exifr`](https://github.com/MikeKovarik/exifr) **before** re-encoding, since
+  that destroys it) becomes the photo's `taken_at` instead of "now".
+- **HEIC** can't be canvas-decoded by browsers, so it's uploaded unchanged — the upload sheet shows a translated
+  note that its location data may still be present. Its capture date is still read with `exifr`, which parses HEIC's
+  EXIF box the same way.
+- `reencodeImage`'s canvas path needs `createImageBitmap` and a real 2D canvas, neither available in jsdom (no
+  `canvas` npm polyfill here): `tests/unit/media/strip-exif.test.ts` covers the pure rules and `extractTakenAt`
+  (against `tests/fixtures/gps.jpg`, a hand-built JPEG carrying GPS + `DateTimeOriginal` EXIF); the re-encode path
+  was checked by hand against the running app (upload → download the stored object → `exifr` shows no GPS and the
+  right `taken_at`), not in this suite.
+
+**Atomic deletes.** `deletePhoto`, `deleteRender` and `deleteExpense` (`src/server/functions/{media,expenses}.ts`) are
+manager-only server functions (`authedFn` + `requireProjectRole(..., "manager")`) that delete the DB row and then
+remove the storage object, both as the user (`context.supabase`, RLS applies) — one call instead of the client doing
+both and risking an orphan when the second fails. If the storage removal fails, it's logged (`logger.error`, with the
+path and the automatic request id) as an orphan marker for manual cleanup, but the call still reports success: the
+row is gone, which is what the UI and the rest of the app care about. `features/media/hooks` and
+`features/budget/hooks` call these instead of the old two-call repository methods.
+
 ## Internationalization
 
 The UI speaks Polish (`pl`, the default) and English (`en`), with [i18next](https://www.i18next.com) and
