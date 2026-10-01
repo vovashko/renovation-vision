@@ -1,7 +1,15 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
-import { buildCsp, buildSecurityHeaders } from "@/server/middleware/security-headers";
+import { describe, expect, it, vi } from "vitest";
 
 const SUPABASE_URL = "http://127.0.0.1:54321";
+
+// security-headers.ts reads the Supabase URL via `@/lib/env`'s getPublicEnv(), which in turn reads
+// `import.meta.env.VITE_SUPABASE_URL` — real in a dev/build checkout (.env.local), unset in CI. Mocked
+// here (hoisted above everything else in this file, including the dynamic import below) so this suite
+// never depends on a local env file. The factory uses a literal, not the `SUPABASE_URL` const above:
+// vi.mock calls are hoisted above regular declarations too, so referencing it here would hit the TDZ.
+vi.mock("@/lib/env", () => ({ getPublicEnv: () => ({ url: "http://127.0.0.1:54321", key: "sb_publishable_x" }) }));
+
+const { buildCsp, buildSecurityHeaders, securityHeadersMiddleware } = await import("@/server/middleware/security-headers");
 
 describe("buildCsp", () => {
   it("includes every required directive, 'self' as the default, and the Supabase URL (http + ws locally)", () => {
@@ -63,25 +71,13 @@ describe("buildSecurityHeaders", () => {
 // dev-vs-non-dev header differences — are fully covered by the buildCsp/buildSecurityHeaders tests
 // above, which take `isDev` as a plain argument.
 describe("securityHeadersMiddleware", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.resetModules();
-  });
-
-  async function loadMiddleware() {
-    vi.doMock("@/lib/env", () => ({ getPublicEnv: () => ({ url: SUPABASE_URL, key: "sb_publishable_x" }) }));
-    const mod = await import("@/server/middleware/security-headers");
-    return mod.securityHeadersMiddleware;
-  }
-
   function serverFn(middleware: unknown) {
     return (middleware as { options: { server: (opts: unknown) => Promise<unknown> } }).options.server;
   }
 
-  it("adds the headers to an HTML page response, wired to the real Supabase URL", async () => {
-    const middleware = await loadMiddleware();
+  it("adds the headers to an HTML page response, wired to the (mocked) Supabase URL", async () => {
     const response = new Response("<html></html>", { headers: { "content-type": "text/html; charset=utf-8" } });
-    const result = (await serverFn(middleware)({ next: async () => ({ response }) })) as { response: Response };
+    const result = (await serverFn(securityHeadersMiddleware)({ next: async () => ({ response }) })) as { response: Response };
     expect(result.response.headers.get("Content-Security-Policy")).toContain(SUPABASE_URL);
     expect(result.response.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(result.response.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
@@ -89,9 +85,8 @@ describe("securityHeadersMiddleware", () => {
   });
 
   it("leaves a non-HTML response (server function JSON) untouched", async () => {
-    const middleware = await loadMiddleware();
     const response = new Response("{}", { headers: { "content-type": "application/json" } });
-    const result = (await serverFn(middleware)({ next: async () => ({ response }) })) as { response: Response };
+    const result = (await serverFn(securityHeadersMiddleware)({ next: async () => ({ response }) })) as { response: Response };
     expect(result.response.headers.get("Content-Security-Policy")).toBeNull();
     expect(result.response.headers.get("X-Content-Type-Options")).toBeNull();
   });
