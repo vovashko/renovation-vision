@@ -3,6 +3,7 @@ import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/r
 import { renderErrorPage } from "./lib/error-page";
 import { logger } from "./lib/logger";
 import { requestIdMiddleware } from "./server/middleware/request-id";
+import { securityHeadersMiddleware } from "./server/middleware/security-headers";
 import { getRequestContext } from "./server/request-context.server";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
@@ -26,6 +27,8 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
 const csrfMiddleware = createCsrfMiddleware({ filter: (ctx) => ctx.handlerType === "serverFn" });
 
 export const startInstance = createStart(() => ({
-  // Order matters: the request id exists before anything can log or fail.
-  requestMiddleware: [requestIdMiddleware, errorMiddleware, csrfMiddleware],
+  // Order matters: the request id exists before anything can log or fail. securityHeadersMiddleware
+  // sits outside errorMiddleware so the branded 500 page gets the CSP/HSTS headers too (it only
+  // touches HTML responses, so CSRF's JSON 403s and server-function responses pass through).
+  requestMiddleware: [requestIdMiddleware, securityHeadersMiddleware, errorMiddleware, csrfMiddleware],
 }));
