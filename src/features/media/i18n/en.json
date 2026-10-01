@@ -72,6 +72,9 @@
   },
   "upload": {
     "filesRequired": "Choose at least one photo",
+    "fileTypeNotAllowed": "Only JPEG, PNG, WebP or HEIC photos are allowed",
+    "fileTooLarge": "Each photo must be 15 MB or smaller",
+    "heicNotice": "HEIC photos are uploaded as-is — we can't remove their location data in the browser.",
     "publishedToast_one": "Published {{count}} photo",
     "publishedToast_other": "Published {{count}} photos",
     "savedToast_one": "Saved {{count}} draft",
@@ -134,6 +137,8 @@
   },
   "render": {
     "fileRequired": "Choose an image for the render",
+    "fileTypeNotAllowed": "Only JPEG, PNG or WebP images are allowed",
+    "fileTooLarge": "The image must be 15 MB or smaller",
     "savedToast": "Render saved",
     "deletedToast": "Render deleted",
     "hiddenToast": "Hidden from the client",

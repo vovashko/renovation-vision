@@ -1,12 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { FileInput } from "@/components/ui/file-input";
+import { Note } from "@/components/ui/note";
 import { Textarea } from "@/components/ui/textarea";
 import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { FormField } from "@/shared/ui/form-field";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
 import { uploadPhotosSchema } from "@/features/media/domain/schemas";
+import { isHeic } from "@/features/media/domain/upload";
 import { useUploadPhotos } from "@/features/media/hooks/use-photos";
 import type { Room, Stage } from "@/lib/database.types";
 
@@ -73,6 +75,7 @@ export function UploadSheet({
                   ))}
                 </div>
               )}
+              {files.some((f) => isHeic(f.type)) && <Note size="sm">{t("upload.heicNotice")}</Note>}
             </div>
           )}
         </FormField>

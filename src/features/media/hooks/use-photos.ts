@@ -2,8 +2,21 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import { mediaRepo, type PhotoMeta, type PhotoPatch } from "@/features/media/data/media.repo";
+import { mediaRepo, type PhotoMeta, type PhotoPatch, type PhotoUploadItem } from "@/features/media/data/media.repo";
+import { extractTakenAt, reencodeImage } from "@/features/media/domain/strip-exif";
+import { shouldReencode } from "@/features/media/domain/upload";
+import { deletePhoto } from "@/server/functions/media";
 import type { Photo } from "@/lib/database.types";
+
+/** Strips EXIF/GPS and caps dimensions for a standard image (jpeg/png/webp); HEIC is uploaded as-is
+ * (browsers can't canvas-decode it) but its capture date is still read. */
+async function prepareUpload(file: File): Promise<PhotoUploadItem> {
+  if (shouldReencode(file.type)) {
+    const { file: processed, takenAt } = await reencodeImage(file);
+    return { file: processed, takenAt };
+  }
+  return { file, takenAt: await extractTakenAt(file) };
+}
 
 /** Photos for a project, with signed URLs. Cached for 30 minutes: the signed URL is itself long-lived. */
 export function usePhotos(projectId: string) {
@@ -19,7 +32,10 @@ function mediaInvalidate(projectId: string) {
 export function useUploadPhotos(projectId: string) {
   const { t } = useTranslation(["media"]);
   return useMutationWithToast(
-    (vars: { files: File[]; meta: PhotoMeta; publish: boolean }) => mediaRepo.uploadPhotos(projectId, vars.files, vars.meta, vars.publish),
+    async (vars: { files: File[]; meta: PhotoMeta; publish: boolean }) => {
+      const items = await Promise.all(vars.files.map(prepareUpload));
+      return mediaRepo.uploadPhotos(projectId, items, vars.meta, vars.publish);
+    },
     {
       invalidate: mediaInvalidate(projectId),
       success: (vars) =>
@@ -41,9 +57,10 @@ export function useUpdatePhoto(projectId: string) {
   });
 }
 
+/** Deletes the row and the storage object atomically (server function; RLS as the user). */
 export function useDeletePhoto(projectId: string) {
   const { t } = useTranslation(["media"]);
-  return useMutationWithToast((photo: Photo) => mediaRepo.deletePhoto(photo), {
+  return useMutationWithToast((photo: Photo) => deletePhoto({ data: { projectId, photoId: photo.id } }), {
     invalidate: mediaInvalidate(projectId),
     success: t("toast.photoDeleted"),
   });

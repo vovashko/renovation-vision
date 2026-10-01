@@ -37,7 +37,13 @@ export type CspOptions = {
 /** Pure: the Content-Security-Policy header value. Exported for tests. */
 export function buildCsp({ supabaseUrl, isDev }: CspOptions): string {
   const supabaseOrigin = new URL(supabaseUrl).origin;
-  const connectSrc = ["'self'", supabaseOrigin, wsOrigin(supabaseUrl), ...(isDev ? ["ws:"] : []), ...(SENTRY_INGEST_HOST ? [SENTRY_INGEST_HOST] : [])];
+  const connectSrc = [
+    "'self'",
+    supabaseOrigin,
+    wsOrigin(supabaseUrl),
+    ...(isDev ? ["ws:"] : []),
+    ...(SENTRY_INGEST_HOST ? [SENTRY_INGEST_HOST] : []),
+  ];
   // No nonce support wired yet (see file header) — 'unsafe-inline' is the documented fallback.
   const scriptSrc = ["'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : [])];
   const directives: Array<[string, string[]]> = [

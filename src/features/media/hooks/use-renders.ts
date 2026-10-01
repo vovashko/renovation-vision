@@ -3,7 +3,17 @@ import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { mediaRepo, type RenderInput } from "@/features/media/data/media.repo";
+import { reencodeImage } from "@/features/media/domain/strip-exif";
+import { shouldReencode } from "@/features/media/domain/upload";
+import { deleteRender } from "@/server/functions/media";
 import type { Render } from "@/lib/database.types";
+
+/** Strips EXIF/GPS and caps dimensions before upload (renders only ever accept jpeg/png/webp — see domain/upload.ts). */
+async function prepareRenderInput(input: RenderInput): Promise<RenderInput> {
+  if (!input.file || !shouldReencode(input.file.type)) return input;
+  const { file } = await reencodeImage(input.file);
+  return { ...input, file };
+}
 
 /** Design renders for a project, with signed URLs. */
 export function useRenders(projectId: string) {
@@ -16,15 +26,16 @@ function renderInvalidate(projectId: string) {
 
 export function useSaveRender(projectId: string) {
   const { t } = useTranslation(["media"]);
-  return useMutationWithToast((input: RenderInput) => mediaRepo.saveRender(projectId, input), {
+  return useMutationWithToast(async (input: RenderInput) => mediaRepo.saveRender(projectId, await prepareRenderInput(input)), {
     invalidate: renderInvalidate(projectId),
     success: t("render.savedToast"),
   });
 }
 
+/** Deletes the row and the storage object atomically (server function; RLS as the user). */
 export function useDeleteRender(projectId: string) {
   const { t } = useTranslation(["media"]);
-  return useMutationWithToast((render: Render) => mediaRepo.deleteRender(render), {
+  return useMutationWithToast((render: Render) => deleteRender({ data: { projectId, renderId: render.id } }), {
     invalidate: renderInvalidate(projectId),
     success: t("render.deletedToast"),
   });

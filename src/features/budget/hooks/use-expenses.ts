@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { keys } from "@/shared/query-keys";
 import type { Expense } from "@/lib/database.types";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
+import { deleteExpense } from "@/server/functions/expenses";
 import { budgetRepo, type ExpenseInput } from "../data/budget.repo";
 
 export const useExpenses = (projectId: string) =>
@@ -18,9 +19,10 @@ export function useSaveExpense(projectId: string) {
   });
 }
 
+/** Deletes the row and the receipt object atomically (server function; RLS as the user). */
 export function useDeleteExpense(projectId: string) {
   const { t } = useTranslation(["budget"]);
-  return useMutationWithToast((expense: Expense) => budgetRepo.deleteExpense(expense), {
+  return useMutationWithToast((expense: Expense) => deleteExpense({ data: { projectId, expenseId: expense.id } }), {
     invalidate: [keys.expenses(projectId), keys.project(projectId), keys.projects],
     success: t("budget:sheet.deleted"),
   });

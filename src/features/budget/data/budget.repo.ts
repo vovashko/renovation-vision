@@ -52,12 +52,6 @@ export const budgetRepo = {
     }
   },
 
-  /** Deletes the row first; the receipt object is only removed once that succeeds. */
-  async deleteExpense(expense: Expense): Promise<void> {
-    await must(supabase.from("expenses").delete().eq("id", expense.id));
-    if (expense.receipt_path) await supabase.storage.from(INTERNAL_BUCKET).remove([expense.receipt_path]);
-  },
-
   /** Signed URL, 10 minutes — just long enough to view or download one receipt. */
   async receiptUrl(path: string): Promise<string> {
     const data = await must(supabase.storage.from(INTERNAL_BUCKET).createSignedUrl(path, 60 * 10));
