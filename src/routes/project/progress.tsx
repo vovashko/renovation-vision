@@ -8,7 +8,7 @@ import { FormSheet } from "@/shared/ui/form-sheet";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { VisibilityBadge } from "@/shared/ui/visibility-badge";
 import { useConfirm } from "@/shared/ui/use-confirm";
-import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { StageRow, StageRowList } from "@/features/work/ui/stage-row";
 import { StagesEmpty } from "@/features/work/ui/stages-empty";
 import { TaskAddForm } from "@/features/work/ui/task-add-form";
@@ -27,7 +27,7 @@ import type { Stage } from "@/lib/database.types";
 
 type ProgressSearch = { view: ProgressView; room?: string };
 
-export const Route = createFileRoute("/projects/$projectId/progress")({
+export const Route = createFileRoute("/_authed/projects/$projectId/progress")({
   validateSearch: (s: Record<string, unknown>): ProgressSearch => ({
     view: s.view === "plan" ? "plan" : "timeline",
     room: typeof s.room === "string" ? s.room : undefined,
@@ -47,7 +47,7 @@ function ProgressPage() {
   const navigate = Route.useNavigate();
   const { t } = useTranslation(["work", "common"]);
   const format = useFormat();
-  const isManager = useAuth().profile?.account_type === "manager";
+  const isManager = useNavRole() === "manager";
   const confirm = useConfirm();
   const { data: stages, isLoading: stagesLoading } = useStages(projectId);
   const { data: rooms, isLoading: roomsLoading } = useRooms(projectId);

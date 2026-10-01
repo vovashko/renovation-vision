@@ -10,6 +10,7 @@ import { ChatEmpty } from "@/features/comms/ui/chat-empty";
 import { AiChat } from "@/features/knowledge/ui/ai-chat";
 import { PageLoading } from "@/components/page-header";
 import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { useProject } from "@/features/projects/hooks";
 import { useMembers } from "@/features/people/hooks";
 import { groupMessagesByDay } from "@/features/comms/domain/chat-format";
@@ -21,7 +22,7 @@ import { useKeyboardInset } from "@/features/comms/hooks/use-keyboard-inset";
 
 const CHAT_PANEL_ID = "chat-panel";
 
-export const Route = createFileRoute("/projects/$projectId/chat")({
+export const Route = createFileRoute("/_authed/projects/$projectId/chat")({
   head: () => ({
     meta: [{ title: "Chat — RenoVision" }, { name: "description", content: "Chat in real time about the project." }],
   }),
@@ -35,7 +36,7 @@ function ChatPage() {
   const { data: project } = useProject(projectId);
   const { data: members = [] } = useMembers(projectId);
   const { data: messages, isLoading } = useMessages(projectId);
-  const isManager = profile?.account_type === "manager";
+  const isManager = useNavRole() === "manager";
   const [tab, setTab] = useState<ChatMode>("people");
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);

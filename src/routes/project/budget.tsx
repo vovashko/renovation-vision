@@ -16,7 +16,7 @@ import { useStages } from "@/features/work/hooks";
 import { budgetSummary } from "@/domain/budget";
 import type { Expense } from "@/lib/database.types";
 
-export const Route = createFileRoute("/projects/$projectId/budget")({
+export const Route = createFileRoute("/_authed/projects/$projectId/budget")({
   head: ({ match }) => ({
     meta: [
       { title: `${match.context.i18n.t("budget:page.title")} — RenoVision` },

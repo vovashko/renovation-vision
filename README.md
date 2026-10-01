@@ -214,15 +214,15 @@ reference example.
 
 ### Middleware (`src/server/middleware/`)
 
-| Middleware                                      | What it does                                                                                                                                                                                                                          |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `requireUser` (in `authedFn`)                   | Browser half attaches `Authorization: Bearer <access_token>` from the Supabase session. Server half verifies it (or the session cookies, for T21) and puts `user: { id, email, aal, role }` and `supabase` in context. 401 otherwise. |
-| `requireAal2`                                   | 403 (`reason: "aal2_required"`) unless the session is MFA-verified.                                                                                                                                                                   |
-| `requireAccountType("manager", …)`              | 403 unless `profiles.account_type` is one of those (`manager` \| `client` \| `admin`); adds `accountType`.                                                                                                                            |
-| `requireProjectRole(pick, role)`                | 403 unless the caller is `manager` / `client` / `member` (any) of the project `pick(input)` returns, checked with `is_project_manager/client/member` as the user. `pick` sees the **raw** input; a non-UUID is a 400.                 |
-| `rateLimit({ key })` (default in both builders) | 429 + `Retry-After` past the policy in `src/server/rate-limits.ts` (`default` 120/min, `invite` 10/min, `email` 5/min), per user, or per `cf-connecting-ip` when anonymous.                                                           |
-| `serverFnBoundary` (in both builders)           | Logs every call; maps errors to the responses below; rethrows them as `ServerFnError` in the browser.                                                                                                                                 |
-| `requestIdMiddleware` (request middleware)      | Every request gets an id (a safe incoming `x-request-id`, or a UUID): in logs, `context.requestId`, the `x-request-id` response header and the 500 page.                                                                              |
+| Middleware                                      | What it does                                                                                                                                                                                                                                                  |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requireUser` (in `authedFn`)                   | Browser half attaches `Authorization: Bearer <access_token>` from the Supabase session. Server half verifies it (or the session cookies, see **Sessions & route guards**) and puts `user: { id, email, aal, role }` and `supabase` in context. 401 otherwise. |
+| `requireAal2`                                   | 403 (`reason: "aal2_required"`) unless the session is MFA-verified.                                                                                                                                                                                           |
+| `requireAccountType("manager", …)`              | 403 unless `profiles.account_type` is one of those (today `manager` \| `client`); adds `accountType`.                                                                                                                                                         |
+| `requireProjectRole(pick, role)`                | 403 unless the caller is `manager` / `client` / `member` (any) of the project `pick(input)` returns, checked with `is_project_manager/client/member` as the user. `pick` sees the **raw** input; a non-UUID is a 400.                                         |
+| `rateLimit({ key })` (default in both builders) | 429 + `Retry-After` past the policy in `src/server/rate-limits.ts` (`default` 120/min, `invite` 10/min, `email` 5/min), per user, or per `cf-connecting-ip` when anonymous.                                                                                   |
+| `serverFnBoundary` (in both builders)           | Logs every call; maps errors to the responses below; rethrows them as `ServerFnError` in the browser.                                                                                                                                                         |
+| `requestIdMiddleware` (request middleware)      | Every request gets an id (a safe incoming `x-request-id`, or a UUID): in logs, `context.requestId`, the `x-request-id` response header and the 500 page.                                                                                                      |
 
 `src/start.ts` also installs TanStack Start's CSRF middleware for server-function requests (`Sec-Fetch-Site`,
 `Origin` or `Referer` must be same-origin; otherwise 403).
@@ -290,7 +290,8 @@ Locally, put them in `.dev.vars` (see `.dev.vars.example`; for the local stack `
 
 **Account types** (`profiles.account_type`, enum `account_type`): `client` (the default for new sign-ups), `manager`
 and `admin`. `manager` and `admin` are _staff_ (`private.is_staff()`); both may call `create_project` and become the new
-project's manager. What someone can see inside a project still comes from `project_members.role`, not the account type.
+project's manager. What someone can see inside a project still comes from `project_members.role`, not the account type (the route
+guards and nav follow the same rule: see **Sessions & route guards**).
 Users can't change their own account type (no column grant); `public.set_account_type(p_user, p_type)` is the only API
 path, and only an `admin` may call it (not on their own account; with an `aal2` session while 2FA is enforced).
 
@@ -322,6 +323,72 @@ settings from the dashboard (Authentication → Providers / Sign In / MFA). Seed
 their `renovision-demo` password (the length rule only applies to new passwords).
 
 Tests: `tests/db/auth_hardening.test.sql`.
+
+## Sessions & route guards
+
+**Cookie sessions.** The browser Supabase client (`@/lib/supabase`) is `@supabase/ssr`'s `createBrowserClient`, so
+the session (access + refresh token) lives in the `sb-<ref>-auth-token` cookie(s), not localStorage: `Path=/`,
+`SameSite=Lax`, `Secure` in production builds (`src/lib/supabase/cookies.ts`). The server reads the same cookies
+(`createServerSupabase()`, one cookie client per request) and, when the access token has expired, refreshes it
+and writes the new cookies on the response. A session left in localStorage by an older build is moved into the
+cookies once on the next visit (`migrateLegacySession`), so nobody has to sign in again.
+
+**Why not `HttpOnly`.** The browser client talks to Supabase directly (PostgREST, Storage, Realtime), so it must
+read the token from `document.cookie`, which rules out `HttpOnly`. The trade-off is the same as the localStorage
+session it replaces: script running on the page (XSS) could read the token. What we gain is that the server sees
+the session on a hard load. Mitigations: `SameSite=Lax` (cross-site requests don't carry it), the CSRF check on
+server functions, short-lived access tokens (≤ 1 h), and RLS on every query.
+
+**The session in the router context.**
+
+```
+hard load ──▶ root beforeLoad ──▶ context.session.load() ──▶ getSession()  (src/server/functions/session.ts)
+                                                             cookies → getClaims (like requireUser) → profile
+           ◀── context.auth = { user: { id, email, aal } | null, profile: { full_name, avatar_url, account_type } | null }
+```
+
+`getSession` never 401s: signed out is `{ user: null, profile: null }`. The router dehydrates `auth` (and the
+query cache) to the browser, so the first client render matches the SSR HTML without another request. In the
+browser, `<AuthSync />` (`src/lib/auth.tsx`, mounted in `__root.tsx`) listens to `onAuthStateChange`: on sign-in,
+sign-out, a user update or an MFA step-up it clears the cached session and the query cache and calls
+`router.invalidate()`, which re-runs `getSession` and every guard. `useAuth()` reads `auth` from the root route's
+context (plus `signIn` / `sendMagicLink` / `signOut`).
+
+During SSR, `@/lib/supabase` resolves to the request's cookie client (RLS as the user), so a route `loader` can
+prefetch through the normal repositories, e.g. `context.queryClient.prefetchQuery(stagesQuery(id))` (see
+`routes/project/overview.tsx`); in the browser it is the cookie-backed singleton.
+
+**Guards** run in `beforeLoad`, so on a hard load they run on the server (a `307`, never a client-side redirect
+after a loading screen) and in the browser on navigation. The decisions are pure functions in
+`src/features/auth/domain/guards.ts`.
+
+| Route                                                    | Signed out            | Client (on this project)            | Manager (on this project) | Not a member                         |
+| -------------------------------------------------------- | --------------------- | ----------------------------------- | ------------------------- | ------------------------------------ |
+| `/login`                                                 | sign-in screen        | → `?redirect=` (same-origin) or `/` | same                      | same                                 |
+| `/`                                                      | → `/login?redirect=/` | → their first project               | → `/projects`             | —                                    |
+| `/projects`, `/settings`                                 | → `/login?redirect=…` | page                                | page                      | —                                    |
+| `/projects/<id>`, `progress`, `photos`, `design`, `chat` | → `/login?redirect=…` | page                                | page                      | "Project not available" (`notFound`) |
+| `/projects/<id>/budget`, `updates`, `knowledge`, `team`  | → `/login?redirect=…` | → `/projects/<id>` (overview)       | page                      | "Project not available"              |
+
+- **`_authed`** (`src/routes/_authed.tsx`, a pathless layout in `routes.config.ts`): every app route sits under
+  it; no user → `/login?redirect=<current href>`. It also renders the app shell (rail, bottom bar), so `/login`
+  doesn't get one. Children get `context.user` (never null).
+- **`/login`** (`src/routes/login.tsx`): a signed-in user goes to `redirect` if it is a same-origin path, else `/`.
+- **Project layout** (`src/routes/project/layout.tsx`): the user's **per-project role** comes from
+  `project_members` via the `getProjectAccess` server function, cached in the query client
+  (`projectAccessQuery` in `features/auth/hooks`, 5 min); not a member → `notFound()` (the existing empty state),
+  a client on a `managerOnlySections` page → the overview.
+- **Nav role** (`useNavRole`, `src/shared/ui/nav-role.ts`): inside a project the per-project role, so a manager
+  account invited as a client somewhere gets the client nav there; outside a project `profiles.account_type`
+  (only `manager` gets the manager nav there; `admin` is treated like a non-manager until its UI is decided).
+  Role-aware project pages use the same hook.
+
+These guards decide what to render and where to send people. **RLS is still the enforcement**: a guard that
+let someone through could not show them data Postgres refuses to return.
+
+There is no AAL2/MFA redirect yet: T22 adds it together with the 2FA screens, sending `aal1` staff to the 2FA
+screen when `public.staff_mfa_required()` returns `true` (see **Roles & 2FA enforcement** above).
+`context.auth.user.aal` and `context.auth.profile.account_type` are already in the router context for it.
 
 ## Internationalization
 

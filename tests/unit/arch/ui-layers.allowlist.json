@@ -80,11 +80,6 @@
     "reason": "One-off hover/focus-reveal remove-task button."
   },
   {
-    "file": "routes/__root.tsx",
-    "snippet": "flex min-h-screen items-center justify-center text-body-md text-on-surface-variant",
-    "reason": "One-off full-page loading state, shown once before the app shell exists."
-  },
-  {
     "file": "routes/project/chat.tsx",
     "snippet": "top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)]",
     "reason": "Layout-only: the chat panel's own fixed/responsive positioning and safe-area math."

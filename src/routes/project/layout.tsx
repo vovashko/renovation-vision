@@ -1,41 +1,44 @@
-import { createFileRoute, Link, Navigate, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, Outlet, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { PageLoading } from "@/components/page-header";
-import { useProject } from "@/features/projects/hooks";
+import { ensureProjectAccess } from "@/features/auth/hooks";
+import { projectGuard, projectSection } from "@/features/auth/domain/guards";
 import { ProjectEmpty } from "@/shared/ui/project-empty";
-import { managerOnlySections } from "@/shared/ui/nav-config";
-import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/projects/$projectId")({
-  component: ProjectLayout,
+/**
+ * Project guard (README → Sessions & route guards), on the server for a hard load and in the
+ * browser on navigation. The user's per-project role comes from `project_members` (getProjectAccess,
+ * cached in the query client):
+ * - not a member → "Project not available" (notFound, thrown from the loader so this route's
+ *   notFoundComponent renders it inside the app shell);
+ * - a client on a manager-only section → the project overview;
+ * - otherwise the page. RLS remains the real enforcement; this decides what to render.
+ */
+export const Route = createFileRoute("/_authed/projects/$projectId")({
+  beforeLoad: async ({ context, params, location }) => {
+    const access = await ensureProjectAccess(context.queryClient, params.projectId, context.user.id);
+    if (projectGuard(access.role, projectSection(location.pathname)) === "overview") {
+      throw redirect({ to: "/projects/$projectId", params, replace: true });
+    }
+    return { projectRole: access.role };
+  },
+  loader: ({ context }) => {
+    if (projectGuard(context.projectRole, "") === "not-found") throw notFound();
+  },
+  notFoundComponent: ProjectNotAvailable,
+  component: Outlet,
 });
 
-function ProjectLayout() {
+function ProjectNotAvailable() {
   const { t } = useTranslation(["projects", "common"]);
-  const { projectId } = Route.useParams();
-  const { profile } = useAuth();
-  const path = useRouterState({ select: (r) => r.location.pathname });
-  const { isLoading, error } = useProject(projectId);
-  const isManager = profile?.account_type === "manager";
-
-  // UI guard only: RLS is what actually keeps clients out of manager data.
-  const section = path.split("/")[3];
-  if (!isManager && section && managerOnlySections.includes(section)) {
-    return <Navigate to="/projects/$projectId" params={{ projectId }} replace />;
-  }
-  if (isLoading) return <PageLoading />;
-  if (error) {
-    return (
-      <ProjectEmpty
-        title={t("layout.notAvailableTitle")}
-        text={t("layout.notAvailableText")}
-        action={
-          <Link to="/" className="text-label-lg text-primary hover:underline">
-            {t("common:actions.back")}
-          </Link>
-        }
-      />
-    );
-  }
-  return <Outlet />;
+  return (
+    <ProjectEmpty
+      title={t("layout.notAvailableTitle")}
+      text={t("layout.notAvailableText")}
+      action={
+        <Link to="/" className="text-label-lg text-primary hover:underline">
+          {t("common:actions.back")}
+        </Link>
+      }
+    />
+  );
 }

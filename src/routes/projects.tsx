@@ -13,7 +13,7 @@ import { useCreateProject, useProjects } from "@/features/projects/hooks";
 import type { NewProjectValues } from "@/features/projects/domain/schemas";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/projects/")({
+export const Route = createFileRoute("/_authed/projects/")({
   head: () => ({
     meta: [{ title: "Projects — RenoVision" }, { name: "description", content: "All renovation projects you manage." }],
   }),

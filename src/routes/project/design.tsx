@@ -10,12 +10,12 @@ import { RenderSheet } from "@/features/media/ui/render-sheet";
 import { MediaEmpty } from "@/features/media/ui/media-empty";
 import { usePhotos } from "@/features/media/hooks/use-photos";
 import { useRenders, useToggleRenderVisible } from "@/features/media/hooks/use-renders";
-import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { useRooms } from "@/features/work/hooks";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import type { Render } from "@/lib/database.types";
 
-export const Route = createFileRoute("/projects/$projectId/design")({
+export const Route = createFileRoute("/_authed/projects/$projectId/design")({
   head: ({ match }) => ({
     meta: [
       { title: `${match.context.i18n.t("media:designPage.heading")} — RenoVision` },
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/projects/$projectId/design")({
 function DesignPage() {
   const { t } = useTranslation(["media"]);
   const { projectId } = Route.useParams();
-  const isManager = useAuth().profile?.account_type === "manager";
+  const isManager = useNavRole() === "manager";
   const { data: renders, isLoading } = useRenders(projectId);
   const { data: rooms = [] } = useRooms(projectId);
   const { data: photos = [] } = usePhotos(projectId);

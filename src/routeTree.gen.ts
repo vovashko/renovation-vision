@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as authedRouteImport } from './routes/_authed'
+import { Route as loginRouteImport } from './routes/login'
 import { Route as indexRouteImport } from './routes/index'
 import { Route as settingsRouteImport } from './routes/settings'
 import { Route as projectsRouteImport } from './routes/projects'
@@ -25,25 +27,34 @@ import { Route as projectStagesRouteImport } from './routes/project/stages'
 import { Route as projectTeamRouteImport } from './routes/project/team'
 import { Route as projectUpdatesRouteImport } from './routes/project/updates'
 
+const authedRoute = authedRouteImport.update({
+  id: '/_authed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const loginRoute = loginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const indexRoute = indexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authedRoute,
 } as any)
 const settingsRoute = settingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authedRoute,
 } as any)
 const projectsRoute = projectsRouteImport.update({
   id: '/projects/',
   path: '/projects/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authedRoute,
 } as any)
 const projectLayoutRoute = projectLayoutRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authedRoute,
 } as any)
 const projectOverviewRoute = projectOverviewRouteImport.update({
   id: '/',
@@ -103,6 +114,7 @@ const projectUpdatesRoute = projectUpdatesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof indexRoute
+  '/login': typeof loginRoute
   '/settings': typeof settingsRoute
   '/projects/': typeof projectsRoute
   '/projects/$projectId': typeof projectLayoutRouteWithChildren
@@ -119,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/updates': typeof projectUpdatesRoute
 }
 export interface FileRoutesByTo {
+  '/login': typeof loginRoute
   '/': typeof indexRoute
   '/settings': typeof settingsRoute
   '/projects': typeof projectsRoute
@@ -136,26 +149,29 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof indexRoute
-  '/settings': typeof settingsRoute
-  '/projects/': typeof projectsRoute
-  '/projects/$projectId': typeof projectLayoutRouteWithChildren
-  '/projects/$projectId/': typeof projectOverviewRoute
-  '/projects/$projectId/budget': typeof projectBudgetRoute
-  '/projects/$projectId/chat': typeof projectChatRoute
-  '/projects/$projectId/design': typeof projectDesignRoute
-  '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
-  '/projects/$projectId/photos': typeof projectPhotosRoute
-  '/projects/$projectId/plan': typeof projectPlanRoute
-  '/projects/$projectId/progress': typeof projectProgressRoute
-  '/projects/$projectId/stages': typeof projectStagesRoute
-  '/projects/$projectId/team': typeof projectTeamRoute
-  '/projects/$projectId/updates': typeof projectUpdatesRoute
+  '/_authed': typeof authedRouteWithChildren
+  '/login': typeof loginRoute
+  '/_authed/': typeof indexRoute
+  '/_authed/settings': typeof settingsRoute
+  '/_authed/projects/': typeof projectsRoute
+  '/_authed/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/_authed/projects/$projectId/': typeof projectOverviewRoute
+  '/_authed/projects/$projectId/budget': typeof projectBudgetRoute
+  '/_authed/projects/$projectId/chat': typeof projectChatRoute
+  '/_authed/projects/$projectId/design': typeof projectDesignRoute
+  '/_authed/projects/$projectId/knowledge': typeof projectKnowledgeRoute
+  '/_authed/projects/$projectId/photos': typeof projectPhotosRoute
+  '/_authed/projects/$projectId/plan': typeof projectPlanRoute
+  '/_authed/projects/$projectId/progress': typeof projectProgressRoute
+  '/_authed/projects/$projectId/stages': typeof projectStagesRoute
+  '/_authed/projects/$projectId/team': typeof projectTeamRoute
+  '/_authed/projects/$projectId/updates': typeof projectUpdatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/settings'
     | '/projects/'
     | '/projects/$projectId'
@@ -172,6 +188,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/updates'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/login'
     | '/'
     | '/settings'
     | '/projects'
@@ -188,132 +205,146 @@ export interface FileRouteTypes {
     | '/projects/$projectId/updates'
   id:
     | '__root__'
-    | '/'
-    | '/settings'
-    | '/projects/'
-    | '/projects/$projectId'
-    | '/projects/$projectId/'
-    | '/projects/$projectId/budget'
-    | '/projects/$projectId/chat'
-    | '/projects/$projectId/design'
-    | '/projects/$projectId/knowledge'
-    | '/projects/$projectId/photos'
-    | '/projects/$projectId/plan'
-    | '/projects/$projectId/progress'
-    | '/projects/$projectId/stages'
-    | '/projects/$projectId/team'
-    | '/projects/$projectId/updates'
+    | '/_authed'
+    | '/login'
+    | '/_authed/'
+    | '/_authed/settings'
+    | '/_authed/projects/'
+    | '/_authed/projects/$projectId'
+    | '/_authed/projects/$projectId/'
+    | '/_authed/projects/$projectId/budget'
+    | '/_authed/projects/$projectId/chat'
+    | '/_authed/projects/$projectId/design'
+    | '/_authed/projects/$projectId/knowledge'
+    | '/_authed/projects/$projectId/photos'
+    | '/_authed/projects/$projectId/plan'
+    | '/_authed/projects/$projectId/progress'
+    | '/_authed/projects/$projectId/stages'
+    | '/_authed/projects/$projectId/team'
+    | '/_authed/projects/$projectId/updates'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  indexRoute: typeof indexRoute
-  settingsRoute: typeof settingsRoute
-  projectsRoute: typeof projectsRoute
-  projectLayoutRoute: typeof projectLayoutRouteWithChildren
+  authedRoute: typeof authedRouteWithChildren
+  loginRoute: typeof loginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof authedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof loginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/': {
+      id: '/_authed/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof indexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authedRoute
     }
-    '/settings': {
-      id: '/settings'
+    '/_authed/settings': {
+      id: '/_authed/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof settingsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authedRoute
     }
-    '/projects/': {
-      id: '/projects/'
+    '/_authed/projects/': {
+      id: '/_authed/projects/'
       path: '/projects'
       fullPath: '/projects/'
       preLoaderRoute: typeof projectsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authedRoute
     }
-    '/projects/$projectId': {
-      id: '/projects/$projectId'
+    '/_authed/projects/$projectId': {
+      id: '/_authed/projects/$projectId'
       path: '/projects/$projectId'
       fullPath: '/projects/$projectId'
       preLoaderRoute: typeof projectLayoutRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authedRoute
     }
-    '/projects/$projectId/': {
-      id: '/projects/$projectId/'
+    '/_authed/projects/$projectId/': {
+      id: '/_authed/projects/$projectId/'
       path: '/'
       fullPath: '/projects/$projectId/'
       preLoaderRoute: typeof projectOverviewRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/budget': {
-      id: '/projects/$projectId/budget'
+    '/_authed/projects/$projectId/budget': {
+      id: '/_authed/projects/$projectId/budget'
       path: '/budget'
       fullPath: '/projects/$projectId/budget'
       preLoaderRoute: typeof projectBudgetRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/chat': {
-      id: '/projects/$projectId/chat'
+    '/_authed/projects/$projectId/chat': {
+      id: '/_authed/projects/$projectId/chat'
       path: '/chat'
       fullPath: '/projects/$projectId/chat'
       preLoaderRoute: typeof projectChatRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/design': {
-      id: '/projects/$projectId/design'
+    '/_authed/projects/$projectId/design': {
+      id: '/_authed/projects/$projectId/design'
       path: '/design'
       fullPath: '/projects/$projectId/design'
       preLoaderRoute: typeof projectDesignRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/knowledge': {
-      id: '/projects/$projectId/knowledge'
+    '/_authed/projects/$projectId/knowledge': {
+      id: '/_authed/projects/$projectId/knowledge'
       path: '/knowledge'
       fullPath: '/projects/$projectId/knowledge'
       preLoaderRoute: typeof projectKnowledgeRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/photos': {
-      id: '/projects/$projectId/photos'
+    '/_authed/projects/$projectId/photos': {
+      id: '/_authed/projects/$projectId/photos'
       path: '/photos'
       fullPath: '/projects/$projectId/photos'
       preLoaderRoute: typeof projectPhotosRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/plan': {
-      id: '/projects/$projectId/plan'
+    '/_authed/projects/$projectId/plan': {
+      id: '/_authed/projects/$projectId/plan'
       path: '/plan'
       fullPath: '/projects/$projectId/plan'
       preLoaderRoute: typeof projectPlanRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/progress': {
-      id: '/projects/$projectId/progress'
+    '/_authed/projects/$projectId/progress': {
+      id: '/_authed/projects/$projectId/progress'
       path: '/progress'
       fullPath: '/projects/$projectId/progress'
       preLoaderRoute: typeof projectProgressRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/stages': {
-      id: '/projects/$projectId/stages'
+    '/_authed/projects/$projectId/stages': {
+      id: '/_authed/projects/$projectId/stages'
       path: '/stages'
       fullPath: '/projects/$projectId/stages'
       preLoaderRoute: typeof projectStagesRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/team': {
-      id: '/projects/$projectId/team'
+    '/_authed/projects/$projectId/team': {
+      id: '/_authed/projects/$projectId/team'
       path: '/team'
       fullPath: '/projects/$projectId/team'
       preLoaderRoute: typeof projectTeamRouteImport
       parentRoute: typeof projectLayoutRoute
     }
-    '/projects/$projectId/updates': {
-      id: '/projects/$projectId/updates'
+    '/_authed/projects/$projectId/updates': {
+      id: '/_authed/projects/$projectId/updates'
       path: '/updates'
       fullPath: '/projects/$projectId/updates'
       preLoaderRoute: typeof projectUpdatesRouteImport
@@ -354,11 +385,26 @@ const projectLayoutRouteWithChildren = projectLayoutRoute._addFileChildren(
   projectLayoutRouteChildren,
 )
 
-const rootRouteChildren: RootRouteChildren = {
+interface authedRouteChildren {
+  indexRoute: typeof indexRoute
+  settingsRoute: typeof settingsRoute
+  projectsRoute: typeof projectsRoute
+  projectLayoutRoute: typeof projectLayoutRouteWithChildren
+}
+
+const authedRouteChildren: authedRouteChildren = {
   indexRoute: indexRoute,
   settingsRoute: settingsRoute,
   projectsRoute: projectsRoute,
   projectLayoutRoute: projectLayoutRouteWithChildren,
+}
+
+const authedRouteWithChildren =
+  authedRoute._addFileChildren(authedRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  authedRoute: authedRouteWithChildren,
+  loginRoute: loginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

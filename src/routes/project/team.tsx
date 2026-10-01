@@ -11,7 +11,7 @@ import { useConfirm } from "@/shared/ui/use-confirm";
 import { useAuth } from "@/lib/auth";
 import type { Member } from "@/lib/database.types";
 
-export const Route = createFileRoute("/projects/$projectId/team")({
+export const Route = createFileRoute("/_authed/projects/$projectId/team")({
   head: () => ({
     meta: [{ title: "Team — RenoVision" }, { name: "description", content: "Who can see and manage this project." }],
   }),

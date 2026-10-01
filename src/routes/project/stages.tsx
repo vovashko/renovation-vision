@@ -5,7 +5,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
  * route stays only to keep old links — bookmarks, notifications, the manager overview — working,
  * including a stage anchor hash (`#<stageId>`).
  */
-export const Route = createFileRoute("/projects/$projectId/stages")({
+export const Route = createFileRoute("/_authed/projects/$projectId/stages")({
   beforeLoad: ({ params, location }) => {
     throw redirect({ to: "/projects/$projectId/progress", params, search: { view: "timeline" }, hash: location.hash || undefined });
   },

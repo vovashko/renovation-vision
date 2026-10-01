@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { AccountCard } from "@/features/settings/ui/account-card";
 import { LanguageForm } from "@/features/settings/ui/language-form";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authed/settings")({
   // Rendered in the request's language; after an in-app switch the tab title catches up on the next navigation.
   head: ({ match }) => ({
     meta: [

@@ -11,7 +11,7 @@ import { KnowledgeSheet } from "@/features/knowledge/ui/knowledge-sheet";
 import { useKnowledge, useToggleKnowledgeVisible } from "@/features/knowledge/hooks/use-knowledge";
 import type { Knowledge } from "@/lib/database.types";
 
-export const Route = createFileRoute("/projects/$projectId/knowledge")({
+export const Route = createFileRoute("/_authed/projects/$projectId/knowledge")({
   head: ({ match }) => ({
     meta: [
       { title: `${match.context.i18n.t("knowledge:page.title")} — RenoVision` },

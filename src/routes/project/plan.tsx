@@ -5,7 +5,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
  * stays only to keep old links working, including the `room` search param (e.g. from the manager
  * overview's "blocked" issues list).
  */
-export const Route = createFileRoute("/projects/$projectId/plan")({
+export const Route = createFileRoute("/_authed/projects/$projectId/plan")({
   validateSearch: (s: Record<string, unknown>): { room?: string } => ({
     room: typeof s.room === "string" ? s.room : undefined,
   }),
