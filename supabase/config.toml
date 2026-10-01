@@ -15,9 +15,22 @@ sql_paths = ["./seed.sql"]
 [auth]
 site_url = "http://localhost:3000"
 additional_redirect_urls = ["http://localhost:3001"]
+# New passwords: at least 10 characters with letters and digits. Existing (seeded) passwords still
+# sign in; the rules apply on sign-up and password change.
+minimum_password_length = 10
+password_requirements = "letters_digits"
 
 [auth.email]
-enable_confirmations = false
+# Sign-ups must confirm their email (locally the link lands in Inbucket). Seeded users are confirmed.
+enable_confirmations = true
+# Changing the password needs a recent sign-in (reauthentication nonce otherwise).
+secure_password_change = true
+
+# TOTP 2FA: staff need an aal2 session to read internal data while
+# private.app_settings.enforce_staff_mfa is on (see README "Roles & 2FA enforcement").
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
 
 # Local stack trimmed to what the app uses, so it fits a small (10 GB) Docker disk.
 # Realtime (chat), Storage (media) and Inbucket (auth emails) stay on.

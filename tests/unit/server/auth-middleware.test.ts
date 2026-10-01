@@ -185,6 +185,14 @@ describe("requireAccountType", () => {
     expect(handlerCalled).toBe(true);
     expect(context.accountType).toBe("manager");
   });
+
+  it("accepts admin accounts when admin is allowed, and 403s them otherwise", async () => {
+    h.accountType = "admin";
+    const { handlerCalled, context } = await runServerMiddleware([requireAccountType("manager", "admin")]);
+    expect(handlerCalled).toBe(true);
+    expect(context.accountType).toBe("admin");
+    await expectServerError(runServerMiddleware([requireAccountType("manager")]), 403, "FORBIDDEN", "account_type_manager_required");
+  });
 });
 
 describe("requireProjectRole", () => {

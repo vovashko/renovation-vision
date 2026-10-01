@@ -4,7 +4,7 @@
 //
 //   authedFn(...)                                         // = requireUser (+ boundary, rate limit)
 //     .middleware([requireAal2])                          // 403 unless the session is MFA-verified
-//     .middleware([requireAccountType("manager")])        // 403 unless profiles.account_type matches
+//     .middleware([requireAccountType("manager", "admin")]) // 403 unless profiles.account_type matches
 //     .middleware([requireProjectRole((i: { projectId: string }) => i.projectId, "manager")])
 //
 // requireUser:
@@ -65,7 +65,10 @@ export const requireAal2 = createMiddleware({ type: "function" })
     return next();
   });
 
-/** 403 unless `profiles.account_type` is one of `allowed`. Adds `accountType` to the context. */
+/**
+ * 403 unless `profiles.account_type` is one of `allowed` ("manager" | "client" | "admin", from the
+ * generated `account_type` enum). Adds `accountType` to the context.
+ */
 export function requireAccountType(...allowed: [AccountType, ...AccountType[]]) {
   return createMiddleware({ type: "function" })
     .middleware([requireUser])
