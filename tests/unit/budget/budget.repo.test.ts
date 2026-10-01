@@ -90,53 +90,5 @@ describe("budgetRepo receipt path", () => {
   });
 });
 
-describe("budgetRepo.deleteExpense", () => {
-  const expense = {
-    id: "expense-1",
-    project_id: "proj-1",
-    stage_id: null,
-    category: "Materials",
-    description: "Tiles",
-    vendor: "",
-    vendor_notes: "",
-    amount: 10,
-    spent_on: "2026-04-19",
-    receipt_path: "proj-1/receipts/abc.png",
-  };
-
-  it("removes the receipt object only after the row delete succeeds", async () => {
-    const deleteBuilder = makeQueryBuilder({ data: null, error: null });
-    fromMock.mockReturnValue(deleteBuilder);
-    const bucket = makeStorageBucket();
-    storageFromMock.mockReturnValue(bucket);
-
-    await budgetRepo.deleteExpense(expense);
-
-    expect(deleteBuilder.delete).toHaveBeenCalledTimes(1);
-    expect(bucket.remove).toHaveBeenCalledWith([expense.receipt_path]);
-    expect(events).toEqual([`remove:${expense.receipt_path}`]);
-  });
-
-  it("does not remove the receipt object when the row delete fails", async () => {
-    const deleteBuilder = makeQueryBuilder({ data: null, error: { message: "boom" } });
-    fromMock.mockReturnValue(deleteBuilder);
-    const bucket = makeStorageBucket();
-    storageFromMock.mockReturnValue(bucket);
-
-    await expect(budgetRepo.deleteExpense(expense)).rejects.toThrow("boom");
-
-    expect(bucket.remove).not.toHaveBeenCalled();
-    expect(events).toEqual([]);
-  });
-
-  it("skips the storage call entirely when there is no receipt", async () => {
-    const deleteBuilder = makeQueryBuilder({ data: null, error: null });
-    fromMock.mockReturnValue(deleteBuilder);
-    const bucket = makeStorageBucket();
-    storageFromMock.mockReturnValue(bucket);
-
-    await budgetRepo.deleteExpense({ ...expense, receipt_path: null });
-
-    expect(bucket.remove).not.toHaveBeenCalled();
-  });
-});
+// Deleting an expense (row + receipt object, atomically) moved to the deleteExpense server function
+// (T23): see tests/unit/server/media-delete.test.ts.

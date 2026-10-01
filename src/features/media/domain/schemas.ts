@@ -1,10 +1,15 @@
 // Zod schemas for the media forms. Pure: no React, no Supabase. Messages are i18n keys — `FormField`
 // translates them (README → Forms).
 import { z } from "zod";
+import { validateFile } from "./upload";
 
-/** "Add site photos" sheet. */
+/** "Add site photos" sheet. Mime type and size are checked against the `project-media` bucket's rules (domain/upload.ts). */
 export const uploadPhotosSchema = z.object({
-  files: z.array(z.instanceof(File)).min(1, "media:upload.filesRequired"),
+  files: z
+    .array(z.instanceof(File))
+    .min(1, "media:upload.filesRequired")
+    .refine((files) => files.every((f) => validateFile(f, "photo") !== "type"), "media:upload.fileTypeNotAllowed")
+    .refine((files) => files.every((f) => validateFile(f, "photo") !== "size"), "media:upload.fileTooLarge"),
   stageId: z.string(),
   roomId: z.string(),
   caption: z.string(),
@@ -34,7 +39,11 @@ export function renderSchema(isNew: boolean) {
       roomId: z.string(),
       comparePhotoId: z.string(),
       isVisible: z.boolean(),
-      file: z.instanceof(File).nullable(),
+      file: z
+        .instanceof(File)
+        .nullable()
+        .refine((f) => !f || validateFile(f, "render") !== "type", "media:render.fileTypeNotAllowed")
+        .refine((f) => !f || validateFile(f, "render") !== "size", "media:render.fileTooLarge"),
     })
     .refine((v) => !isNew || v.file !== null, { message: "media:render.fileRequired", path: ["file"] });
 }

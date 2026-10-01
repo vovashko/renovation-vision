@@ -76,6 +76,9 @@
   },
   "upload": {
     "filesRequired": "Wybierz co najmniej jedno zdjęcie",
+    "fileTypeNotAllowed": "Dozwolone są tylko zdjęcia JPEG, PNG, WebP lub HEIC",
+    "fileTooLarge": "Każde zdjęcie musi mieć maksymalnie 15 MB",
+    "heicNotice": "Zdjęcia HEIC są przesyłane bez zmian — nie możemy usunąć z nich danych lokalizacji w przeglądarce.",
     "publishedToast_one": "Opublikowano {{count}} zdjęcie",
     "publishedToast_few": "Opublikowano {{count}} zdjęcia",
     "publishedToast_many": "Opublikowano {{count}} zdjęć",
@@ -142,6 +145,8 @@
   },
   "render": {
     "fileRequired": "Wybierz obraz dla wizualizacji",
+    "fileTypeNotAllowed": "Dozwolone są tylko obrazy JPEG, PNG lub WebP",
+    "fileTooLarge": "Obraz musi mieć maksymalnie 15 MB",
     "savedToast": "Zapisano wizualizację",
     "deletedToast": "Usunięto wizualizację",
     "hiddenToast": "Ukryto przed klientem",

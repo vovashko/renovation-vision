@@ -7,6 +7,8 @@ import { fileExt } from "@/domain/text";
 import type { Photo, Render } from "@/lib/database.types";
 
 export type PhotoMeta = { stage_id: string | null; room_id: string | null; caption: string };
+/** A file ready to upload, plus its EXIF capture date (null when it has none — the caller then uses "now"). */
+export type PhotoUploadItem = { file: File; takenAt: string | null };
 export type PhotoPatch = Partial<Pick<Photo, "caption" | "alt" | "stage_id" | "room_id" | "status">>;
 export type RenderInput = Partial<Omit<Render, "project_id" | "url" | "storage_path">> & { file?: File | null };
 
@@ -54,10 +56,11 @@ async function listPhotos(projectId: string): Promise<Photo[]> {
   return rows.map((r) => ({ ...r, url: urls.get(r.storage_path) ?? "" }));
 }
 
-async function uploadPhotos(projectId: string, files: File[], meta: PhotoMeta, publish: boolean): Promise<void> {
+/** Uploads already-processed files (re-encoded/EXIF-stripped where applicable — see features/media/domain). */
+async function uploadPhotos(projectId: string, items: PhotoUploadItem[], meta: PhotoMeta, publish: boolean): Promise<void> {
   const uid = await currentUserId();
   const now = new Date().toISOString();
-  for (const file of files) {
+  for (const { file, takenAt } of items) {
     const path = await upload(MEDIA_BUCKET, mediaPath(projectId, "photos", file), file);
     await must(
       supabase.from("photos").insert({
@@ -70,6 +73,7 @@ async function uploadPhotos(projectId: string, files: File[], meta: PhotoMeta, p
         uploaded_by: uid,
         status: publish ? "published" : "draft",
         published_at: publish ? now : null,
+        taken_at: takenAt ?? now,
       }),
     );
   }
@@ -84,11 +88,6 @@ async function updatePhoto(photoId: string, patch: PhotoPatch): Promise<void> {
       .update({ ...patch, ...extra })
       .eq("id", photoId),
   );
-}
-
-async function deletePhoto(photo: Photo): Promise<void> {
-  await must(supabase.from("photos").delete().eq("id", photo.id));
-  await supabase.storage.from(MEDIA_BUCKET).remove([photo.storage_path]);
 }
 
 async function listRenders(projectId: string): Promise<Render[]> {
@@ -115,12 +114,9 @@ async function saveRender(projectId: string, { id: renderId, file, ...input }: R
   }
 }
 
-async function deleteRender(render: Render): Promise<void> {
-  await must(supabase.from("renders").delete().eq("id", render.id));
-  await supabase.storage.from(MEDIA_BUCKET).remove([render.storage_path]);
-}
-
-/** The shared asset service for photos and renders: `features/media`'s only Supabase entry point. */
+/** The shared asset service for photos and renders: `features/media`'s only Supabase entry point.
+ * Deletes go through the `deletePhoto`/`deleteRender` server functions instead (atomic row + storage
+ * delete, RLS-checked as the user) — see features/media/hooks. */
 export const mediaRepo = {
   signUrls,
   upload,
@@ -128,8 +124,6 @@ export const mediaRepo = {
   listPhotos,
   uploadPhotos,
   updatePhoto,
-  deletePhoto,
   listRenders,
   saveRender,
-  deleteRender,
 };
