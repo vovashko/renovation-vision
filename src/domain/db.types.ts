@@ -465,12 +465,18 @@ isOneToOne: false
 "notify_project_clients":
 { Args: { "p_body": string,"p_link"?: string,"p_project": string,"p_title": string }; Returns: undefined
                            },
+"set_account_type":
+{ Args: { "p_type": Database["public"]['Enums']["account_type"],"p_user": string }; Returns: undefined
+                           },
 "shares_project_with":
 { Args: { "p_user": string }; Returns: boolean
+                           },
+"staff_mfa_required":
+{ Args: Record<PropertyKey, never>; Returns: boolean
                            }
           }
           Enums: {
-            "account_type": "manager"|"client","photo_status": "draft"|"published","project_role": "manager"|"client","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","photo_status": "draft"|"published","project_role": "manager"|"client","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -586,7 +592,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client"],"photo_status": ["draft", "published"],"project_role": ["manager", "client"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"photo_status": ["draft", "published"],"project_role": ["manager", "client"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const
