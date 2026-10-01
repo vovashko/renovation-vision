@@ -10,13 +10,13 @@ import { Lightbox } from "@/features/media/ui/lightbox";
 import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { usePhotos, useUpdatePhoto } from "@/features/media/hooks/use-photos";
 import { filterPhotos, groupPhotosByDate, toLightboxItem } from "@/features/media/domain/photo-helpers";
-import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { useRooms, useStages } from "@/features/work/hooks";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { useFormat } from "@/i18n";
 import type { Photo } from "@/lib/database.types";
 
-export const Route = createFileRoute("/projects/$projectId/photos")({
+export const Route = createFileRoute("/_authed/projects/$projectId/photos")({
   head: ({ match }) => ({
     meta: [
       { title: `${match.context.i18n.t("media:photosPage.heading")} — RenoVision` },
@@ -30,7 +30,7 @@ function PhotosPage() {
   const { t } = useTranslation(["media", "common"]);
   const format = useFormat();
   const { projectId } = Route.useParams();
-  const isManager = useAuth().profile?.account_type === "manager";
+  const isManager = useNavRole() === "manager";
   const { data: photos, isLoading } = usePhotos(projectId);
   const { data: stages = [] } = useStages(projectId);
   const { data: rooms = [] } = useRooms(projectId);

@@ -14,7 +14,7 @@ import { useActivity } from "@/features/comms/hooks/use-activity";
 import { useNotifications, useNotifyClients } from "@/features/comms/hooks/use-notifications";
 import type { Notification } from "@/lib/database.types";
 
-export const Route = createFileRoute("/projects/$projectId/updates")({
+export const Route = createFileRoute("/_authed/projects/$projectId/updates")({
   head: () => ({
     meta: [
       { title: "Updates — RenoVision" },

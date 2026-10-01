@@ -13,12 +13,12 @@ import { useRooms, useStages } from "@/features/work/hooks";
 import { useProject } from "@/features/projects/hooks";
 import { ManagerOverview } from "@/features/projects/ui/manager-overview";
 import { PageLoading } from "@/components/page-header";
-import { useAuth } from "@/lib/auth";
+import { useNavRole } from "@/shared/ui/nav-role";
 import { daysLate } from "@/domain/attention";
 import { useFormat } from "@/i18n";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/projects/$projectId/")({
+export const Route = createFileRoute("/_authed/projects/$projectId/")({
   head: () => ({
     meta: [{ title: "Overview — RenoVision" }, { name: "description", content: "Project details, schedule and progress at a glance." }],
   }),
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/projects/$projectId/")({
 /** Managers get the status/shortcuts/client/team home; clients get the read-only project overview. */
 function ProjectHome() {
   const { projectId } = Route.useParams();
-  const isManager = useAuth().profile?.account_type === "manager";
+  const isManager = useNavRole() === "manager";
   return isManager ? <ManagerOverview projectId={projectId} /> : <ClientOverview projectId={projectId} />;
 }
 

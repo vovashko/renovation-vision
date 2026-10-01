@@ -5,7 +5,7 @@ import { useProjects } from "@/features/projects/hooks";
 import { ProjectEmpty } from "@/shared/ui/project-empty";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authed/")({
   component: Home,
 });
 

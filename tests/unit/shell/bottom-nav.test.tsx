@@ -3,6 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/shared/ui/bottom-nav";
 import { useAuth } from "@/lib/auth";
+import { useProjectRole } from "@/features/auth/hooks";
 import { useParams, useRouterState } from "@tanstack/react-router";
 
 // BottomNav renders router `<Link>`s and reads route state; stub the router so this stays a unit
@@ -28,6 +29,8 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("@/lib/auth", () => ({ useAuth: vi.fn() }));
+// Inside a project the nav follows the per-project role (project_members), not account_type.
+vi.mock("@/features/auth/hooks", () => ({ useProjectRole: vi.fn() }));
 
 const mockedUseAuth = vi.mocked(useAuth);
 const mockedUseParams = vi.mocked(useParams);
@@ -43,6 +46,7 @@ function setUp({ role, path, projectId }: { role: "manager" | "client"; path: st
     sendMagicLink: vi.fn(),
     signOut: vi.fn(),
   } as unknown as ReturnType<typeof useAuth>);
+  vi.mocked(useProjectRole).mockReturnValue(projectId ? role : null);
   mockedUseParams.mockReturnValue({ projectId } as unknown as ReturnType<typeof useParams>);
   // @ts-expect-error -- test double: only the `select` shape BottomNav actually calls is implemented.
   mockedUseRouterState.mockImplementation(({ select }) => select({ location: { pathname: path } }));
