@@ -17,11 +17,20 @@
 --   jonas@renovision.demo  manager (Jonas Weber)
 --   sarah@renovision.demo  client  (Sarah Bennett)
 --   tom@renovision.demo    client  (Tom Bennett)
+--   admin@renovision.demo  admin   (Renovision Admin; not on any project, changes account types)
 --
 -- Image files are uploaded separately: `node supabase/scripts/upload-seed-media.mjs`.
 -- Triggers are disabled while seeding so the audit trail and notifications below are curated.
 
 set session_replication_role = replica;
+
+-- ---------------------------------------------------------------------------
+-- Staff 2FA enforcement: OFF for the local and hosted-demo databases only.
+-- Migrations turn it ON (the production default), but the demo manager has no TOTP factor, so
+-- with it on he could not read the budget, internal notes, crew or activity log. Never run this
+-- against production. See README "Roles & 2FA enforcement".
+-- ---------------------------------------------------------------------------
+update private.app_settings set enforce_staff_mfa = false;
 
 -- ---------------------------------------------------------------------------
 -- Users
@@ -39,7 +48,8 @@ select
 from (values
   ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renovision.demo', 'Jonas Weber'),
   ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renovision.demo', 'Sarah Bennett'),
-  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renovision.demo', 'Tom Bennett')
+  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renovision.demo', 'Tom Bennett'),
+  ('a0000000-0000-4000-8000-000000000004'::uuid, 'admin@renovision.demo', 'Renovision Admin')
 ) as u (id, email, full_name)
 on conflict (id) do nothing;
 
@@ -54,7 +64,8 @@ where u.email like '%@renovision.demo'
 insert into public.profiles (id, full_name, account_type) values
   ('a0000000-0000-4000-8000-000000000001', 'Jonas Weber', 'manager'),
   ('a0000000-0000-4000-8000-000000000002', 'Sarah Bennett', 'client'),
-  ('a0000000-0000-4000-8000-000000000003', 'Tom Bennett', 'client')
+  ('a0000000-0000-4000-8000-000000000003', 'Tom Bennett', 'client'),
+  ('a0000000-0000-4000-8000-000000000004', 'Renovision Admin', 'admin')
 on conflict (id) do update set full_name = excluded.full_name, account_type = excluded.account_type;
 
 -- ---------------------------------------------------------------------------

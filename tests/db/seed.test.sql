@@ -25,6 +25,15 @@ select pg_temp.check(
   (select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000003') = 'client',
   'Tom is a client'
 );
+select pg_temp.check(
+  (select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000004') = 'admin',
+  'the demo admin is an admin'
+);
+-- The local/demo seed turns staff 2FA enforcement off (the demo manager has no TOTP factor).
+select pg_temp.check(
+  (select enforce_staff_mfa from private.app_settings) = false,
+  'seed turns staff 2FA enforcement off'
+);
 
 do $$
 declare
@@ -32,7 +41,7 @@ declare
 begin
   for u in
     select id, email from auth.users
-    where email in ('jonas@renovision.demo', 'sarah@renovision.demo', 'tom@renovision.demo')
+    where email in ('jonas@renovision.demo', 'sarah@renovision.demo', 'tom@renovision.demo', 'admin@renovision.demo')
   loop
     perform pg_temp.check(
       (select encrypted_password from auth.users where id = u.id) = extensions.crypt('renovision-demo', (select encrypted_password from auth.users where id = u.id)),
@@ -52,8 +61,8 @@ begin
     );
   end loop;
   perform pg_temp.check(
-    (select count(*) from auth.users where email like '%@renovision.demo') = 3,
-    'all 3 demo accounts exist'
+    (select count(*) from auth.users where email like '%@renovision.demo') = 4,
+    'all 4 demo accounts exist'
   );
 end $$;
 

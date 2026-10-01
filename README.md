@@ -55,6 +55,7 @@ Sign in with one of the seeded demo accounts (see `supabase/seed.sql` for the fu
 | ------- | ----------------------- | ----------------- |
 | Manager | `jonas@renovision.demo` | `renovision-demo` |
 | Client  | `sarah@renovision.demo` | `renovision-demo` |
+| Admin   | `admin@renovision.demo` | `renovision-demo` |
 
 Useful scripts: `bun run db:start` (`supabase start`), `bun run db:reset` (reset + reseed media),
 `bun run db:types` (regenerate `src/domain/db.types.ts` from the running local schema).
@@ -348,6 +349,42 @@ let someone through could not show them data Postgres refuses to return.
 
 There is no AAL2/MFA redirect yet: it comes with the 2FA screens (T22). `context.auth.user.aal` is already there
 for it.
+### Roles & 2FA enforcement
+
+**Account types** (`profiles.account_type`, enum `account_type`): `client` (the default for new sign-ups), `manager`
+and `admin`. `manager` and `admin` are _staff_ (`private.is_staff()`); both may call `create_project` and become the new
+project's manager. What someone can see inside a project still comes from `project_members.role`, not the account type.
+Users can't change their own account type (no column grant); `public.set_account_type(p_user, p_type)` is the only API
+path, and only an `admin` may call it (not on their own account; with an `aal2` session while 2FA is enforced).
+
+**Staff 2FA.** Internal data needs an MFA-verified (`aal2`) session while enforcement is on. _Restrictive_ RLS
+policies (`… : staff mfa`, `as restrictive`, ANDed with the existing permissive ones) require `private.staff_mfa_ok()`
+on `expenses`, `project_internal`, `project_crew`, `activity_log` and `storage.objects` in bucket `project-internal`
+(receipts). An `aal1` manager still sees the rest of the project (stages, rooms, photos, chat, the budget/spent
+totals), just none of those rows. Clients are unaffected: they have no access to those tables anyway, and the storage
+policy only looks at `project-internal`.
+
+| Piece                         | What it does                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `private.app_settings`        | One row; `enforce_staff_mfa` (default and migration value: `true`)                  |
+| `private.staff_mfa_ok()`      | `true` when enforcement is off, or `auth.jwt() ->> 'aal' = 'aal2'`                  |
+| `public.staff_mfa_required()` | The setting, for the UI: send `aal1` staff to the 2FA screen when it returns `true` |
+
+**Per environment.** A database built from migrations alone (production) enforces 2FA. `supabase/seed.sql` turns it
+**off**, so the local stack and the nightly-reseeded hosted demo work with the demo manager, who has no TOTP factor.
+Never run the seed against production. To flip it by hand (SQL editor / psql, as the database owner):
+
+```sql
+update private.app_settings set enforce_staff_mfa = true;  -- or false
+```
+
+**Auth settings** (`supabase/config.toml`; locally they apply after `supabase stop && supabase start`): email
+confirmation on sign-up, passwords of at least 10 characters with letters and digits, `secure_password_change`
+(recent sign-in needed to change a password), and TOTP MFA enrol/verify enabled. Hosted projects take the same
+settings from the dashboard (Authentication → Providers / Sign In / MFA). Seeded users are already confirmed and keep
+their `renovision-demo` password (the length rule only applies to new passwords).
+
+Tests: `tests/db/auth_hardening.test.sql`.
 
 ## Internationalization
 
