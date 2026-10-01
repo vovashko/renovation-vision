@@ -1,11 +1,17 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageLoading } from "@/components/page-header";
-import { useProjects } from "@/features/projects/hooks";
+import { projectsQuery, useProjects } from "@/features/projects/hooks";
 import { ProjectEmpty } from "@/shared/ui/project-empty";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authed/")({
+  // Decided before rendering (on the server for a hard load), so "/" never flashes a loading state.
+  beforeLoad: async ({ context }) => {
+    if (context.auth.profile?.account_type === "manager") throw redirect({ to: "/projects", replace: true });
+    const projects = await context.queryClient.ensureQueryData(projectsQuery());
+    if (projects.length) throw redirect({ to: "/projects/$projectId", params: { projectId: projects[0].id }, replace: true });
+  },
   component: Home,
 });
 

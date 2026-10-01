@@ -9,7 +9,7 @@ import { OverviewStats } from "@/features/work/ui/overview-stats";
 import { StageTimeline } from "@/features/work/ui/stage-timeline";
 import { FloorPlan } from "@/features/work/ui/floor-plan";
 import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
-import { useRooms, useStages } from "@/features/work/hooks";
+import { roomsQuery, stagesQuery, useRooms, useStages } from "@/features/work/hooks";
 import { useProject } from "@/features/projects/hooks";
 import { ManagerOverview } from "@/features/projects/ui/manager-overview";
 import { PageLoading } from "@/components/page-header";
@@ -22,6 +22,16 @@ export const Route = createFileRoute("/_authed/projects/$projectId/")({
   head: () => ({
     meta: [{ title: "Overview — RenoVision" }, { name: "description", content: "Project details, schedule and progress at a glance." }],
   }),
+  // Both overviews wait for the project, stages and rooms. Fetch them during SSR so a hard load
+  // renders the real page (the layout guard already cached the project); in the browser the
+  // components' own queries take over, so navigation isn't held up.
+  loader: async ({ context, params }) => {
+    if (!import.meta.env.SSR) return;
+    await Promise.all([
+      context.queryClient.prefetchQuery(stagesQuery(params.projectId)),
+      context.queryClient.prefetchQuery(roomsQuery(params.projectId)),
+    ]);
+  },
   component: ProjectHome,
 });
 

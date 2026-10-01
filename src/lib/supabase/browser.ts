@@ -1,10 +1,16 @@
-// The browser Supabase client: @supabase/ssr's createBrowserClient, which keeps the user's session
-// in COOKIES (not localStorage), so the server can read the same session on a hard load (SSR, the
-// route guards, server functions). Every request carries the user's JWT and Postgres RLS decides
-// what they can see. This is what every features/<f>/data repository uses (via `@/lib/supabase`).
-// Server code uses `./server` (acting as the user) or `./admin` (bypasses RLS, src/server/** only).
+// The client every features/<f>/data repository uses (via `@/lib/supabase`), acting AS THE USER so
+// Postgres RLS decides what they can see:
+// - in the browser, @supabase/ssr's createBrowserClient, which keeps the session in COOKIES (not
+//   localStorage), so the server can read the same session on a hard load;
+// - during SSR (route loaders prefetching into the query cache), the current request's cookie
+//   client from ./server (one per request, the same one getSession and server functions use).
+//   That half is a createIsomorphicFn `.server()` branch, which the Start compiler strips from the
+//   browser bundle together with the ./server import.
+// Server functions use `./server` directly, or `./admin` (bypasses RLS, src/server/** only).
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { createServerSupabase } from "./server";
 import { legacyStorageKey, SESSION_COOKIE_OPTIONS } from "./cookies";
 import { readPublicSupabaseEnv, validateSupabaseEnv } from "./env";
 
@@ -29,14 +35,34 @@ function unconfiguredClient(message: string): SupabaseClient {
 function createConfiguredClient(): SupabaseClient {
   const result = validateSupabaseEnv(readPublicSupabaseEnv());
   if (!result.ok) return unconfiguredClient(result.message);
-  // In the browser this is a singleton reading/writing document.cookie. During SSR the module is
-  // still evaluated (repositories import it) but has no cookies and never refreshes: server code
-  // talks to Supabase through ./server instead.
+  // A singleton reading/writing document.cookie.
   return createBrowserClient(result.env.url, result.env.key, { cookieOptions: SESSION_COOKIE_OPTIONS });
 }
 
+/** Server: the current request's cookie client. (Never called in the browser.) */
+const requestClient = createIsomorphicFn()
+  .server(() => createServerSupabase() as unknown as SupabaseClient)
+  .client((): SupabaseClient => {
+    throw new Error("requestClient is server-only");
+  });
+
+/**
+ * On the server the module is shared by every request, so `supabase` is a stand-in that resolves
+ * the request's own client on each property access (and throws outside a request).
+ */
+function requestBoundClient(): SupabaseClient {
+  return new Proxy({} as SupabaseClient, {
+    get(_target, prop) {
+      if (prop === "then") return undefined;
+      const client = requestClient();
+      const value: unknown = Reflect.get(client, prop);
+      return typeof value === "function" ? value.bind(client) : value;
+    },
+  });
+}
+
 /** Same Supabase project as the RenoVision client app. Always defined; throws on use when unconfigured. */
-export const supabase: SupabaseClient = createConfiguredClient();
+export const supabase: SupabaseClient = typeof window === "undefined" ? requestBoundClient() : createConfiguredClient();
 
 export const MEDIA_BUCKET = "project-media";
 export const INTERNAL_BUCKET = "project-internal";
