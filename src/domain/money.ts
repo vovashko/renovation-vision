@@ -4,8 +4,8 @@
 export type Currency = string;
 
 /**
- * Fallback until projects carry their own `currency` column (a later schema task). Callers that
- * know the project's currency pass it; everything else formats in this one.
+ * The fallback when no currency is passed. Project money (budget, spent, expenses) always passes the
+ * project's own `projects.currency` (T30); this only covers callers with no project at hand.
  */
 export const DEFAULT_CURRENCY: Currency = "PLN";
 

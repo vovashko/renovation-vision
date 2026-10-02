@@ -15,12 +15,22 @@ export type PhotoStatus = Enums<"photo_status">;
 
 export type Profile = Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "account_type">;
 
+export type ProjectStatus = Enums<"project_status">;
+export type ContactKind = Enums<"contact_kind">;
+export type ProjectContactRole = Enums<"project_contact_role">;
+
+// `address` is generated ("<line>, <postal code> <city>"), so the generated types call it nullable; the expression
+// never returns null.
 export type Project = Pick<
   Tables<"projects">,
   | "id"
   | "name"
-  | "address"
-  | "client_name"
+  | "address_line"
+  | "postal_code"
+  | "city"
+  | "country"
+  | "currency"
+  | "status"
   | "start_date"
   | "target_date"
   | "budget"
@@ -29,7 +39,7 @@ export type Project = Pick<
   | "schedule_note"
   | "created_at"
   | "updated_at"
->;
+> & { address: string };
 
 // Postgres marks every view column nullable, so the generated view row can't be used as is: the base columns
 // come from `projects` (non-null there) and the aggregates are coalesced in the view's SQL.
@@ -40,15 +50,32 @@ export type ProjectSummary = Project & {
   stages_total: NonNullable<SummaryView["stages_total"]>;
   current_stage: SummaryView["current_stage"];
   manager_name: SummaryView["manager_name"];
+  /** The primary client contact's name. Null for clients (they can't read contacts) and when there is none. */
+  client_display_name: SummaryView["client_display_name"];
 };
 
-export type ProjectInternal = Pick<
-  Tables<"project_internal">,
-  "project_id" | "internal_budget_notes" | "client_phone" | "client_email" | "updated_at"
+export type ProjectInternal = Pick<Tables<"project_internal">, "project_id" | "internal_budget_notes" | "updated_at">;
+
+/** An address-book entry (company-wide). Staff only. */
+export type Contact = Pick<
+  Tables<"contacts">,
+  "id" | "kind" | "full_name" | "company" | "trade" | "phone" | "whatsapp" | "email" | "notes" | "user_id"
 >;
 
-/** Site crew and trades (not app users). Manager-only. */
-export type CrewMember = Pick<Tables<"project_crew">, "id" | "project_id" | "name" | "trade" | "phone" | "email" | "sort_order">;
+/** A contact's role on one project, with the contact. Managers of the project only. */
+export type ProjectContact = Pick<
+  Tables<"project_contacts">,
+  "id" | "project_id" | "contact_id" | "role" | "is_primary" | "visible_to_client" | "sort_order"
+> & { contact: Contact };
+
+/** What `project_visible_contacts(project)` returns: a client-visible contact's role, name, phone and email. */
+export type VisibleContact = {
+  role: ProjectContactRole;
+  full_name: string;
+  phone: string | null;
+  email: string | null;
+  is_primary: boolean;
+};
 
 export type Member = Pick<Tables<"project_members">, "project_id" | "user_id" | "role" | "last_read_at" | "created_at"> & {
   profile: Pick<Profile, "id" | "full_name" | "avatar_url">;

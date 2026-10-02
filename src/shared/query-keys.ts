@@ -19,7 +19,10 @@ export const keys = {
   notifications: (id: string) => ["notifications", id] as const,
   activity: (id: string) => ["activity", id] as const,
   knowledge: (id: string) => ["knowledge", id] as const,
-  crew: (id: string) => ["crew", id] as const,
+  /** A project's contacts (crew, client, PoC…) as its managers see them. */
+  projectContacts: (id: string) => ["projectContacts", id] as const,
+  /** A project's client-visible contacts (`project_visible_contacts`), for any member. */
+  visibleContacts: (id: string) => ["visibleContacts", id] as const,
   /** The signed-in user as the server sees them (`getMe`), per user id. */
   me: (userId: string) => ["me", userId] as const,
 };
