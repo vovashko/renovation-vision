@@ -39,6 +39,10 @@ export type ServerEnv = {
   /** Which variable `supabaseSecretKey` came from, for log messages. */
   supabaseSecretKeySource: "SUPABASE_SECRET_KEY" | "SUPABASE_SERVICE_ROLE_KEY" | undefined;
   brevoApiKey: string | undefined;
+  /** The "From" address for app emails sent through @/server/email (T24); undefined falls back to a documented default. */
+  emailFrom: string | undefined;
+  /** Adds Brevo's sandbox header (validates the request, delivers nothing) to every send. See @/server/email. */
+  emailSandbox: boolean;
   sentryDsn: string | undefined;
 };
 
@@ -69,6 +73,13 @@ const serverSchema = z
     SUPABASE_SECRET_KEY: optionalString,
     SUPABASE_SERVICE_ROLE_KEY: optionalString,
     BREVO_API_KEY: optionalString,
+    EMAIL_FROM: optionalString,
+    EMAIL_SANDBOX: z.preprocess(
+      (value) => (value === undefined || value === "" ? "false" : value),
+      z.enum(["true", "false"], {
+        errorMap: () => ({ message: `EMAIL_SANDBOX must be "true" or "false" (or unset). ${WHERE}` }),
+      }),
+    ),
     SENTRY_DSN: optionalString.refine((value) => value === undefined || /^https:\/\/[^@\s]+@[^/\s]+\/\S+$/.test(value), {
       message: `SENTRY_DSN must look like https://<key>@<host>/<project-id>. ${WHERE}`,
     }),
@@ -98,6 +109,8 @@ export function parseServerEnv(source: Record<string, unknown>): { ok: true; env
       supabaseSecretKey: data.SUPABASE_SECRET_KEY ?? data.SUPABASE_SERVICE_ROLE_KEY,
       supabaseSecretKeySource,
       brevoApiKey: data.BREVO_API_KEY,
+      emailFrom: data.EMAIL_FROM,
+      emailSandbox: data.EMAIL_SANDBOX === "true",
       sentryDsn: data.SENTRY_DSN,
     },
   };

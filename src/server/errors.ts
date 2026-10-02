@@ -22,6 +22,8 @@ export const SERVER_ERROR_STATUS = {
   NOT_FOUND: 404,
   RATE_LIMITED: 429,
   INTERNAL: 500,
+  /** A required integration has no credentials in this environment (e.g. BREVO_API_KEY in production/preview). */
+  EMAIL_NOT_CONFIGURED: 500,
   UNAVAILABLE: 503,
 } as const;
 
