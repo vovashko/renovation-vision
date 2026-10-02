@@ -64,6 +64,64 @@
       "empty": "Zmiany w tym projekcie będą się tu pojawiać."
     }
   },
+  "notifications": {
+    "kind": {
+      "stage_status": "Etap",
+      "room_status": "Pomieszczenie",
+      "photo_published": "Zdjęcie",
+      "render_published": "Wizualizacja",
+      "schedule_status": "Harmonogram",
+      "message": "Wiadomość",
+      "manual": "Ogłoszenie"
+    },
+    "stage_status": {
+      "title": "Aktualizacja etapu: {{stage}}",
+      "body": "Etap {{stage}} ma teraz status: {{status}}."
+    },
+    "room_status": {
+      "title": "{{room}} — status: {{status}}"
+    },
+    "photo_published": {
+      "title": "Nowe zdjęcie z budowy"
+    },
+    "render_published": {
+      "title": "Nowa wizualizacja: {{title}}",
+      "untitled": "Nowa wizualizacja"
+    },
+    "schedule_status": {
+      "title": "Harmonogram: {{status}}"
+    },
+    "message": {
+      "title": "Nowa wiadomość od: {{sender}}",
+      "titleNoSender": "Nowa wiadomość",
+      "attachment": "Wysłano załącznik"
+    }
+  },
+  "activity": {
+    "entity": {
+      "project": "projekt",
+      "internal_notes": "notatki wewnętrzne",
+      "member": "członka zespołu",
+      "room": "pomieszczenie",
+      "stage": "etap",
+      "task": "zadanie",
+      "photo": "zdjęcie",
+      "render": "wizualizację",
+      "expense": "wydatek",
+      "ai_knowledge": "wpis wiedzy AI",
+      "crew_member": "osobę z ekipy"
+    },
+    "plain": {
+      "insert": "Dodano {{entity}}",
+      "update": "Zaktualizowano {{entity}}",
+      "delete": "Usunięto {{entity}}"
+    },
+    "labelled": {
+      "insert": "Dodano {{entity}} „{{label}}”",
+      "update": "Zaktualizowano {{entity}} „{{label}}”",
+      "delete": "Usunięto {{entity}} „{{label}}”"
+    }
+  },
   "email": {
     "notification": {
       "subject": "{{title}} — RenoVision",
