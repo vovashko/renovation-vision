@@ -59,5 +59,23 @@
       "heading": "Activity log",
       "empty": "Changes to this project will be listed here."
     }
+  },
+  "email": {
+    "notification": {
+      "subject": "{{title}} — RenoVision",
+      "preheader": "{{title}}",
+      "cta": "Open in RenoVision",
+      "disclaimer": "You're receiving this email because you have an active project on RenoVision.",
+      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}"
+    },
+    "digest": {
+      "subject": "Your RenoVision digest",
+      "preheader": "A summary of recent activity on your projects",
+      "heading": "Recent activity",
+      "empty": "No new activity since your last digest.",
+      "cta": "Open in RenoVision",
+      "disclaimer": "You're receiving this email because you have an active project on RenoVision.",
+      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}"
+    }
   }
 }

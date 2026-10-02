@@ -63,5 +63,23 @@
       "heading": "Dziennik aktywności",
       "empty": "Zmiany w tym projekcie będą się tu pojawiać."
     }
+  },
+  "email": {
+    "notification": {
+      "subject": "{{title}} — RenoVision",
+      "preheader": "{{title}}",
+      "cta": "Otwórz w RenoVision",
+      "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision.",
+      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}"
+    },
+    "digest": {
+      "subject": "Twoje podsumowanie RenoVision",
+      "preheader": "Podsumowanie ostatniej aktywności w Twoich projektach",
+      "heading": "Ostatnia aktywność",
+      "empty": "Brak nowej aktywności od ostatniego podsumowania.",
+      "cta": "Otwórz w RenoVision",
+      "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision.",
+      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}"
+    }
   }
 }
