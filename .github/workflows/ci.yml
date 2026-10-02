@@ -23,6 +23,43 @@ jobs:
       - name: Build
         run: bun run build
 
+      # Uploads this build's hidden source maps (vite.config.ts) to Sentry, so a minified stack
+      # trace resolves back to real source. Skips cleanly when the three secrets below aren't all
+      # set (e.g. a fork PR, or before a Sentry project exists) — nothing else in this repo
+      # requires a Sentry account. See README → Observability for the one-time setup.
+      - name: Check Sentry secrets
+        id: sentry-secrets
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: echo "configured=${{ secrets.SENTRY_AUTH_TOKEN != '' && secrets.SENTRY_ORG != '' && secrets.SENTRY_PROJECT != '' }}" >> "$GITHUB_OUTPUT"
+
+      # Client assets only: dist/client/assets/*.js is what the browser actually fetches (at
+      # /assets/*.js), so `~/assets` maps a sourcemap's relative path back to a real URL. dist/server
+      # is the Worker bundle — it has no public URL for sentry-cli to map source to, and
+      # @sentry/cloudflare's own stack frames aren't simple browser paths; wiring that up well is a
+      # follow-up once there's a Sentry project to test it against (see the PR description).
+      - name: Upload client source maps to Sentry
+        if: steps.sentry-secrets.outputs.configured == 'true'
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_URL: https://de.sentry.io/ # EU data region (see README → Observability)
+        with:
+          version: ${{ github.sha }}
+          sourcemaps: dist/client/assets
+          url_prefix: "~/assets"
+
+      # Never ship the .map files themselves (see vite.config.ts): a real deploy
+      # (`bun run deploy`/`deploy:preview`) strips them before `wrangler deploy`; CI's own dist/
+      # is discarded anyway, but this keeps the two paths identical and the build directory clean.
+      - name: Remove source maps
+        if: always()
+        run: bun run strip-sourcemaps
+
   db:
     runs-on: ubuntu-latest
     steps:
