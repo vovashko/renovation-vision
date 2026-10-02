@@ -375,7 +375,10 @@ after a loading screen) and in the browser on navigation. The decisions are pure
 - **`_authed`** (`src/routes/_authed.tsx`, a pathless layout in `routes.config.ts`): every app route sits under
   it; no user → `/login?redirect=<current href>`. It also renders the app shell (rail, bottom bar), so `/login`
   doesn't get one. Children get `context.user` (never null).
-- **`/login`** (`src/routes/login.tsx`): a signed-in user goes to `redirect` if it is a same-origin path, else `/`.
+- **`/login`** (`src/routes/login.tsx`): a signed-in user goes to `redirect` if it is a same-origin path, else `/`
+  (through `/mfa` first when 2FA is set up and the session is `aal1`; see **Auth screens & 2FA** below).
+- **2FA for staff** (`_authed`): `aal1` managers/admins go to `/mfa` or `/mfa/enroll` while
+  `staff_mfa_required()` is true (matrix below).
 - **Project layout** (`src/routes/project/layout.tsx`): the user's **per-project role** comes from
   `project_members` via the `getProjectAccess` server function, cached in the query client
   (`projectAccessQuery` in `features/auth/hooks`, 5 min); not a member → `notFound()` (the existing empty state),
@@ -388,9 +391,63 @@ after a loading screen) and in the browser on navigation. The decisions are pure
 These guards decide what to render and where to send people. **RLS is still the enforcement**: a guard that
 let someone through could not show them data Postgres refuses to return.
 
-There is no AAL2/MFA redirect yet: T22 adds it together with the 2FA screens, sending `aal1` staff to the 2FA
-screen when `public.staff_mfa_required()` returns `true` (see **Roles & 2FA enforcement** above).
-`context.auth.user.aal` and `context.auth.profile.account_type` are already in the router context for it.
+### Auth screens & 2FA (T22)
+
+| Route                                                  | Who                     | What                                                                                                                           |
+| ------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `/login`                                               | public                  | email + password; "Email me a sign-in link" (magic link, keeps `?redirect=`); "Forgot password?"; demo hint (`VITE_DEMO_HINT`) |
+| `/forgot-password`                                     | public                  | `resetPasswordForEmail(email, { redirectTo: <origin>/reset-password })`; always the same "if an account exists…" answer        |
+| `/reset-password`                                      | public (link session)   | the recovery link → new password (10+ characters, letters + digits) → signed in, into the app; expired link → error + new one  |
+| `/mfa`                                                 | signed in, aal1 or aal2 | TOTP challenge → aal2 → `?redirect=`; no verified factor → `/mfa/enroll`                                                       |
+| `/mfa/enroll`                                          | signed in               | QR code (an `img` with the `data:image/svg+xml` URI Supabase returns; CSP `img-src data:`) + secret → first code → aal2        |
+| `/settings`, `/settings/profile`, `/settings/security` | signed in               | index; name, photo, language; 2FA (status, factors, add/remove), password change, the session as `getMe` sees it               |
+
+**Where people go after signing in.** `/login`'s beforeLoad sends a signed-in user to `?redirect=` (same-origin
+only), through `/mfa` first when the session is `aal1` and the account has a verified TOTP factor (any account
+type: 2FA you set up is always asked for). Sign-in itself never navigates: supabase-js emits `SIGNED_IN`, `AuthSync`
+re-runs the guards. After a 2FA verification the screen refreshes the session (`useSessionRefresh()` in
+`src/lib/auth.tsx`) before navigating, so the next page's guards already see `aal2`.
+
+**The staff 2FA redirect** (`_authed` beforeLoad, `resolveStaffMfaStep` in `features/auth/hooks/mfa.ts`, decisions in
+`features/auth/domain/mfa-guard.ts`):
+
+| Account         | Session | `staff_mfa_required()` | Verified factor | Goes to                                            |
+| --------------- | ------- | ---------------------- | --------------- | -------------------------------------------------- |
+| manager / admin | aal1    | true                   | yes             | `/mfa`                                             |
+| manager / admin | aal1    | true                   | no              | `/mfa/enroll` (no "Not now", only sign-out)        |
+| manager / admin | aal1    | false                  | –               | the page                                           |
+| manager / admin | aal2    | – (not asked)          | –               | the page                                           |
+| client          | any     | – (not asked)          | –               | the page                                           |
+| manager / admin | aal1    | RPC error              | –               | the page + `logger.warn` (fail open: RLS enforces) |
+
+`staff_mfa_required()` and the factor list are TanStack Query entries (`authKeys.staffMfaRequired/mfaFactors`):
+read once per request during SSR, dehydrated with the page, then cached for 5 minutes in the browser; sign-in/out
+clears them with the rest of the cache. Factors are read with `mfa.listFactors()` (a `getUser` call to Supabase
+Auth, also on the server), not from the cookie's copy of the user.
+
+**Email links.** The auth emails link to `{{ .ConfirmationURL }}` (T24's templates). Since the browser client uses
+PKCE, those land with `?code=…`, which the browser client exchanges by itself on load (with the code verifier it kept
+in a cookie), so a link has to be opened in the browser that asked for it; a code that couldn't be exchanged, or
+gotrue's `#error_code=otp_expired` redirect, shows "link invalid or expired". `/login` and `/reset-password` also
+accept `?token_hash=…&type=…` (verified with `verifyOtp`), which is what the admin API's `generateLink` gives you
+for testing. gotrue only accepts a new password from an `aal2` session when the account has a verified factor, so
+`/reset-password` (and Settings → Security) send such accounts through `/mfa` first.
+
+**Password changes** (`secure_password_change`): a session younger than 24 h changes the password directly; an
+older one gets `reauthentication_needed`, so the form calls `reauthenticate()` (the `reauthentication` email with a
+6-digit code) and retries with `updateUser({ password, nonce })`.
+
+**2FA housekeeping.** Starting an enrollment first unenrolls the user's unverified TOTP factors (abandoned setups);
+leaving the screen before the first code unenrolls the new one. Settings → Security can remove a verified factor
+only from an `aal2` session (gotrue's rule) and never a staff member's last one while enforcement is on.
+
+**Redirect URLs** (`supabase/config.toml` `[auth]`): `site_url` is `http://localhost:5173` (`bun run dev`) and
+`additional_redirect_urls` allows `vite dev` (5173), `vite preview` (4173) and `wrangler dev` (8787) on `localhost`
+and `127.0.0.1` (gotrue also accepts any port on `site_url`'s host). Hosted projects need their deployed origin in
+Authentication → URL Configuration. Restart the local stack after changing them.
+
+**Demo passwords.** `renovision-demo` predates the password rules, so the admin API refuses to set it again; restore
+it with SQL: `update auth.users set encrypted_password = extensions.crypt('renovision-demo', extensions.gen_salt('bf')) where email = '…';`.
 
 ## Security headers
 
