@@ -36,14 +36,17 @@
   "clientContact": {
     "title": "Kontakt do klienta",
     "description": "Te dane widzą tylko kierownicy.",
+    "name": "Nazwa",
+    "nameHint": "Tak, jak widać w projekcie, np. „Anna i Piotr Kowalscy”.",
     "phone": "Telefon",
     "email": "E-mail",
-    "submit": "Zapisz kontakt"
+    "submit": "Zapisz kontakt",
+    "saved": "Zapisano kontakt do klienta"
   },
   "crew": {
     "addTitle": "Dodaj osobę",
     "editTitle": "Edytuj osobę",
-    "description": "Ekipa i wykonawcy na budowie. Tę listę widzą tylko kierownicy.",
+    "description": "Ekipa i wykonawcy na budowie, zapisani w Twoich kontaktach. Tę listę widzą tylko kierownicy.",
     "name": "Imię i nazwisko",
     "trade": "Rola lub zawód",
     "tradePlaceholder": "Elektryk, kierownik budowy…",
@@ -58,6 +61,23 @@
     "emailAria": "Napisz e-mail do {{name}}",
     "editAria": "Edytuj {{name}}",
     "saved": "Zapisano {{name}}",
-    "removed": "Usunięto {{name}}"
+    "removed": "Usunięto {{name}}",
+    "removeConfirmDescription": "Zostanie w Twoich kontaktach, więc możesz dodać tę osobę do innego projektu."
+  },
+  "yourContact": {
+    "heading_one": "Twój kontakt",
+    "heading_few": "Twoje kontakty",
+    "heading_many": "Twoje kontakty",
+    "heading_other": "Twoje kontakty",
+    "message": "Wiadomość",
+    "callAria": "Zadzwoń do {{name}}",
+    "emailAria": "Napisz e-mail do {{name}}",
+    "role": {
+      "poc": "Twoja osoba kontaktowa",
+      "client": "Klient",
+      "crew": "Ekipa",
+      "supplier": "Dostawca",
+      "architect": "Architekt"
+    }
   }
 }

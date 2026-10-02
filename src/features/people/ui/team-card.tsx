@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { UserAvatar } from "@/components/user-avatar";
-import type { CrewMember, Member } from "@/lib/database.types";
+import type { Member, ProjectContact } from "@/lib/database.types";
 import { CrewRow } from "./crew-row";
 
-/** The manager overview's team card: managers in the app, plus the site crew. */
+/** The manager overview's team card: managers in the app, plus the site crew (project contacts in the crew role). */
 export function TeamCard({
   managers,
   crew,
@@ -15,9 +15,9 @@ export function TeamCard({
   onEdit,
 }: {
   managers: Member[];
-  crew: CrewMember[];
+  crew: ProjectContact[];
   onAdd: () => void;
-  onEdit: (c: CrewMember) => void;
+  onEdit: (c: ProjectContact) => void;
 }) {
   const { t } = useTranslation(["people"]);
   return (

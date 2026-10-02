@@ -6,12 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { UserAvatar } from "@/components/user-avatar";
 import { cn } from "@/lib/utils";
-import type { Member, ProjectInternal } from "@/lib/database.types";
-
-/** `project_internal.client_phone`/`client_email` — the projects feature owns the same row's repo call. */
-export type ClientContact = Pick<ProjectInternal, "client_phone" | "client_email">;
-
-const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
+import type { Member, ProjectContact } from "@/lib/database.types";
+import { telHref as tel } from "../domain/contacts";
 const onPanelButton = buttonVariants({ variant: "panel" });
 
 function ContactLine({ icon, href, children }: { icon: string; href?: string; children: ReactNode }) {
@@ -37,22 +33,23 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
   );
 }
 
-/** The manager overview's client card: contact details and quick actions. */
+/** The manager overview's client card: the project's primary client contact, and quick actions. */
 export function ClientCard({
   projectId,
-  clientName,
-  contact,
+  client,
   appUsers,
   onEdit,
 }: {
   projectId: string;
-  clientName: string;
-  contact: ClientContact | undefined;
+  /** The primary client contact (`project_contacts` role client), if there is one. */
+  client: ProjectContact | undefined;
   appUsers: Member[];
   onEdit: () => void;
 }) {
   const { t } = useTranslation(["people"]);
-  const name = clientName || appUsers.map((m) => m.profile.full_name).join(" & ") || t("client.fallbackName");
+  const name = client?.contact.full_name || appUsers.map((m) => m.profile.full_name).join(" & ") || t("client.fallbackName");
+  const phone = client?.contact.phone;
+  const email = client?.contact.email;
   return (
     <Card variant="tinted" className="flex flex-col gap-4 p-5 md:p-6" aria-labelledby="client-heading">
       <div className="flex items-center justify-between gap-3">
@@ -74,16 +71,16 @@ export function ClientCard({
       </div>
       {/* On the tinted panel: a white inner list and white buttons. */}
       <div className="divide-y divide-outline-variant overflow-hidden rounded-lg bg-surface-container-lowest">
-        {contact?.client_phone ? (
-          <ContactLine icon="call" href={tel(contact.client_phone)}>
-            {contact.client_phone}
+        {phone ? (
+          <ContactLine icon="call" href={tel(phone)}>
+            {phone}
           </ContactLine>
         ) : (
           <ContactLine icon="call">{t("client.noPhone")}</ContactLine>
         )}
-        {contact?.client_email ? (
-          <ContactLine icon="mail" href={`mailto:${contact.client_email}`}>
-            {contact.client_email}
+        {email ? (
+          <ContactLine icon="mail" href={`mailto:${email}`}>
+            {email}
           </ContactLine>
         ) : (
           <ContactLine icon="mail">{t("client.noEmail")}</ContactLine>
@@ -94,14 +91,14 @@ export function ClientCard({
           <Icon name="chat_bubble" size={20} />
           {t("client.message")}
         </Link>
-        {contact?.client_phone && (
-          <a href={tel(contact.client_phone)} className={onPanelButton}>
+        {phone && (
+          <a href={tel(phone)} className={onPanelButton}>
             <Icon name="call" size={20} />
             {t("client.call")}
           </a>
         )}
-        {contact?.client_email && (
-          <a href={`mailto:${contact.client_email}`} className={onPanelButton}>
+        {email && (
+          <a href={`mailto:${email}`} className={onPanelButton}>
             <Icon name="mail" size={20} />
             {t("client.email")}
           </a>
