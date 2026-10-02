@@ -72,7 +72,7 @@ function ChatPage() {
   const others = isManager ? clients : managers;
   const othersOnline = others.some((c) => online.includes(c.user_id));
   const otherName = isManager
-    ? project?.client_name || clients.map((c) => c.profile.full_name).join(" & ") || t("chat.header.defaultClientName")
+    ? project?.client_display_name || clients.map((c) => c.profile.full_name).join(" & ") || t("chat.header.defaultClientName")
     : managers.map((m) => m.profile.full_name).join(" & ") || project?.manager_name || t("chat.header.defaultManagerName");
   const otherRole = isManager
     ? clients.length

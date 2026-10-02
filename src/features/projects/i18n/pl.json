@@ -3,9 +3,8 @@
     "title": "Nowy projekt",
     "description": "Zostajesz jego kierownikiem. Dodaj etapy, pomieszczenia i klienta w następnym kroku.",
     "name": "Nazwa projektu",
-    "address": "Adres",
     "clientName": "Nazwa klienta",
-    "clientNameHint": "Wyświetlana w aplikacji.",
+    "clientNameHint": "Zapisywana jako kontakt do klienta. Telefon i e-mail dodasz w przeglądzie projektu.",
     "start": "Start",
     "target": "Termin",
     "budget": "Budżet",
@@ -37,8 +36,6 @@
     "title": "Szczegóły projektu",
     "description": "Wszystko tutaj jest widoczne dla klienta.",
     "name": "Nazwa projektu",
-    "address": "Adres",
-    "clientName": "Nazwa klienta",
     "start": "Start",
     "target": "Termin",
     "budget": "Budżet",
@@ -49,9 +46,6 @@
     "scheduleNotePlaceholder": "Dlaczego harmonogram wygląda tak, jak wygląda — prostymi słowami.",
     "submit": "Zapisz szczegóły",
     "saved": "Projekt zaktualizowany — aplikacja klienta pokazuje to już teraz"
-  },
-  "client": {
-    "contactSaved": "Zapisano kontakt do klienta"
   },
   "shortcuts": {
     "heading": "Skróty",
@@ -91,5 +85,26 @@
     "stageLate": "{{name}}: {{late}}",
     "stageLateDetail": "Termin: {{date}} · ukończono {{progress}}%",
     "overBudgetDetail": "Wydano {{spent}} z {{budget}}"
+  },
+  "fields": {
+    "addressLine": "Ulica i numer",
+    "addressLinePlaceholder": "ul. Długa 5/3",
+    "postalCode": "Kod pocztowy",
+    "postalCodePlaceholder": "00-000",
+    "city": "Miejscowość",
+    "country": "Kraj",
+    "currency": "Waluta",
+    "status": "Status projektu",
+    "statusHint": "Etap życia projektu: planowanie, w toku, wstrzymany, zakończony lub zarchiwizowany."
+  },
+  "projectStatus": {
+    "planning": "Planowanie",
+    "active": "W toku",
+    "on_hold": "Wstrzymany",
+    "completed": "Zakończony",
+    "archived": "Zarchiwizowany"
+  },
+  "form": {
+    "postalCodePl": "Użyj formatu 00-000"
   }
 }

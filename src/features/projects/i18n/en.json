@@ -3,9 +3,8 @@
     "title": "New project",
     "description": "You become its manager. Add stages, rooms and your client next.",
     "name": "Project name",
-    "address": "Address",
     "clientName": "Client name",
-    "clientNameHint": "As shown in the app.",
+    "clientNameHint": "Saved as the client contact. You can add their phone and email on the overview.",
     "start": "Start",
     "target": "Target",
     "budget": "Budget",
@@ -37,8 +36,6 @@
     "title": "Project details",
     "description": "Everything here is visible to the client.",
     "name": "Project name",
-    "address": "Address",
-    "clientName": "Client name",
     "start": "Start",
     "target": "Target",
     "budget": "Budget",
@@ -49,9 +46,6 @@
     "scheduleNotePlaceholder": "Why the schedule is what it is, in plain words.",
     "submit": "Save details",
     "saved": "Project updated — the client app shows it now"
-  },
-  "client": {
-    "contactSaved": "Client contact saved"
   },
   "shortcuts": {
     "heading": "Shortcuts",
@@ -87,5 +81,26 @@
     "stageLate": "{{name}} is {{late}}",
     "stageLateDetail": "Was due {{date}} · {{progress}}% done",
     "overBudgetDetail": "{{spent}} spent of {{budget}}"
+  },
+  "fields": {
+    "addressLine": "Street and number",
+    "addressLinePlaceholder": "ul. Długa 5/3",
+    "postalCode": "Postal code",
+    "postalCodePlaceholder": "00-000",
+    "city": "City",
+    "country": "Country",
+    "currency": "Currency",
+    "status": "Project status",
+    "statusHint": "Where the project is in its life: planning, under way, paused, done or archived."
+  },
+  "projectStatus": {
+    "planning": "Planning",
+    "active": "Active",
+    "on_hold": "On hold",
+    "completed": "Completed",
+    "archived": "Archived"
+  },
+  "form": {
+    "postalCodePl": "Use the 00-000 format"
   }
 }

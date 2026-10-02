@@ -1,22 +1,33 @@
 // The only file in `features/projects` that talks to Supabase. Ported from `src/lib/api.ts`
-// (listProjects, createProject, getProject, updateProject, getInternal/updateClientContact).
+// (listProjects, createProject, getProject, updateProject). The client's contact details moved to
+// `contacts` (T30) and belong to `features/people`.
 import { supabase } from "@/lib/supabase";
-import type { Project, ProjectInternal, ProjectSummary } from "@/lib/database.types";
+import type { Project, ProjectSummary } from "@/lib/database.types";
 
 export type ProjectPatch = Partial<
-  Pick<Project, "name" | "address" | "client_name" | "start_date" | "target_date" | "budget" | "schedule_status" | "schedule_note">
+  Pick<
+    Project,
+    | "name"
+    | "address_line"
+    | "postal_code"
+    | "city"
+    | "country"
+    | "currency"
+    | "status"
+    | "start_date"
+    | "target_date"
+    | "budget"
+    | "schedule_status"
+    | "schedule_note"
+  >
 >;
 
-export type NewProject = {
-  name: string;
-  address: string;
+export type NewProject = Pick<Project, "name" | "address_line" | "postal_code" | "city" | "country" | "currency" | "status" | "budget"> & {
+  /** Becomes the project's primary client contact when not empty. */
   client_name: string;
   start_date: string | null;
   target_date: string | null;
-  budget: number;
 };
-
-export type ClientContact = Pick<ProjectInternal, "client_phone" | "client_email">;
 
 type Result<T> = { data: T | null; error: { message: string } | null };
 
@@ -52,7 +63,12 @@ export const projectsRepo = {
     return must(
       sb().rpc("create_project", {
         p_name: input.name,
-        p_address: input.address,
+        p_address_line: input.address_line,
+        p_postal_code: input.postal_code,
+        p_city: input.city,
+        p_country: input.country,
+        p_currency: input.currency,
+        p_status: input.status,
         p_client_name: input.client_name,
         p_start_date: input.start_date,
         p_target_date: input.target_date,
@@ -63,17 +79,5 @@ export const projectsRepo = {
 
   async updateProject(id: string, patch: ProjectPatch): Promise<void> {
     await must(sb().from("projects").update(patch).eq("id", id));
-  },
-
-  async getClientContact(id: string): Promise<ClientContact> {
-    return must(sb().from("project_internal").select("client_phone, client_email").eq("project_id", id).single()) as Promise<ClientContact>;
-  },
-
-  async updateClientContact(id: string, contact: ClientContact): Promise<void> {
-    await must(
-      sb()
-        .from("project_internal")
-        .upsert({ project_id: id, ...contact }),
-    );
   },
 };

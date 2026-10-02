@@ -12,6 +12,7 @@ import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
 import { roomsQuery, stagesQuery, useRooms, useStages } from "@/features/work/hooks";
 import { useProject } from "@/features/projects/hooks";
 import { ManagerOverview } from "@/features/projects/ui/manager-overview";
+import { YourContactCard } from "@/features/people/ui/your-contact-card";
 import { PageLoading } from "@/components/page-header";
 import { useNavRole } from "@/shared/ui/nav-role";
 import { daysLate } from "@/domain/attention";
@@ -92,6 +93,8 @@ function ClientOverview({ projectId }: { projectId: string }) {
           {project.schedule_note}
         </Note>
       )}
+
+      <YourContactCard projectId={projectId} />
 
       <section aria-labelledby="stage-timeline">
         <div className="mb-3 flex items-end justify-between gap-3">
