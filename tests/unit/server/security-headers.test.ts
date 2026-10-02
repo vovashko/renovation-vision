@@ -17,7 +17,7 @@ vi.mock("@tanstack/react-start/server", () => ({
   removeResponseHeader: (name: string) => void delete h.responseHeaders[name],
 }));
 
-const { buildCsp, buildSecurityHeaders, generateNonce, sentryIngestOrigin, securityHeadersMiddleware } =
+const { buildCsp, buildSecurityHeaders, generateNonce, HELMET_EQUIVALENT_HEADERS, sentryIngestOrigin, securityHeadersMiddleware } =
   await import("@/server/middleware/security-headers");
 const { NONCE_HEADER } = await import("@/lib/csp-nonce");
 
@@ -116,6 +116,33 @@ describe("buildSecurityHeaders", () => {
     expect(headers["Strict-Transport-Security"]).toBeUndefined();
     expect(headers["Content-Security-Policy"]).toBeTruthy(); // everything else still applies
   });
+
+  // The helmet-equivalent headers (see the PR discussion: helmet itself is Express/Node
+  // middleware and doesn't apply to a TanStack Start/h3 app on Cloudflare Workers).
+  it("sets the helmet-equivalent headers, and never Cross-Origin-Embedder-Policy", () => {
+    const headers = buildSecurityHeaders({ supabaseUrl: SUPABASE_URL, isDev: false, nonce: NONCE });
+    expect(headers["Cross-Origin-Opener-Policy"]).toBe("same-origin");
+    expect(headers["Cross-Origin-Resource-Policy"]).toBe("same-origin");
+    expect(headers["X-Frame-Options"]).toBe("DENY");
+    expect(headers["Origin-Agent-Cluster"]).toBe("?1");
+    expect(headers["X-Permitted-Cross-Domain-Policies"]).toBe("none");
+    expect(headers["X-DNS-Prefetch-Control"]).toBe("off");
+    expect(headers["Cross-Origin-Embedder-Policy"]).toBeUndefined(); // would block cross-origin Supabase images and Google Fonts
+  });
+});
+
+describe("HELMET_EQUIVALENT_HEADERS", () => {
+  it("is the fixed set /healthz also uses (src/server/healthz.ts)", () => {
+    expect(HELMET_EQUIVALENT_HEADERS).toMatchObject({
+      "X-Content-Type-Options": "nosniff",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Resource-Policy": "same-origin",
+      "X-Frame-Options": "DENY",
+      "Origin-Agent-Cluster": "?1",
+      "X-Permitted-Cross-Domain-Policies": "none",
+      "X-DNS-Prefetch-Control": "off",
+    });
+  });
 });
 
 // `import.meta.env.DEV` is a build-time constant Vite statically replaces; it can't be flipped at
@@ -135,6 +162,8 @@ describe("securityHeadersMiddleware", () => {
     expect(result.response.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(result.response.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
     expect(result.response.headers.get("Permissions-Policy")).toBe("camera=(self), microphone=(), geolocation=()");
+    expect(result.response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+    expect(result.response.headers.get("X-Frame-Options")).toBe("DENY");
   });
 
   it("generates a nonce before calling next(), readable via getResponseHeader (as src/lib/csp-nonce.ts does)", async () => {

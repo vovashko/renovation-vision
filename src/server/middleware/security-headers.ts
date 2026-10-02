@@ -80,12 +80,30 @@ export function buildCsp({ supabaseUrl, isDev, nonce, sentryIngestOrigin: sentry
   return directives.map(([name, values]) => `${name} ${values.join(" ")}`).join("; ");
 }
 
+// The non-CSP, non-HSTS headers helmet (Express/Node middleware; doesn't apply here — this app is
+// TanStack Start/h3 on Cloudflare Workers, not Express, so adding the package itself wouldn't work)
+// sets by default, minus `Content-Security-Policy` and `Strict-Transport-Security` (handled above,
+// with our own CSP) and `X-Powered-By` removal (we never set it). `Cross-Origin-Embedder-Policy` is
+// deliberately NOT included: `require-corp` would block the cross-origin images (Supabase Storage)
+// and fonts (Google Fonts) this app actually loads, since neither currently serves `Cross-Origin-
+// Resource-Policy: cross-origin` or CORS headers for those requests. Exported so `/healthz`
+// (src/server/healthz.ts), a non-HTML response outside the branch below, can reuse the same set.
+export const HELMET_EQUIVALENT_HEADERS: Record<string, string> = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "X-Frame-Options": "DENY", // a legacy fallback for frame-ancestors 'none', for browsers that predate CSP2
+  "Origin-Agent-Cluster": "?1",
+  "X-Permitted-Cross-Domain-Policies": "none",
+  "X-DNS-Prefetch-Control": "off",
+};
+
 /** Pure: the full header set for an HTML response. Exported for tests. */
 export function buildSecurityHeaders(opts: CspOptions): Record<string, string> {
   const headers: Record<string, string> = {
     "Content-Security-Policy": buildCsp(opts),
-    "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
+    ...HELMET_EQUIVALENT_HEADERS,
     "Permissions-Policy": "camera=(self), microphone=(), geolocation=()",
   };
   // HSTS only makes sense once the app is actually served over TLS, which `vite dev` never is

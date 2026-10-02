@@ -405,10 +405,26 @@ screen when `public.staff_mfa_required()` returns `true` (see **Roles & 2FA enfo
   `wrangler dev`, production), omitted only under `vite dev` (plain http, no real TLS to pin).
 - **`X-Content-Type-Options: nosniff`**, **`Referrer-Policy: strict-origin-when-cross-origin`**,
   **`Permissions-Policy: camera=(self), microphone=(), geolocation=()`**.
+- **The rest of helmet's defaults** (see below): `Cross-Origin-Opener-Policy: same-origin`,
+  `Cross-Origin-Resource-Policy: same-origin`, `X-Frame-Options: DENY`, `Origin-Agent-Cluster: ?1`,
+  `X-Permitted-Cross-Domain-Policies: none`, `X-DNS-Prefetch-Control: off`.
 - **`vite dev` relaxations** (gated on `import.meta.env.DEV`, i.e. never in a built bundle): `script-src` gets
   `'unsafe-inline' 'unsafe-eval'` (no nonce source alongside it — mixing the two would make a CSP-Level-2+ browser
   ignore `'unsafe-inline'` entirely, per spec, and break Vite's HMR/React-refresh preamble, which injects its own
   un-nonced inline scripts) and `connect-src` gets `ws:`, both for Vite's HMR client.
+
+**No [helmet](https://helmetjs.github.io) package.** helmet is Express/Node middleware built on
+`req`/`res`; this app is TanStack Start (h3) on Cloudflare Workers, so it doesn't apply — there's no `req`/`res`
+for it to patch. `securityHeadersMiddleware` already covers helmet's core defaults by hand: the CSP above (with a
+nonce — helmet's own CSP middleware doesn't generate one), HSTS, `X-Content-Type-Options`, `Referrer-Policy` and
+`frame-ancestors 'none'` (CSP's modern equivalent of framing protection). `HELMET_EQUIVALENT_HEADERS` (exported for
+`src/server/healthz.ts` to reuse on `/healthz`, a non-HTML response outside the branch above) adds the rest of
+helmet's defaults: `Cross-Origin-Opener-Policy`/`Cross-Origin-Resource-Policy: same-origin` and
+`X-Frame-Options: DENY` (a legacy fallback for browsers that predate `frame-ancestors`), plus
+`Origin-Agent-Cluster: ?1`, `X-Permitted-Cross-Domain-Policies: none` and `X-DNS-Prefetch-Control: off`.
+**Not** `Cross-Origin-Embedder-Policy: require-corp` (also a helmet default): it would block the cross-origin
+images (Supabase Storage) and fonts (Google Fonts) this app actually loads, since neither currently serves
+`Cross-Origin-Resource-Policy: cross-origin` or CORS headers for those requests.
 
 **Script nonce (T26).** Outside dev, `script-src` is `'self' 'nonce-<value>'` — no `'unsafe-inline'`.
 `securityHeadersMiddleware` generates 128 random bits (base64) per request, _before_ calling `next()`, and hands it

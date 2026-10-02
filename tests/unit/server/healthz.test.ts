@@ -51,6 +51,9 @@ describe("buildHealthResponse", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(response.headers.get("content-type")).toContain("application/json");
+    // The helmet-equivalent headers (src/server/middleware/security-headers.ts) apply here too.
+    expect(response.headers.get("cross-origin-resource-policy")).toBe("same-origin");
+    expect(response.headers.get("x-frame-options")).toBe("DENY");
     const body = await response.json();
     expect(body).toMatchObject({ ok: true, checks: { worker: "ok", supabase: "ok" } });
     expect(typeof body.version).toBe("string");

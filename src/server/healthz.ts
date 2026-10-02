@@ -8,6 +8,7 @@
 // endpoint with a short timeout, so a slow or unreachable Supabase can't hang this request.
 import { getPublicEnv } from "@/lib/env";
 import { SENTRY_RELEASE } from "@/lib/sentry-config";
+import { HELMET_EQUIVALENT_HEADERS } from "./middleware/security-headers";
 
 const SUPABASE_CHECK_TIMEOUT_MS = 2000;
 
@@ -55,9 +56,9 @@ export async function buildHealthResponse(fetchImpl: typeof fetch = fetch): Prom
   return new Response(JSON.stringify(body), {
     status: ok ? 200 : 503,
     headers: {
+      ...HELMET_EQUIVALENT_HEADERS,
       "content-type": "application/json",
       "cache-control": "no-store",
-      "x-content-type-options": "nosniff",
     },
   });
 }
