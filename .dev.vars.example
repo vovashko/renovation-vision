@@ -16,5 +16,8 @@ APP_ENV=development
 # Transactional email (Brevo) API key. Optional until email lands (T24).
 BREVO_API_KEY=
 
-# Sentry project DSN for server-side error reporting (https://<key>@<host>/<project-id>). Optional (T26).
+# Sentry project DSN for server-side (Worker) error reporting: https://<key>@<host>/<project-id>,
+# where <host> is a *.ingest.de.sentry.io project (EU data region — pick "EU" when creating the
+# Sentry project). Optional: everything in src/lib/sentry-worker.ts is a no-op without it, so local
+# dev and CI don't need a Sentry account. See README → Observability.
 SENTRY_DSN=

@@ -3,6 +3,8 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { logger } from "./lib/logger";
+import { captureServerException, tagRequestId, wrapWithSentry } from "./lib/sentry-worker";
+import { buildHealthResponse } from "./server/healthz";
 import { getRequestContext, REQUEST_ID_HEADER, resolveRequestId, runWithRequestContext } from "./server/request-context.server";
 
 type ServerEntry = {
@@ -61,25 +63,38 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
     return response;
   }
 
-  logger.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`), { phase: "ssr" });
+  const error = consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`);
+  logger.error(error, { phase: "ssr" });
+  captureServerException(error); // no-op without SENTRY_DSN
   return brandedErrorResponse();
 }
 
-export default {
+const innerHandler = {
   fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+    // No auth, no PII, no SSR: answered before the request context / TanStack Start even start up.
+    if (request.method === "GET" && url.pathname === "/healthz") return buildHealthResponse();
+
     // Open the request context here, outermost, so even a failure outside TanStack Start's
     // middleware is logged (and shown on the error page) with the request id that
     // requestIdMiddleware then reuses.
     const requestId = resolveRequestId(request.headers.get(REQUEST_ID_HEADER));
-    return runWithRequestContext({ requestId, route: new URL(request.url).pathname }, async () => {
+    tagRequestId(requestId); // every Sentry event from this request carries it as a tag; no-op without a DSN
+    return runWithRequestContext({ requestId, route: url.pathname }, async () => {
       try {
         const handler = await getServerEntry();
         const response = await handler.fetch(request, env, ctx);
         return await normalizeCatastrophicSsrResponse(response);
       } catch (error) {
         logger.error(error, { phase: "worker" });
+        captureServerException(error); // no-op without SENTRY_DSN
         return brandedErrorResponse();
       }
     });
   },
 };
+
+// @sentry/cloudflare's instrumentation (EU data region; SENTRY_DSN is a secret — see
+// src/lib/sentry-worker.ts). A no-op (the handler above, untouched) without SENTRY_DSN: no network
+// calls, nothing to configure for local dev or CI.
+export default wrapWithSentry(innerHandler, () => getRequestContext());
