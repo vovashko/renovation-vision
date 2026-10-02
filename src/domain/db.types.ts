@@ -49,6 +49,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"contacts": {
+                  Row: {
+                    "company": string | null,"created_at": string,"created_by": string | null,"email": string | null,"full_name": string,"id": string,"kind": Database["public"]['Enums']["contact_kind"],"notes": string | null,"phone": string | null,"trade": string | null,"updated_at": string,"user_id": string | null,"whatsapp": string | null
+                  }
+                  Insert: {
+                    "company"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name": string,"id"?: string,"kind"?: Database["public"]['Enums']["contact_kind"],"notes"?: string | null,"phone"?: string | null,"trade"?: string | null,"updated_at"?: string,"user_id"?: string | null,"whatsapp"?: string | null
+                  }
+                  Update: {
+                    "company"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["contact_kind"],"notes"?: string | null,"phone"?: string | null,"trade"?: string | null,"updated_at"?: string,"user_id"?: string | null,"whatsapp"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contacts_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contacts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"expenses": {
                   Row: {
                     "amount": number,"category": string,"created_at": string,"created_by": string | null,"description": string,"id": string,"project_id": string,"receipt_path": string | null,"spent_on": string,"stage_id": string | null,"updated_at": string,"vendor": string,"vendor_notes": string
@@ -210,25 +235,31 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"project_crew": {
+                },"project_contacts": {
                   Row: {
-                    "created_at": string,"email": string,"id": string,"name": string,"phone": string,"project_id": string,"sort_order": number,"trade": string,"updated_at": string
+                    "contact_id": string,"created_at": string,"id": string,"is_primary": boolean,"project_id": string,"role": Database["public"]['Enums']["project_contact_role"],"sort_order": number,"updated_at": string,"visible_to_client": boolean
                   }
                   Insert: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"name": string,"phone"?: string,"project_id": string,"sort_order"?: number,"trade"?: string,"updated_at"?: string
+                    "contact_id": string,"created_at"?: string,"id"?: string,"is_primary"?: boolean,"project_id": string,"role": Database["public"]['Enums']["project_contact_role"],"sort_order"?: number,"updated_at"?: string,"visible_to_client"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"name"?: string,"phone"?: string,"project_id"?: string,"sort_order"?: number,"trade"?: string,"updated_at"?: string
+                    "contact_id"?: string,"created_at"?: string,"id"?: string,"is_primary"?: boolean,"project_id"?: string,"role"?: Database["public"]['Enums']["project_contact_role"],"sort_order"?: number,"updated_at"?: string,"visible_to_client"?: boolean
                   }
                   Relationships: [
                     {
-      foreignKeyName: "project_crew_project_id_fkey"
+      foreignKeyName: "project_contacts_contact_id_fkey"
+      columns: ["contact_id"]
+isOneToOne: false
+      referencedRelation: "contacts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "project_contacts_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "project_summary"
       referencedColumns: ["id"]
     },{
-      foreignKeyName: "project_crew_project_id_fkey"
+      foreignKeyName: "project_contacts_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "projects"
@@ -237,13 +268,13 @@ isOneToOne: false
                   ]
                 },"project_internal": {
                   Row: {
-                    "client_email": string,"client_phone": string,"internal_budget_notes": string,"project_id": string,"updated_at": string
+                    "internal_budget_notes": string,"project_id": string,"updated_at": string
                   }
                   Insert: {
-                    "client_email"?: string,"client_phone"?: string,"internal_budget_notes"?: string,"project_id": string,"updated_at"?: string
+                    "internal_budget_notes"?: string,"project_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "client_email"?: string,"client_phone"?: string,"internal_budget_notes"?: string,"project_id"?: string,"updated_at"?: string
+                    "internal_budget_notes"?: string,"project_id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -293,13 +324,13 @@ isOneToOne: false
                   ]
                 },"projects": {
                   Row: {
-                    "address": string,"budget": number,"client_name": string,"created_at": string,"created_by": string | null,"id": string,"name": string,"schedule_note": string,"schedule_status": Database["public"]['Enums']["schedule_status"],"spent": number,"start_date": string | null,"target_date": string | null,"updated_at": string
+                    "address": string | null,"address_line": string,"budget": number,"city": string,"country": string,"created_at": string,"created_by": string | null,"currency": string,"id": string,"name": string,"postal_code": string,"schedule_note": string,"schedule_status": Database["public"]['Enums']["schedule_status"],"spent": number,"start_date": string | null,"status": Database["public"]['Enums']["project_status"],"target_date": string | null,"updated_at": string
                   }
                   Insert: {
-                    "address"?: string,"budget"?: number,"client_name"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"name": string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"target_date"?: string | null,"updated_at"?: string
+                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name": string,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "address"?: string,"budget"?: number,"client_name"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"name"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"target_date"?: string | null,"updated_at"?: string
+                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name"?: string,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -433,7 +464,7 @@ isOneToOne: false
           Views: {
             "project_summary": {
                   Row: {
-                    "address": string | null,"budget": number | null,"client_name": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"target_date": string | null
+                    "address": string | null,"address_line": string | null,"budget": number | null,"city": string | null,"client_display_name": string | null,"country": string | null,"created_at": string | null,"currency": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"postal_code": string | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"status": Database["public"]['Enums']["project_status"] | null,"target_date": string | null,"updated_at": string | null
                   }
                   Relationships: [
                     
@@ -445,7 +476,7 @@ isOneToOne: false
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
                            },
 "create_project":
-{ Args: { "p_address"?: string,"p_budget"?: number,"p_client_name"?: string,"p_name": string,"p_start_date"?: string,"p_target_date"?: string }; Returns: string
+{ Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
                            },
 "is_project_client":
 { Args: { "p_project": string }; Returns: boolean
@@ -465,6 +496,11 @@ isOneToOne: false
 "notify_project_clients":
 { Args: { "p_body": string,"p_link"?: string,"p_project": string,"p_title": string }; Returns: undefined
                            },
+"project_visible_contacts":
+{ Args: { "p_project": string }; Returns: {
+              "email": string,"full_name": string,"is_primary": boolean,"phone": string,"role": Database["public"]['Enums']["project_contact_role"]
+            }[]
+                           },
 "set_account_type":
 { Args: { "p_type": Database["public"]['Enums']["account_type"],"p_user": string }; Returns: undefined
                            },
@@ -476,7 +512,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","photo_status": "draft"|"published","project_role": "manager"|"client","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -592,7 +628,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"photo_status": ["draft", "published"],"project_role": ["manager", "client"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const
