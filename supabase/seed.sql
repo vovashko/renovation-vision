@@ -27,7 +27,7 @@ set session_replication_role = replica;
 -- ---------------------------------------------------------------------------
 -- Staff 2FA enforcement: OFF for the local and hosted-demo databases only.
 -- Migrations turn it ON (the production default), but the demo manager has no TOTP factor, so
--- with it on he could not read the budget, internal notes, crew or activity log. Never run this
+-- with it on he could not read the budget, internal notes, contacts or activity log. Never run this
 -- against production. See README "Roles & 2FA enforcement".
 -- ---------------------------------------------------------------------------
 update private.app_settings set enforce_staff_mfa = false;
@@ -71,19 +71,20 @@ on conflict (id) do update set full_name = excluded.full_name, account_type = ex
 -- ---------------------------------------------------------------------------
 -- Project
 -- ---------------------------------------------------------------------------
+-- address is generated from address_line / postal_code / city; amounts are in the project's currency.
 insert into public.projects (
-  id, name, address, client_name, start_date, target_date, budget, spent,
+  id, name, address_line, postal_code, city, country, currency, status, start_date, target_date, budget, spent,
   schedule_status, schedule_note, created_by
 ) values (
-  'b0000000-0000-4000-8000-000000000001', 'Maple Street Apartment', '42 Maple Street, Apt 5B',
-  'Sarah & Tom Bennett', '2026-03-02', '2026-06-10', 84500, 51200,
+  'b0000000-0000-4000-8000-000000000001', 'Maple Street Apartment', '42 Maple Street, Apt 5B', '', '', 'PL', 'PLN', 'active',
+  '2026-03-02', '2026-06-10', 84500, 51200,
   'at_risk',
   'Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week.',
   'a0000000-0000-4000-8000-000000000001'
 );
 
-insert into public.project_internal (project_id, client_phone, client_email, internal_budget_notes) values (
-  'b0000000-0000-4000-8000-000000000001', '+1 555 0142', 'sarah.bennett@example.com',
+insert into public.project_internal (project_id, internal_budget_notes) values (
+  'b0000000-0000-4000-8000-000000000001',
   E'Contingency: $4,000 held for Bedroom 2 rework if the circuit fails inspection.\nKitchen cabinets quote $14,800 — 30% deposit due May 1.\nKeep margin at or above 12%; oak planks came in $350 under quote.'
 );
 
@@ -92,12 +93,26 @@ insert into public.project_members (project_id, user_id, role, last_read_at) val
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'client', '2026-04-20 09:25:00'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003', 'client', '2026-04-19 18:00:00');
 
--- Crew on site (not app users; managers only). Example numbers and addresses.
-insert into public.project_crew (project_id, name, trade, phone, email, sort_order) values
-  ('b0000000-0000-4000-8000-000000000001', 'Marek Nowak', 'Site lead', '+1 555 0107', 'marek@example.com', 1),
-  ('b0000000-0000-4000-8000-000000000001', 'Ana Petrović', 'Electrician', '+1 555 0118', 'ana@example.com', 2),
-  ('b0000000-0000-4000-8000-000000000001', 'Luis Ortega', 'Plumber', '+1 555 0123', 'luis@example.com', 3),
-  ('b0000000-0000-4000-8000-000000000001', 'Kai Jensen', 'Drywall & paint', '+1 555 0136', '', 4);
+-- ---------------------------------------------------------------------------
+-- Contacts (the company address book) and who is on this project. Staff only, except the PoC row
+-- marked visible_to_client, which the client reads through project_visible_contacts().
+-- Example numbers and addresses.
+-- ---------------------------------------------------------------------------
+insert into public.contacts (id, kind, full_name, trade, phone, whatsapp, email, user_id, created_by) values
+  ('10000000-0000-4000-8000-000000000001', 'other', 'Jonas Weber', 'Project manager', '+1 555 0100', null, 'jonas@renovision.demo', 'a0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001'),
+  ('10000000-0000-4000-8000-000000000002', 'client', 'Sarah & Tom Bennett', null, '+1 555 0142', null, 'sarah.bennett@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
+  ('10000000-0000-4000-8000-000000000003', 'crew', 'Marek Nowak', 'Site lead', '+1 555 0107', '+15550107', 'marek@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
+  ('10000000-0000-4000-8000-000000000004', 'crew', 'Ana Petrović', 'Electrician', '+1 555 0118', null, 'ana@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
+  ('10000000-0000-4000-8000-000000000005', 'crew', 'Luis Ortega', 'Plumber', '+1 555 0123', null, 'luis@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
+  ('10000000-0000-4000-8000-000000000006', 'crew', 'Kai Jensen', 'Drywall & paint', '+1 555 0136', null, null, null, 'a0000000-0000-4000-8000-000000000001');
+
+insert into public.project_contacts (project_id, contact_id, role, is_primary, visible_to_client, sort_order) values
+  ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'poc', true, true, 0),
+  ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', 'client', true, false, 0),
+  ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000003', 'crew', false, false, 1),
+  ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000004', 'crew', false, false, 2),
+  ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000005', 'crew', false, false, 3),
+  ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000006', 'crew', false, false, 4);
 
 -- ---------------------------------------------------------------------------
 -- Rooms (same geometry as the client app's floor plan)
