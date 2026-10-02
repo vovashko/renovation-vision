@@ -1,5 +1,9 @@
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { updateUserLocale } from "@/features/auth/hooks";
 import { reencodeImage } from "@/features/media/domain/strip-exif";
+import { useSetLocale, type Locale } from "@/i18n";
 import { useAuth, useSessionRefresh } from "@/lib/auth";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { profileRepo } from "../data/profile.repo";
@@ -34,6 +38,37 @@ export function useUploadAvatar() {
     const { file: processed } = await reencodeImage(file, AVATAR_DIMENSION);
     return profileRepo.uploadAvatar(userId, processed);
   }, t("avatar.saved"));
+}
+
+/**
+ * Switches the UI language and saves it everywhere it lives, in this order:
+ *
+ *   1. the cookie + i18next (`useSetLocale`): the page re-renders in the new language at once, and
+ *      a signed-out visit keeps it;
+ *   2. `profiles.locale`, the source of truth the server renders a signed-in user's pages in (a
+ *      failure toasts: the next hard load would come back in the old language);
+ *   3. `user_metadata.locale` for the Supabase Auth email templates (best-effort). Its USER_UPDATED
+ *      event makes AuthSync re-read the session, which by then carries the new profile locale.
+ */
+export function useSaveLocale(): (locale: Locale) => Promise<void> {
+  const { t } = useTranslation(["settings"]);
+  const { userId } = useAuth();
+  const setLocale = useSetLocale();
+  return useCallback(
+    async (locale: Locale) => {
+      await setLocale(locale);
+      if (!userId) return;
+      try {
+        await profileRepo.updateLocale(userId, locale);
+      } catch {
+        toast.error(t("language.saveFailed"));
+      }
+      await updateUserLocale(locale).catch(() => {
+        // Best-effort: a hosted auth email may render in the previous language until the next change.
+      });
+    },
+    [setLocale, userId, t],
+  );
 }
 
 export function useRemoveAvatar() {

@@ -5,7 +5,7 @@ import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scrip
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { buttonVariants } from "@/components/ui/button";
-import { AuthSync, type SessionStore } from "@/lib/auth";
+import { AuthSync, type Session, type SessionStore } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { reportClientError } from "@/lib/sentry-client";
 import type { I18n } from "@/i18n";
@@ -61,13 +61,21 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient; i18n: I18n; session: SessionStore }>()({
-  // Server: switch this request's i18n instance to the request's locale before rendering. Then put
-  // the session in the context as `auth` (README → Sessions & route guards): on the server it comes
-  // from the request's cookies (getSession); in the browser from the cached copy the server
-  // dehydrated, or from getSession again after AuthSync saw the user change.
+  // Put the session in the context as `auth` (README → Sessions & route guards): on the server it
+  // comes from the request's cookies (getSession); in the browser from the cached copy the server
+  // dehydrated, or from getSession again after AuthSync saw the user change. Then switch this
+  // request's i18n instance to the request's locale before rendering: the signed-in user's
+  // `profiles.locale` first, then the cookie, Accept-Language and pl (README → Internationalization).
   beforeLoad: async ({ context }) => {
-    await applyRequestLocale(context.i18n);
-    return { auth: await context.session.load() };
+    let auth: Session;
+    try {
+      auth = await context.session.load();
+    } catch (error) {
+      await applyRequestLocale(context.i18n, { userId: null }); // the error page still gets the cookie's language
+      throw error;
+    }
+    await applyRequestLocale(context.i18n, { userId: auth.user?.id ?? null, profileLocale: auth.profile?.locale });
+    return { auth };
   },
   head: () => ({
     meta: [

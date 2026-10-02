@@ -3,7 +3,8 @@
   "description": "App settings.",
   "language": {
     "title": "Language",
-    "description": "The language RenoVision uses on this device."
+    "description": "The language RenoVision uses for you, on every device.",
+    "saveFailed": "Couldn't save your language. It applies on this device for now."
   },
   "profile": {
     "title": "Profile",
