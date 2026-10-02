@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts } from "@tanstack/react-router";
@@ -6,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { AuthSync, type SessionStore } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { reportClientError } from "@/lib/sentry-client";
 import type { I18n } from "@/i18n";
 import { applyRequestLocale } from "@/i18n/request-locale";
 import { ConfirmProvider } from "@/shared/ui/confirm-dialog";
@@ -33,6 +35,10 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
+  // ServerFnError below 500 (401/403/404/429) is an expected, handled rejection and isn't reported;
+  // everything else (including a ServerFnError 5xx) is — see src/lib/sentry-client.ts. A no-op
+  // without VITE_SENTRY_DSN. Runs once per distinct error, not on every re-render (e.g. "Try again").
+  useEffect(() => reportClientError(error), [error]);
   const router = useRouter();
   const { t } = useTranslation(["common"]);
   return (
