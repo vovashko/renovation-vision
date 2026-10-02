@@ -15,14 +15,14 @@ export function BudgetStats({ project, budget }: { project: ProjectSummary; budg
         <StatLabel>
           <Icon name="euro" size={20} /> {t("budget:stats.budget")}
         </StatLabel>
-        <StatValue>{format.money(project.budget)}</StatValue>
+        <StatValue>{format.money(project.budget, project.currency)}</StatValue>
         <StatChange>{t("budget:stats.clientSeesBudget")}</StatChange>
       </Stat>
       <Stat variant={budget.over ? "attention" : "default"}>
         <StatLabel>
           <Icon name="account_balance_wallet" size={20} /> {t("budget:stats.spent")}
         </StatLabel>
-        <StatValue>{format.money(project.spent)}</StatValue>
+        <StatValue>{format.money(project.spent, project.currency)}</StatValue>
         <StatChange>
           {budget.over ? (
             <StatDelta tone="attention">{t("common:attention.overBudget", { pct: budget.overPct })}</StatDelta>
@@ -35,7 +35,7 @@ export function BudgetStats({ project, budget }: { project: ProjectSummary; budg
         <StatLabel>
           <Icon name="savings" size={20} /> {t("budget:stats.remaining")}
         </StatLabel>
-        <StatValue>{format.money(budget.remaining)}</StatValue>
+        <StatValue>{format.money(budget.remaining, project.currency)}</StatValue>
         <StatChange>
           {budget.over ? <StatDelta tone="attention">{t("budget:stats.overBudget")}</StatDelta> : t("budget:stats.leftToSpend")}
         </StatChange>

@@ -23,12 +23,12 @@ export function answerText(answer: AiAnswer, { t, format, statusLabel }: AnswerC
     case "nothing_blocked":
       return t("assistant.answer.nothingBlocked");
     case "budget": {
-      const { spent, budget, pct, remaining, overallProgress } = answer.params;
+      const { spent, budget, pct, remaining, overallProgress, currency } = answer.params;
       return t("assistant.answer.budget", {
-        spent: format.money(spent),
-        budget: format.money(budget),
+        spent: format.money(spent, currency),
+        budget: format.money(budget, currency),
         pct,
-        remaining: format.money(remaining),
+        remaining: format.money(remaining, currency),
         overallProgress,
       });
     }

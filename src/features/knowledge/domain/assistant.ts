@@ -36,7 +36,7 @@ export type AiAnswer =
   | { kind: "nothing_blocked"; params: Record<string, never>; sources: AiSource[]; links: AiLink[] }
   | {
       kind: "budget";
-      params: { spent: number; budget: number; pct: number; remaining: number; overallProgress: number };
+      params: { spent: number; budget: number; pct: number; remaining: number; overallProgress: number; currency: string };
       sources: AiSource[];
       links: AiLink[];
     }
@@ -160,7 +160,14 @@ export function getAiAnswer(question: string, data: ProjectData): AiAnswer {
     const pct = p.budget ? Math.round((p.spent / p.budget) * 100) : 0;
     return {
       kind: "budget",
-      params: { spent: p.spent, budget: p.budget, pct, remaining: p.budget - p.spent, overallProgress: p.overall_progress },
+      params: {
+        spent: p.spent,
+        budget: p.budget,
+        pct,
+        remaining: p.budget - p.spent,
+        overallProgress: p.overall_progress,
+        currency: p.currency,
+      },
       sources: [
         { kind: "project", params: { field: "budget" } },
         { kind: "project", params: { field: "progress" } },

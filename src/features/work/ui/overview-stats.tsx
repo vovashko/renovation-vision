@@ -33,12 +33,12 @@ export function OverviewStats({ project, stages }: { project: ProjectSummary; st
       </Stat>
       <Stat variant={budget.over ? "attention" : "default"}>
         <StatLabel>{t("stats.budgetSpent")}</StatLabel>
-        <StatValue>{format.money(project.spent)}</StatValue>
+        <StatValue>{format.money(project.spent, project.currency)}</StatValue>
         <StatChange>
           <StatDelta tone={budget.over ? "attention" : "good"}>
             {budget.over ? t("stats.overBudget", { pct: budget.overPct }) : t("stats.budgetUsed", { pct: budget.usedPct })}
           </StatDelta>{" "}
-          {t("stats.ofPlan", { amount: format.money(project.budget) })}
+          {t("stats.ofPlan", { amount: format.money(project.budget, project.currency) })}
         </StatChange>
       </Stat>
       <Stat>
