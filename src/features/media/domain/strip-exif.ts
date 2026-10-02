@@ -6,7 +6,7 @@
 // covers `extractTakenAt` (against tests/fixtures/gps.jpg, a real JPEG with GPS EXIF) and the pure
 // rules in ./upload; the re-encode path needs a real browser and was checked manually (see the PR).
 import { parse as parseExif } from "exifr";
-import { JPEG_QUALITY, capDimensions, reencodeOutputType } from "./upload";
+import { JPEG_QUALITY, MAX_DIMENSION, capDimensions, reencodeOutputType } from "./upload";
 
 /** The photo's capture date (EXIF `DateTimeOriginal`), as an ISO string, or null when the file has none. */
 export async function extractTakenAt(file: Blob): Promise<string | null> {
@@ -33,13 +33,14 @@ async function canvasToJpegBlob(canvas: MinimalCanvas & (OffscreenCanvas | HTMLC
 /**
  * Re-encodes `file` through a canvas: decoding and redrawing the pixels drops every metadata
  * segment (EXIF/GPS included), the longest edge is capped at `MAX_DIMENSION`, and the result is
- * exported as JPEG. The capture date is read first, since re-encoding destroys it.
+ * exported as JPEG. The capture date is read first, since re-encoding destroys it. `maxDimension`
+ * caps the longest edge (default `MAX_DIMENSION`; avatars use a smaller one).
  */
-export async function reencodeImage(file: File): Promise<ReencodeResult> {
+export async function reencodeImage(file: File, maxDimension: number = MAX_DIMENSION): Promise<ReencodeResult> {
   const takenAt = await extractTakenAt(file);
   const bitmap = await createImageBitmap(file);
   try {
-    const { width, height } = capDimensions(bitmap.width, bitmap.height);
+    const { width, height } = capDimensions(bitmap.width, bitmap.height, maxDimension);
     const canvas: OffscreenCanvas | HTMLCanvasElement =
       typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(width, height) : document.createElement("canvas");
     if (!(canvas instanceof OffscreenCanvas)) {

@@ -7,9 +7,9 @@
 // On the server the store is per request (the router is). In the browser it starts from the
 // server's value (router dehydrate/hydrate, so no extra round trip) and is reset by <AuthSync />
 // whenever Supabase reports a different user, which re-runs the guards via router.invalidate().
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { migrateLegacySession, supabase } from "./supabase";
 import type { Profile } from "./database.types";
 import { updateUserLocale } from "@/features/auth/hooks";
@@ -70,32 +70,20 @@ type AuthState = {
   status: "signed-out" | "signed-in";
   userId: string | null;
   email: string | null;
+  /** The session's assurance level: "aal2" once 2FA was verified in this session. */
+  aal: "aal1" | "aal2" | null;
   profile: Profile | null;
-  signIn: (email: string, password: string) => Promise<void>;
-  sendMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
-
-async function signIn(email: string, password: string) {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(error.message);
-}
-
-async function sendMagicLink(email: string) {
-  // The link lands on /login (a public route), where the browser client exchanges the PKCE code
-  // and AuthSync then sends the now signed-in user on.
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/login` },
-  });
-  if (error) throw new Error(error.message);
-}
 
 async function signOut() {
   await supabase.auth.signOut();
 }
 
-/** The session from the router context (set by the root route's beforeLoad), plus the auth actions. */
+/**
+ * The session from the router context (set by the root route's beforeLoad), plus sign-out. Signing
+ * in, magic links, password reset and 2FA live in features/auth (hooks + ui).
+ */
 export function useAuth(): AuthState {
   const auth = useRouteContext({ from: "__root__", select: (context) => context.auth });
   const user = auth?.user ?? null;
@@ -104,11 +92,30 @@ export function useAuth(): AuthState {
     status: user ? "signed-in" : "signed-out",
     userId: user?.id ?? null,
     email: user?.email ?? null,
+    aal: user?.aal ?? null,
     profile: profile as Profile | null,
-    signIn,
-    sendMagicLink,
     signOut,
   };
+}
+
+type RouterLike = { options: { context: unknown }; invalidate: () => Promise<void> };
+
+async function refreshSession(router: RouterLike, queryClient: QueryClient) {
+  (router.options.context as { session: SessionStore }).session.reset();
+  queryClient.clear();
+  await router.invalidate();
+}
+
+/**
+ * Re-reads the session from the server now: drops the cached session and every cached query, then
+ * re-runs the root beforeLoad and the guards. AuthSync does this on auth events; call it yourself
+ * when the next navigation needs the new context (right after a 2FA verification, so the guards see
+ * aal2) or after changing what getSession returns (the profile's name or photo).
+ */
+export function useSessionRefresh(): () => Promise<void> {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useCallback(() => refreshSession(router, queryClient), [router, queryClient]);
 }
 
 /** Supabase auth events that may mean "a different user (or none) now" and so re-run the guards. */
@@ -126,11 +133,7 @@ export function AuthSync() {
   const queryClient = useQueryClient();
   useEffect(() => {
     const session = router.options.context.session as SessionStore;
-    const refresh = async () => {
-      session.reset();
-      queryClient.clear();
-      await router.invalidate();
-    };
+    const refresh = () => refreshSession(router, queryClient);
     let subscription: { unsubscribe: () => void } | undefined;
     try {
       ({

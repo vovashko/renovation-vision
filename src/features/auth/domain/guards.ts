@@ -4,14 +4,16 @@ import type { ProjectRole } from "@/lib/database.types";
 import { managerOnlySections } from "@/shared/ui/nav-config";
 
 /**
- * Where /login sends a signed-in user: the `redirect` search param if it is a same-origin path,
- * otherwise `/`. Rejects absolute and protocol-relative URLs (`https://evil`, `//evil`, `/\evil`),
+ * Where /login (and /mfa, after the challenge) sends a signed-in user: the `redirect` search param
+ * if it is a same-origin path, otherwise `/`. Rejects absolute and protocol-relative URLs (`https://evil`, `//evil`, `/\evil`),
  * so the param can't be used as an open redirect.
  */
 export function safeRedirectTarget(redirect: unknown): string {
   if (typeof redirect !== "string") return "/";
   if (!redirect.startsWith("/") || redirect.startsWith("//") || redirect.startsWith("/\\")) return "/";
-  if (redirect === "/login" || redirect.startsWith("/login?") || redirect.startsWith("/login/")) return "/";
+  // Never back to a screen that would bounce them again (/login, the /mfa screens).
+  if (["/login", "/mfa"].some((page) => redirect === page || redirect.startsWith(`${page}?`) || redirect.startsWith(`${page}/`)))
+    return "/";
   return redirect;
 }
 
