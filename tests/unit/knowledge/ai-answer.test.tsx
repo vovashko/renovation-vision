@@ -18,7 +18,7 @@ vi.mock("@tanstack/react-router", () => ({
 
 const budgetAnswer: AiAnswer = {
   kind: "budget",
-  params: { spent: 40000, budget: 100000, pct: 40, remaining: 60000, overallProgress: 45 },
+  params: { spent: 40000, budget: 100000, pct: 40, remaining: 60000, overallProgress: 45, currency: "PLN" },
   sources: [
     { kind: "project", params: { field: "budget" } },
     { kind: "project", params: { field: "progress" } },

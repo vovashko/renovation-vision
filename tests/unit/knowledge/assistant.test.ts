@@ -15,8 +15,14 @@ function collectStrings(value: unknown, out: string[] = []): string[] {
 const project = (patch: Partial<ProjectSummary> = {}): ProjectSummary => ({
   id: "p1",
   name: "Kowalski Renovation",
-  address: "1 Main St",
-  client_name: "Sarah Kowalski",
+  address: "1 Main St, 00-001 Warszawa",
+  address_line: "1 Main St",
+  postal_code: "00-001",
+  city: "Warszawa",
+  country: "PL",
+  currency: "PLN",
+  status: "active",
+  client_display_name: "Sarah Kowalski",
   start_date: "2026-01-01",
   target_date: "2026-06-01",
   budget: 100000,
@@ -137,7 +143,7 @@ describe("getAiAnswer", () => {
       const answer = getAiAnswer(q, data);
       expect(answer.kind).toBe("budget");
       if (answer.kind !== "budget") throw new Error("unreachable");
-      expect(answer.params).toEqual({ spent: 40000, budget: 100000, pct: 40, remaining: 60000, overallProgress: 45 });
+      expect(answer.params).toEqual({ spent: 40000, budget: 100000, pct: 40, remaining: 60000, overallProgress: 45, currency: "PLN" });
       expect(answer.sources).toEqual([
         { kind: "project", params: { field: "budget" } },
         { kind: "project", params: { field: "progress" } },

@@ -58,8 +58,10 @@ select pg_temp.check(not has_function_privilege('anon', 'public.set_account_type
   'anon cannot call set_account_type');
 select pg_temp.check(not has_function_privilege('anon', 'public.staff_mfa_required()', 'execute'),
   'anon cannot call staff_mfa_required');
-select pg_temp.check(not has_function_privilege('authenticated', 'private.is_staff()', 'execute'),
-  'authenticated cannot call private.is_staff directly');
+-- T30: the contacts policy calls private.is_staff(), so authenticated may execute it (it only reports on the
+-- caller's own account type); anon still may not.
+select pg_temp.check(not has_function_privilege('anon', 'private.is_staff()', 'execute'),
+  'anon cannot call private.is_staff');
 
 -- ===========================================================================
 -- Enforcement ON (the production default)
@@ -70,7 +72,8 @@ select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000001', 'aal1');
 select pg_temp.check(public.staff_mfa_required(), 'staff_mfa_required() is true when enforcement is on');
 select pg_temp.check((select count(*) from public.expenses) = 0, 'AAL1 manager cannot read expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 0, 'AAL1 manager cannot read internal notes');
-select pg_temp.check((select count(*) from public.project_crew) = 0, 'AAL1 manager cannot read the crew');
+select pg_temp.check((select count(*) from public.project_contacts) = 0, 'AAL1 manager cannot read the crew');
+select pg_temp.check((select count(*) from public.contacts) = 0, 'AAL1 manager cannot read the contacts book');
 select pg_temp.check((select count(*) from public.activity_log) = 0, 'AAL1 manager cannot read the activity log');
 select pg_temp.check((select count(*) from storage.objects where bucket_id = 'project-internal') = 0,
   'AAL1 manager cannot read receipts');
@@ -88,7 +91,7 @@ select pg_temp.denied(
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000001', 'aal2');
 select pg_temp.check((select count(*) from public.expenses) = 9, 'AAL2 manager reads expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 1, 'AAL2 manager reads internal notes');
-select pg_temp.check((select count(*) from public.project_crew) = 4, 'AAL2 manager reads the crew');
+select pg_temp.check((select count(*) from public.project_contacts where role = 'crew') = 4, 'AAL2 manager reads the crew');
 select pg_temp.check((select count(*) from public.activity_log) > 0, 'AAL2 manager reads the activity log');
 select pg_temp.check((select count(*) from storage.objects where bucket_id = 'project-internal') = 1,
   'AAL2 manager reads receipts');
@@ -106,7 +109,8 @@ select pg_temp.check((select count(*) from public.messages) >= 5, 'client reads 
 select pg_temp.check((select count(*) from storage.objects where name like '%p1-living%') = 1, 'client reads a published photo file');
 select pg_temp.check((select count(*) from public.expenses) = 0, 'client cannot read expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 0, 'client cannot read internal notes');
-select pg_temp.check((select count(*) from public.project_crew) = 0, 'client cannot read the crew');
+select pg_temp.check((select count(*) from public.project_contacts) = 0, 'client cannot read the crew');
+select pg_temp.check((select count(*) from public.contacts) = 0, 'client cannot read the contacts book');
 select pg_temp.check((select count(*) from public.activity_log) = 0, 'client cannot read the activity log');
 select pg_temp.check((select count(*) from storage.objects where bucket_id = 'project-internal') = 0, 'client cannot read receipts');
 insert into storage.objects (bucket_id, name) values ('avatars', 'a0000000-0000-4000-8000-000000000002/me.png');
@@ -139,7 +143,7 @@ select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000001', 'aal1');
 select pg_temp.check(not public.staff_mfa_required(), 'staff_mfa_required() is false when enforcement is off');
 select pg_temp.check((select count(*) from public.expenses) = 10, 'AAL1 manager reads expenses when enforcement is off');
 select pg_temp.check((select count(*) from public.project_internal) = 1, 'AAL1 manager reads internal notes when off');
-select pg_temp.check((select count(*) from public.project_crew) = 4, 'AAL1 manager reads the crew when off');
+select pg_temp.check((select count(*) from public.project_contacts where role = 'crew') = 4, 'AAL1 manager reads the crew when off');
 select pg_temp.check((select count(*) from public.activity_log) > 0, 'AAL1 manager reads the activity log when off');
 select pg_temp.check((select count(*) from storage.objects where bucket_id = 'project-internal') = 1,
   'AAL1 manager reads receipts when off');
