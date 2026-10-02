@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/page-header";
-import { AccountCard } from "@/features/settings/ui/account-card";
-import { LanguageForm } from "@/features/settings/ui/language-form";
+import { SettingsNav } from "@/features/settings/ui/settings-nav";
 
-export const Route = createFileRoute("/_authed/settings")({
+export const Route = createFileRoute("/_authed/settings/")({
   // Rendered in the request's language; after an in-app switch the tab title catches up on the next navigation.
   head: ({ match }) => ({
     meta: [
@@ -15,14 +14,13 @@ export const Route = createFileRoute("/_authed/settings")({
   component: SettingsPage,
 });
 
-// Your profile is edited from the avatar pinned at the bottom of the nav rail.
+/** /settings: links to Profile and Security. */
 function SettingsPage() {
   const { t } = useTranslation("settings");
   return (
     <div className="mx-auto w-full max-w-7xl">
       <PageHeader title={t("title")} />
-      <LanguageForm className="mt-6 max-w-md" />
-      <AccountCard className="mt-4 max-w-md" />
+      <SettingsNav className="mt-6 max-w-md" />
     </div>
   );
 }

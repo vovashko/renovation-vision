@@ -5,19 +5,72 @@
     "title": "Language",
     "description": "The language RenoVision uses on this device."
   },
+  "profile": {
+    "title": "Profile",
+    "summary": "Your name, photo and language",
+    "nameTitle": "Name",
+    "nameDescription": "Shown to everyone on your projects.",
+    "name": "Full name",
+    "nameTooLong": "Use at most 120 characters",
+    "saved": "Name saved"
+  },
+  "avatar": {
+    "title": "Profile photo",
+    "description": "JPEG, PNG or WebP. We remove location and other photo data before uploading it.",
+    "pick": "Choose a profile photo",
+    "uploading": "Uploading…",
+    "remove": "Remove photo",
+    "wrongType": "Choose a JPEG, PNG or WebP image",
+    "tooBig": "The image is too large (15 MB max)",
+    "saved": "Profile photo updated",
+    "removed": "Profile photo removed"
+  },
+  "security": {
+    "title": "Security",
+    "summary": "Password and two-factor authentication"
+  },
+  "password": {
+    "title": "Password",
+    "description": "Changing it signs you in with the new password from now on.",
+    "submit": "Change password",
+    "changed": "Password changed.",
+    "codeSent": "For your security, we've emailed you a 6-digit code. Enter it to confirm the change.",
+    "codeLabel": "Code from the email",
+    "resend": "Send a new code",
+    "needsMfa": "Your account uses two-factor authentication: verify with your authenticator app before changing the password."
+  },
+  "twoFactor": {
+    "title": "Two-factor authentication",
+    "description": "A code from an authenticator app on your phone, asked for at every sign-in.",
+    "status": "Status",
+    "enabled": "On",
+    "disabled": "Off",
+    "addedUnfinished": "Setup not finished · started {{date}}",
+    "unnamed": "Authenticator app",
+    "added": "Added {{date}}",
+    "setUp": "Set up two-factor authentication",
+    "addAnother": "Add another authenticator app",
+    "verifyNow": "Verify with your authenticator app",
+    "verifyToRemove": "Verify to remove",
+    "removeConfirm": "Remove this authenticator app?",
+    "removeConfirmBody": "Its codes will stop working. If it's your only one, two-factor authentication turns off.",
+    "removed": "Authenticator app removed",
+    "requiredForStaff": "Two-factor authentication is required for staff accounts, so your last authenticator app can't be removed."
+  },
   "account": {
-    "title": "Account",
+    "title": "This session",
     "description": "As the server sees your current session.",
     "unavailable": "Unavailable",
     "twoFactor": {
-      "title": "Two-factor authentication",
-      "on": "On",
-      "off": "Off"
+      "title": "Verified with two-factor authentication",
+      "on": "Yes",
+      "off": "No"
     },
     "type": {
       "title": "Account type",
       "manager": "Manager",
-      "client": "Client"
+      "client": "Client",
+      "admin": "Administrator"
     }
   }
 }

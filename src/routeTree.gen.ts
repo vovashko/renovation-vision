@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as authedRouteImport } from './routes/_authed'
+import { Route as forgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as loginRouteImport } from './routes/login'
+import { Route as mfaLayoutRouteImport } from './routes/mfa/layout'
+import { Route as resetPasswordRouteImport } from './routes/reset-password'
 import { Route as indexRouteImport } from './routes/index'
-import { Route as settingsRouteImport } from './routes/settings'
+import { Route as mfaChallengeRouteImport } from './routes/mfa/challenge'
+import { Route as mfaEnrollRouteImport } from './routes/mfa/enroll'
 import { Route as projectsRouteImport } from './routes/projects'
 import { Route as projectLayoutRouteImport } from './routes/project/layout'
+import { Route as settingsIndexRouteImport } from './routes/settings/index'
+import { Route as settingsProfileRouteImport } from './routes/settings/profile'
+import { Route as settingsSecurityRouteImport } from './routes/settings/security'
 import { Route as projectOverviewRouteImport } from './routes/project/overview'
 import { Route as projectBudgetRouteImport } from './routes/project/budget'
 import { Route as projectChatRouteImport } from './routes/project/chat'
@@ -31,9 +38,24 @@ const authedRoute = authedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const forgotPasswordRoute = forgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const loginRoute = loginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const mfaLayoutRoute = mfaLayoutRouteImport.update({
+  id: '/mfa',
+  path: '/mfa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const resetPasswordRoute = resetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const indexRoute = indexRouteImport.update({
@@ -41,10 +63,15 @@ const indexRoute = indexRouteImport.update({
   path: '/',
   getParentRoute: () => authedRoute,
 } as any)
-const settingsRoute = settingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => authedRoute,
+const mfaChallengeRoute = mfaChallengeRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => mfaLayoutRoute,
+} as any)
+const mfaEnrollRoute = mfaEnrollRouteImport.update({
+  id: '/enroll',
+  path: '/enroll',
+  getParentRoute: () => mfaLayoutRoute,
 } as any)
 const projectsRoute = projectsRouteImport.update({
   id: '/projects/',
@@ -54,6 +81,21 @@ const projectsRoute = projectsRouteImport.update({
 const projectLayoutRoute = projectLayoutRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
+  getParentRoute: () => authedRoute,
+} as any)
+const settingsIndexRoute = settingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => authedRoute,
+} as any)
+const settingsProfileRoute = settingsProfileRouteImport.update({
+  id: '/settings/profile',
+  path: '/settings/profile',
+  getParentRoute: () => authedRoute,
+} as any)
+const settingsSecurityRoute = settingsSecurityRouteImport.update({
+  id: '/settings/security',
+  path: '/settings/security',
   getParentRoute: () => authedRoute,
 } as any)
 const projectOverviewRoute = projectOverviewRouteImport.update({
@@ -114,10 +156,17 @@ const projectUpdatesRoute = projectUpdatesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof indexRoute
+  '/forgot-password': typeof forgotPasswordRoute
   '/login': typeof loginRoute
-  '/settings': typeof settingsRoute
+  '/mfa': typeof mfaLayoutRouteWithChildren
+  '/reset-password': typeof resetPasswordRoute
+  '/mfa/': typeof mfaChallengeRoute
+  '/mfa/enroll': typeof mfaEnrollRoute
   '/projects/': typeof projectsRoute
   '/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/settings/profile': typeof settingsProfileRoute
+  '/settings/security': typeof settingsSecurityRoute
+  '/settings/': typeof settingsIndexRoute
   '/projects/$projectId/': typeof projectOverviewRoute
   '/projects/$projectId/budget': typeof projectBudgetRoute
   '/projects/$projectId/chat': typeof projectChatRoute
@@ -131,10 +180,16 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/updates': typeof projectUpdatesRoute
 }
 export interface FileRoutesByTo {
+  '/forgot-password': typeof forgotPasswordRoute
   '/login': typeof loginRoute
+  '/reset-password': typeof resetPasswordRoute
   '/': typeof indexRoute
-  '/settings': typeof settingsRoute
+  '/mfa': typeof mfaChallengeRoute
+  '/mfa/enroll': typeof mfaEnrollRoute
   '/projects': typeof projectsRoute
+  '/settings/profile': typeof settingsProfileRoute
+  '/settings/security': typeof settingsSecurityRoute
+  '/settings': typeof settingsIndexRoute
   '/projects/$projectId': typeof projectOverviewRoute
   '/projects/$projectId/budget': typeof projectBudgetRoute
   '/projects/$projectId/chat': typeof projectChatRoute
@@ -150,11 +205,18 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof authedRouteWithChildren
+  '/forgot-password': typeof forgotPasswordRoute
   '/login': typeof loginRoute
+  '/mfa': typeof mfaLayoutRouteWithChildren
+  '/reset-password': typeof resetPasswordRoute
   '/_authed/': typeof indexRoute
-  '/_authed/settings': typeof settingsRoute
+  '/mfa/': typeof mfaChallengeRoute
+  '/mfa/enroll': typeof mfaEnrollRoute
   '/_authed/projects/': typeof projectsRoute
   '/_authed/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/_authed/settings/profile': typeof settingsProfileRoute
+  '/_authed/settings/security': typeof settingsSecurityRoute
+  '/_authed/settings/': typeof settingsIndexRoute
   '/_authed/projects/$projectId/': typeof projectOverviewRoute
   '/_authed/projects/$projectId/budget': typeof projectBudgetRoute
   '/_authed/projects/$projectId/chat': typeof projectChatRoute
@@ -171,10 +233,17 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgot-password'
     | '/login'
-    | '/settings'
+    | '/mfa'
+    | '/reset-password'
+    | '/mfa/'
+    | '/mfa/enroll'
     | '/projects/'
     | '/projects/$projectId'
+    | '/settings/profile'
+    | '/settings/security'
+    | '/settings/'
     | '/projects/$projectId/'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
@@ -188,10 +257,16 @@ export interface FileRouteTypes {
     | '/projects/$projectId/updates'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/forgot-password'
     | '/login'
+    | '/reset-password'
     | '/'
-    | '/settings'
+    | '/mfa'
+    | '/mfa/enroll'
     | '/projects'
+    | '/settings/profile'
+    | '/settings/security'
+    | '/settings'
     | '/projects/$projectId'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
@@ -206,11 +281,18 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authed'
+    | '/forgot-password'
     | '/login'
+    | '/mfa'
+    | '/reset-password'
     | '/_authed/'
-    | '/_authed/settings'
+    | '/mfa/'
+    | '/mfa/enroll'
     | '/_authed/projects/'
     | '/_authed/projects/$projectId'
+    | '/_authed/settings/profile'
+    | '/_authed/settings/security'
+    | '/_authed/settings/'
     | '/_authed/projects/$projectId/'
     | '/_authed/projects/$projectId/budget'
     | '/_authed/projects/$projectId/chat'
@@ -226,7 +308,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   authedRoute: typeof authedRouteWithChildren
+  forgotPasswordRoute: typeof forgotPasswordRoute
   loginRoute: typeof loginRoute
+  mfaLayoutRoute: typeof mfaLayoutRouteWithChildren
+  resetPasswordRoute: typeof resetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -238,11 +323,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof forgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof loginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mfa': {
+      id: '/mfa'
+      path: '/mfa'
+      fullPath: '/mfa'
+      preLoaderRoute: typeof mfaLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof resetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/': {
@@ -252,12 +358,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof indexRouteImport
       parentRoute: typeof authedRoute
     }
-    '/_authed/settings': {
-      id: '/_authed/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof settingsRouteImport
-      parentRoute: typeof authedRoute
+    '/mfa/': {
+      id: '/mfa/'
+      path: '/'
+      fullPath: '/mfa/'
+      preLoaderRoute: typeof mfaChallengeRouteImport
+      parentRoute: typeof mfaLayoutRoute
+    }
+    '/mfa/enroll': {
+      id: '/mfa/enroll'
+      path: '/enroll'
+      fullPath: '/mfa/enroll'
+      preLoaderRoute: typeof mfaEnrollRouteImport
+      parentRoute: typeof mfaLayoutRoute
     }
     '/_authed/projects/': {
       id: '/_authed/projects/'
@@ -271,6 +384,27 @@ declare module '@tanstack/react-router' {
       path: '/projects/$projectId'
       fullPath: '/projects/$projectId'
       preLoaderRoute: typeof projectLayoutRouteImport
+      parentRoute: typeof authedRoute
+    }
+    '/_authed/settings/': {
+      id: '/_authed/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof settingsIndexRouteImport
+      parentRoute: typeof authedRoute
+    }
+    '/_authed/settings/profile': {
+      id: '/_authed/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof settingsProfileRouteImport
+      parentRoute: typeof authedRoute
+    }
+    '/_authed/settings/security': {
+      id: '/_authed/settings/security'
+      path: '/settings/security'
+      fullPath: '/settings/security'
+      preLoaderRoute: typeof settingsSecurityRouteImport
       parentRoute: typeof authedRoute
     }
     '/_authed/projects/$projectId/': {
@@ -387,24 +521,45 @@ const projectLayoutRouteWithChildren = projectLayoutRoute._addFileChildren(
 
 interface authedRouteChildren {
   indexRoute: typeof indexRoute
-  settingsRoute: typeof settingsRoute
   projectsRoute: typeof projectsRoute
   projectLayoutRoute: typeof projectLayoutRouteWithChildren
+  settingsProfileRoute: typeof settingsProfileRoute
+  settingsSecurityRoute: typeof settingsSecurityRoute
+  settingsIndexRoute: typeof settingsIndexRoute
 }
 
 const authedRouteChildren: authedRouteChildren = {
   indexRoute: indexRoute,
-  settingsRoute: settingsRoute,
   projectsRoute: projectsRoute,
   projectLayoutRoute: projectLayoutRouteWithChildren,
+  settingsProfileRoute: settingsProfileRoute,
+  settingsSecurityRoute: settingsSecurityRoute,
+  settingsIndexRoute: settingsIndexRoute,
 }
 
 const authedRouteWithChildren =
   authedRoute._addFileChildren(authedRouteChildren)
 
+interface mfaLayoutRouteChildren {
+  mfaChallengeRoute: typeof mfaChallengeRoute
+  mfaEnrollRoute: typeof mfaEnrollRoute
+}
+
+const mfaLayoutRouteChildren: mfaLayoutRouteChildren = {
+  mfaChallengeRoute: mfaChallengeRoute,
+  mfaEnrollRoute: mfaEnrollRoute,
+}
+
+const mfaLayoutRouteWithChildren = mfaLayoutRoute._addFileChildren(
+  mfaLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   authedRoute: authedRouteWithChildren,
+  forgotPasswordRoute: forgotPasswordRoute,
   loginRoute: loginRoute,
+  mfaLayoutRoute: mfaLayoutRouteWithChildren,
+  resetPasswordRoute: resetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
