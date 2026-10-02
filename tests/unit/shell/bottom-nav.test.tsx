@@ -42,8 +42,7 @@ function setUp({ role, path, projectId }: { role: "manager" | "client"; path: st
     userId: "u1",
     email: "jane@example.com",
     profile: { id: "u1", full_name: "Jane Doe", avatar_url: null, account_type: role },
-    signIn: vi.fn(),
-    sendMagicLink: vi.fn(),
+    aal: "aal1",
     signOut: vi.fn(),
   } as unknown as ReturnType<typeof useAuth>);
   vi.mocked(useProjectRole).mockReturnValue(projectId ? role : null);

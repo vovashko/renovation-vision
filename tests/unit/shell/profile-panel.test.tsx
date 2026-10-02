@@ -13,8 +13,7 @@ function authValue(overrides: Partial<ReturnType<typeof useAuth>> = {}) {
     userId: "u1",
     email: "jane@example.com",
     profile: { id: "u1", full_name: "Jane Doe", avatar_url: null, account_type: "client" as const },
-    signIn: vi.fn(),
-    sendMagicLink: vi.fn(),
+    aal: "aal1" as const,
     signOut: vi.fn(),
     ...overrides,
   };

@@ -5,7 +5,17 @@ import { isNotFound, isRedirect } from "@tanstack/react-router";
 // session arrives as `context.auth` (root beforeLoad), the role via ensureProjectAccess.
 const h = vi.hoisted(() => ({ ensureProjectAccess: vi.fn() }));
 vi.mock("@/server/functions/session", () => ({ getSession: vi.fn(), getProjectAccess: vi.fn() }));
-vi.mock("@/features/auth/hooks", () => ({ ensureProjectAccess: h.ensureProjectAccess, useProjectRole: () => null }));
+// The 2FA steps are covered by mfa-guard.test.ts; here they always pass (no factor, not required).
+vi.mock("@/features/auth/hooks", async () => {
+  const { safeRedirectTarget } = await import("@/features/auth/domain/guards");
+  return {
+    ensureProjectAccess: h.ensureProjectAccess,
+    useProjectRole: () => null,
+    resolveStaffMfaStep: async () => "pass",
+    mfaHref: (step: string, target: string) => `/mfa${step === "enroll" ? "/enroll" : ""}?redirect=${target}`,
+    signedInTarget: async (_qc: unknown, _user: unknown, redirect: unknown) => safeRedirectTarget(redirect),
+  };
+});
 
 const { Route: AuthedRoute } = await import("@/routes/_authed");
 const { Route: LoginRoute } = await import("@/routes/login");
