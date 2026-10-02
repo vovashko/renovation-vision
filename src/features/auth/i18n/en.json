@@ -7,14 +7,84 @@
     "password": "Password",
     "submit": "Sign in",
     "submitting": "Signing in…",
+    "or": "or",
     "magicLink": "Email me a sign-in link",
-    "emailRequired": "Enter your email first",
-    "magicLinkSent": "Check your inbox for a sign-in link"
+    "magicLinkWait": "Send another link in {{seconds}} s",
+    "magicLinkSent": "If that address has an account, a sign-in link is on its way. Open it in this browser.",
+    "verifyingLink": "Signing you in…",
+    "forgotPassword": "Forgot password?"
   },
+  "backToSignIn": "Back to sign in",
   "demoHint": {
     "heading": "Demo accounts",
     "manager": "Manager",
     "client": "Client",
     "password": "Password"
+  },
+  "errors": {
+    "invalidCredentials": "Wrong email or password.",
+    "emailNotConfirmed": "Confirm your email address first: open the link we sent you when you signed up.",
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
+    "weakPassword": "This password is too weak. Use at least 10 characters with letters and digits.",
+    "samePassword": "The new password must be different from the current one.",
+    "reauthenticationInvalid": "That code is wrong or has expired. Request a new one.",
+    "invalidCode": "That code didn't work. Check the time on your phone and enter the current code.",
+    "aal2Required": "Verify with your authenticator app first.",
+    "linkExpired": "This link is invalid or has expired, or it was opened in a different browser. Request a new one.",
+    "network": "Can't reach the server. Check your connection and try again.",
+    "generic": "Something went wrong. Try again."
+  },
+  "password": {
+    "new": "New password",
+    "confirm": "Repeat the new password",
+    "rules": "At least 10 characters, with letters and digits.",
+    "tooShort": "Use at least 10 characters",
+    "tooLong": "Use at most 72 characters",
+    "needsLetter": "Add at least one letter (a–z)",
+    "needsDigit": "Add at least one digit",
+    "mismatch": "The passwords don't match"
+  },
+  "code": {
+    "invalid": "Enter the 6-digit code"
+  },
+  "forgot": {
+    "title": "Reset your password",
+    "description": "Enter your email and we'll send you a link to set a new password.",
+    "submit": "Send reset link",
+    "wait": "Send again in {{seconds}} s",
+    "sent": "If an account exists for that address, we've sent a link to reset the password. It's valid for one hour."
+  },
+  "reset": {
+    "title": "Set a new password",
+    "description": "Choose a new password for your account.",
+    "checking": "Checking your link…",
+    "submit": "Save the new password",
+    "done": "Password changed. Signing you in…",
+    "requestNew": "Request a new link",
+    "needsMfa": "Your account uses two-factor authentication. Enter a code from your authenticator app first, then set the new password.",
+    "verify": "Enter a code"
+  },
+  "mfa": {
+    "codeLabel": "6-digit code",
+    "verifying": "Verifying…",
+    "signOut": "Sign out",
+    "challenge": {
+      "title": "Two-factor verification",
+      "description": "Enter the 6-digit code from your authenticator app.",
+      "submit": "Verify"
+    },
+    "enroll": {
+      "title": "Set up two-factor authentication",
+      "description": "Protect your account with a code from an authenticator app (Google Authenticator, 1Password, Authy…).",
+      "required": "Your account needs two-factor authentication. Set it up to continue.",
+      "starting": "Preparing your QR code…",
+      "retry": "Try again",
+      "scan": "Scan this QR code with your authenticator app.",
+      "qrAlt": "QR code for your authenticator app",
+      "manual": "Can't scan it? Enter this key in the app instead:",
+      "submit": "Verify and turn on",
+      "cancel": "Not now",
+      "factorName": "Authenticator {{date}}"
+    }
   }
 }
