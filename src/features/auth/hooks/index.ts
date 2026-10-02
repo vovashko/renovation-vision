@@ -6,6 +6,9 @@ import { getProjectAccess, type ProjectAccess } from "@/server/functions/session
 import { keys } from "@/shared/query-keys";
 import { isProjectId } from "../domain/guards";
 
+/** Mirrors the UI locale onto `user_metadata.locale` (see ../data/locale.repo for why). */
+export { updateUserLocale } from "../data/locale.repo";
+
 const NO_ACCESS: ProjectAccess = { role: null, project: null };
 
 /** Query keys for the session-derived data this feature caches. */
