@@ -242,15 +242,16 @@ header `x-rv-error: 1`:
 { "error": { "code": "UNAUTHORIZED", "message": "Missing access token", "requestId": "3f0c…", "reason": "missing_token" } }
 ```
 
-| Code           | Status | When                                                                                     |
-| -------------- | ------ | ---------------------------------------------------------------------------------------- |
-| `BAD_REQUEST`  | 400    | `.validator()` failed (`error.issues: [{ path, message }]`), or a bad project id         |
-| `UNAUTHORIZED` | 401    | no, malformed, expired or badly signed token (`reason`: `missing_token`/`invalid_token`) |
-| `FORBIDDEN`    | 403    | AAL2, account type or project role check failed                                          |
-| `NOT_FOUND`    | 404    | yours to throw                                                                           |
-| `RATE_LIMITED` | 429    | over a rate limit (`Retry-After` header and `error.retryAfter`, seconds)                 |
-| `INTERNAL`     | 500    | anything unexpected; details are only in the log, the browser gets the request id        |
-| `UNAVAILABLE`  | 503    | the Supabase Auth/JWKS endpoint couldn't be reached                                      |
+| Code                   | Status | When                                                                                     |
+| ---------------------- | ------ | ---------------------------------------------------------------------------------------- |
+| `BAD_REQUEST`          | 400    | `.validator()` failed (`error.issues: [{ path, message }]`), or a bad project id         |
+| `UNAUTHORIZED`         | 401    | no, malformed, expired or badly signed token (`reason`: `missing_token`/`invalid_token`) |
+| `FORBIDDEN`            | 403    | AAL2, account type or project role check failed                                          |
+| `NOT_FOUND`            | 404    | yours to throw                                                                           |
+| `RATE_LIMITED`         | 429    | over a rate limit (`Retry-After` header and `error.retryAfter`, seconds)                 |
+| `INTERNAL`             | 500    | anything unexpected; details are only in the log, the browser gets the request id        |
+| `EMAIL_NOT_CONFIGURED` | 500    | `sendEmail` in production/preview with no `BREVO_API_KEY` (see **Email**)                |
+| `UNAVAILABLE`          | 503    | the Supabase Auth/JWKS endpoint couldn't be reached                                      |
 
 In the browser, `isServerFnError(e) && e.code === "RATE_LIMITED"` etc.
 
@@ -267,7 +268,8 @@ redacted. Don't `console.log` on the server.
 
 `src/lib/env.ts` (server-only) validates, with messages that name the variable: the public `VITE_SUPABASE_*` pair (and
 refuses a secret key in any `VITE_*` variable), and the Worker's `APP_ENV`, `SUPABASE_SECRET_KEY` (the legacy
-`SUPABASE_SERVICE_ROLE_KEY` is accepted as a fallback), `BREVO_API_KEY` and `SENTRY_DSN`. It reads them from
+`SUPABASE_SERVICE_ROLE_KEY` is accepted as a fallback), `BREVO_API_KEY`, `EMAIL_FROM`, `EMAIL_SANDBOX` and
+`SENTRY_DSN`. It reads them from
 `import { env } from "cloudflare:workers"`: the one object that carries every binding, including the rate limiters,
 the same in `vite dev`, `vite preview` and production (unit tests alias it to `tests/stubs/cloudflare-workers.ts`).
 Locally, put them in `.dev.vars` (see `.dev.vars.example`; for the local stack `SUPABASE_SECRET_KEY` is the
@@ -516,6 +518,206 @@ both and risking an orphan when the second fails. If the storage removal fails, 
 path and the automatic request id) as an orphan marker for manual cleanup, but the call still reports success: the
 row is gone, which is what the UI and the rest of the app care about. `features/media/hooks` and
 `features/budget/hooks` call these instead of the old two-call repository methods.
+
+## Email
+
+Two separate systems, on purpose:
+
+- **Auth emails** (signup confirmation, invite, magic link, password recovery, email change,
+  reauthentication) are sent by **Supabase Auth itself**, from localized HTML templates — not a
+  send-email hook. A hook would make every auth email (including sign-in) depend on our Worker being
+  up; Supabase's own mailer doesn't. **Locally they stay inside Supabase's own local mail catcher**
+  (`[local_smtp]` in `config.toml`, bundled with the CLI) — that's Supabase's tooling, not ours; we
+  don't build anything on top of it.
+- **App emails** (notifications, digests — T41; T40's invite may just reuse the auth invite) go
+  through **`src/server/email`**, our own `sendEmail()` talking to Brevo. There's no local
+  mail-catcher stand-in for this path either: Brevo itself is tested directly, in sandbox mode (see
+  below), rather than relying on a different tool in dev.
+
+Both render through the same shared design-system components (`src/server/email/design/`), so every
+RenoVision email — auth or app — looks like it came from the same product.
+
+### The shared design system (`src/server/email/design/`)
+
+Email clients can't read CSS variables, oklch colors or Tailwind, so `tokens.ts` mirrors the subset of
+the design system's tokens that emails need as literal hex/px values — M3 color roles (primary,
+surface, outline, …), a type scale, radii and spacing — each one commented with the `--m3-*`/
+`--radius-*` variable in `src/styles.css` it mirrors. **A drift test**
+(`tests/unit/email/design-tokens.test.ts`) converts `styles.css`'s oklch values to sRGB and fails the
+moment `tokens.ts` disagrees (±1 per channel, for rounding).
+
+`components.ts` builds `Layout` (the branded header — a logo at an absolute URL built from a
+`siteUrl` param, see below — plus the card and footer), `Heading`, `Text`, `Button`, `Muted` and
+`Divider` as table-based, inline-styled HTML fragments from those tokens. Every email — the two app
+templates and the six generated auth templates — is assembled from these; there's no separate,
+hand-rolled HTML anywhere.
+
+**The logo.** `public/email-logo.png` (served at the site root by Vite, e.g.
+`https://app.renovision.app/email-logo.png`) is a small PNG version of the brand mark — email clients
+need a real, absolute image URL, not the inline SVG the app itself uses.
+
+### Auth emails (Supabase Auth's own templates, generated)
+
+`supabase/templates/*.html` (`confirmation`, `invite`, `recovery`, `magic_link`, `email_change`,
+`reauthentication`) are wired up in `supabase/config.toml`:
+
+```toml
+[auth.email.template.confirmation]
+subject = "{{ if eq .Data.locale \"en\" }}Confirm your email address{{ else }}Potwierdź adres e-mail{{ end }}"
+content_path = "./supabase/templates/confirmation.html"
+```
+
+**These files are generated, not hand-written.** `scripts/build-auth-email-templates.ts`
+(`bun run email:build`) renders each one from the shared components above and the copy in
+`src/server/email/design/auth-copy.ts` (pl/en, one place), keeping Supabase Auth's Go-template
+placeholders — `{{ .ConfirmationURL }}`, `{{ .Token }}`, `{{ .NewEmail }}`, `{{ .SiteURL }}` (the
+logo's absolute URL) and the locale conditional — literally in the output for gotrue to fill in. **Never
+hand-edit a file in `supabase/templates/`**: change the copy or the components and regenerate.
+`tests/unit/email/auth-templates-freshness.test.ts` regenerates every template in memory and fails if
+a checked-in file doesn't match byte-for-byte, so a stale template fails CI.
+
+Each template is **localized with Go-template conditionals** on the signed-in (or signing-up) user's
+`user_metadata.locale`, **Polish by default**:
+
+```html
+{{ if eq .Data.locale "en" }}
+<p>Reset your password</p>
+{{ else }}
+<p>Zresetuj hasło</p>
+{{ end }}
+```
+
+The variable names (checked against the Supabase CLI **2.118.0** / gotrue v2.197.0 source, since the
+hosted dashboard's docs don't version-pin them) are `.ConfirmationURL` (link-based flows),
+`.Token`/`.TokenHash` (the OTP and its hash — reauthentication only has `.Token`, no confirmation
+link), `.SiteURL`, `.RedirectTo`, `.Email`, `.NewEmail` (email_change only) and `.Data` (the user's
+`user_metadata`, hence `.Data.locale`).
+
+**Getting the locale into `user_metadata`.** The app tracks the UI locale in a cookie (see
+**Internationalization**), which Supabase Auth can't see. `updateUserLocale()`
+(`src/features/auth/data/locale.repo.ts`, re-exported from `features/auth/hooks`) calls
+`supabase.auth.updateUser({ data: { locale } })` and is called from two places: the language switch
+on `/settings` (`features/settings/ui/language-form.tsx`), and once after sign-in if the metadata is
+still missing (`<AuthSync />` in `src/lib/auth.tsx`, so older accounts and pre-sign-in locale choices
+get backfilled). Best-effort: a failed sync never blocks the (already-applied, cookie-based) language
+switch.
+
+**Config and template changes only take effect after `supabase stop && supabase start`.**
+
+**Hosted setup checklist** (production/preview Supabase projects — the dashboard doesn't read this
+repo's `config.toml`):
+
+1. Create a Brevo account and **verify a sender domain** (SPF + DKIM records) so RenoVision's From
+   address isn't flagged as spam.
+2. Brevo → SMTP & API → SMTP: copy the login + an **SMTP key** (not the transactional API key below).
+3. Supabase Dashboard → Authentication → Settings → SMTP Settings: enable custom SMTP, host
+   `smtp-relay.brevo.com`, port `587`, the Brevo SMTP login/key, sender name/email matching the
+   verified domain.
+4. Supabase Dashboard → Authentication → Email Templates: **paste each `supabase/templates/*.html`
+   file's content** (run `bun run email:build` first so they're current) and the matching subject
+   (copied verbatim from `config.toml`) into the matching template. (The CLI's `supabase config push`
+   can push `[auth.email.template.*]` to a linked hosted project instead of pasting by hand —
+   untested here, but worth trying before a manual paste becomes a recurring chore.)
+5. `wrangler secret put BREVO_API_KEY --env <preview|production>` for the **app** email path below
+   (a different credential: Brevo's transactional API key, not the SMTP key from step 2).
+
+**Optional: a Send Email Hook.** Supabase Auth also supports a
+[Send Email Hook](https://supabase.com/docs/guides/auth/auth-hooks/send-email-hook) — a Postgres
+function or HTTPS endpoint that receives every auth email and can render/send it however it likes
+(e.g. through our own `sendEmail()` below, for one unified provider and one place to log deliveries).
+Not implemented here: it would route every auth email (including sign-in's magic link) through our
+Worker, which is exactly the single point of failure this design avoids. If that trade-off ever looks
+worth it, `auth.hook.send_email` in `config.toml` is where it would be wired up, pointing at a new
+server function that calls `sendEmail()`.
+
+Tests: `tests/unit/email/auth-templates.test.ts` (every template file exists, has both locale
+branches, references the right gotrue variable, and balanced `{{ if }}`/`{{ end }}` tags — read as
+text, since Go templates aren't renderable here) and `auth-templates-freshness.test.ts` (above).
+
+### App emails (`src/server/email`)
+
+```ts
+import { sendEmail } from "@/server/email/send-email.server";
+
+await sendEmail({
+  to: user.email,
+  template: "notification", // or "digest"
+  locale: "pl",
+  params: {
+    siteUrl: "https://app.renovision.app",
+    title: "Nowe zdjęcia",
+    body: "Dodano 4 zdjęcia.",
+    linkUrl: `${siteUrl}/projects/${id}/photos`,
+  },
+});
+```
+
+**Provider** (`src/server/email/providers.server.ts`), chosen by `resolveEmailProvider()`. **No
+hardcoded fallback URL or key anywhere**, and there is no local mail-catcher integration — Brevo
+itself is tested directly instead (sandbox mode, below):
+
+| When                                         | Provider         | How                                                                         |
+| -------------------------------------------- | ---------------- | --------------------------------------------------------------------------- |
+| `BREVO_API_KEY` is set (any environment)     | Brevo            | `POST https://api.brevo.com/v3/smtp/email`, header `api-key`                |
+| Not set, `APP_ENV` is `production`/`preview` | **throws**       | `ServerFnError("EMAIL_NOT_CONFIGURED", …)` — Brevo is **required** there    |
+| Not set, `APP_ENV` is `development`/`test`   | log (warns once) | Writes the rendered email through `logger` (PII-scrubbed — see **Logging**) |
+
+So a misconfigured preview/production deploy fails loudly (a logged, typed error) the first time
+something tries to send an email, instead of quietly losing it.
+
+The **From** address is `EMAIL_FROM` (`.dev.vars`/`wrangler secret put EMAIL_FROM`), defaulting to
+`RenoVision <no-reply@renovision.app>` — **needs a verified Brevo sender** once `BREVO_API_KEY` is
+set, or Brevo rejects the send.
+
+**Testing Brevo locally, with sandbox mode.** Brevo's transactional API supports a sandbox mode: the
+request is fully validated (auth, sender, payload) and answered with a normal 2xx + `messageId`, but
+nothing is delivered and no log entry is created
+([developers.brevo.com/docs/using-sandbox-mode](https://developers.brevo.com/docs/using-sandbox-mode)).
+It's a field **inside the JSON body's `headers` object** (`{ "headers": { "X-Sib-Sandbox": "drop" } }`),
+not an HTTP header — easy to get backwards, so it's centralized in `brevoRequestBody()`
+(`providers.server.ts`) rather than inlined at each call site. Set `EMAIL_SANDBOX=true` in `.dev.vars`
+to add it to every send automatically once `BREVO_API_KEY` is set (a free Brevo account's key works
+fine for this — sandbox mode is available on every plan):
+
+1. Sign up for a free Brevo account and copy an API key (Brevo → SMTP & API → API Keys).
+2. In `.dev.vars`: `BREVO_API_KEY=<your key>`, `EMAIL_FROM=RenoVision <no-reply@renovision.app>`,
+   `EMAIL_SANDBOX=true`.
+3. `bun run email:check` — sends every app template, in both locales, to the RFC 2606
+   `test@example.com` address, asserts Brevo answers 2xx with a `messageId` for each, and prints a
+   pass/fail table (non-zero exit on any failure). It **always forces sandbox mode itself**,
+   regardless of `EMAIL_SANDBOX`, so it never sends anything real even if you forgot to set it.
+
+`bun run email:check` has the same "no hardcoded fallback" rule: it requires `BREVO_API_KEY` and
+`EMAIL_FROM` (real env vars, then `.dev.vars`, then `.env.local`); missing ones print a clear list,
+present ones a sanitized form (key prefix + length), never a full secret.
+
+**CI** runs this too, in a separate `email-sandbox` job (`.github/workflows/ci.yml`) that only runs
+when both a `BREVO_API_KEY` and an `EMAIL_FROM` **repository secret** are configured (Settings →
+Secrets and variables → Actions) — otherwise it's skipped cleanly, so forks and contributors without
+a Brevo account aren't blocked.
+
+**Templates** (`src/server/email/templates/*.ts`) are plain functions, `(params, locale) => { subject,
+html, text }`, rendered through the shared design-system components:
+
+| Template       | Params                                                        | Used by (later)                          |
+| -------------- | ------------------------------------------------------------- | ---------------------------------------- |
+| `notification` | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)      |
+| `digest`       | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41) |
+
+Chrome strings (subject, button label, disclaimer) live in the `comms` i18n namespace
+(`src/features/comms/i18n/{en,pl}.json` → `email.notification`/`email.digest`), so the en/pl parity
+test (`tests/unit/i18n/parity.test.ts`) covers them; `title`/`body`/item content is caller-provided
+and is HTML-escaped (`src/server/email/html.ts`) before it reaches the components.
+
+**There is no public send endpoint.** `sendEmail()` is a `*.server.ts` module, not a server function;
+T41's server function(s) that call it **must** add `rateLimit({ key: "email" })` to their middleware
+chain (`src/server/rate-limits.ts` caps it at 5/min — see **Server functions & security**).
+
+Tests: `tests/unit/email/templates.test.ts` (both locales render with all params, no unreplaced
+`{{placeholder}}`, the link appears in both the HTML and text bodies, and a `<script>`-bearing title
+is HTML-escaped), `design-tokens.test.ts` (above) and `tests/unit/email/send-email.test.ts` (provider
+selection; Brevo's request shape, headers and sandbox field against a mocked `fetch`; a Brevo error
+becomes a logged `ServerFnError` that never contains the API key).
 
 ## Internationalization
 
