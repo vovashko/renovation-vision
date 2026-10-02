@@ -2,6 +2,7 @@ import { dehydrate, hydrate, QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { createI18n } from "@/i18n";
 import { isLocale } from "@/i18n/locale";
+import { rememberLocaleUser } from "@/i18n/request-locale";
 import { createSessionStore, type Session } from "@/lib/auth";
 import { getCspNonce } from "@/lib/csp-nonce";
 import { initBrowserSentry, setSentryUser } from "@/lib/sentry-client";
@@ -44,6 +45,9 @@ export const getRouter = () => {
       setSentryUser(auth?.user?.id);
       if (queries) hydrate(queryClient, JSON.parse(queries));
       if (isLocale(locale) && i18n.language !== locale) await i18n.changeLanguage(locale);
+      // The server picked `locale` for this user (profiles.locale first); a later sign-in as someone
+      // else switches to theirs (applyRequestLocale in the root beforeLoad).
+      rememberLocaleUser(i18n, auth?.user?.id ?? null);
     },
   });
 

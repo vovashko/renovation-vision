@@ -145,7 +145,7 @@ select pg_temp.check((select count(*) from storage.objects) = 3, 'manager reads 
 update public.rooms set status = 'progress', progress = 40,
   client_note = 'Inspector signed off — walls closing this week.' where key = 'bed2';
 select pg_temp.check(
-  (select count(*) from public.notifications where kind = 'room' and title = 'Bedroom 2 is now in progress') = 2,
+  (select count(*) from public.notifications where kind = 'room_status' and title = 'Bedroom 2 is now in progress') = 2,
   'room status change notifies both clients');
 select pg_temp.check(
   (select count(*) from public.activity_log where entity_type = 'rooms' and changes ? 'status' and actor_id = auth.uid() and created_at = now()) = 1,
@@ -164,7 +164,7 @@ select pg_temp.check((select spent from public.projects) = 51500, 'spent follows
 
 update public.photos set status = 'published', published_at = now() where id = 'e0000000-0000-4000-8000-000000000009';
 select pg_temp.check(
-  (select count(*) from public.notifications where kind = 'photo' and entity_id = 'e0000000-0000-4000-8000-000000000009') = 2,
+  (select count(*) from public.notifications where kind = 'photo_published' and entity_id = 'e0000000-0000-4000-8000-000000000009') = 2,
   'publishing a photo notifies clients');
 
 update public.stages set is_visible = false where key = 'final';

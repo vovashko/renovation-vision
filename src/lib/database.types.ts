@@ -12,6 +12,8 @@ export type Enums<T extends keyof Database["public"]["Enums"]> = Database["publi
 export type ProjectRole = Enums<"project_role">;
 export type ScheduleStatus = Enums<"schedule_status">;
 export type PhotoStatus = Enums<"photo_status">;
+export type NotificationChannel = Enums<"notification_channel">;
+export type NotificationFrequency = Enums<"notification_frequency">;
 
 export type Profile = Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "account_type">;
 
@@ -111,23 +113,46 @@ export type Expense = Pick<
   "id" | "project_id" | "stage_id" | "category" | "description" | "vendor" | "vendor_notes" | "amount" | "spent_on" | "receipt_path"
 >;
 
+/** `sender_id` is null once the sender's account was deleted (shown as "Former member"). */
 export type Message = Pick<Tables<"messages">, "id" | "project_id" | "sender_id" | "body" | "attachment_path" | "created_at"> & {
   attachment_url?: string | null;
 };
 
-export type Notification = Pick<
-  Tables<"notifications">,
-  "id" | "project_id" | "recipient_id" | "kind" | "title" | "body" | "link" | "created_at" | "read_at"
->;
+/** A jsonb object column (notification/activity `params`): read its values defensively. */
+export type JsonParams = Record<string, unknown>;
 
+/**
+ * Rendered from `kind` + `params` through i18n (features/comms/domain/notification-text.ts);
+ * `title`/`body` are the legacy English text, the fallback for kinds the app doesn't know.
+ */
+export type Notification = Omit<
+  Pick<
+    Tables<"notifications">,
+    "id" | "project_id" | "recipient_id" | "kind" | "params" | "title" | "body" | "link" | "created_at" | "read_at"
+  >,
+  "params"
+> & { params: JsonParams };
+
+/** Rendered from `params` ({ entity, action, label }) through i18n; `summary` (English) is the fallback. */
 export type ActivityEntry = Omit<
   Pick<
     Tables<"activity_log">,
-    "id" | "project_id" | "actor_id" | "action" | "entity_type" | "entity_id" | "summary" | "changes" | "created_at"
+    "id" | "project_id" | "actor_id" | "action" | "entity_type" | "entity_id" | "summary" | "changes" | "params" | "created_at"
   >,
-  "changes"
+  "changes" | "params"
 > & {
   changes: Record<string, { from: unknown; to: unknown }>;
+  params: JsonParams;
 };
+
+/** Pending, accepted or revoked invitations (managers read their project's; `token_hash` is never readable). */
+export type Invitation = Pick<
+  Tables<"invitations">,
+  "id" | "email" | "role" | "project_id" | "invited_by" | "expires_at" | "accepted_at" | "revoked_at" | "created_at"
+>;
+
+export type NotificationPreference = Pick<Tables<"notification_preferences">, "user_id" | "kind" | "channel" | "frequency">;
+
+export type Consent = Pick<Tables<"consents">, "id" | "user_id" | "kind" | "version" | "granted_at">;
 
 export type Knowledge = Pick<Tables<"ai_knowledge">, "id" | "project_id" | "title" | "content" | "tags" | "is_visible" | "updated_at">;

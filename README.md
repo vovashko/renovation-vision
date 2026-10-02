@@ -51,11 +51,12 @@ bun run dev
 
 Sign in with one of the seeded demo accounts (see `supabase/seed.sql` for the full list):
 
-| Role    | Email                   | Password          |
-| ------- | ----------------------- | ----------------- |
-| Manager | `jonas@renovision.demo` | `renovision-demo` |
-| Client  | `sarah@renovision.demo` | `renovision-demo` |
-| Admin   | `admin@renovision.demo` | `renovision-demo` |
+| Role    | Email                   | Password          | Language (`profiles.locale`) |
+| ------- | ----------------------- | ----------------- | ---------------------------- |
+| Manager | `jonas@renovision.demo` | `renovision-demo` | `pl`                         |
+| Client  | `sarah@renovision.demo` | `renovision-demo` | `pl`                         |
+| Client  | `tom@renovision.demo`   | `renovision-demo` | `en`                         |
+| Admin   | `admin@renovision.demo` | `renovision-demo` | `pl`                         |
 
 Useful scripts: `bun run db:start` (`supabase start`), `bun run db:reset` (reset + reseed media),
 `bun run db:types` (regenerate `src/domain/db.types.ts` from the running local schema).
@@ -380,7 +381,7 @@ server functions, short-lived access tokens (≤ 1 h), and RLS on every query.
 ```
 hard load ──▶ root beforeLoad ──▶ context.session.load() ──▶ getSession()  (src/server/functions/session.ts)
                                                              cookies → getClaims (like requireUser) → profile
-           ◀── context.auth = { user: { id, email, aal } | null, profile: { full_name, avatar_url, account_type } | null }
+           ◀── context.auth = { user: { id, email, aal } | null, profile: { full_name, avatar_url, account_type, locale } | null }
 ```
 
 `getSession` never 401s: signed out is `{ user: null, profile: null }`. The router dehydrates `auth` (and the
@@ -610,6 +611,65 @@ path and the automatic request id) as an orphan marker for manual cleanup, but t
 row is gone, which is what the UI and the rest of the app care about. `features/media/hooks` and
 `features/budget/hooks` call these instead of the old two-call repository methods.
 
+## Notifications, activity and comms data (T33)
+
+**Translatable notifications.** Triggers (`private.notify_on_change`, `private.notify_message`) and the
+`notify_project_clients` RPC write one row per recipient with a stable `kind` and `params` (jsonb). The app renders
+them through i18n (`useNotificationText()` in `features/comms/hooks/use-notification-text.ts`, keys
+`comms:notifications.*`); user-written values (names, captions, notes, announcements) are shown as written.
+`title`/`body` are still filled with the English text (legacy, for older readers) and are the fallback for a kind the
+app doesn't know or a row missing a value (rows written before T33 carry the old kinds `stage`, `room`, …).
+
+| `kind`             | `params`                          | Written when                           |
+| ------------------ | --------------------------------- | -------------------------------------- |
+| `stage_status`     | `{ stage, status }`               | a visible stage's status changes       |
+| `room_status`      | `{ room, status, note }`          | a visible room's status changes        |
+| `photo_published`  | `{ caption }`                     | a photo is published                   |
+| `render_published` | `{ title, description }`          | a render becomes visible               |
+| `schedule_status`  | `{ status, note }`                | the project's schedule status changes  |
+| `message`          | `{ sender, preview, attachment }` | a chat message (to every other member) |
+| `manual`           | `{ title, body }`                 | a manager's announcement               |
+
+`status` is a `work_status` (`common:status.*`) or, for `schedule_status`, a `schedule_status` (`common:schedule.*`).
+`notifications.emailed_at` is for T41's email delivery (null until sent).
+
+**Activity log.** `private.log_activity` writes `params: { entity, action, label }` next to the English `summary`
+(`entity`: `stage`, `room`, `task`, `photo`, `render`, `expense`, `project`, `internal_notes`, `member`,
+`ai_knowledge`, `crew_member`, else the table name; `action`: `insert` | `update` | `delete`). The manager's
+activity list renders it with `useActivityText()` (`comms:activity.*`) and falls back to `summary` for an entity it
+has no label for. A new table logged by `log_activity` needs a branch in its `v_entity_key` and a
+`comms:activity.entity.*` key.
+
+**Preferences, invitations, consents.**
+
+| Table / function                                 | Who can do what (RLS + grants)                                                                                                                                                                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `notification_preferences` (user, kind, channel) | each user reads/writes only their own rows                                                                                                                                                                                     |
+| `notification_pref(user, kind, channel)`         | the effective frequency: the saved row, else `in_app` instant; `email` instant for `message`, daily for clients, off for staff on other kinds. A user may only ask about themselves; the server (no `auth.uid()`) about anyone |
+| `invitations`                                    | the project's managers read (every column but `token_hash`); nobody inserts/updates/deletes through the API: a server function creates them with the admin client (T40); managers revoke with `revoke_invitation(id)`          |
+| `consents` (user, kind, version)                 | users insert and read their own; no update or delete (an audit trail); `granted_at` is always the server's time                                                                                                                |
+| `profiles.locale`, `profiles.phone`              | users update their own (column grants, like `full_name`); `phone` is visible to project peers like the name                                                                                                                    |
+
+### Data deletion (GDPR)
+
+Deleting a user (`auth.users` → `profiles`, cascade) removes their **personal** rows and keeps **project** data with
+the author set to null, so a project's history stays readable:
+
+| Reference                                             | On delete  | Why                                                         |
+| ----------------------------------------------------- | ---------- | ----------------------------------------------------------- |
+| `project_members.user_id`                             | cascade    | their membership                                            |
+| `notifications.recipient_id`                          | cascade    | their own inbox                                             |
+| `notification_preferences.user_id`                    | cascade    | their settings                                              |
+| `consents.user_id`                                    | cascade    | their consent records (personal data)                       |
+| `messages.sender_id`                                  | `set null` | the chat stays; the app shows the sender as "Former member" |
+| `photos.uploaded_by`, `expenses.created_by`           | `set null` | project data                                                |
+| `ai_knowledge.created_by`, `notifications.created_by` | `set null` | project data                                                |
+| `invitations.invited_by`, `projects.created_by`       | `set null` | project data                                                |
+| `activity_log.actor_id`                               | no FK      | the audit trail keeps the old id (shown as "Former member") |
+
+A project's **last manager can't be deleted** (`guard_last_manager`): add another manager first, or delete the
+project. Tests: `tests/db/comms.test.sql`.
+
 ## Email
 
 Two separate systems, on purpose:
@@ -684,14 +744,13 @@ hosted dashboard's docs don't version-pin them) are `.ConfirmationURL` (link-bas
 link), `.SiteURL`, `.RedirectTo`, `.Email`, `.NewEmail` (email_change only) and `.Data` (the user's
 `user_metadata`, hence `.Data.locale`).
 
-**Getting the locale into `user_metadata`.** The app tracks the UI locale in a cookie (see
-**Internationalization**), which Supabase Auth can't see. `updateUserLocale()`
+**Getting the locale into `user_metadata`.** The app keeps the UI language in `profiles.locale` (see
+**Internationalization**), which the Supabase Auth templates can't read. `updateUserLocale()`
 (`src/features/auth/data/locale.repo.ts`, re-exported from `features/auth/hooks`) calls
 `supabase.auth.updateUser({ data: { locale } })` and is called from two places: the language switch
-on `/settings` (`features/settings/ui/language-form.tsx`), and once after sign-in if the metadata is
-still missing (`<AuthSync />` in `src/lib/auth.tsx`, so older accounts and pre-sign-in locale choices
-get backfilled). Best-effort: a failed sync never blocks the (already-applied, cookie-based) language
-switch.
+on `/settings/profile` (`useSaveLocale()`, after saving the profile), and after sign-in when the
+metadata differs from `profiles.locale` (`<AuthSync />` in `src/lib/auth.tsx`, so older accounts get
+backfilled). Best-effort: a failed sync never blocks the language switch.
 
 **Config and template changes only take effect after `supabase stop && supabase start`.**
 
@@ -848,13 +907,20 @@ const statusLabel = useStatusLabel(); // statusLabel("done") → "Ukończone"; a
 The pure versions (`formatMoney`, `formatDate`, `formatDayLabel`) live in `@/domain/money` and `@/domain/dates`
 for code outside React.
 
-**Locale resolution.** On the server, the root route's `beforeLoad` resolves the request's locale: the `locale`
-cookie, then `Accept-Language`, then `pl` (`resolveLocale` in `src/i18n/locale.ts`; a saved `profiles.locale` will
-slot in first once that column exists). Each request gets its own i18next instance, created with the router in
-`src/router.tsx`, so nothing is shared between requests on the Worker. The router dehydrates the chosen language
-and the browser's instance starts in it, so hydration matches the server HTML and `<html lang>` follows the locale.
-The language switch on `/settings` (`useSetLocale()`) writes the cookie and changes the language in place, without
-a reload.
+**Locale resolution.** `profiles.locale` (`'pl'` | `'en'`, default `'pl'`) is the source of truth for a signed-in
+user. On the server, the root route's `beforeLoad` loads the session (`getSession` exposes `profile.locale`) and then
+resolves the request's locale: the profile's, then the `locale` cookie, then `Accept-Language`, then `pl`
+(`resolveLocale` in `src/i18n/locale.ts`, applied by `applyRequestLocale` in `src/i18n/request-locale.ts`). So a hard
+load renders in the saved language on any device, with or without the cookie. Each request gets its own i18next
+instance, created with the router in `src/router.tsx`, so nothing is shared between requests on the Worker. The router
+dehydrates the chosen language and the browser's instance starts in it, so hydration matches the server HTML and
+`<html lang>` follows the locale. In the browser the language only changes on the switch, or when a different user
+signs in without a reload (then it becomes theirs).
+
+The language switch on Settings → Profile (`useSaveLocale()` in `features/settings/hooks/use-profile.ts`) changes
+the language in place (cookie + i18next, `useSetLocale()`), saves `profiles.locale` (a failure toasts), then mirrors
+it onto `user_metadata.locale` for the auth emails (see **Email**). A sign-up's `user_metadata.locale`, when set,
+becomes the new profile's.
 
 ## Forms
 

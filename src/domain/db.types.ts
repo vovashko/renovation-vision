@@ -74,6 +74,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"consents": {
+                  Row: {
+    "granted_at": string,"id": string,"kind": string,"user_id": string,"version": string
+                  }
+                  Insert: {
+    "granted_at"?: string,"id"?: string,"kind": string,"user_id"?: string,"version": string
+                  }
+                  Update: {
+    "granted_at"?: string,"id"?: string,"kind"?: string,"user_id"?: string,"version"?: string
+                  }
+                  Relationships: [
+    {
+      foreignKeyName: "consents_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"expenses": {
                   Row: {
                     "amount": number,"category": string,"created_at": string,"created_by": string | null,"description": string,"id": string,"project_id": string,"receipt_path": string | null,"spent_on": string,"stage_id": string | null,"updated_at": string,"vendor": string,"vendor_notes": string
@@ -501,6 +520,9 @@ isOneToOne: false
               "email": string,"full_name": string,"is_primary": boolean,"phone": string,"role": Database["public"]['Enums']["project_contact_role"]
             }[]
                            },
+"revoke_invitation":
+{ Args: { "p_invitation": string }; Returns: boolean
+                           },
 "set_account_type":
 { Args: { "p_type": Database["public"]['Enums']["account_type"],"p_user": string }; Returns: undefined
                            },
@@ -512,7 +534,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+  "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -628,8 +650,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const
-

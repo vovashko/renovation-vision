@@ -14,10 +14,10 @@
 --      -> Kitchen is In progress at 10%.
 --
 -- Demo logins (password for all: renovision-demo)
---   jonas@renovision.demo  manager (Jonas Weber)
---   sarah@renovision.demo  client  (Sarah Bennett)
---   tom@renovision.demo    client  (Tom Bennett)
---   admin@renovision.demo  admin   (Renovision Admin; not on any project, changes account types)
+--   jonas@renovision.demo  manager (Jonas Weber)       language pl
+--   sarah@renovision.demo  client  (Sarah Bennett)     language pl
+--   tom@renovision.demo    client  (Tom Bennett)       language en (so both languages are exercised)
+--   admin@renovision.demo  admin   (Renovision Admin; not on any project, changes account types)  language pl
 --
 -- Image files are uploaded separately: `node supabase/scripts/upload-seed-media.mjs`.
 -- Triggers are disabled while seeding so the audit trail and notifications below are curated.
@@ -44,13 +44,14 @@ select
   '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
   extensions.crypt('renovision-demo', extensions.gen_salt('bf')), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
-  jsonb_build_object('full_name', u.full_name), now(), now(), '', '', '', ''
+  -- user_metadata.locale mirrors profiles.locale (the auth email templates read it).
+  jsonb_build_object('full_name', u.full_name, 'locale', u.locale), now(), now(), '', '', '', ''
 from (values
-  ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renovision.demo', 'Jonas Weber'),
-  ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renovision.demo', 'Sarah Bennett'),
-  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renovision.demo', 'Tom Bennett'),
-  ('a0000000-0000-4000-8000-000000000004'::uuid, 'admin@renovision.demo', 'Renovision Admin')
-) as u (id, email, full_name)
+  ('a0000000-0000-4000-8000-000000000001'::uuid, 'jonas@renovision.demo', 'Jonas Weber', 'pl'),
+  ('a0000000-0000-4000-8000-000000000002'::uuid, 'sarah@renovision.demo', 'Sarah Bennett', 'pl'),
+  ('a0000000-0000-4000-8000-000000000003'::uuid, 'tom@renovision.demo', 'Tom Bennett', 'en'),
+  ('a0000000-0000-4000-8000-000000000004'::uuid, 'admin@renovision.demo', 'Renovision Admin', 'pl')
+) as u (id, email, full_name, locale)
 on conflict (id) do nothing;
 
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
@@ -61,12 +62,13 @@ from auth.users u
 where u.email like '%@renovision.demo'
   and not exists (select 1 from auth.identities i where i.user_id = u.id and i.provider = 'email');
 
-insert into public.profiles (id, full_name, account_type) values
-  ('a0000000-0000-4000-8000-000000000001', 'Jonas Weber', 'manager'),
-  ('a0000000-0000-4000-8000-000000000002', 'Sarah Bennett', 'client'),
-  ('a0000000-0000-4000-8000-000000000003', 'Tom Bennett', 'client'),
-  ('a0000000-0000-4000-8000-000000000004', 'Renovision Admin', 'admin')
-on conflict (id) do update set full_name = excluded.full_name, account_type = excluded.account_type;
+insert into public.profiles (id, full_name, account_type, locale) values
+  ('a0000000-0000-4000-8000-000000000001', 'Jonas Weber', 'manager', 'pl'),
+  ('a0000000-0000-4000-8000-000000000002', 'Sarah Bennett', 'client', 'pl'),
+  ('a0000000-0000-4000-8000-000000000003', 'Tom Bennett', 'client', 'en'),
+  ('a0000000-0000-4000-8000-000000000004', 'Renovision Admin', 'admin', 'pl')
+on conflict (id) do update
+  set full_name = excluded.full_name, account_type = excluded.account_type, locale = excluded.locale;
 
 -- ---------------------------------------------------------------------------
 -- Project
@@ -226,36 +228,37 @@ insert into public.messages (project_id, sender_id, body, created_at) values
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'Thanks Jonas, keep me posted.', '2026-04-20 09:25:00');
 
 -- ---------------------------------------------------------------------------
--- Notifications (fan-out to both clients)
+-- Notifications (fan-out to both clients). `kind` + `params` are what the app renders (translated);
+-- title/body are the legacy English text the triggers still write.
 -- ---------------------------------------------------------------------------
-insert into public.notifications (project_id, recipient_id, kind, title, body, link, entity_type, entity_id, created_by, created_at, read_at)
-select 'b0000000-0000-4000-8000-000000000001', c.id, n.kind, n.title, n.body, n.link, n.entity_type, n.entity_id::uuid,
+insert into public.notifications (project_id, recipient_id, kind, params, title, body, link, entity_type, entity_id, created_by, created_at, read_at)
+select 'b0000000-0000-4000-8000-000000000001', c.id, n.kind, n.params::jsonb, n.title, n.body, n.link, n.entity_type, n.entity_id::uuid,
        'a0000000-0000-4000-8000-000000000001', n.created_at::timestamptz,
        case when n.read then n.created_at::timestamptz + interval '1 hour' end
 from (values
-  ('room', 'Bedroom 2 is now blocked', 'Waiting on the electrical inspector to sign off the new circuit before the walls can be closed.', '/plan', 'rooms', 'd0000000-0000-4000-8000-000000000006', '2026-04-17 14:25:00', true),
-  ('stage', 'Stage update: Flooring', 'Flooring is now in progress.', '/stages', 'stages', 'c0000000-0000-4000-8000-000000000004', '2026-04-18 08:00:00', true),
-  ('photo', 'New site photo', 'Subfloor leveled in Bedroom 1. Oak planks acclimatising before install.', '/photos', 'photos', 'e0000000-0000-4000-8000-000000000002', '2026-04-20 08:45:00', true),
-  ('photo', 'New site photo', 'Drywall finished in the living room — taping started this morning.', '/photos', 'photos', 'e0000000-0000-4000-8000-000000000001', '2026-04-20 10:15:00', false),
-  ('schedule', 'Schedule: At risk', 'Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week.', '/', 'projects', 'b0000000-0000-4000-8000-000000000001', '2026-04-20 11:00:00', false)
-) as n (kind, title, body, link, entity_type, entity_id, created_at, read)
+  ('room_status', '{"room":"Bedroom 2","status":"blocked","note":"Waiting on the electrical inspector to sign off the new circuit before the walls can be closed."}', 'Bedroom 2 is now blocked', 'Waiting on the electrical inspector to sign off the new circuit before the walls can be closed.', '/plan', 'rooms', 'd0000000-0000-4000-8000-000000000006', '2026-04-17 14:25:00', true),
+  ('stage_status', '{"stage":"Flooring","status":"progress"}', 'Stage update: Flooring', 'Flooring is now in progress.', '/stages', 'stages', 'c0000000-0000-4000-8000-000000000004', '2026-04-18 08:00:00', true),
+  ('photo_published', '{"caption":"Subfloor leveled in Bedroom 1. Oak planks acclimatising before install."}', 'New site photo', 'Subfloor leveled in Bedroom 1. Oak planks acclimatising before install.', '/photos', 'photos', 'e0000000-0000-4000-8000-000000000002', '2026-04-20 08:45:00', true),
+  ('photo_published', '{"caption":"Drywall finished in the living room — taping started this morning."}', 'New site photo', 'Drywall finished in the living room — taping started this morning.', '/photos', 'photos', 'e0000000-0000-4000-8000-000000000001', '2026-04-20 10:15:00', false),
+  ('schedule_status', '{"status":"at_risk","note":"Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week."}', 'Schedule: At risk', 'Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week.', '/', 'projects', 'b0000000-0000-4000-8000-000000000001', '2026-04-20 11:00:00', false)
+) as n (kind, params, title, body, link, entity_type, entity_id, created_at, read)
 cross join (values ('a0000000-0000-4000-8000-000000000002'::uuid), ('a0000000-0000-4000-8000-000000000003'::uuid)) as c (id);
 
 -- Manager's own inbox: the client's latest message.
-insert into public.notifications (project_id, recipient_id, kind, title, body, link, entity_type, created_by, created_at, read_at) values
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'message', 'New message from Sarah Bennett', 'Thanks Jonas, keep me posted.', '/chat', 'messages', 'a0000000-0000-4000-8000-000000000002', '2026-04-20 09:25:00', '2026-04-20 09:30:00');
+insert into public.notifications (project_id, recipient_id, kind, params, title, body, link, entity_type, created_by, created_at, read_at) values
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'message', '{"sender":"Sarah Bennett","preview":"Thanks Jonas, keep me posted.","attachment":false}', 'New message from Sarah Bennett', 'Thanks Jonas, keep me posted.', '/chat', 'messages', 'a0000000-0000-4000-8000-000000000002', '2026-04-20 09:25:00', '2026-04-20 09:30:00');
 
 -- ---------------------------------------------------------------------------
 -- Activity log (manager-only)
 -- ---------------------------------------------------------------------------
-insert into public.activity_log (project_id, actor_id, action, entity_type, entity_id, summary, changes, created_at) values
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'stages', 'c0000000-0000-4000-8000-000000000002', 'Updated stage "Electrical & Plumbing"', '{"status":{"from":"progress","to":"done"},"progress":{"from":90,"to":100}}', '2026-04-02 17:10:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'rooms', 'd0000000-0000-4000-8000-000000000006', 'Updated room "Bedroom 2"', '{"status":{"from":"progress","to":"blocked"}}', '2026-04-17 14:25:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'stages', 'c0000000-0000-4000-8000-000000000004', 'Updated stage "Flooring"', '{"status":{"from":"pending","to":"progress"}}', '2026-04-18 08:00:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'insert', 'expenses', null, 'Added expense "Oak planks (68 m²)"', '{}', '2026-04-19 17:40:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'insert', 'photos', 'e0000000-0000-4000-8000-000000000001', 'Added photo "Drywall finished in the living room — taping started this morning."', '{}', '2026-04-20 10:15:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'rooms', 'd0000000-0000-4000-8000-000000000004', 'Updated room "Bathroom"', '{"status":{"from":"done","to":"progress"},"progress":{"from":100,"to":80}}', '2026-04-20 10:40:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'projects', 'b0000000-0000-4000-8000-000000000001', 'Updated project "Maple Street Apartment"', '{"schedule_status":{"from":"on_schedule","to":"at_risk"}}', '2026-04-20 11:00:00');
+insert into public.activity_log (project_id, actor_id, action, entity_type, entity_id, summary, changes, params, created_at) values
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'stages', 'c0000000-0000-4000-8000-000000000002', 'Updated stage "Electrical & Plumbing"', '{"status":{"from":"progress","to":"done"},"progress":{"from":90,"to":100}}', '{"entity":"stage","action":"update","label":"Electrical & Plumbing"}', '2026-04-02 17:10:00'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'rooms', 'd0000000-0000-4000-8000-000000000006', 'Updated room "Bedroom 2"', '{"status":{"from":"progress","to":"blocked"}}', '{"entity":"room","action":"update","label":"Bedroom 2"}', '2026-04-17 14:25:00'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'stages', 'c0000000-0000-4000-8000-000000000004', 'Updated stage "Flooring"', '{"status":{"from":"pending","to":"progress"}}', '{"entity":"stage","action":"update","label":"Flooring"}', '2026-04-18 08:00:00'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'insert', 'expenses', null, 'Added expense "Oak planks (68 m²)"', '{}', '{"entity":"expense","action":"insert","label":"Oak planks (68 m²)"}', '2026-04-19 17:40:00'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'insert', 'photos', 'e0000000-0000-4000-8000-000000000001', 'Added photo "Drywall finished in the living room — taping started this morning."', '{}', '{"entity":"photo","action":"insert","label":"Drywall finished in the living room — taping started this morning."}', '2026-04-20 10:15:00'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'rooms', 'd0000000-0000-4000-8000-000000000004', 'Updated room "Bathroom"', '{"status":{"from":"done","to":"progress"},"progress":{"from":100,"to":80}}', '{"entity":"room","action":"update","label":"Bathroom"}', '2026-04-20 10:40:00'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'update', 'projects', 'b0000000-0000-4000-8000-000000000001', 'Updated project "Maple Street Apartment"', '{"schedule_status":{"from":"on_schedule","to":"at_risk"}}', '{"entity":"project","action":"update","label":"Maple Street Apartment"}', '2026-04-20 11:00:00');
 
 -- ---------------------------------------------------------------------------
 -- AI knowledge (visible rows feed the client app's assistant)

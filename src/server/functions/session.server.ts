@@ -1,12 +1,14 @@
 // The handler bodies behind ./session.ts, kept in a `.server.ts` module so they never reach the
 // browser bundle.
+import { DEFAULT_LOCALE, matchLocale, type Locale } from "@/i18n/locale";
 import type { ProjectSummary } from "@/lib/database.types";
 import { authenticateRequest } from "../auth.server";
 import { ServerFnError } from "../errors";
 import type { AccountType, Aal, AuthContext } from "../middleware/auth";
 
 export type SessionUser = { id: string; email: string | null; aal: Aal };
-export type SessionProfile = { full_name: string; avatar_url: string | null; account_type: AccountType; locale?: string | null };
+/** `locale` is the saved UI language (`profiles.locale`), which the root route applies before rendering. */
+export type SessionProfile = { full_name: string; avatar_url: string | null; account_type: AccountType; locale?: Locale };
 /** What the server sees for the current request: the verified user and their profile, or nulls when signed out. */
 export type Session = { user: SessionUser | null; profile: SessionProfile | null };
 export type ProjectRole = "manager" | "client";
@@ -29,9 +31,14 @@ export async function loadSession(): Promise<Session> {
     throw error; // UNAVAILABLE etc.: the root error boundary shows it
   }
   const { user, supabase } = context;
-  const { data, error } = await supabase.from("profiles").select("full_name, avatar_url, account_type").eq("id", user.id).maybeSingle();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("full_name, avatar_url, account_type, locale")
+    .eq("id", user.id)
+    .maybeSingle();
   if (error) throw error;
-  return { user: { id: user.id, email: user.email, aal: user.aal }, profile: data ?? null };
+  const profile: SessionProfile | null = data ? { ...data, locale: matchLocale(data.locale) ?? DEFAULT_LOCALE } : null;
+  return { user: { id: user.id, email: user.email, aal: user.aal }, profile };
 }
 
 /**

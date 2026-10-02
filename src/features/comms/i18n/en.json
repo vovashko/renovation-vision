@@ -60,6 +60,64 @@
       "empty": "Changes to this project will be listed here."
     }
   },
+  "notifications": {
+    "kind": {
+      "stage_status": "Stage",
+      "room_status": "Room",
+      "photo_published": "Photo",
+      "render_published": "Render",
+      "schedule_status": "Schedule",
+      "message": "Message",
+      "manual": "Announcement"
+    },
+    "stage_status": {
+      "title": "Stage update: {{stage}}",
+      "body": "{{stage}} is now {{status}}."
+    },
+    "room_status": {
+      "title": "{{room}} is now {{status}}"
+    },
+    "photo_published": {
+      "title": "New site photo"
+    },
+    "render_published": {
+      "title": "New design render: {{title}}",
+      "untitled": "New design render"
+    },
+    "schedule_status": {
+      "title": "Schedule: {{status}}"
+    },
+    "message": {
+      "title": "New message from {{sender}}",
+      "titleNoSender": "New message",
+      "attachment": "Sent an attachment"
+    }
+  },
+  "activity": {
+    "entity": {
+      "project": "project",
+      "internal_notes": "internal notes",
+      "member": "member",
+      "room": "room",
+      "stage": "stage",
+      "task": "task",
+      "photo": "photo",
+      "render": "render",
+      "expense": "expense",
+      "ai_knowledge": "AI knowledge entry",
+      "crew_member": "crew member"
+    },
+    "plain": {
+      "insert": "Added {{entity}}",
+      "update": "Updated {{entity}}",
+      "delete": "Removed {{entity}}"
+    },
+    "labelled": {
+      "insert": "Added {{entity}} \"{{label}}\"",
+      "update": "Updated {{entity}} \"{{label}}\"",
+      "delete": "Removed {{entity}} \"{{label}}\""
+    }
+  },
   "email": {
     "notification": {
       "subject": "{{title}} — RenoVision",
