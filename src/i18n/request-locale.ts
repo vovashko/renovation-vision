@@ -22,11 +22,20 @@ const getRequestLocale = createIsomorphicFn()
 const appliedUser = new WeakMap<I18n, string | null>();
 
 /**
+ * Browser: records who the server rendered the page for (router hydration), so the first sign-in
+ * after it switches to that user's saved language.
+ */
+export function rememberLocaleUser(i18n: I18n, userId: string | null): void {
+  appliedUser.set(i18n, userId);
+}
+
+/**
  * Browser: the language to switch to on a navigation, given the user seen on the previous one
- * (`undefined` before the first). Only a newly signed-in user's saved language; otherwise none.
+ * (or the one the server rendered for, see rememberLocaleUser; `undefined` when unknown). Only a
+ * newly signed-in user's saved language; otherwise none.
  */
 export function signInLocale(previousUserId: string | null | undefined, user: LocaleUser): Locale | undefined {
-  // `previousUserId === undefined`: the first navigation after hydration, already rendered in the right language.
+  // Unknown previous user: the page was rendered for this session already, in the right language.
   if (previousUserId === undefined || !user.userId || previousUserId === user.userId) return undefined;
   return matchLocale(user.profileLocale);
 }
