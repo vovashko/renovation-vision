@@ -13,12 +13,31 @@ enabled = true
 sql_paths = ["./seed.sql"]
 
 [auth]
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3001"]
+# Where auth emails may send people back to (allow-lists, not secrets). site_url is `bun run dev`
+# (vite dev, default port 5173) and the default when a request names no redirect; gotrue also
+# accepts any redirect on site_url's hostname. The list adds `bun run preview` (vite preview, 4173)
+# and `wrangler dev` (8787), on both localhost and 127.0.0.1. The app asks for /login (sign-in
+# links, keeping ?redirect=) and /reset-password (recovery); the email-change confirmation falls
+# back to site_url. Hosted projects: Authentication → URL Configuration, with the deployed origin.
+site_url = "http://localhost:5173"
+additional_redirect_urls = [
+  "http://localhost:5173/**",
+  "http://127.0.0.1:5173/**",
+  "http://localhost:4173/**",
+  "http://127.0.0.1:4173/**",
+  "http://localhost:8787/**",
+  "http://127.0.0.1:8787/**",
+]
 # New passwords: at least 10 characters with letters and digits. Existing (seeded) passwords still
 # sign in; the rules apply on sign-up and password change.
 minimum_password_length = 10
 password_requirements = "letters_digits"
+
+# Local only: the CLI default of 2 auth emails per hour is used up by one password reset and one
+# reauthentication code; everything lands in Mailpit here anyway. Hosted projects set their own
+# limits (Authentication -> Rate Limits).
+[auth.rate_limit]
+email_sent = 30
 
 [auth.email]
 # Sign-ups must confirm their email (locally the link lands in Mailpit, see [local_smtp] below).
