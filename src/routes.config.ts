@@ -2,13 +2,18 @@ import { index, layout, rootRoute, route } from "@tanstack/virtual-file-routes";
 
 // URLs keep the project id (/projects/<id>/budget) while files stay flat (routes/project/budget.tsx).
 // Paths are relative to src/routes. Every app page sits under the pathless `_authed` layout, whose
-// beforeLoad sends signed-out visitors to /login (README → Sessions & route guards); only /login
-// is public. Add new project pages under the $projectId route.
+// beforeLoad sends signed-out visitors to /login and aal1 staff to 2FA while it's enforced (README →
+// Sessions & route guards). /login, /forgot-password and /reset-password are public; /mfa needs a
+// session but sits outside `_authed` (and its 2FA guard and app shell). Add new project pages under
+// the $projectId route.
 export const routes = rootRoute("__root.tsx", [
   route("/login", "login.tsx"),
+  route("/forgot-password", "forgot-password.tsx"),
+  route("/reset-password", "reset-password.tsx"),
+  route("/mfa", "mfa/layout.tsx", [index("mfa/challenge.tsx"), route("enroll", "mfa/enroll.tsx")]),
   layout("_authed", "_authed.tsx", [
     index("index.tsx"),
-    route("/settings", "settings.tsx"),
+    route("/settings", [index("settings/index.tsx"), route("profile", "settings/profile.tsx"), route("security", "settings/security.tsx")]),
     route("/projects", [
       index("projects.tsx"),
       route("$projectId", "project/layout.tsx", [

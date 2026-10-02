@@ -38,7 +38,7 @@ export function BottomNav() {
   }
 
   const moreActive =
-    more.some((m) => projectPath(projectId, m.section) === path) || path === "/settings" || (isManager && path === "/projects");
+    more.some((m) => projectPath(projectId, m.section) === path) || path.startsWith("/settings") || (isManager && path === "/projects");
   const name = profile?.full_name ?? "";
 
   return (
@@ -89,7 +89,7 @@ export function BottomNav() {
             )}
           </div>
           <div className="mx-1 mt-2 border-t border-outline-variant pt-2">
-            <TabBarRow asChild icon="settings" active={path === "/settings"}>
+            <TabBarRow asChild icon="settings" active={path.startsWith("/settings")}>
               <Link to="/settings" onClick={() => setOpen(false)}>
                 {t("nav.settings")}
               </Link>

@@ -5,19 +5,72 @@
     "title": "Język",
     "description": "Język, w którym RenoVision działa na tym urządzeniu."
   },
+  "profile": {
+    "title": "Profil",
+    "summary": "Imię i nazwisko, zdjęcie i język",
+    "nameTitle": "Imię i nazwisko",
+    "nameDescription": "Widoczne dla wszystkich w Twoich projektach.",
+    "name": "Imię i nazwisko",
+    "nameTooLong": "Użyj najwyżej 120 znaków",
+    "saved": "Zapisano imię i nazwisko"
+  },
+  "avatar": {
+    "title": "Zdjęcie profilowe",
+    "description": "JPEG, PNG lub WebP. Przed wysłaniem usuwamy lokalizację i inne dane zdjęcia.",
+    "pick": "Wybierz zdjęcie profilowe",
+    "uploading": "Wysyłanie…",
+    "remove": "Usuń zdjęcie",
+    "wrongType": "Wybierz obraz JPEG, PNG lub WebP",
+    "tooBig": "Obraz jest za duży (maks. 15 MB)",
+    "saved": "Zaktualizowano zdjęcie profilowe",
+    "removed": "Usunięto zdjęcie profilowe"
+  },
+  "security": {
+    "title": "Bezpieczeństwo",
+    "summary": "Hasło i uwierzytelnianie dwuskładnikowe"
+  },
+  "password": {
+    "title": "Hasło",
+    "description": "Od teraz będziesz logować się nowym hasłem.",
+    "submit": "Zmień hasło",
+    "changed": "Hasło zostało zmienione.",
+    "codeSent": "Dla bezpieczeństwa wysłaliśmy Ci e-mailem 6-cyfrowy kod. Wpisz go, aby potwierdzić zmianę.",
+    "codeLabel": "Kod z e-maila",
+    "resend": "Wyślij nowy kod",
+    "needsMfa": "Twoje konto korzysta z uwierzytelniania dwuskładnikowego: przed zmianą hasła potwierdź tożsamość kodem z aplikacji."
+  },
+  "twoFactor": {
+    "title": "Uwierzytelnianie dwuskładnikowe",
+    "description": "Kod z aplikacji uwierzytelniającej w telefonie, wymagany przy każdym logowaniu.",
+    "status": "Stan",
+    "enabled": "Włączone",
+    "disabled": "Wyłączone",
+    "addedUnfinished": "Konfiguracja niedokończona · rozpoczęta {{date}}",
+    "unnamed": "Aplikacja uwierzytelniająca",
+    "added": "Dodano {{date}}",
+    "setUp": "Włącz uwierzytelnianie dwuskładnikowe",
+    "addAnother": "Dodaj kolejną aplikację",
+    "verifyNow": "Potwierdź kodem z aplikacji",
+    "verifyToRemove": "Potwierdź, aby usunąć",
+    "removeConfirm": "Usunąć tę aplikację uwierzytelniającą?",
+    "removeConfirmBody": "Jej kody przestaną działać. Jeśli to Twoja jedyna aplikacja, uwierzytelnianie dwuskładnikowe zostanie wyłączone.",
+    "removed": "Usunięto aplikację uwierzytelniającą",
+    "requiredForStaff": "Konta personelu muszą mieć uwierzytelnianie dwuskładnikowe, więc nie możesz usunąć ostatniej aplikacji."
+  },
   "account": {
-    "title": "Konto",
+    "title": "Ta sesja",
     "description": "Tak serwer widzi Twoją bieżącą sesję.",
     "unavailable": "Niedostępne",
     "twoFactor": {
-      "title": "Uwierzytelnianie dwuskładnikowe",
-      "on": "Włączone",
-      "off": "Wyłączone"
+      "title": "Zweryfikowana drugim składnikiem",
+      "on": "Tak",
+      "off": "Nie"
     },
     "type": {
       "title": "Typ konta",
       "manager": "Kierownik",
-      "client": "Klient"
+      "client": "Klient",
+      "admin": "Administrator"
     }
   }
 }

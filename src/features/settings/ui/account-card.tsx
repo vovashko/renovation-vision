@@ -11,7 +11,9 @@ export function AccountCard({ className }: { className?: string }) {
 
   const pending = me.isPending ? t("common:state.loading") : t("account.unavailable");
   const twoFactor = me.data ? (me.data.aal === "aal2" ? t("account.twoFactor.on") : t("account.twoFactor.off")) : pending;
-  const accountType = me.data ? t(me.data.accountType === "manager" ? "account.type.manager" : "account.type.client") : pending;
+  const accountType = me.data
+    ? t(`account.type.${me.data.accountType === "manager" || me.data.accountType === "admin" ? me.data.accountType : "client"}` as const)
+    : pending;
 
   return (
     <Card className={className}>

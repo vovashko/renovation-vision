@@ -7,14 +7,84 @@
     "password": "Hasło",
     "submit": "Zaloguj się",
     "submitting": "Logowanie…",
-    "magicLink": "Wyślij mi link do logowania e-mailem",
-    "emailRequired": "Najpierw podaj swój adres e-mail",
-    "magicLinkSent": "Sprawdź skrzynkę pocztową, aby znaleźć link do logowania"
+    "or": "lub",
+    "magicLink": "Wyślij mi link do logowania",
+    "magicLinkWait": "Kolejny link za {{seconds}} s",
+    "magicLinkSent": "Jeśli ten adres ma konto, wysłaliśmy na niego link do logowania. Otwórz go w tej przeglądarce.",
+    "verifyingLink": "Logowanie…",
+    "forgotPassword": "Nie pamiętasz hasła?"
   },
+  "backToSignIn": "Wróć do logowania",
   "demoHint": {
     "heading": "Konta demo",
     "manager": "Kierownik",
     "client": "Klient",
     "password": "Hasło"
+  },
+  "errors": {
+    "invalidCredentials": "Nieprawidłowy e-mail lub hasło.",
+    "emailNotConfirmed": "Najpierw potwierdź adres e-mail: otwórz link, który wysłaliśmy po rejestracji.",
+    "rateLimited": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
+    "weakPassword": "To hasło jest za słabe. Użyj co najmniej 10 znaków, w tym liter i cyfr.",
+    "samePassword": "Nowe hasło musi różnić się od obecnego.",
+    "reauthenticationInvalid": "Ten kod jest błędny lub wygasł. Poproś o nowy.",
+    "invalidCode": "Ten kod nie zadziałał. Sprawdź godzinę w telefonie i wpisz aktualny kod.",
+    "aal2Required": "Najpierw potwierdź tożsamość kodem z aplikacji uwierzytelniającej.",
+    "linkExpired": "Ten link jest nieprawidłowy lub wygasł albo został otwarty w innej przeglądarce. Poproś o nowy.",
+    "network": "Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.",
+    "generic": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "password": {
+    "new": "Nowe hasło",
+    "confirm": "Powtórz nowe hasło",
+    "rules": "Co najmniej 10 znaków, w tym litery i cyfry.",
+    "tooShort": "Użyj co najmniej 10 znaków",
+    "tooLong": "Użyj najwyżej 72 znaków",
+    "needsLetter": "Dodaj co najmniej jedną literę (a–z)",
+    "needsDigit": "Dodaj co najmniej jedną cyfrę",
+    "mismatch": "Hasła się nie zgadzają"
+  },
+  "code": {
+    "invalid": "Wpisz 6-cyfrowy kod"
+  },
+  "forgot": {
+    "title": "Zresetuj hasło",
+    "description": "Podaj swój e-mail, a wyślemy link do ustawienia nowego hasła.",
+    "submit": "Wyślij link",
+    "wait": "Wyślij ponownie za {{seconds}} s",
+    "sent": "Jeśli dla tego adresu istnieje konto, wysłaliśmy na nie link do zresetowania hasła. Jest ważny przez godzinę."
+  },
+  "reset": {
+    "title": "Ustaw nowe hasło",
+    "description": "Wybierz nowe hasło do swojego konta.",
+    "checking": "Sprawdzamy link…",
+    "submit": "Zapisz nowe hasło",
+    "done": "Hasło zmienione. Logowanie…",
+    "requestNew": "Poproś o nowy link",
+    "needsMfa": "Twoje konto korzysta z uwierzytelniania dwuskładnikowego. Najpierw wpisz kod z aplikacji uwierzytelniającej, potem ustaw nowe hasło.",
+    "verify": "Wpisz kod"
+  },
+  "mfa": {
+    "codeLabel": "6-cyfrowy kod",
+    "verifying": "Sprawdzanie…",
+    "signOut": "Wyloguj się",
+    "challenge": {
+      "title": "Weryfikacja dwuskładnikowa",
+      "description": "Wpisz 6-cyfrowy kod z aplikacji uwierzytelniającej.",
+      "submit": "Zweryfikuj"
+    },
+    "enroll": {
+      "title": "Włącz uwierzytelnianie dwuskładnikowe",
+      "description": "Chroń konto kodem z aplikacji uwierzytelniającej (Google Authenticator, 1Password, Authy…).",
+      "required": "Twoje konto wymaga uwierzytelniania dwuskładnikowego. Skonfiguruj je, aby kontynuować.",
+      "starting": "Przygotowujemy kod QR…",
+      "retry": "Spróbuj ponownie",
+      "scan": "Zeskanuj ten kod QR w aplikacji uwierzytelniającej.",
+      "qrAlt": "Kod QR dla aplikacji uwierzytelniającej",
+      "manual": "Nie możesz zeskanować? Wpisz w aplikacji ten klucz:",
+      "submit": "Zweryfikuj i włącz",
+      "cancel": "Nie teraz",
+      "factorName": "Aplikacja {{date}}"
+    }
   }
 }

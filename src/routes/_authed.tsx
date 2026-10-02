@@ -6,18 +6,26 @@ import { AppRail } from "@/shared/ui/app-rail";
 import { BottomNav } from "@/shared/ui/bottom-nav";
 import { QuickActions } from "@/shared/ui/quick-actions";
 import { useProject } from "@/features/projects/hooks";
+import { mfaHref, resolveStaffMfaStep } from "@/features/auth/hooks";
 import { cn } from "@/lib/utils";
 import type { ProjectSummary } from "@/lib/database.types";
 
 /**
  * The pathless layout every app page sits under (README → Sessions & route guards). Its beforeLoad
- * runs on the server on a hard load (a 307 to /login, no client-side "Loading…") and in the
- * browser on navigation. Children get the signed-in `user` in their context, never null.
+ * runs on the server on a hard load (a 307, no client-side "Loading…") and in the browser on
+ * navigation:
+ * - signed out → /login?redirect=<here>;
+ * - aal1 staff while `staff_mfa_required()` → /mfa (has a verified factor) or /mfa/enroll (none);
+ *   the setting is cached per session, and a failed read lets them through with a warning (RLS is
+ *   the enforcement). Clients are never sent there.
+ * Children get the signed-in `user` in their context, never null.
  */
 export const Route = createFileRoute("/_authed")({
-  beforeLoad: ({ context, location }) => {
-    const user = context.auth.user;
+  beforeLoad: async ({ context, location }) => {
+    const { user, profile } = context.auth;
     if (!user) throw redirect({ to: "/login", search: { redirect: location.href } });
+    const step = await resolveStaffMfaStep(context.queryClient, { user, profile });
+    if (step !== "pass") throw redirect({ href: mfaHref(step, location.href) });
     return { user };
   },
   component: Shell,

@@ -67,7 +67,7 @@ export function AppRail() {
             );
           })}
         <RailGroup position="end">
-          <RailItem asChild icon="settings" label={t("nav.settings")} active={path === "/settings"}>
+          <RailItem asChild icon="settings" label={t("nav.settings")} active={path.startsWith("/settings")}>
             <Link to="/settings" />
           </RailItem>
         </RailGroup>

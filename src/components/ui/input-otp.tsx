@@ -30,8 +30,9 @@ const InputOTPSlot = React.forwardRef<React.ElementRef<"div">, React.ComponentPr
       <div
         ref={ref}
         className={cn(
-          "relative flex h-9 w-9 items-center justify-center border-y border-r border-outline-variant text-body-md transition-all first:rounded-l-md first:border-l last:rounded-r-md",
-          isActive && "z-10 ring-1 ring-ring",
+          // v5: 48×44 slots (a comfortable touch target), title-size digits, the primary color for focus.
+          "relative flex h-12 w-11 items-center justify-center border-y border-r border-outline-variant bg-surface-container-lowest text-title-lg text-on-surface tabular-nums transition-all group-data-[invalid=true]/field:border-error first:rounded-l-md first:border-l last:rounded-r-md",
+          isActive && "z-10 ring-2 ring-primary",
           className,
         )}
         {...props}
