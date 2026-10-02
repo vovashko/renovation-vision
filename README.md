@@ -399,24 +399,76 @@ screen when `public.staff_mfa_required()` returns `true` (see **Roles & 2FA enfo
 - **`Content-Security-Policy`:** `default-src 'self'`, `base-uri 'self'`, `object-src 'none'`, `frame-ancestors 'none'`,
   `form-action 'self'`, `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `font-src https://fonts.gstatic.com`, `img-src 'self' data: blob: <VITE_SUPABASE_URL origin>` and
-  `connect-src 'self' <VITE_SUPABASE_URL> <its ws(s):// origin>` (Realtime). A `script-src` nonce: see below.
+  `connect-src 'self' <VITE_SUPABASE_URL> <its ws(s):// origin> <Sentry ingest origin, if VITE_SENTRY_DSN is set>`.
+  A `script-src` nonce: see below.
 - **`Strict-Transport-Security: max-age=31536000; includeSubDomains`** — present on every built response (`vite preview`,
   `wrangler dev`, production), omitted only under `vite dev` (plain http, no real TLS to pin).
 - **`X-Content-Type-Options: nosniff`**, **`Referrer-Policy: strict-origin-when-cross-origin`**,
   **`Permissions-Policy: camera=(self), microphone=(), geolocation=()`**.
 - **`vite dev` relaxations** (gated on `import.meta.env.DEV`, i.e. never in a built bundle): `script-src` gets
-  `'unsafe-eval'` and `connect-src` gets `ws:`, both for Vite's HMR client.
+  `'unsafe-inline' 'unsafe-eval'` (no nonce source alongside it — mixing the two would make a CSP-Level-2+ browser
+  ignore `'unsafe-inline'` entirely, per spec, and break Vite's HMR/React-refresh preamble, which injects its own
+  un-nonced inline scripts) and `connect-src` gets `ws:`, both for Vite's HMR client.
 
-**No script nonce (yet).** TanStack Start (1.170, `@tanstack/router-core`) can stamp a per-request nonce onto its
-inline hydration scripts — `createHydrationScripts`/`getSsrBodyScriptParts` both read `router.options.ssr?.nonce` —
-but wiring a nonce through means passing `ssr: { nonce }` to `createRouter()` in `src/router.tsx` and threading a
-per-request value into it. That file belongs to the cookie-sessions/router task (T21), so this PR didn't touch it;
-`script-src` uses `'self' 'unsafe-inline'` as the tightest working fallback until a nonce is wired through. A
-clearly-named `SENTRY_INGEST_HOST` placeholder in the same file is where the observability task adds the Sentry
-ingest host to `connect-src`.
+**Script nonce (T26).** Outside dev, `script-src` is `'self' 'nonce-<value>'` — no `'unsafe-inline'`.
+`securityHeadersMiddleware` generates 128 random bits (base64) per request, _before_ calling `next()`, and hands it
+to `src/router.tsx` via a same-request response-header round trip (`src/lib/csp-nonce.ts`, read with
+`getResponseHeader`): `createRouter({ ssr: { nonce } })` makes TanStack Start (`@tanstack/router-core`'s
+`createHydrationScripts`/`getSsrBodyScriptParts`, which read `router.options.ssr?.nonce`) stamp the same nonce onto
+every inline/module script tag it renders. The handoff header is stripped from the response before it leaves (not
+sensitive — a nonce is public the instant it's in the HTML — just not part of the header contract).
 
-`tests/unit/server/security-headers.test.ts` covers the header set (every header present, the CSP directives,
-HSTS and the dev relaxations) and that non-HTML responses are left alone.
+`tests/unit/server/security-headers.test.ts` covers the header set (every header present, the CSP directives, the
+nonce wiring, HSTS and the dev relaxations) and that non-HTML responses are left alone.
+
+## Observability
+
+**Sentry** (`src/lib/sentry-*.ts`), EU data region: both DSNs must point at a `*.ingest.de.sentry.io` project
+(pick "EU" when creating it). **Everything is a no-op without a DSN** — no SDK init, no network calls — so local
+dev and CI never need a Sentry account.
+
+- **Worker** (`src/lib/sentry-worker.ts`): `@sentry/cloudflare`'s `withSentry` wraps `src/server.ts`'s default
+  export. `SENTRY_DSN` is a secret (`.dev.vars` locally; `wrangler secret put SENTRY_DSN --env <preview|production>`
+  remotely), read through `@/lib/env` like every other secret. The branded 500 page (`brandedErrorResponse`) and
+  the h3-swallowed-SSR-error path both still work exactly as before (T23); they now also call
+  `captureServerException` (a no-op without a DSN).
+- **Browser** (`src/lib/sentry-client.ts`): `@sentry/react`, initialized once in `src/router.tsx` from
+  `VITE_SENTRY_DSN` — a public, build-time value (a DSN is [public by
+  design](https://docs.sentry.io/concepts/key-terms/dsn-explainer/#dsn-public-by-design): it only lets the browser
+  POST events to that one project). Wrapped in `createClientOnlyFn` (same mechanism as `src/i18n/request-locale.ts`)
+  so the Start compiler erases `@sentry/react` from the Worker bundle entirely; `src/router.tsx` additionally guards
+  the call with `typeof document !== "undefined"`, since `createClientOnlyFn`'s compiled server-side stub _throws_
+  if ever called (a safety net, not a silent no-op) and `getRouter()` runs on both the server and the browser.
+- **Settings:** `sendDefaultPii: false`; `environment` is `APP_ENV` (Worker) / `import.meta.env.MODE` (browser);
+  `release` is the build-time git SHA (`CF_PAGES_COMMIT_SHA` or `GITHUB_SHA`, "dev" otherwise — a Vite `define`,
+  `__APP_RELEASE__`, see `vite.config.ts` and `src/lib/sentry-config.ts`); `tracesSampleRate: 0.1`; no session replay.
+- **Scrubbing** (`src/lib/sentry-scrub.ts`, shared `beforeSend`/`beforeBreadcrumb` for both SDKs): reuses the
+  logger's PII rules (`src/lib/pii-scrub.ts`, factored out of `src/lib/logger.ts` in this PR — its own behavior and
+  tests are unchanged) — emails, phone numbers, JWTs, Bearer tokens and Supabase keys become placeholders;
+  password/secret/token/cookie/apikey-like fields are redacted. On top of that: request `cookies` are dropped
+  entirely and the `authorization`/`cookie` headers are redacted; `user` is reduced to the hashed id only (the same
+  `hashUserId` the logger uses) — never an email, username or IP.
+- **Request id:** the Worker tags every event for a request with it (`Sentry.setTag`, ambient isolation scope —
+  see `tagRequestId` in `src/server.ts`). In the browser, `reportClientError` (`src/lib/sentry-client.ts`) tags it
+  too when the error is a `ServerFnError` that carries one.
+- **Error reporting:** `src/routes/__root.tsx`'s root `errorComponent` reports whatever it catches, except a
+  `ServerFnError` below 500 (401/403/404/429 are expected, handled rejections, not incidents).
+
+**Health check.** `GET /healthz` (handled directly in `src/server.ts`, before the TanStack Start handler — there's
+no server-route/API-route feature in the installed TanStack Start 1.168, only page routes and RPC server
+functions) returns `{ ok, version, time, checks: { worker: "ok", supabase: "ok" | "error" } }`: 200 when every
+check is ok, 503 otherwise. The Supabase check (`src/server/healthz.ts`) is a single unauthenticated
+`GET <VITE_SUPABASE_URL>/auth/v1/health` with the publishable key and a 2s timeout. No auth, no PII,
+`Cache-Control: no-store`, `X-Content-Type-Options: nosniff` (outside the HTML security-headers branch above).
+
+**Setup checklist** (none of this is required for local dev or CI):
+
+1. Create a Sentry project in the **EU** region.
+2. `wrangler secret put SENTRY_DSN --env <preview|production>` (the server DSN).
+3. Set `VITE_SENTRY_DSN` (the public browser DSN) wherever the build runs (CI/CD build-time env, or a local
+   `.env.local` to test it).
+4. For CI's source-map upload (`.github/workflows/ci.yml`, `getsentry/action-release`): add the `SENTRY_AUTH_TOKEN`,
+   `SENTRY_ORG` and `SENTRY_PROJECT` repository secrets. Without all three the step is skipped, not failed.
 
 ## Uploads
 
