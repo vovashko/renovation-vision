@@ -12,6 +12,8 @@ import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { migrateLegacySession, supabase } from "./supabase";
 import type { Profile } from "./database.types";
+import { updateUserLocale } from "@/features/auth/hooks";
+import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, matchLocale, readCookie } from "@/i18n";
 import { getSession, type Session } from "@/server/functions/session";
 
 export type { Session } from "@/server/functions/session";
@@ -135,6 +137,12 @@ export function AuthSync() {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event, next) => {
         if (!SESSION_EVENTS.has(event)) return;
+        // Backfill user_metadata.locale once after sign-in when it's missing (older accounts, or a
+        // locale chosen before ever signing in), so hosted auth emails render in the right language.
+        if (event === "SIGNED_IN" && next?.user && !isLocale((next.user.user_metadata as { locale?: unknown })?.locale)) {
+          const locale = matchLocale(readCookie(document.cookie, LOCALE_COOKIE)) ?? DEFAULT_LOCALE;
+          void updateUserLocale(locale).catch(() => {});
+        }
         const known = session.get();
         const nextId = next?.user.id ?? null;
         // SIGNED_IN also fires when the client restores the session it already had (tab focus, init).

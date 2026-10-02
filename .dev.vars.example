@@ -13,8 +13,20 @@ SUPABASE_SECRET_KEY=
 # Overrides wrangler.jsonc → vars.APP_ENV: development | preview | production | test.
 APP_ENV=development
 
-# Transactional email (Brevo) API key. Optional until email lands (T24).
+# Transactional email (Brevo) API key for @/server/email (sendEmail). REQUIRED in preview/production
+# (sendEmail throws EMAIL_NOT_CONFIGURED without it there); optional in development/test, where
+# emails are just logged (not delivered) when unset. A free Brevo account's API key works fine for
+# local testing with EMAIL_SANDBOX=true below. See README -> Email.
 BREVO_API_KEY=
+
+# The "From" address for app emails. Needs a verified sender in Brevo once BREVO_API_KEY is set.
+# Defaults to "RenoVision <no-reply@renovision.app>" when unset.
+EMAIL_FROM=
+
+# true: every Brevo send adds the sandbox header (validates the request, delivers nothing — see
+# README -> Email). Set this locally whenever BREVO_API_KEY is set, so testing never sends a real
+# email. `bun run email:check` always forces sandbox mode regardless of this variable.
+EMAIL_SANDBOX=
 
 # Sentry project DSN for server-side (Worker) error reporting: https://<key>@<host>/<project-id>,
 # where <host> is a *.ingest.de.sentry.io project (EU data region — pick "EU" when creating the

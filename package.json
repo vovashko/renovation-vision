@@ -19,6 +19,8 @@
     "db:start": "supabase start",
     "db:reset": "supabase db reset && node supabase/scripts/upload-seed-media.mjs",
     "db:types": "supabase gen types typescript --local > src/domain/db.types.ts",
+    "email:build": "bun scripts/build-auth-email-templates.ts",
+    "email:check": "bun scripts/email-check.ts",
     "strip-sourcemaps": "find dist -name '*.map' -delete",
     "deploy:preview": "bun run build && bun run strip-sourcemaps && wrangler deploy --env preview",
     "deploy": "bun run build && bun run strip-sourcemaps && wrangler deploy --env production"

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="{{ if eq .Data.locale "en" }}en{{ else }}pl{{ end }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>RenoVision</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F4F5F2;font-family:Inter, Arial, Helvetica, sans-serif;color:#1F2420;">
+    <span style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ if eq .Data.locale "en" }}Confirm your new email address{{ else }}Potwierdź nowy adres e-mail{{ end }}</span>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F4F5F2;padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width:480px;background:#FFFFFF;border:1px solid #E3E6E0;border-radius:20px;overflow:hidden;"
+          >
+            <tr>
+              <td style="padding:24px 28px 8px 28px;">
+                <img
+                  src="{{ .SiteURL }}/email-logo.png"
+                  width="28"
+                  height="28"
+                  alt="RenoVision"
+                  style="display:block;border:0;outline:none;text-decoration:none;vertical-align:middle;"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 24px 28px;font-size:15px;line-height:1.5;">{{ if eq .Data.locale "en" }}<p style="margin:0 0 16px 0;font-size:17px;font-weight:700;color:#1F2420;">Confirm your new email address</p>
+<p style="margin:0 0 20px 0;white-space:pre-line;color:#1F2420;">Follow the link below to confirm <strong>{{ .NewEmail }}</strong> as your new RenoVision email address.</p>
+<p style="margin:0 0 20px 0;"><a href="{{ .ConfirmationURL }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#37453A;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:15px;line-height:1;padding:12px 22px;border-radius:12px;">Confirm new email address</a></p>
+<p style="margin:0;font-size:13px;color:#646B63;">If the button doesn&#39;t work, paste this link into your browser: {{ .ConfirmationURL }}</p>
+<p style="margin:0;font-size:13px;color:#646B63;">If you didn&#39;t request this change, you can safely ignore this email.</p>{{ else }}<p style="margin:0 0 16px 0;font-size:17px;font-weight:700;color:#1F2420;">Potwierdź nowy adres e-mail</p>
+<p style="margin:0 0 20px 0;white-space:pre-line;color:#1F2420;">Kliknij poniższy link, aby potwierdzić <strong>{{ .NewEmail }}</strong> jako nowy adres e-mail w RenoVision.</p>
+<p style="margin:0 0 20px 0;"><a href="{{ .ConfirmationURL }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#37453A;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:15px;line-height:1;padding:12px 22px;border-radius:12px;">Potwierdź nowy adres e-mail</a></p>
+<p style="margin:0;font-size:13px;color:#646B63;">Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{ .ConfirmationURL }}</p>
+<p style="margin:0;font-size:13px;color:#646B63;">Jeśli to nie Ty poprosiłeś o tę zmianę, możesz zignorować tę wiadomość.</p>{{ end }}</td>
+            </tr>
+            <tr>
+              <td
+                style="padding:16px 28px 24px 28px;border-top:1px solid #E3E6E0;font-size:13px;line-height:1.5;color:#646B63;"
+              >
+                {{ if eq .Data.locale "en" }}RenoVision — renovation tracking.{{ else }}RenoVision — śledzenie remontu.{{ end }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

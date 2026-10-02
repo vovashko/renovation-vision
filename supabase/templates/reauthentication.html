@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="{{ if eq .Data.locale "en" }}en{{ else }}pl{{ end }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>RenoVision</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F4F5F2;font-family:Inter, Arial, Helvetica, sans-serif;color:#1F2420;">
+    <span style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ if eq .Data.locale "en" }}Your verification code{{ else }}Twój kod weryfikacyjny{{ end }}</span>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F4F5F2;padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width:480px;background:#FFFFFF;border:1px solid #E3E6E0;border-radius:20px;overflow:hidden;"
+          >
+            <tr>
+              <td style="padding:24px 28px 8px 28px;">
+                <img
+                  src="{{ .SiteURL }}/email-logo.png"
+                  width="28"
+                  height="28"
+                  alt="RenoVision"
+                  style="display:block;border:0;outline:none;text-decoration:none;vertical-align:middle;"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 24px 28px;font-size:15px;line-height:1.5;">{{ if eq .Data.locale "en" }}<p style="margin:0 0 16px 0;font-size:17px;font-weight:700;color:#1F2420;">Your verification code</p>
+<p style="margin:0 0 20px 0;white-space:pre-line;color:#1F2420;">Use the code below to verify your identity on RenoVision. It expires shortly.</p>
+<p style="margin:0 0 20px 0;font-size:28px;font-weight:700;letter-spacing:4px;color:#37453A;">{{ .Token }}</p>
+<p style="margin:0;font-size:13px;color:#646B63;">If you didn&#39;t request this, you can safely ignore this email.</p>{{ else }}<p style="margin:0 0 16px 0;font-size:17px;font-weight:700;color:#1F2420;">Twój kod weryfikacyjny</p>
+<p style="margin:0 0 20px 0;white-space:pre-line;color:#1F2420;">Użyj poniższego kodu, aby zweryfikować swoją tożsamość w RenoVision. Kod wkrótce wygaśnie.</p>
+<p style="margin:0 0 20px 0;font-size:28px;font-weight:700;letter-spacing:4px;color:#37453A;">{{ .Token }}</p>
+<p style="margin:0;font-size:13px;color:#646B63;">Jeśli to nie Ty wysłałeś tę prośbę, możesz zignorować tę wiadomość.</p>{{ end }}</td>
+            </tr>
+            <tr>
+              <td
+                style="padding:16px 28px 24px 28px;border-top:1px solid #E3E6E0;font-size:13px;line-height:1.5;color:#646B63;"
+              >
+                {{ if eq .Data.locale "en" }}RenoVision — renovation tracking.{{ else }}RenoVision — śledzenie remontu.{{ end }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

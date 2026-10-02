@@ -19,6 +19,8 @@ describe("parseServerEnv", () => {
         supabaseSecretKey: undefined,
         supabaseSecretKeySource: undefined,
         brevoApiKey: undefined,
+        emailFrom: undefined,
+        emailSandbox: false,
         sentryDsn: undefined,
       },
     });
@@ -68,6 +70,20 @@ describe("parseServerEnv", () => {
       message: expect.stringMatching(/SENTRY_DSN must look like https:\/\/<key>@<host>\/<project-id>/),
     });
     expect(parseServerEnv({ SENTRY_DSN: "https://abc@o1.ingest.sentry.io/123" }).ok).toBe(true);
+  });
+
+  it("parses EMAIL_SANDBOX, defaulting to false", () => {
+    const sandboxOf = (source: Record<string, unknown>) => {
+      const result = parseServerEnv(source);
+      return result.ok ? result.env.emailSandbox : undefined;
+    };
+    expect(sandboxOf({})).toBe(false);
+    expect(sandboxOf({ EMAIL_SANDBOX: "true" })).toBe(true);
+    expect(sandboxOf({ EMAIL_SANDBOX: "false" })).toBe(false);
+    expect(parseServerEnv({ EMAIL_SANDBOX: "yes" })).toEqual({
+      ok: false,
+      message: expect.stringMatching(/EMAIL_SANDBOX must be "true" or "false"/),
+    });
   });
 });
 

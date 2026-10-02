@@ -21,10 +21,54 @@ minimum_password_length = 10
 password_requirements = "letters_digits"
 
 [auth.email]
-# Sign-ups must confirm their email (locally the link lands in Inbucket). Seeded users are confirmed.
+# Sign-ups must confirm their email (locally the link lands in Mailpit, see [local_smtp] below).
+# Seeded users are confirmed.
 enable_confirmations = true
 # Changing the password needs a recent sign-in (reauthentication nonce otherwise).
 secure_password_change = true
+
+# Localized (pl default, en via user_metadata.locale) HTML templates for every auth email Supabase
+# Auth sends itself (no send-email hook — see README -> Email). `content_path` is relative to the repo
+# root (where `supabase start` runs), not to this folder, and is read from disk by
+# the CLI (locally and on `supabase db push`/`supabase config push`); the hosted dashboard needs the
+# same HTML pasted in by hand (Authentication -> Email Templates) since it doesn't read this repo.
+[auth.email.template.confirmation]
+subject = "{{ if eq .Data.locale \"en\" }}Confirm your email address{{ else }}Potwierdź adres e-mail{{ end }}"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.invite]
+subject = "{{ if eq .Data.locale \"en\" }}You've been invited to RenoVision{{ else }}Zaproszono Cię do RenoVision{{ end }}"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.recovery]
+subject = "{{ if eq .Data.locale \"en\" }}Reset your password{{ else }}Zresetuj hasło{{ end }}"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.magic_link]
+subject = "{{ if eq .Data.locale \"en\" }}Your sign-in link{{ else }}Twój link do logowania{{ end }}"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.email_change]
+subject = "{{ if eq .Data.locale \"en\" }}Confirm your new email address{{ else }}Potwierdź nowy adres e-mail{{ end }}"
+content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.reauthentication]
+subject = "{{ if eq .Data.locale \"en\" }}Your verification code{{ else }}Twój kod weryfikacyjny{{ end }}"
+content_path = "./supabase/templates/reauthentication.html"
+
+# Hosted SMTP (production/preview Supabase projects only — never the local stack, see [local_smtp]
+# below). Supabase's shared mailer is low-volume and rate-limited, so the hosted project's dashboard
+# (Authentication -> Settings -> SMTP Settings) points at Brevo instead. This section is
+# documentation, not live config: Supabase-hosted projects take SMTP from the dashboard, not from a
+# pushed config.toml. See README -> Email for the full hosted setup checklist.
+# [auth.email.smtp]
+# enabled = true
+# host = "smtp-relay.brevo.com"
+# port = 587
+# user = "<your Brevo account email>"          # Brevo -> SMTP & API -> SMTP -> login
+# pass = "env(BREVO_SMTP_KEY)"                  # Brevo -> SMTP & API -> SMTP -> an SMTP key (not the API key above)
+# admin_email = "no-reply@renovision.app"       # must be a verified sender/domain in Brevo
+# sender_name = "RenoVision"
 
 # TOTP 2FA: staff need an aal2 session to read internal data while
 # private.app_settings.enforce_staff_mfa is on (see README "Roles & 2FA enforcement").
@@ -33,7 +77,7 @@ enroll_enabled = true
 verify_enabled = true
 
 # Local stack trimmed to what the app uses, so it fits a small (10 GB) Docker disk.
-# Realtime (chat), Storage (media) and Inbucket (auth emails) stay on.
+# Realtime (chat), Storage (media) and Mailpit (auth emails, [local_smtp] below) stay on.
 [studio]
 enabled = false
 
@@ -46,5 +90,7 @@ enabled = false
 [storage.image_transformation]
 enabled = false
 
+# Local mail catcher (Mailpit, http://127.0.0.1:54324): every auth email configured above lands
+# here instead of actually being sent. Never touch [auth.email.smtp] for local dev.
 [local_smtp]
 enabled = true
