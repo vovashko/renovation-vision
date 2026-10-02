@@ -3,7 +3,8 @@
   "description": "Ustawienia aplikacji.",
   "language": {
     "title": "Język",
-    "description": "Język, w którym RenoVision działa na tym urządzeniu."
+    "description": "Język, w którym RenoVision działa dla Ciebie na każdym urządzeniu.",
+    "saveFailed": "Nie udało się zapisać języka. Na razie obowiązuje tylko na tym urządzeniu."
   },
   "profile": {
     "title": "Profil",

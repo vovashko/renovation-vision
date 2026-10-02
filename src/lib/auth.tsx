@@ -118,6 +118,22 @@ export function useSessionRefresh(): () => Promise<void> {
   return useCallback(() => refreshSession(router, queryClient), [router, queryClient]);
 }
 
+/**
+ * Copies the signed-in user's saved language (`profiles.locale`; the cookie or pl if the profile
+ * couldn't be read) onto `user_metadata.locale` when it differs. Best-effort: a failure only means a
+ * hosted auth email may use the previous language.
+ */
+async function syncAuthLocale(session: SessionStore, metadataLocale: unknown): Promise<void> {
+  try {
+    const current = await session.load();
+    if (!current.user) return;
+    const locale = matchLocale(current.profile?.locale) ?? matchLocale(readCookie(document.cookie, LOCALE_COOKIE)) ?? DEFAULT_LOCALE;
+    if (!isLocale(metadataLocale) || metadataLocale !== locale) await updateUserLocale(locale);
+  } catch {
+    // best-effort
+  }
+}
+
 /** Supabase auth events that may mean "a different user (or none) now" and so re-run the guards. */
 const SESSION_EVENTS = new Set(["SIGNED_IN", "SIGNED_OUT", "USER_UPDATED", "MFA_CHALLENGE_VERIFIED"]);
 
@@ -140,19 +156,19 @@ export function AuthSync() {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event, next) => {
         if (!SESSION_EVENTS.has(event)) return;
-        // Backfill user_metadata.locale once after sign-in when it's missing (older accounts, or a
-        // locale chosen before ever signing in), so hosted auth emails render in the right language.
-        if (event === "SIGNED_IN" && next?.user && !isLocale((next.user.user_metadata as { locale?: unknown })?.locale)) {
-          const locale = matchLocale(readCookie(document.cookie, LOCALE_COOKIE)) ?? DEFAULT_LOCALE;
-          void updateUserLocale(locale).catch(() => {});
-        }
+        // After a sign-in, mirror the saved language (profiles.locale) onto user_metadata.locale when
+        // they differ (older accounts had none), so hosted auth emails render in the right language.
+        const metadataLocale = (next?.user?.user_metadata as { locale?: unknown } | undefined)?.locale;
+        const syncLocale = () => {
+          if (event === "SIGNED_IN" && next?.user) void syncAuthLocale(session, metadataLocale);
+        };
         const known = session.get();
         const nextId = next?.user.id ?? null;
-        // SIGNED_IN also fires when the client restores the session it already had (tab focus, init).
-        if (known && event === "SIGNED_IN" && known.user?.id === nextId) return;
-        if (known && event === "SIGNED_OUT" && !known.user) return;
         // Outside the callback: supabase-js holds its auth lock while it runs.
-        setTimeout(() => void refresh(), 0);
+        // SIGNED_IN also fires when the client restores the session it already had (tab focus, init).
+        if (known && event === "SIGNED_IN" && known.user?.id === nextId) return void setTimeout(syncLocale, 0);
+        if (known && event === "SIGNED_OUT" && !known.user) return;
+        setTimeout(() => void refresh().then(syncLocale), 0);
       }));
     } catch {
       return; // unconfigured Supabase: nothing to sync (the configuration error shows elsewhere)

@@ -1,5 +1,6 @@
-// The signed-in user's own profile row (`profiles.full_name`, `profiles.avatar_url`: the only two
-// columns `authenticated` may update) and their files in the public `avatars` bucket.
+// The signed-in user's own profile row (`profiles.full_name`, `avatar_url`, `locale`, `phone`: the
+// only columns `authenticated` may update) and their files in the public `avatars` bucket.
+import type { Locale } from "@/i18n/locale";
 import { supabase } from "@/lib/supabase";
 import { AVATAR_BUCKET, avatarPath } from "../domain/profile";
 
@@ -17,6 +18,12 @@ async function setAvatarUrl(userId: string, url: string | null): Promise<void> {
 export const profileRepo = {
   async updateFullName(userId: string, fullName: string): Promise<void> {
     const { error } = await supabase.from("profiles").update({ full_name: fullName }).eq("id", userId);
+    if (error) throw error;
+  },
+
+  /** Saves the UI language on the profile (`profiles.locale`, the source of truth: see README → Internationalization). */
+  async updateLocale(userId: string, locale: Locale): Promise<void> {
+    const { error } = await supabase.from("profiles").update({ locale }).eq("id", userId);
     if (error) throw error;
   },
 

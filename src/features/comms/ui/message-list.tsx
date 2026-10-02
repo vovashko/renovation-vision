@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { useTranslation } from "react-i18next";
 import { ChatBubble, ChatBubbleAttachment, ChatBubbleAuthor, ChatBubbleTime } from "@/components/ui/chat-bubble";
 import { DaySeparator } from "@/features/comms/ui/day-separator";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export function MessageList({
   /** Sender display name, shown above a received bubble (e.g. a manager's group of clients). */
   nameOf: (id: string) => string;
 }) {
+  const { t } = useTranslation("comms");
   const format = useFormat();
   return (
     <>
@@ -32,13 +34,16 @@ export function MessageList({
         <Fragment key={group.day}>
           <DaySeparator label={format.dayLabel(group.items[0].created_at)} />
           {group.items.map((m) => {
-            const mine = m.sender_id === currentUserId;
+            const mine = m.sender_id !== null && m.sender_id === currentUserId;
             const side = mine ? SENT_SIDE : RECEIVED_SIDE;
             const time = format.date(m.created_at, TIME_STYLE);
             return (
               <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
                 <ChatBubble side={side}>
-                  {!mine && <ChatBubbleAuthor side={side}>{nameOf(m.sender_id)}</ChatBubbleAuthor>}
+                  {/* A null sender is a deleted account: its messages stay, unattributed (T33). */}
+                  {!mine && (
+                    <ChatBubbleAuthor side={side}>{m.sender_id ? nameOf(m.sender_id) : t("chat.header.formerMember")}</ChatBubbleAuthor>
+                  )}
                   {m.attachment_url && <ChatBubbleAttachment href={m.attachment_url} src={m.attachment_url} />}
                   <div className="break-words whitespace-pre-wrap">{m.body}</div>
                   <ChatBubbleTime side={side}>{time}</ChatBubbleTime>

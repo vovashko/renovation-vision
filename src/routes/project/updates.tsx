@@ -45,7 +45,10 @@ function UpdatesPage() {
 
   if (isLoading || !notifications) return <PageLoading />;
   const clientIds = new Set(members.filter((m) => m.role === "client").map((m) => m.user_id));
-  const nameOf = (id: string | null) => members.find((m) => m.user_id === id)?.profile.full_name ?? t("updates.inbox.systemSender");
+  // No actor: a change made by the system (a trigger, a migration). An actor who is no longer on the
+  // team (or whose account was deleted): "Former member".
+  const nameOf = (id: string | null) =>
+    id ? (members.find((m) => m.user_id === id)?.profile.full_name ?? t("chat.header.formerMember")) : t("updates.inbox.systemSender");
 
   // One notification is fanned out per client; group them back into one "sent" item.
   const sent = new Map<string, { n: Notification; total: number; read: number }>();
