@@ -366,12 +366,12 @@ select pg_temp.check(
     where entity_type = 'materials' and entity_id = '20000000-0000-4000-8000-0000000000aa') = 'insert,update,delete',
   'materials inserts, updates and deletes are written to the activity log');
 select pg_temp.check(
-  (select summary = 'Added materials "Logged material"' and params ->> 'entity' = 'materials'
+  (select summary = 'Added material "Logged material"' and params ->> 'entity' = 'material'
           and params ->> 'label' = 'Logged material' and project_id = 'b0000000-0000-4000-8000-000000000001'
           and actor_id = 'a0000000-0000-4000-8000-000000000001'
      from public.activity_log
     where entity_type = 'materials' and entity_id = '20000000-0000-4000-8000-0000000000aa' and action = 'insert'),
-  'a materials entry falls back to the table name as its entity label');
+  'a materials entry is logged as a material (label from 20261004100000_w4_activity_labels)');
 select pg_temp.check(
   (select changes = '{"quantity": {"from": 1.000, "to": 3.000}}'::jsonb from public.activity_log
     where entity_type = 'materials' and entity_id = '20000000-0000-4000-8000-0000000000aa' and action = 'update'),
