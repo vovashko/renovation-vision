@@ -361,6 +361,40 @@ Both tables also carry the restrictive staff-MFA policy (see **Roles & 2FA enfor
 is written to the activity log ("Added crew member "Marek Nowak""); edits to a contact itself are not, because
 the log is per project and a contact isn't. Tests: `tests/db/contacts.test.sql`.
 
+## Work data (T32)
+
+```
+projects ──< stages (progress_mode: tasks | manual) ──< tasks
+   │ plan_image_path, plan_image_opts          ▲
+   └──< progress_entries (site diary) ─────────┘ stage_id, room_id (same project)
+             └──< photos.progress_entry_id
+```
+
+- **Stage progress from tasks.** A stage in `tasks` mode (the default) has its `progress` and `status` computed by
+  the database: `round(100 * done / total)` of its tasks (0 with none, never 0% or 100% by rounding alone), and
+  status follows it (0% pending, 1–99% in progress, 100% done). Triggers recompute it when a task is added, ticked,
+  moved or deleted, and when the stage is saved or switched back to `tasks`; a derived status change notifies
+  clients (`stage_status`) and is logged like a manual one. `blocked` is never overridden: it is set and cleared by
+  hand, and while blocked the progress follows the checklist but stops at 99%. In `manual` mode nothing changes by
+  itself. `@/domain/progress` (`taskProgress`, `deriveFromTasks`) is the client-side mirror. The migration kept
+  `tasks` only for stages that already matched their checklist; the demo's Walls & Insulation and Flooring are
+  `manual`, the other five `tasks`.
+- **Site diary.** `progress_entries`: a dated note per project with an optional stage, room and hours; diary photos
+  point at their entry with `photos.progress_entry_id` (a photo still reaches clients only once published).
+- **Floor-plan image.** `projects.plan_image_path` (`<project_id>/plans/<file>` in `project-media`) and
+  `plan_image_opts` (`{ opacity, scale, x, y }`), both on `project_summary`.
+- **`import_stages(project, rows)`** (managers): stages with nested tasks (rooms by name), all or nothing; invalid
+  input raises `22023` with a JSON array of `{ row, field, code }` as the error detail.
+
+| Table / object                        | Client                                | Project manager |
+| ------------------------------------- | ------------------------------------- | --------------- |
+| `progress_entries`                    | `is_visible` entries of their project | read/write      |
+| `project-media` `<project>/plans/...` | read                                  | read/write      |
+| `projects.plan_image_*`               | read (`project_summary`)              | update          |
+| `import_stages`                       | —                                     | execute         |
+
+Tests: `tests/db/work.test.sql`.
+
 ## Sessions & route guards
 
 **Cookie sessions.** The browser Supabase client (`@/lib/supabase`) is `@supabase/ssr`'s `createBrowserClient`, so
