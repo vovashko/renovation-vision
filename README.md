@@ -121,17 +121,49 @@ The app builds to a Cloudflare Worker via `@cloudflare/vite-plugin` (`bun run bu
 writes static assets to `dist/client` and the Worker to `dist/server` — no Nitro,
 no `.output/`). There are two Worker environments, defined in `wrangler.jsonc`:
 
-- `preview` (`renovision-preview`) — `bun run deploy:preview`
+- `preview` (`renovision-preview`) — `bun run deploy:preview`, live at https://renovision-preview.renovision.workers.dev
+  (the client demo, backed by the hosted Supabase project `renovision-demo`, eu-west-1)
 - `production` (`renovision`) — `bun run deploy`
 
 First time only: `wrangler login`.
 
-Secrets (`SUPABASE_SECRET_KEY`, `BREVO_API_KEY`, `SENTRY_DSN`) are not set via
-`vars`. Copy `.dev.vars.example` to `.dev.vars` (gitignored) for `bun run dev`, `bun run preview` and `wrangler dev`,
-and set remote secrets per environment with `wrangler secret put <NAME> --env <preview|production>`.
+**The environment is chosen at build time.** `@cloudflare/vite-plugin` bakes the Wrangler environment into
+`dist/server/wrangler.json` when it builds, so the deploy scripts set `CLOUDFLARE_ENV` for `bun run build` and then run a
+plain `wrangler deploy` (`wrangler deploy --env …` doesn't apply to a plugin build; a build without `CLOUDFLARE_ENV` would
+deploy the top-level config as `renovision`, the production name). The scripts also delete the source maps and the
+copied `.dev.vars` before uploading.
+
+**Public config is baked in at build time too.** `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` must point at the
+target project when you build (they're public: the publishable key ships to browsers). For the client demo also set
+`VITE_DEMO_HINT=true`. Read them from the CLI rather than copying them anywhere:
+
+```bash
+REF=elzvszbtulwknpkrkwli   # renovision-demo
+PUB=$(supabase projects api-keys --project-ref $REF -o json | jq -r '.[] | select(.type=="publishable") | .api_key')
+VITE_SUPABASE_URL=https://$REF.supabase.co VITE_SUPABASE_PUBLISHABLE_KEY=$PUB VITE_DEMO_HINT=true bun run deploy:preview
+```
+
+**Secrets** (`SUPABASE_SECRET_KEY`, `BREVO_API_KEY`, `SENTRY_DSN`) are not set via `vars`. Copy `.dev.vars.example` to
+`.dev.vars` (gitignored) for `bun run dev`, `bun run preview` and `wrangler dev`, and set remote secrets per Worker,
+piping the value so it's never printed:
+
+```bash
+supabase projects api-keys --project-ref $REF --reveal -o json \
+  | jq -j '.[] | select(.type=="secret") | .api_key' \
+  | wrangler secret put SUPABASE_SECRET_KEY --name renovision-preview
+```
+
 Pages and `getMe` run with none of them set; the admin Supabase client fails with a clear message until
 `SUPABASE_SECRET_KEY` is set. Public config lives in `vars.APP_ENV`; the rate limiters are `ratelimits` bindings
-(see **Server functions & security**).
+(see **Server functions & security**). Non-production responses send `X-Robots-Tag: noindex, nofollow`.
+
+**Hosted Supabase project.** Schema: `supabase link --project-ref $REF`, then `supabase db push` (`--include-seed` for the
+demo project only), then upload the demo media with
+`SUPABASE_URL=https://$REF.supabase.co SUPABASE_SERVICE_ROLE_KEY=<secret> node supabase/scripts/upload-seed-media.mjs`.
+Auth settings: `supabase config push` from a copy of `supabase/` whose `site_url` and `additional_redirect_urls` point at
+the deployed URL (the repo's `config.toml` keeps the local URLs); answer **no** to the API prompt. On the free plan with
+Supabase's default email sender, custom email templates are rejected, so leave the `[auth.email.template.*]` sections
+out of that copy until Brevo SMTP is configured (see **Email**).
 
 ## Architecture
 
