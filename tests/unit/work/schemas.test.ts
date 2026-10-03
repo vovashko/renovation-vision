@@ -3,6 +3,7 @@ import { roomFormSchema, stageFormSchema, taskAddFormSchema } from "@/features/w
 
 const validStage = {
   name: "Demolition",
+  progress_mode: "manual" as const,
   status: "progress" as const,
   progress: 40,
   start_date: "2026-01-01",
@@ -50,6 +51,24 @@ describe("stageFormSchema", () => {
   it("requires a non-empty name", () => {
     const result = stageFormSchema.safeParse({ ...validStage, name: "  " });
     expect(result.success).toBe(false);
+  });
+
+  it("accepts both progress modes and nothing else", () => {
+    expect(stageFormSchema.safeParse({ ...validStage, progress_mode: "tasks" }).success).toBe(true);
+    expect(stageFormSchema.safeParse({ ...validStage, progress_mode: "manual" }).success).toBe(true);
+    expect(stageFormSchema.safeParse({ ...validStage, progress_mode: "auto" }).success).toBe(false);
+    const { progress_mode: _omit, ...withoutMode } = validStage;
+    void _omit;
+    expect(stageFormSchema.safeParse(withoutMode).success).toBe(false);
+  });
+
+  it("accepts the computed values of a tasks-mode stage, including blocked at the 99% cap", () => {
+    expect(stageFormSchema.safeParse({ ...validStage, progress_mode: "tasks", status: "blocked", progress: 99 }).success).toBe(true);
+    expect(stageFormSchema.safeParse({ ...validStage, progress_mode: "tasks", status: "pending", progress: 0 }).success).toBe(true);
+  });
+
+  it("keeps the done = 100% rule in tasks mode too", () => {
+    expect(stageFormSchema.safeParse({ ...validStage, progress_mode: "tasks", status: "blocked", progress: 100 }).success).toBe(false);
   });
 });
 

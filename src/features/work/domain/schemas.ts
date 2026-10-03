@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Status } from "@/domain/status";
+import type { ProgressMode } from "@/lib/database.types";
 
 // Pure zod schemas for the stage, room and task forms. No React, no Supabase — see README →
 // Architecture. Validation messages are i18n keys; `FormField` translates them.
@@ -7,6 +8,11 @@ import type { Status } from "@/domain/status";
 const STATUS_VALUES = ["done", "progress", "pending", "blocked"] as const satisfies readonly Status[];
 
 export const statusSchema = z.enum(STATUS_VALUES);
+
+const PROGRESS_MODES = ["tasks", "manual"] as const satisfies readonly ProgressMode[];
+
+/** `tasks`: progress and status follow the checklist (the database recomputes them); `manual`: set by hand. */
+export const progressModeSchema = z.enum(PROGRESS_MODES);
 
 /** `(status = 'done') = (progress = 100)`, the same rule the database enforces (see migrations). */
 function statusMatchesProgress(v: { status: Status; progress: number }) {
@@ -16,6 +22,8 @@ function statusMatchesProgress(v: { status: Status; progress: number }) {
 export const stageFormSchema = z
   .object({
     name: z.string().trim().min(1, "common:form.required"),
+    progress_mode: progressModeSchema,
+    // In tasks mode these hold the computed values (`deriveFromTasks`); only "blocked" is chosen by hand.
     status: statusSchema,
     progress: z.number().min(0).max(100),
     start_date: z.string().min(1, "common:form.required"),
