@@ -109,7 +109,10 @@
       "render": "wizualizację",
       "expense": "wydatek",
       "ai_knowledge": "wpis wiedzy AI",
-      "crew_member": "osobę z ekipy"
+      "crew_member": "osobę z ekipy",
+      "client_contact": "kontakt klienta",
+      "point_of_contact": "osobę kontaktową",
+      "contact": "kontakt"
     },
     "plain": {
       "insert": "Dodano {{entity}}",
