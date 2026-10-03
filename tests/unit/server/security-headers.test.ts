@@ -21,6 +21,16 @@ const { buildCsp, buildSecurityHeaders, generateNonce, HELMET_EQUIVALENT_HEADERS
   await import("@/server/middleware/security-headers");
 const { NONCE_HEADER } = await import("@/lib/csp-nonce");
 
+describe("X-Robots-Tag", () => {
+  it("is noindex unless the response is for production", () => {
+    expect(buildSecurityHeaders({ supabaseUrl: SUPABASE_URL, isDev: false, nonce: NONCE })["X-Robots-Tag"]).toBe("noindex, nofollow");
+    expect(buildSecurityHeaders({ supabaseUrl: SUPABASE_URL, isDev: true, nonce: NONCE })["X-Robots-Tag"]).toBe("noindex, nofollow");
+    expect(
+      buildSecurityHeaders({ supabaseUrl: SUPABASE_URL, isDev: false, nonce: NONCE, indexable: true })["X-Robots-Tag"],
+    ).toBeUndefined();
+  });
+});
+
 describe("buildCsp", () => {
   it("includes every required directive, 'self' as the default, and the Supabase URL (http + ws locally)", () => {
     const csp = buildCsp({ supabaseUrl: SUPABASE_URL, isDev: false, nonce: NONCE });

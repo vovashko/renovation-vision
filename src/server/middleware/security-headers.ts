@@ -17,7 +17,7 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { removeResponseHeader, setResponseHeader } from "@tanstack/react-start/server";
 import { NONCE_HEADER } from "@/lib/csp-nonce";
-import { getPublicEnv } from "@/lib/env";
+import { getPublicEnv, getServerEnv } from "@/lib/env";
 
 /** 128 bits of randomness, base64-encoded — a fresh value every request. */
 export function generateNonce(): string {
@@ -55,6 +55,8 @@ export type CspOptions = {
   nonce: string;
   /** The browser Sentry DSN's origin, added to `connect-src` when a DSN is configured. */
   sentryIngestOrigin?: string;
+  /** Only production may be indexed by search engines; previews and dev send `X-Robots-Tag: noindex`. */
+  indexable?: boolean;
 };
 
 /** Pure: the Content-Security-Policy header value. Exported for tests. */
@@ -109,7 +111,18 @@ export function buildSecurityHeaders(opts: CspOptions): Record<string, string> {
   // HSTS only makes sense once the app is actually served over TLS, which `vite dev` never is
   // (plain http, hot reload). `vite build` output (preview, wrangler dev, production deploys) gets it.
   if (!opts.isDev) headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+  // Keep previews (shared demo links) and dev out of search results.
+  if (!opts.indexable) headers["X-Robots-Tag"] = "noindex, nofollow";
   return headers;
+}
+
+/** True only on the production Worker (APP_ENV=production); anything unknown is treated as non-production. */
+function isProduction(): boolean {
+  try {
+    return getServerEnv().appEnv === "production";
+  } catch {
+    return false;
+  }
 }
 
 function isHtmlResponse(response: Response): boolean {
@@ -131,6 +144,7 @@ export const securityHeadersMiddleware = createMiddleware().server(async ({ next
       isDev: import.meta.env.DEV,
       nonce,
       sentryIngestOrigin: sentryIngestOrigin(import.meta.env.VITE_SENTRY_DSN as string | undefined),
+      indexable: isProduction(),
     });
     for (const [name, value] of Object.entries(headers)) response.headers.set(name, value);
   }

@@ -13,7 +13,7 @@
 --   3. Kitchen was Pending at 10%, but pending always means 0% (state follows progress).
 --      -> Kitchen is In progress at 10%.
 --
--- Demo logins (password for all: renovision-demo)
+-- Demo logins (password for all: renovision-demo-2026)
 --   jonas@renovision.demo  manager (Jonas Weber)       language pl
 --   sarah@renovision.demo  client  (Sarah Bennett)     language pl
 --   tom@renovision.demo    client  (Tom Bennett)       language en (so both languages are exercised)
@@ -42,7 +42,7 @@ insert into auth.users (
 )
 select
   '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
-  extensions.crypt('renovision-demo', extensions.gen_salt('bf')), now(),
+  extensions.crypt('renovision-demo-2026', extensions.gen_salt('bf')), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
   -- user_metadata.locale mirrors profiles.locale (the auth email templates read it).
   jsonb_build_object('full_name', u.full_name, 'locale', u.locale), now(), now(), '', '', '', ''

@@ -44,8 +44,8 @@ begin
     where email in ('jonas@renovision.demo', 'sarah@renovision.demo', 'tom@renovision.demo', 'admin@renovision.demo')
   loop
     perform pg_temp.check(
-      (select encrypted_password from auth.users where id = u.id) = extensions.crypt('renovision-demo', (select encrypted_password from auth.users where id = u.id)),
-      u.email || ': password is renovision-demo'
+      (select encrypted_password from auth.users where id = u.id) = extensions.crypt('renovision-demo-2026', (select encrypted_password from auth.users where id = u.id)),
+      u.email || ': password is renovision-demo-2026'
     );
     perform pg_temp.check(
       (select email_confirmed_at from auth.users where id = u.id) is not null,
