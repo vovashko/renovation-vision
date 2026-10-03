@@ -36,6 +36,8 @@ const project = (patch: Partial<ProjectSummary> = {}): ProjectSummary => ({
   stages_total: 3,
   current_stage: "Tiling",
   manager_name: "Jonas Weber",
+  plan_image_path: null,
+  plan_image_opts: {},
   ...patch,
 });
 
@@ -56,6 +58,7 @@ const stage = (patch: Partial<Stage> & { name: string }): Stage => ({
   key: patch.name.toLowerCase(),
   status: "progress",
   progress: 50,
+  progress_mode: "manual",
   start_date: "2026-02-01",
   end_date: "2026-02-15",
   client_note: "",
@@ -86,6 +89,7 @@ const photo = (patch: Partial<Photo> & { caption: string }): Photo => ({
   project_id: "p1",
   stage_id: null,
   room_id: null,
+  progress_entry_id: null,
   storage_path: "path.jpg",
   alt: patch.caption,
   taken_at: "2026-02-10T00:00:00Z",
