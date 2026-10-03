@@ -95,5 +95,19 @@ select pg_temp.check(
   'the project target date is still ahead of current_date'
 );
 
+-- Site diary and plan image (T32): a mix of visible and internal entries, dated around today; no plan image.
+select pg_temp.check(
+  (select count(*) from public.progress_entries) = 5 and (select count(*) from public.progress_entries where is_visible) = 3,
+  'the diary has 5 entries, 3 visible to the client'
+);
+select pg_temp.check(
+  (select max(entry_date) from public.progress_entries) = current_date,
+  'the latest diary entry is dated today'
+);
+select pg_temp.check(
+  (select plan_image_path from public.projects where id = 'b0000000-0000-4000-8000-000000000001') is null,
+  'the demo project has no plan image'
+);
+
 select 'seed tests passed' as result;
 rollback;

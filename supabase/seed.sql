@@ -129,15 +129,23 @@ insert into public.rooms (id, project_id, key, name, status, progress, x, y, w, 
 
 -- ---------------------------------------------------------------------------
 -- Stages (2026 dates, same progress as the client app)
+--
+-- progress_mode follows the T32 backfill rule: 'tasks' only where the stored progress and status already
+-- equal what the checklist gives, so nothing jumps; the rest stay 'manual'.
+--   demo   3/3 tasks -> 100% done      = stored  -> tasks
+--   elec   3/3 tasks -> 100% done      = stored  -> tasks
+--   wall   2/4 tasks ->  50%           ≠ 65%     -> manual
+--   floor  1/3 tasks ->  33%           ≠ 20%     -> manual
+--   kitch  0/3, paint 0/3, final 0/1 -> 0% pending = stored -> tasks
 -- ---------------------------------------------------------------------------
-insert into public.stages (id, project_id, key, name, status, progress, start_date, end_date, sort_order) values
-  ('c0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'demo', 'Demolition', 'done', 100, '2026-03-02', '2026-03-14', 1),
-  ('c0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'elec', 'Electrical & Plumbing', 'done', 100, '2026-03-15', '2026-04-02', 2),
-  ('c0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'wall', 'Walls & Insulation', 'progress', 65, '2026-04-03', '2026-04-24', 3),
-  ('c0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'floor', 'Flooring', 'progress', 20, '2026-04-18', '2026-05-08', 4),
-  ('c0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'kitch', 'Kitchen Install', 'pending', 0, '2026-05-09', '2026-05-22', 5),
-  ('c0000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001', 'paint', 'Painting & Finishes', 'pending', 0, '2026-05-23', '2026-06-05', 6),
-  ('c0000000-0000-4000-8000-000000000007', 'b0000000-0000-4000-8000-000000000001', 'final', 'Final Inspection', 'pending', 0, '2026-06-06', '2026-06-10', 7);
+insert into public.stages (id, project_id, key, name, status, progress, progress_mode, start_date, end_date, sort_order) values
+  ('c0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'demo', 'Demolition', 'done', 100, 'tasks', '2026-03-02', '2026-03-14', 1),
+  ('c0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'elec', 'Electrical & Plumbing', 'done', 100, 'tasks', '2026-03-15', '2026-04-02', 2),
+  ('c0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'wall', 'Walls & Insulation', 'progress', 65, 'manual', '2026-04-03', '2026-04-24', 3),
+  ('c0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'floor', 'Flooring', 'progress', 20, 'manual', '2026-04-18', '2026-05-08', 4),
+  ('c0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'kitch', 'Kitchen Install', 'pending', 0, 'tasks', '2026-05-09', '2026-05-22', 5),
+  ('c0000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001', 'paint', 'Painting & Finishes', 'pending', 0, 'tasks', '2026-05-23', '2026-06-05', 6),
+  ('c0000000-0000-4000-8000-000000000007', 'b0000000-0000-4000-8000-000000000001', 'final', 'Final Inspection', 'pending', 0, 'tasks', '2026-06-06', '2026-06-10', 7);
 
 insert into public.tasks (project_id, stage_id, room_id, name, done, completed_at, sort_order)
 select 'b0000000-0000-4000-8000-000000000001', s.id, r.id, t.name, t.done,
@@ -188,6 +196,26 @@ from (values
 ) as p (id, file, stage_key, room_key, alt, caption, taken_at, status)
 join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' and s.key = p.stage_key
 join public.rooms r on r.project_id = 'b0000000-0000-4000-8000-000000000001' and r.key = p.room_key;
+
+-- ---------------------------------------------------------------------------
+-- Site diary (T32): visible entries reach the client; the others are the manager's own notes.
+-- The living-room drywall photo belongs to the Apr 20 entry. projects.plan_image_path stays null.
+-- ---------------------------------------------------------------------------
+insert into public.progress_entries (id, project_id, stage_id, room_id, entry_date, author_id, note, hours, is_visible, created_at)
+select e.id, 'b0000000-0000-4000-8000-000000000001', s.id, r.id, e.entry_date::date, 'a0000000-0000-4000-8000-000000000001',
+       e.note, e.hours, e.visible, e.created_at::timestamptz
+from (values
+  ('70000000-0000-4000-8000-000000000001'::uuid, '2026-04-20', 'wall', 'living', 'Drywall finished in the living room; taping and mudding started.', 7.5, true, '2026-04-20 16:30:00'),
+  ('70000000-0000-4000-8000-000000000002'::uuid, '2026-04-19', 'floor', 'bed1', 'Subfloor levelled in Bedroom 1. Oak planks delivered and stacked to acclimatise for 48 hours.', 6.0, true, '2026-04-19 16:45:00'),
+  ('70000000-0000-4000-8000-000000000003'::uuid, '2026-04-18', 'wall', 'bed2', 'Inspector visit moved again. Called the electrical office twice; Bedroom 2 walls stay open until sign-off.', 1.5, false, '2026-04-18 15:10:00'),
+  ('70000000-0000-4000-8000-000000000004'::uuid, '2026-04-17', 'wall', 'dining', 'Dining walls boarded and insulated behind the panels.', 8.0, true, '2026-04-17 16:20:00'),
+  ('70000000-0000-4000-8000-000000000005'::uuid, '2026-04-16', null, null, 'Skip swap was half a day late; crew sorted leftover drywall boards for return to BuildMart.', null, false, '2026-04-16 17:00:00')
+) as e (id, entry_date, stage_key, room_key, note, hours, visible, created_at)
+left join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' and s.key = e.stage_key
+left join public.rooms r on r.project_id = 'b0000000-0000-4000-8000-000000000001' and r.key = e.room_key;
+
+update public.photos set progress_entry_id = '70000000-0000-4000-8000-000000000001'
+where id = 'e0000000-0000-4000-8000-000000000001';
 
 -- ---------------------------------------------------------------------------
 -- Renders (Living Room carries the before/after pair)
@@ -296,6 +324,12 @@ where project_id = 'b0000000-0000-4000-8000-000000000001' and completed_at is no
 update public.photos set
   taken_at = taken_at + (current_date - date '2026-04-20') * interval '1 day',
   published_at = published_at + (current_date - date '2026-04-20') * interval '1 day'
+where project_id = 'b0000000-0000-4000-8000-000000000001';
+
+update public.progress_entries set
+  entry_date = entry_date + (current_date - date '2026-04-20'),
+  created_at = created_at + (current_date - date '2026-04-20') * interval '1 day',
+  updated_at = created_at + (current_date - date '2026-04-20') * interval '1 day'
 where project_id = 'b0000000-0000-4000-8000-000000000001';
 
 update public.expenses set
