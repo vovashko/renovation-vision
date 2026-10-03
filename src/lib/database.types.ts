@@ -12,6 +12,8 @@ export type Enums<T extends keyof Database["public"]["Enums"]> = Database["publi
 export type ProjectRole = Enums<"project_role">;
 export type ScheduleStatus = Enums<"schedule_status">;
 export type PhotoStatus = Enums<"photo_status">;
+/** `tasks`: a stage's progress and status follow its checklist (database triggers); `manual`: set by hand. */
+export type ProgressMode = Enums<"progress_mode">;
 export type NotificationChannel = Enums<"notification_channel">;
 export type NotificationFrequency = Enums<"notification_frequency">;
 export type CostCategory = Enums<"cost_category">;
@@ -56,7 +58,13 @@ export type ProjectSummary = Project & {
   manager_name: SummaryView["manager_name"];
   /** The primary client contact's name. Null for clients (they can't read contacts) and when there is none. */
   client_display_name: SummaryView["client_display_name"];
+  /** The floor plan's background image in `project-media` (`<project_id>/plans/<file>`), or null. */
+  plan_image_path: SummaryView["plan_image_path"];
+  plan_image_opts: PlanImageOpts;
 };
+
+/** How the plan background is drawn under the rooms (`projects.plan_image_opts`); every key is optional. */
+export type PlanImageOpts = { opacity?: number; scale?: number; x?: number; y?: number };
 
 export type ProjectInternal = Pick<Tables<"project_internal">, "project_id" | "internal_budget_notes" | "updated_at">;
 
@@ -94,12 +102,40 @@ export type Task = Pick<Tables<"tasks">, "id" | "project_id" | "stage_id" | "roo
 
 export type Stage = Pick<
   Tables<"stages">,
-  "id" | "project_id" | "key" | "name" | "status" | "progress" | "start_date" | "end_date" | "client_note" | "sort_order" | "is_visible"
+  | "id"
+  | "project_id"
+  | "key"
+  | "name"
+  | "status"
+  | "progress"
+  | "progress_mode"
+  | "start_date"
+  | "end_date"
+  | "client_note"
+  | "sort_order"
+  | "is_visible"
 > & { tasks: Task[] };
+
+/** A site diary entry. Clients read only `is_visible` entries of their own project (RLS). */
+export type ProgressEntry = Pick<
+  Tables<"progress_entries">,
+  "id" | "project_id" | "stage_id" | "room_id" | "entry_date" | "author_id" | "note" | "hours" | "is_visible" | "created_at" | "updated_at"
+>;
 
 export type Photo = Pick<
   Tables<"photos">,
-  "id" | "project_id" | "stage_id" | "room_id" | "storage_path" | "alt" | "caption" | "taken_at" | "uploaded_by" | "status" | "published_at"
+  | "id"
+  | "project_id"
+  | "stage_id"
+  | "room_id"
+  | "progress_entry_id"
+  | "storage_path"
+  | "alt"
+  | "caption"
+  | "taken_at"
+  | "uploaded_by"
+  | "status"
+  | "published_at"
 > & {
   /** Signed URL, resolved by the API layer. */
   url: string;

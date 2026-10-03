@@ -305,16 +305,22 @@ isOneToOne: false
                   ]
                 },"photos": {
                   Row: {
-                    "alt": string,"caption": string,"created_at": string,"id": string,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at": string,"updated_at": string,"uploaded_by": string | null
+                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at": string,"updated_at": string,"uploaded_by": string | null
                   }
                   Insert: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Update: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "photos_progress_entry_id_fkey"
+      columns: ["progress_entry_id"]
+isOneToOne: false
+      referencedRelation: "progress_entries"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "photos_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
@@ -358,6 +364,49 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"progress_entries": {
+                  Row: {
+                    "author_id": string | null,"created_at": string,"entry_date": string,"hours": number | null,"id": string,"is_visible": boolean,"note": string,"project_id": string,"room_id": string | null,"stage_id": string | null,"updated_at": string
+                  }
+                  Insert: {
+                    "author_id"?: string | null,"created_at"?: string,"entry_date"?: string,"hours"?: number | null,"id"?: string,"is_visible"?: boolean,"note": string,"project_id": string,"room_id"?: string | null,"stage_id"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "author_id"?: string | null,"created_at"?: string,"entry_date"?: string,"hours"?: number | null,"id"?: string,"is_visible"?: boolean,"note"?: string,"project_id"?: string,"room_id"?: string | null,"stage_id"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "progress_entries_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "progress_entries_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "progress_entries_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "progress_entries_room_id_fkey"
+      columns: ["room_id"]
+isOneToOne: false
+      referencedRelation: "rooms"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "progress_entries_stage_id_fkey"
+      columns: ["stage_id"]
+isOneToOne: false
+      referencedRelation: "stages"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"project_contacts": {
                   Row: {
@@ -448,13 +497,13 @@ isOneToOne: false
                   ]
                 },"projects": {
                   Row: {
-                    "address": string | null,"address_line": string,"budget": number,"city": string,"country": string,"created_at": string,"created_by": string | null,"currency": string,"id": string,"name": string,"postal_code": string,"schedule_note": string,"schedule_status": Database["public"]['Enums']["schedule_status"],"spent": number,"start_date": string | null,"status": Database["public"]['Enums']["project_status"],"target_date": string | null,"updated_at": string
+                    "address": string | null,"address_line": string,"budget": number,"city": string,"country": string,"created_at": string,"created_by": string | null,"currency": string,"id": string,"name": string,"plan_image_opts": NonNullable<Json>,"plan_image_path": string | null,"postal_code": string,"schedule_note": string,"schedule_status": Database["public"]['Enums']["schedule_status"],"spent": number,"start_date": string | null,"status": Database["public"]['Enums']["project_status"],"target_date": string | null,"updated_at": string
                   }
                   Insert: {
-                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name": string,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
+                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name": string,"plan_image_opts"?: NonNullable<Json>,"plan_image_path"?: string | null,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name"?: string,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
+                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name"?: string,"plan_image_opts"?: NonNullable<Json>,"plan_image_path"?: string | null,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -554,13 +603,13 @@ isOneToOne: true
                   ]
                 },"stages": {
                   Row: {
-                    "client_note": string,"created_at": string,"end_date": string,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"project_id": string,"sort_order": number,"start_date": string,"status": Database["public"]['Enums']["work_status"],"updated_at": string
+                    "client_note": string,"created_at": string,"end_date": string,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"progress_mode": Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order": number,"start_date": string,"status": Database["public"]['Enums']["work_status"],"updated_at": string
                   }
                   Insert: {
-                    "client_note"?: string,"created_at"?: string,"end_date": string,"id"?: string,"is_visible"?: boolean,"key": string,"name": string,"progress"?: number,"project_id": string,"sort_order"?: number,"start_date": string,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string
+                    "client_note"?: string,"created_at"?: string,"end_date": string,"id"?: string,"is_visible"?: boolean,"key": string,"name": string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order"?: number,"start_date": string,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string
                   }
                   Update: {
-                    "client_note"?: string,"created_at"?: string,"end_date"?: string,"id"?: string,"is_visible"?: boolean,"key"?: string,"name"?: string,"progress"?: number,"project_id"?: string,"sort_order"?: number,"start_date"?: string,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string
+                    "client_note"?: string,"created_at"?: string,"end_date"?: string,"id"?: string,"is_visible"?: boolean,"key"?: string,"name"?: string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id"?: string,"sort_order"?: number,"start_date"?: string,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -619,7 +668,7 @@ isOneToOne: false
           Views: {
             "project_summary": {
                   Row: {
-                    "address": string | null,"address_line": string | null,"budget": number | null,"city": string | null,"client_display_name": string | null,"country": string | null,"created_at": string | null,"currency": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"postal_code": string | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"status": Database["public"]['Enums']["project_status"] | null,"target_date": string | null,"updated_at": string | null
+                    "address": string | null,"address_line": string | null,"budget": number | null,"city": string | null,"client_display_name": string | null,"country": string | null,"created_at": string | null,"currency": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"plan_image_opts": Json | null,"plan_image_path": string | null,"postal_code": string | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"status": Database["public"]['Enums']["project_status"] | null,"target_date": string | null,"updated_at": string | null
                   }
                   Relationships: [
                     
@@ -659,6 +708,9 @@ isOneToOne: true
 { Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
                            },
 "import_materials":
+{ Args: { "p_project": string,"p_rows": Json }; Returns: Json
+                           },
+"import_stages":
 { Args: { "p_project": string,"p_rows": Json }; Returns: Json
                            },
 "is_project_client":
@@ -701,7 +753,7 @@ isOneToOne: true
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -817,7 +869,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const

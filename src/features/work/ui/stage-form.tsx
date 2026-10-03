@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FieldGroup } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { statuses, type Status } from "@/domain/status";
-import { progressForStatus, statusForProgress } from "@/domain/progress";
+import { deriveFromTasks, progressForStatus, statusForProgress } from "@/domain/progress";
 import { slugify } from "@/domain/text";
 import { useStatusLabel } from "@/i18n";
 import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
@@ -18,11 +18,13 @@ import { useConfirm } from "@/shared/ui/use-confirm";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { stageFormSchema, type StageFormValues } from "../domain/schemas";
 import { useDeleteStage, useSaveStage } from "../hooks/mutations";
-import type { Room, Stage } from "@/lib/database.types";
+import { ProgressModeControl, TaskDerivedProgress } from "./stage-progress-mode";
+import type { ProgressMode, Room, Stage } from "@/lib/database.types";
 import type { StageInput } from "../data/work.repo";
 
 const emptyStage: StageFormValues = {
   name: "",
+  progress_mode: "tasks",
   status: "pending",
   progress: 0,
   start_date: "",
@@ -31,7 +33,11 @@ const emptyStage: StageFormValues = {
   is_visible: true,
 };
 
-/** Add/edit sheet for a stage: RHF + zod, `@/domain/progress` keeps status and the slider in sync. */
+/**
+ * Add/edit sheet for a stage: RHF + zod. In `tasks` progress mode, progress and status are computed from the
+ * checklist (`deriveFromTasks`, mirroring the database) and shown read-only, with only "blocked" set by hand;
+ * in `manual` mode `@/domain/progress` keeps the status picker and the slider in sync.
+ */
 export function StageFormSheet({
   projectId,
   stage,
@@ -53,11 +59,15 @@ export function StageFormSheet({
   const save = useSaveStage(projectId);
   const remove = useDeleteStage(projectId);
   const progress = form.watch("progress");
+  const status = form.watch("status");
+  const mode = form.watch("progress_mode");
+  const tasks = stage && stage !== "new" ? stage.tasks : [];
+  const tasksDone = tasks.filter((t2) => t2.done).length;
 
   useEffect(() => {
     if (stage && stage !== "new") {
-      const { name, status, progress: p, start_date, end_date, client_note, is_visible } = stage;
-      form.reset({ name, status, progress: p, start_date, end_date, client_note: client_note ?? "", is_visible });
+      const { name, progress_mode, status: s, progress: p, start_date, end_date, client_note, is_visible } = stage;
+      form.reset({ name, progress_mode, status: s, progress: p, start_date, end_date, client_note: client_note ?? "", is_visible });
     } else if (isNew) {
       form.reset(emptyStage);
     }
@@ -72,6 +82,17 @@ export function StageFormSheet({
     form.setValue("progress", value, { shouldValidate: true });
     form.setValue("status", statusForProgress(form.getValues("status"), value), { shouldValidate: true });
   };
+  // Tasks mode: the computed values, so the form shows (and sends) what the database will store.
+  const applyDerived = (base: Status) => {
+    const derived = deriveFromTasks(base, tasksDone, tasks.length);
+    form.setValue("status", derived.status, { shouldValidate: true });
+    form.setValue("progress", derived.progress, { shouldValidate: true });
+  };
+  const setMode = (next: ProgressMode) => {
+    form.setValue("progress_mode", next, { shouldDirty: true });
+    if (next === "tasks") applyDerived(form.getValues("status"));
+  };
+  const setBlocked = (blocked: boolean) => applyDerived(blocked ? "blocked" : "pending");
 
   const roomNames =
     stage && stage !== "new" ? [...new Set(stage.tasks.map((t2) => rooms.find((r) => r.id === t2.room_id)?.name).filter(Boolean))] : [];
@@ -113,30 +134,37 @@ export function StageFormSheet({
               {(field) => <Input {...field} type="date" className="h-11" />}
             </FormField>
           </div>
-          <FormField control={form.control} name="status" label={t("work:stageForm.status")}>
-            {(field) => (
-              <NativeSelect {...field} onChange={(e) => setStatus(e.target.value as Status)}>
-                {statuses.map((s) => (
-                  <NativeSelectOption key={s} value={s}>
-                    {statusLabel(s)}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            )}
-          </FormField>
-          <FormField control={form.control} name="progress" label={t("work:stageForm.progress", { pct: progress })}>
-            {(field) => (
-              <Slider
-                id={field.id}
-                min={0}
-                max={100}
-                step={5}
-                value={[field.value]}
-                onValueChange={([v]) => setProgress(v)}
-                className="py-3"
-              />
-            )}
-          </FormField>
+          <ProgressModeControl value={mode} onChange={setMode} />
+          {mode === "tasks" ? (
+            <TaskDerivedProgress status={status} progress={progress} done={tasksDone} total={tasks.length} onBlockedChange={setBlocked} />
+          ) : (
+            <>
+              <FormField control={form.control} name="status" label={t("work:stageForm.status")}>
+                {(field) => (
+                  <NativeSelect {...field} onChange={(e) => setStatus(e.target.value as Status)}>
+                    {statuses.map((s) => (
+                      <NativeSelectOption key={s} value={s}>
+                        {statusLabel(s)}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                )}
+              </FormField>
+              <FormField control={form.control} name="progress" label={t("work:stageForm.progress", { pct: progress })}>
+                {(field) => (
+                  <Slider
+                    id={field.id}
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={[field.value]}
+                    onValueChange={([v]) => setProgress(v)}
+                    className="py-3"
+                  />
+                )}
+              </FormField>
+            </>
+          )}
           <FormField control={form.control} name="client_note" label={t("work:stageForm.note")}>
             {(field) => <Textarea {...field} />}
           </FormField>

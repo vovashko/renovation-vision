@@ -149,28 +149,33 @@ function ProgressPage() {
                           onAdd={({ name, room_id }) => saveTask.mutate({ stage_id: s.id, name, room_id, sort_order: s.tasks.length + 1 })}
                         />
                       )}
-                      {isManager && fromChecklist !== null && fromChecklist !== s.progress && s.status !== "done" && (
-                        <Note size="sm" className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                          <span>
-                            {t("work:stageRow.checklistMismatch", {
-                              done,
-                              total: s.tasks.length,
-                              pct: fromChecklist,
-                              progress: s.progress,
-                            })}
-                          </span>
-                          <button
-                            type="button"
-                            className="font-medium text-primary hover:underline"
-                            onClick={() => {
-                              const progress = Math.min(fromChecklist, 99);
-                              saveStage.mutate({ id: s.id, progress, status: deriveStatus(s.status, progress) });
-                            }}
-                          >
-                            {t("work:stageRow.useChecklistPct", { pct: Math.min(fromChecklist, 99) })}
-                          </button>
-                        </Note>
-                      )}
+                      {/* Tasks-mode stages follow their checklist already (database triggers); only manual ones can drift. */}
+                      {isManager &&
+                        s.progress_mode === "manual" &&
+                        fromChecklist !== null &&
+                        fromChecklist !== s.progress &&
+                        s.status !== "done" && (
+                          <Note size="sm" className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                            <span>
+                              {t("work:stageRow.checklistMismatch", {
+                                done,
+                                total: s.tasks.length,
+                                pct: fromChecklist,
+                                progress: s.progress,
+                              })}
+                            </span>
+                            <button
+                              type="button"
+                              className="font-medium text-primary hover:underline"
+                              onClick={() => {
+                                const progress = Math.min(fromChecklist, 99);
+                                saveStage.mutate({ id: s.id, progress, status: deriveStatus(s.status, progress) });
+                              }}
+                            >
+                              {t("work:stageRow.useChecklistPct", { pct: Math.min(fromChecklist, 99) })}
+                            </button>
+                          </Note>
+                        )}
                       {s.client_note && (
                         <p className="mt-3 text-body-md text-on-surface-variant">
                           {isManager && t("work:stageRow.noteForClient")}

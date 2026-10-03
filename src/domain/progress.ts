@@ -28,3 +28,25 @@ export function progressForStatus(status: Status, progress: number): number {
   if (progress <= 0) return 5;
   return progress;
 }
+
+/**
+ * A checklist's completion, as the database computes it for a stage in `tasks` progress mode
+ * (`private.stage_task_progress`): `round(100 * done / total)`, 0 with no tasks, and never 0% or 100% by
+ * rounding alone, so 100% always means every task is done.
+ */
+export function taskProgress(done: number, total: number): number {
+  if (total <= 0 || done <= 0) return 0;
+  if (done >= total) return 100;
+  return Math.min(99, Math.max(1, Math.round((100 * done) / total)));
+}
+
+/**
+ * The progress and status of a stage in `tasks` mode, mirroring the database (`private.stage_derived`):
+ * status follows the checklist (0% pending, 1–99% in progress, 100% done), except that `blocked` is never
+ * overridden; while blocked, progress is capped at 99% so it can't mean "done".
+ */
+export function deriveFromTasks(stored: Status, done: number, total: number): { progress: number; status: Status } {
+  const progress = taskProgress(done, total);
+  if (stored === "blocked") return { progress: Math.min(progress, 99), status: "blocked" };
+  return { progress, status: progress === 0 ? "pending" : progress === 100 ? "done" : "progress" };
+}

@@ -35,6 +35,8 @@ const project = (currency: string): ProjectSummary => ({
   current_stage: "Walls & Insulation",
   manager_name: "Jonas Weber",
   client_display_name: null,
+  plan_image_path: null,
+  plan_image_opts: {},
 });
 
 const expense: Expense = {
