@@ -47,4 +47,16 @@ describe("vite.config.ts", () => {
     const source = readFileSync(`${root}vite.config.ts`, "utf8");
     expect(source).toContain("virtualRouteConfig");
   });
+
+  it("selects the Wrangler environment at build time in the deploy scripts", () => {
+    // @cloudflare/vite-plugin bakes the environment into dist/server/wrangler.json at build time; a build without
+    // CLOUDFLARE_ENV deploys the top-level config under the production name, whatever `--env` says.
+    const scripts = (JSON.parse(readFileSync(`${root}package.json`, "utf8")) as { scripts: Record<string, string> }).scripts;
+    expect(scripts["deploy:preview"]).toMatch(/^CLOUDFLARE_ENV=preview bun run build && .*wrangler deploy$/);
+    expect(scripts["deploy"]).toMatch(/^CLOUDFLARE_ENV=production bun run build && .*wrangler deploy$/);
+    for (const script of [scripts["deploy:preview"], scripts["deploy"]]) {
+      expect(script).toContain("strip-sourcemaps");
+      expect(script).not.toContain("--env");
+    }
+  });
 });
