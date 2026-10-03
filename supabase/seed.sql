@@ -202,20 +202,57 @@ insert into public.renders (id, project_id, room_id, storage_path, alt, title, d
 -- Expenses — sum to $51,200 (projects.spent)
 -- ---------------------------------------------------------------------------
 insert into public.expenses (project_id, stage_id, category, description, vendor, vendor_notes, amount, spent_on, created_by)
-select 'b0000000-0000-4000-8000-000000000001', s.id, e.category, e.description, e.vendor, e.notes, e.amount, e.spent_on::date,
+select 'b0000000-0000-4000-8000-000000000001', s.id, e.category::public.cost_category, e.description, e.vendor, e.notes, e.amount, e.spent_on::date,
        'a0000000-0000-4000-8000-000000000001'
 from (values
-  ('demo', 'Labour', 'Demolition crew (2 weeks)', 'Hansen Demolition', 'Fixed price. Invoice paid on completion.', 6800.00, '2026-03-14'),
-  ('demo', 'Disposal', 'Skip hire and debris disposal', 'CityWaste', 'Two skips; second one was a same-day swap.', 950.00, '2026-03-12'),
-  ('elec', 'Labour', 'New circuit panel and rewiring', 'Brightline Electric', 'Contact: Marek (+1 555 0142). Re-inspection of Bedroom 2 circuit included in price.', 12400.00, '2026-04-02'),
-  ('elec', 'Labour', 'Bathroom plumbing re-route', 'FlowRight Plumbing', 'Warranty 5 years on new runs. Ask for pressure-test certificate.', 8900.00, '2026-03-30'),
-  ('elec', 'Permits', 'Electrical permit and inspection fees', 'City Building Dept.', 'Inspection #EL-2291. Follow-up slot requested for Bedroom 2.', 1250.00, '2026-03-16'),
-  ('wall', 'Materials', 'Drywall boards and insulation', 'BuildMart', 'Trade account discount 8%. Leftover boards returnable until May 15.', 7300.00, '2026-04-04'),
-  ('wall', 'Labour', 'Drywall installation', 'Hansen Demolition', 'Same crew as demolition; day rate $700.', 5600.00, '2026-04-17'),
-  ('floor', 'Materials', 'Oak planks (68 m²)', 'Nordic Oak Supply', 'Came in $350 under quote. Keep 2 spare boxes for repairs.', 6450.00, '2026-04-19'),
-  ('floor', 'Materials', 'Levelling compound and subfloor prep', 'BuildMart', '', 1550.00, '2026-04-18')
+  ('demo', 'labour', 'Demolition crew (2 weeks)', 'Hansen Demolition', 'Fixed price. Invoice paid on completion.', 6800.00, '2026-03-14'),
+  ('demo', 'disposal', 'Skip hire and debris disposal', 'CityWaste', 'Two skips; second one was a same-day swap.', 950.00, '2026-03-12'),
+  ('elec', 'labour', 'New circuit panel and rewiring', 'Brightline Electric', 'Contact: Marek (+1 555 0142). Re-inspection of Bedroom 2 circuit included in price.', 12400.00, '2026-04-02'),
+  ('elec', 'labour', 'Bathroom plumbing re-route', 'FlowRight Plumbing', 'Warranty 5 years on new runs. Ask for pressure-test certificate.', 8900.00, '2026-03-30'),
+  ('elec', 'permits', 'Electrical permit and inspection fees', 'City Building Dept.', 'Inspection #EL-2291. Follow-up slot requested for Bedroom 2.', 1250.00, '2026-03-16'),
+  ('wall', 'materials', 'Drywall boards and insulation', 'BuildMart', 'Trade account discount 8%. Leftover boards returnable until May 15.', 7300.00, '2026-04-04'),
+  ('wall', 'labour', 'Drywall installation', 'Hansen Demolition', 'Same crew as demolition; day rate $700.', 5600.00, '2026-04-17'),
+  ('floor', 'materials', 'Oak planks (68 m²)', 'Nordic Oak Supply', 'Came in $350 under quote. Keep 2 spare boxes for repairs.', 6450.00, '2026-04-19'),
+  ('floor', 'materials', 'Levelling compound and subfloor prep', 'BuildMart', '', 1550.00, '2026-04-18')
 ) as e (stage_key, category, description, vendor, notes, amount, spent_on)
 join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' and s.key = e.stage_key;
+
+-- ---------------------------------------------------------------------------
+-- Planned cost per stage (manager-only, stage_budgets) and materials (T31). The planned costs total
+-- 83 000 of the 84 500 budget; Electrical & Plumbing is 550 over. stage_costs then shows, e.g.,
+-- Flooring: planned 13 500, spent 8 000, committed 2 572.50 (skirting ordered, tiles delivered; the
+-- oak planks are paid through their expense, so they count once), remaining 2 927.50.
+-- ---------------------------------------------------------------------------
+insert into public.stage_budgets (stage_id, project_id, planned_cost)
+select s.id, s.project_id, b.planned
+from (values
+  ('demo', 8000.00), ('elec', 22000.00), ('wall', 14500.00), ('floor', 13500.00),
+  ('kitch', 17500.00), ('paint', 6000.00), ('final', 1500.00)
+) as b (stage_key, planned)
+join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' and s.key = b.stage_key;
+
+-- A supplier in the address book (not linked to the project's contacts).
+insert into public.contacts (id, kind, full_name, company, trade, phone, email, created_by) values
+  ('10000000-0000-4000-8000-000000000007', 'supplier', 'Piotr Lis', 'Nordic Oak Supply', 'Timber & flooring', '+1 555 0151', 'orders@example.com', 'a0000000-0000-4000-8000-000000000001');
+
+insert into public.materials (id, project_id, stage_id, room_id, name, supplier_contact_id, quantity, unit, unit_price, status, expense_id, notes, created_by)
+select m.id, 'b0000000-0000-4000-8000-000000000001', s.id, r.id, m.name, m.supplier::uuid, m.quantity, m.unit, m.unit_price,
+       m.status::public.material_status,
+       (select e.id from public.expenses e
+         where e.project_id = 'b0000000-0000-4000-8000-000000000001' and e.description = m.expense),
+       m.notes, 'a0000000-0000-4000-8000-000000000001'
+from (values
+  ('20000000-0000-4000-8000-000000000001'::uuid, 'floor', null, 'Oak planks', '10000000-0000-4000-8000-000000000007', 68.000, 'm2', 94.85, 'delivered', 'Oak planks (68 m²)', 'Two spare boxes kept for repairs.'),
+  ('20000000-0000-4000-8000-000000000002'::uuid, 'floor', null, 'Oak skirting boards', '10000000-0000-4000-8000-000000000007', 42.000, 'm', 18.50, 'ordered', null, ''),
+  ('20000000-0000-4000-8000-000000000003'::uuid, 'floor', 'bath', 'Sage zellige wall tiles', null, 9.500, 'm2', 189.00, 'delivered', null, 'Invoice to follow with the adhesive.'),
+  ('20000000-0000-4000-8000-000000000004'::uuid, 'floor', 'bath', 'Tile adhesive and grout', null, 6.000, 'bag', 42.00, 'planned', null, ''),
+  ('20000000-0000-4000-8000-000000000005'::uuid, 'kitch', 'kitchen', 'Kitchen cabinets (matte white)', null, 1.000, 'set', 14800.00, 'ordered', null, '30% deposit due May 1.'),
+  ('20000000-0000-4000-8000-000000000006'::uuid, 'kitch', 'kitchen', 'Quartz worktop', null, 1.000, 'pcs', 3900.00, 'planned', null, 'Templated once the cabinets are fixed.'),
+  ('20000000-0000-4000-8000-000000000007'::uuid, 'paint', null, 'Wall paint (soft white)', null, 24.000, 'l', 38.00, 'planned', null, ''),
+  ('20000000-0000-4000-8000-000000000008'::uuid, 'wall', null, 'Drywall boards (12.5 mm)', null, 160.000, 'pcs', 28.50, 'installed', 'Drywall boards and insulation', '')
+) as m (id, stage_key, room_key, name, supplier, quantity, unit, unit_price, status, expense, notes)
+join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' and s.key = m.stage_key
+left join public.rooms r on r.project_id = 'b0000000-0000-4000-8000-000000000001' and r.key = m.room_key;
 
 -- ---------------------------------------------------------------------------
 -- Chat (same conversation as the client app; "me" = Sarah)
