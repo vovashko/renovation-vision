@@ -7,13 +7,13 @@ export type Database = {
           Tables: {
             "activity_log": {
                   Row: {
-                    "action": string,"actor_id": string | null,"changes": NonNullable<Json>,"created_at": string,"entity_id": string | null,"entity_type": string,"id": number,"project_id": string,"summary": string
+                    "action": string,"actor_id": string | null,"changes": NonNullable<Json>,"created_at": string,"entity_id": string | null,"entity_type": string,"id": number,"params": NonNullable<Json>,"project_id": string,"summary": string
                   }
                   Insert: {
-                    "action": string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type": string,"id"?: never,"project_id": string,"summary": string
+                    "action": string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type": string,"id"?: never,"params"?: NonNullable<Json>,"project_id": string,"summary": string
                   }
                   Update: {
-                    "action"?: string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type"?: string,"id"?: never,"project_id"?: string,"summary"?: string
+                    "action"?: string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type"?: string,"id"?: never,"params"?: NonNullable<Json>,"project_id"?: string,"summary"?: string
                   }
                   Relationships: [
                     
@@ -49,6 +49,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"consents": {
+                  Row: {
+                    "granted_at": string,"id": string,"kind": string,"user_id": string,"version": string
+                  }
+                  Insert: {
+                    "granted_at"?: string,"id"?: string,"kind": string,"user_id"?: string,"version": string
+                  }
+                  Update: {
+                    "granted_at"?: string,"id"?: string,"kind"?: string,"user_id"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "consents_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"contacts": {
                   Row: {
                     "company": string | null,"created_at": string,"created_by": string | null,"email": string | null,"full_name": string,"id": string,"kind": Database["public"]['Enums']["contact_kind"],"notes": string | null,"phone": string | null,"trade": string | null,"updated_at": string,"user_id": string | null,"whatsapp": string | null
@@ -68,25 +87,6 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "contacts_user_id_fkey"
-      columns: ["user_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
-                },"consents": {
-                  Row: {
-    "granted_at": string,"id": string,"kind": string,"user_id": string,"version": string
-                  }
-                  Insert: {
-    "granted_at"?: string,"id"?: string,"kind": string,"user_id"?: string,"version": string
-                  }
-                  Update: {
-    "granted_at"?: string,"id"?: string,"kind"?: string,"user_id"?: string,"version"?: string
-                  }
-                  Relationships: [
-    {
-      foreignKeyName: "consents_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"
@@ -130,15 +130,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"messages": {
+                },"invitations": {
                   Row: {
-                    "attachment_path": string | null,"body": string,"created_at": string,"edited_at": string | null,"id": string,"project_id": string,"sender_id": string
+                    "accepted_at": string | null,"created_at": string,"email": string,"expires_at": string,"id": string,"invited_by": string | null,"project_id": string | null,"revoked_at": string | null,"role": Database["public"]['Enums']["project_role"],"token_hash": string
                   }
                   Insert: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id": string,"sender_id"?: string
+                    "accepted_at"?: string | null,"created_at"?: string,"email": string,"expires_at": string,"id"?: string,"invited_by"?: string | null,"project_id"?: string | null,"revoked_at"?: string | null,"role": Database["public"]['Enums']["project_role"],"token_hash": string
                   }
                   Update: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id"?: string,"sender_id"?: string
+                    "accepted_at"?: string | null,"created_at"?: string,"email"?: string,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"project_id"?: string | null,"revoked_at"?: string | null,"role"?: Database["public"]['Enums']["project_role"],"token_hash"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "invitations_invited_by_fkey"
+      columns: ["invited_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invitations_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invitations_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"messages": {
+                  Row: {
+                    "attachment_path": string | null,"body": string,"created_at": string,"edited_at": string | null,"id": string,"project_id": string,"sender_id": string | null
+                  }
+                  Insert: {
+                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id": string,"sender_id"?: string | null
+                  }
+                  Update: {
+                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id"?: string,"sender_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -161,15 +192,34 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"notifications": {
+                },"notification_preferences": {
                   Row: {
-                    "body": string,"created_at": string,"created_by": string | null,"entity_id": string | null,"entity_type": string | null,"id": string,"kind": string,"link": string | null,"project_id": string,"read_at": string | null,"recipient_id": string,"title": string
+                    "channel": Database["public"]['Enums']["notification_channel"],"frequency": Database["public"]['Enums']["notification_frequency"],"kind": string,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"project_id": string,"read_at"?: string | null,"recipient_id": string,"title": string
+                    "channel": Database["public"]['Enums']["notification_channel"],"frequency": Database["public"]['Enums']["notification_frequency"],"kind": string,"updated_at"?: string,"user_id"?: string
                   }
                   Update: {
-                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"project_id"?: string,"read_at"?: string | null,"recipient_id"?: string,"title"?: string
+                    "channel"?: Database["public"]['Enums']["notification_channel"],"frequency"?: Database["public"]['Enums']["notification_frequency"],"kind"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notification_preferences_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notifications": {
+                  Row: {
+                    "body": string,"created_at": string,"created_by": string | null,"emailed_at": string | null,"entity_id": string | null,"entity_type": string | null,"id": string,"kind": string,"link": string | null,"params": NonNullable<Json>,"project_id": string,"read_at": string | null,"recipient_id": string,"title": string
+                  }
+                  Insert: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"emailed_at"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"params"?: NonNullable<Json>,"project_id": string,"read_at"?: string | null,"recipient_id": string,"title": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"emailed_at"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"params"?: NonNullable<Json>,"project_id"?: string,"read_at"?: string | null,"recipient_id"?: string,"title"?: string
                   }
                   Relationships: [
                     {
@@ -243,13 +293,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "account_type": Database["public"]['Enums']["account_type"],"avatar_url": string | null,"created_at": string,"full_name": string,"id": string,"updated_at": string
+                    "account_type": Database["public"]['Enums']["account_type"],"avatar_url": string | null,"created_at": string,"full_name": string,"id": string,"locale": string,"phone": string | null,"updated_at": string
                   }
                   Insert: {
-                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id": string,"updated_at"?: string
+                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id": string,"locale"?: string,"phone"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id"?: string,"updated_at"?: string
+                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id"?: string,"locale"?: string,"phone"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -512,6 +562,9 @@ isOneToOne: false
 "mark_notifications_read":
 { Args: { "p_ids"?: (string)[] }; Returns: undefined
                            },
+"notification_pref":
+{ Args: { "p_channel": Database["public"]['Enums']["notification_channel"],"p_kind": string,"p_user": string }; Returns: Database["public"]['Enums']["notification_frequency"]
+                           },
 "notify_project_clients":
 { Args: { "p_body": string,"p_link"?: string,"p_project": string,"p_title": string }; Returns: undefined
                            },
@@ -534,7 +587,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-  "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -654,3 +707,4 @@ export const Constants = {
           }
         }
 } as const
+

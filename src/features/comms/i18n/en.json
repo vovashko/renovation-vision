@@ -105,7 +105,10 @@
       "render": "render",
       "expense": "expense",
       "ai_knowledge": "AI knowledge entry",
-      "crew_member": "crew member"
+      "crew_member": "crew member",
+      "client_contact": "client contact",
+      "point_of_contact": "point of contact",
+      "contact": "contact"
     },
     "plain": {
       "insert": "Added {{entity}}",
