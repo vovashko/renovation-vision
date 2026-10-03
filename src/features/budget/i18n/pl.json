@@ -57,11 +57,11 @@
     "deleteConfirmTitle": "Usunąć ten wydatek?"
   },
   "category": {
-    "Labour": "Robocizna",
-    "Materials": "Materiały",
-    "Permits": "Pozwolenia",
-    "Disposal": "Utylizacja",
-    "Equipment": "Sprzęt",
-    "Other": "Inne"
+    "labour": "Robocizna",
+    "materials": "Materiały",
+    "permits": "Pozwolenia",
+    "disposal": "Utylizacja",
+    "equipment": "Sprzęt",
+    "other": "Inne"
   }
 }

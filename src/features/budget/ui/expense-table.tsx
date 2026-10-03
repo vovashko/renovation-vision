@@ -35,7 +35,7 @@ export function ExpenseTable({
         <>
           <div className="font-medium">{e.description}</div>
           <div className="text-body-sm text-on-surface-variant">
-            {t(`budget:category.${e.category}`, { defaultValue: e.category })}
+            {t(`budget:category.${e.category}`)}
             {e.vendor_notes ? ` · ${e.vendor_notes}` : ""}
           </div>
         </>

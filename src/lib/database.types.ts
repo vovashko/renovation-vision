@@ -16,6 +16,8 @@ export type PhotoStatus = Enums<"photo_status">;
 export type ProgressMode = Enums<"progress_mode">;
 export type NotificationChannel = Enums<"notification_channel">;
 export type NotificationFrequency = Enums<"notification_frequency">;
+export type CostCategory = Enums<"cost_category">;
+export type MaterialStatus = Enums<"material_status">;
 
 export type Profile = Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "account_type">;
 
@@ -148,6 +150,33 @@ export type Expense = Pick<
   Tables<"expenses">,
   "id" | "project_id" | "stage_id" | "category" | "description" | "vendor" | "vendor_notes" | "amount" | "spent_on" | "receipt_path"
 >;
+
+/** A stage's planned cost (one row per stage). Managers of the project only; clients never see it. */
+export type StageBudget = Pick<Tables<"stage_budgets">, "stage_id" | "project_id" | "planned_cost">;
+
+/** Something the project buys. Managers of the project only (internal, like expenses). */
+export type Material = Pick<
+  Tables<"materials">,
+  | "id"
+  | "project_id"
+  | "stage_id"
+  | "room_id"
+  | "name"
+  | "supplier_contact_id"
+  | "quantity"
+  | "unit"
+  | "unit_price"
+  | "status"
+  | "expense_id"
+  | "progress_entry_id"
+  | "notes"
+  | "created_at"
+>;
+
+// Postgres marks every view column nullable; stage_costs starts from stage_budgets and coalesces its sums.
+type StageCostsView = Views<"stage_costs">;
+/** Planned, spent, committed (ordered/delivered materials not yet linked to an expense) and remaining, per stage. */
+export type StageCost = { [K in keyof StageCostsView]: NonNullable<StageCostsView[K]> };
 
 /** `sender_id` is null once the sender's account was deleted (shown as "Former member"). */
 export type Message = Pick<Tables<"messages">, "id" | "project_id" | "sender_id" | "body" | "attachment_path" | "created_at"> & {

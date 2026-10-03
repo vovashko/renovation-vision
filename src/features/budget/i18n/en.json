@@ -57,11 +57,11 @@
     "deleteConfirmTitle": "Delete this expense?"
   },
   "category": {
-    "Labour": "Labour",
-    "Materials": "Materials",
-    "Permits": "Permits",
-    "Disposal": "Disposal",
-    "Equipment": "Equipment",
-    "Other": "Other"
+    "labour": "Labour",
+    "materials": "Materials",
+    "permits": "Permits",
+    "disposal": "Disposal",
+    "equipment": "Equipment",
+    "other": "Other"
   }
 }

@@ -1,15 +1,21 @@
 import { describe, it, expect } from "vitest";
-import { expenseSchema } from "@/features/budget/domain/schemas";
+import { EXPENSE_CATEGORIES, expenseSchema } from "@/features/budget/domain/schemas";
 
 const base = {
   description: "Oak planks",
   spent_on: "2026-04-19",
-  category: "Materials" as const,
+  category: "materials" as const,
   stage_id: "",
   vendor: "",
   vendor_notes: "",
   receiptFile: null,
 };
+
+describe("EXPENSE_CATEGORIES", () => {
+  it("lists the cost_category enum values in form order", () => {
+    expect(EXPENSE_CATEGORIES).toEqual(["labour", "materials", "permits", "disposal", "equipment", "other"]);
+  });
+});
 
 describe("expenseSchema", () => {
   it("accepts a plain decimal amount", () => {
@@ -62,6 +68,17 @@ describe("expenseSchema", () => {
 
   it("rejects a category outside the fixed list", () => {
     const result = expenseSchema.safeParse({ ...base, amount: "10", category: "Snacks" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts every cost_category enum value", () => {
+    for (const category of EXPENSE_CATEGORIES) {
+      expect(expenseSchema.safeParse({ ...base, amount: "10", category }).success).toBe(true);
+    }
+  });
+
+  it("rejects the old capitalised text values (the column is the cost_category enum now)", () => {
+    const result = expenseSchema.safeParse({ ...base, amount: "10", category: "Materials" });
     expect(result.success).toBe(false);
   });
 

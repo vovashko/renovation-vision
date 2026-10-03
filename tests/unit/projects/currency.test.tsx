@@ -43,7 +43,7 @@ const expense: Expense = {
   id: "e1",
   project_id: "p1",
   stage_id: null,
-  category: "Materials",
+  category: "materials",
   description: "Oak planks",
   vendor: "Nordic Oak Supply",
   vendor_notes: "",
