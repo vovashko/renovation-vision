@@ -300,7 +300,7 @@ path, and only an `admin` may call it (not on their own account; with an `aal2` 
 
 **Staff 2FA.** Internal data needs an MFA-verified (`aal2`) session while enforcement is on. _Restrictive_ RLS
 policies (`… : staff mfa`, `as restrictive`, ANDed with the existing permissive ones) require `private.staff_mfa_ok()`
-on `expenses`, `project_internal`, `project_crew`, `activity_log` and `storage.objects` in bucket `project-internal`
+on `expenses`, `project_internal`, `contacts`, `project_contacts`, `activity_log` and `storage.objects` in bucket `project-internal`
 (receipts). An `aal1` manager still sees the rest of the project (stages, rooms, photos, chat, the budget/spent
 totals), just none of those rows. Clients are unaffected: they have no access to those tables anyway, and the storage
 policy only looks at `project-internal`.
@@ -326,6 +326,40 @@ settings from the dashboard (Authentication → Providers / Sign In / MFA). Seed
 their `renovision-demo` password (the length rule only applies to new passwords).
 
 Tests: `tests/db/auth_hardening.test.sql`.
+
+## Projects & contacts (T30)
+
+```
+projects ──< project_contacts >── contacts ──(user_id, optional)── profiles
+  address_line, postal_code,          role: client | poc | crew        kind: client | crew | supplier
+  city, country (PL)                        | supplier | architect     | architect | other
+  address (generated, display)        is_primary, visible_to_client,   full_name, company, trade, phone,
+  currency (PLN), status              sort_order                        whatsapp (E.164), email, notes
+```
+
+- **Projects.** The address is structured; `address` is a generated column (`"<line>, <postal code> <city>"`,
+  blanks skipped), so readers keep working and nobody writes it. `currency` is an uppercase ISO 4217 code (forms
+  offer PLN and EUR; format money with `format.money(amount, project.currency)`). `status` is the lifecycle
+  (`planning` · `active` · `on_hold` · `completed` · `archived`, default `active`), separate from the schedule status.
+  `create_project(p_name, p_address_line, p_postal_code, p_city, p_country, p_currency, p_status, p_client_name, …)`
+  links the creator as the client-visible point of contact and, given a client name, a primary client contact.
+- **Contacts** are the company's single address book: every staff account (manager or admin) reads and edits all
+  of them; clients read none. `user_id` ties a contact to an app account (one contact per account). A project's
+  crew, client and PoC are `project_contacts` rows; removing someone from a project deletes the link only.
+- **What clients see.** Clients can't select `contacts` or `project_contacts`. `project_visible_contacts(project)`
+  (security definer, members only) returns the `visible_to_client` rows of that project, and only their role,
+  name, phone and email; the client overview's "Your contact" card reads it. `project_summary.client_display_name`
+  (the primary client contact's name) comes from those tables too, so it is null for clients.
+
+| Table / function              | Client                                    | Project manager                   | Other staff           |
+| ----------------------------- | ----------------------------------------- | --------------------------------- | --------------------- |
+| `contacts`                    | —                                         | all rows (staff)                  | all rows              |
+| `project_contacts`            | —                                         | their projects' rows (read/write) | —                     |
+| `project_visible_contacts(p)` | `visible_to_client` rows of their project | same                              | not a member: nothing |
+
+Both tables also carry the restrictive staff-MFA policy (see **Roles & 2FA enforcement**). Linking and unlinking
+is written to the activity log ("Added crew member "Marek Nowak""); edits to a contact itself are not, because
+the log is per project and a contact isn't. Tests: `tests/db/contacts.test.sql`.
 
 ## Sessions & route guards
 
@@ -862,7 +896,8 @@ t("common:status.done"); // typed and autocompleted
 
 ```tsx
 const format = useFormat();
-format.money(12345); // "12 345,00 zł" (pl) / "PLN 12,345.00" (en); currency defaults to DEFAULT_CURRENCY (PLN)
+format.money(project.spent, project.currency); // "51 200,00 zł" (pl) / "PLN 51,200.00" (en); always pass the project's currency
+format.money(12345); // no currency: DEFAULT_CURRENCY (PLN), only for amounts with no project at hand
 format.money(amount, "EUR", { decimals: 0 });
 format.date(stage.end_date, "short"); // "02 mar" / "Mar 02"; also "long", "dayTime", "time"; null → "—"
 format.dayLabel(message.created_at); // "Dzisiaj" / "Today" / "pon., 02 mar"

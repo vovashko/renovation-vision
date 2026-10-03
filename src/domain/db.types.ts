@@ -7,13 +7,13 @@ export type Database = {
           Tables: {
             "activity_log": {
                   Row: {
-                    "action": string,"actor_id": string | null,"changes": NonNullable<Json>,"created_at": string,"entity_id": string | null,"entity_type": string,"id": number,"params": NonNullable<Json>,"project_id": string,"summary": string
+                    "action": string,"actor_id": string | null,"changes": NonNullable<Json>,"created_at": string,"entity_id": string | null,"entity_type": string,"id": number,"project_id": string,"summary": string
                   }
                   Insert: {
-                    "action": string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type": string,"id"?: never,"params"?: NonNullable<Json>,"project_id": string,"summary": string
+                    "action": string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type": string,"id"?: never,"project_id": string,"summary": string
                   }
                   Update: {
-                    "action"?: string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type"?: string,"id"?: never,"params"?: NonNullable<Json>,"project_id"?: string,"summary"?: string
+                    "action"?: string,"actor_id"?: string | null,"changes"?: NonNullable<Json>,"created_at"?: string,"entity_id"?: string | null,"entity_type"?: string,"id"?: never,"project_id"?: string,"summary"?: string
                   }
                   Relationships: [
                     
@@ -49,18 +49,43 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"consents": {
+                },"contacts": {
                   Row: {
-                    "granted_at": string,"id": string,"kind": string,"user_id": string,"version": string
+                    "company": string | null,"created_at": string,"created_by": string | null,"email": string | null,"full_name": string,"id": string,"kind": Database["public"]['Enums']["contact_kind"],"notes": string | null,"phone": string | null,"trade": string | null,"updated_at": string,"user_id": string | null,"whatsapp": string | null
                   }
                   Insert: {
-                    "granted_at"?: string,"id"?: string,"kind": string,"user_id"?: string,"version": string
+                    "company"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name": string,"id"?: string,"kind"?: Database["public"]['Enums']["contact_kind"],"notes"?: string | null,"phone"?: string | null,"trade"?: string | null,"updated_at"?: string,"user_id"?: string | null,"whatsapp"?: string | null
                   }
                   Update: {
-                    "granted_at"?: string,"id"?: string,"kind"?: string,"user_id"?: string,"version"?: string
+                    "company"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["contact_kind"],"notes"?: string | null,"phone"?: string | null,"trade"?: string | null,"updated_at"?: string,"user_id"?: string | null,"whatsapp"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "contacts_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contacts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"consents": {
+                  Row: {
+    "granted_at": string,"id": string,"kind": string,"user_id": string,"version": string
+                  }
+                  Insert: {
+    "granted_at"?: string,"id"?: string,"kind": string,"user_id"?: string,"version": string
+                  }
+                  Update: {
+    "granted_at"?: string,"id"?: string,"kind"?: string,"user_id"?: string,"version"?: string
+                  }
+                  Relationships: [
+    {
       foreignKeyName: "consents_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
@@ -105,46 +130,15 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"invitations": {
-                  Row: {
-                    "accepted_at": string | null,"created_at": string,"email": string,"expires_at": string,"id": string,"invited_by": string | null,"project_id": string | null,"revoked_at": string | null,"role": Database["public"]['Enums']["project_role"],"token_hash": string
-                  }
-                  Insert: {
-                    "accepted_at"?: string | null,"created_at"?: string,"email": string,"expires_at": string,"id"?: string,"invited_by"?: string | null,"project_id"?: string | null,"revoked_at"?: string | null,"role": Database["public"]['Enums']["project_role"],"token_hash": string
-                  }
-                  Update: {
-                    "accepted_at"?: string | null,"created_at"?: string,"email"?: string,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"project_id"?: string | null,"revoked_at"?: string | null,"role"?: Database["public"]['Enums']["project_role"],"token_hash"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "invitations_invited_by_fkey"
-      columns: ["invited_by"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "invitations_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "project_summary"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "invitations_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "projects"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"messages": {
                   Row: {
-                    "attachment_path": string | null,"body": string,"created_at": string,"edited_at": string | null,"id": string,"project_id": string,"sender_id": string | null
+                    "attachment_path": string | null,"body": string,"created_at": string,"edited_at": string | null,"id": string,"project_id": string,"sender_id": string
                   }
                   Insert: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id": string,"sender_id"?: string | null
+                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id": string,"sender_id"?: string
                   }
                   Update: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id"?: string,"sender_id"?: string | null
+                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id"?: string,"sender_id"?: string
                   }
                   Relationships: [
                     {
@@ -167,34 +161,15 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"notification_preferences": {
-                  Row: {
-                    "channel": Database["public"]['Enums']["notification_channel"],"frequency": Database["public"]['Enums']["notification_frequency"],"kind": string,"updated_at": string,"user_id": string
-                  }
-                  Insert: {
-                    "channel": Database["public"]['Enums']["notification_channel"],"frequency": Database["public"]['Enums']["notification_frequency"],"kind": string,"updated_at"?: string,"user_id"?: string
-                  }
-                  Update: {
-                    "channel"?: Database["public"]['Enums']["notification_channel"],"frequency"?: Database["public"]['Enums']["notification_frequency"],"kind"?: string,"updated_at"?: string,"user_id"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "notification_preferences_user_id_fkey"
-      columns: ["user_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"notifications": {
                   Row: {
-                    "body": string,"created_at": string,"created_by": string | null,"emailed_at": string | null,"entity_id": string | null,"entity_type": string | null,"id": string,"kind": string,"link": string | null,"params": NonNullable<Json>,"project_id": string,"read_at": string | null,"recipient_id": string,"title": string
+                    "body": string,"created_at": string,"created_by": string | null,"entity_id": string | null,"entity_type": string | null,"id": string,"kind": string,"link": string | null,"project_id": string,"read_at": string | null,"recipient_id": string,"title": string
                   }
                   Insert: {
-                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"emailed_at"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"params"?: NonNullable<Json>,"project_id": string,"read_at"?: string | null,"recipient_id": string,"title": string
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"project_id": string,"read_at"?: string | null,"recipient_id": string,"title": string
                   }
                   Update: {
-                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"emailed_at"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"params"?: NonNullable<Json>,"project_id"?: string,"read_at"?: string | null,"recipient_id"?: string,"title"?: string
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"kind"?: string,"link"?: string | null,"project_id"?: string,"read_at"?: string | null,"recipient_id"?: string,"title"?: string
                   }
                   Relationships: [
                     {
@@ -268,36 +243,42 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "account_type": Database["public"]['Enums']["account_type"],"avatar_url": string | null,"created_at": string,"full_name": string,"id": string,"locale": string,"phone": string | null,"updated_at": string
+                    "account_type": Database["public"]['Enums']["account_type"],"avatar_url": string | null,"created_at": string,"full_name": string,"id": string,"updated_at": string
                   }
                   Insert: {
-                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id": string,"locale"?: string,"phone"?: string | null,"updated_at"?: string
+                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id": string,"updated_at"?: string
                   }
                   Update: {
-                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id"?: string,"locale"?: string,"phone"?: string | null,"updated_at"?: string
+                    "account_type"?: Database["public"]['Enums']["account_type"],"avatar_url"?: string | null,"created_at"?: string,"full_name"?: string,"id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
                   ]
-                },"project_crew": {
+                },"project_contacts": {
                   Row: {
-                    "created_at": string,"email": string,"id": string,"name": string,"phone": string,"project_id": string,"sort_order": number,"trade": string,"updated_at": string
+                    "contact_id": string,"created_at": string,"id": string,"is_primary": boolean,"project_id": string,"role": Database["public"]['Enums']["project_contact_role"],"sort_order": number,"updated_at": string,"visible_to_client": boolean
                   }
                   Insert: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"name": string,"phone"?: string,"project_id": string,"sort_order"?: number,"trade"?: string,"updated_at"?: string
+                    "contact_id": string,"created_at"?: string,"id"?: string,"is_primary"?: boolean,"project_id": string,"role": Database["public"]['Enums']["project_contact_role"],"sort_order"?: number,"updated_at"?: string,"visible_to_client"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"name"?: string,"phone"?: string,"project_id"?: string,"sort_order"?: number,"trade"?: string,"updated_at"?: string
+                    "contact_id"?: string,"created_at"?: string,"id"?: string,"is_primary"?: boolean,"project_id"?: string,"role"?: Database["public"]['Enums']["project_contact_role"],"sort_order"?: number,"updated_at"?: string,"visible_to_client"?: boolean
                   }
                   Relationships: [
                     {
-      foreignKeyName: "project_crew_project_id_fkey"
+      foreignKeyName: "project_contacts_contact_id_fkey"
+      columns: ["contact_id"]
+isOneToOne: false
+      referencedRelation: "contacts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "project_contacts_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "project_summary"
       referencedColumns: ["id"]
     },{
-      foreignKeyName: "project_crew_project_id_fkey"
+      foreignKeyName: "project_contacts_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "projects"
@@ -306,13 +287,13 @@ isOneToOne: false
                   ]
                 },"project_internal": {
                   Row: {
-                    "client_email": string,"client_phone": string,"internal_budget_notes": string,"project_id": string,"updated_at": string
+                    "internal_budget_notes": string,"project_id": string,"updated_at": string
                   }
                   Insert: {
-                    "client_email"?: string,"client_phone"?: string,"internal_budget_notes"?: string,"project_id": string,"updated_at"?: string
+                    "internal_budget_notes"?: string,"project_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "client_email"?: string,"client_phone"?: string,"internal_budget_notes"?: string,"project_id"?: string,"updated_at"?: string
+                    "internal_budget_notes"?: string,"project_id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -362,13 +343,13 @@ isOneToOne: false
                   ]
                 },"projects": {
                   Row: {
-                    "address": string,"budget": number,"client_name": string,"created_at": string,"created_by": string | null,"id": string,"name": string,"schedule_note": string,"schedule_status": Database["public"]['Enums']["schedule_status"],"spent": number,"start_date": string | null,"target_date": string | null,"updated_at": string
+                    "address": string | null,"address_line": string,"budget": number,"city": string,"country": string,"created_at": string,"created_by": string | null,"currency": string,"id": string,"name": string,"postal_code": string,"schedule_note": string,"schedule_status": Database["public"]['Enums']["schedule_status"],"spent": number,"start_date": string | null,"status": Database["public"]['Enums']["project_status"],"target_date": string | null,"updated_at": string
                   }
                   Insert: {
-                    "address"?: string,"budget"?: number,"client_name"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"name": string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"target_date"?: string | null,"updated_at"?: string
+                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name": string,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "address"?: string,"budget"?: number,"client_name"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"name"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"target_date"?: string | null,"updated_at"?: string
+                    "address"?: never,"address_line"?: string,"budget"?: number,"city"?: string,"country"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"name"?: string,"postal_code"?: string,"schedule_note"?: string,"schedule_status"?: Database["public"]['Enums']["schedule_status"],"spent"?: number,"start_date"?: string | null,"status"?: Database["public"]['Enums']["project_status"],"target_date"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -502,7 +483,7 @@ isOneToOne: false
           Views: {
             "project_summary": {
                   Row: {
-                    "address": string | null,"budget": number | null,"client_name": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"target_date": string | null
+                    "address": string | null,"address_line": string | null,"budget": number | null,"city": string | null,"client_display_name": string | null,"country": string | null,"created_at": string | null,"currency": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"postal_code": string | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"status": Database["public"]['Enums']["project_status"] | null,"target_date": string | null,"updated_at": string | null
                   }
                   Relationships: [
                     
@@ -514,7 +495,7 @@ isOneToOne: false
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
                            },
 "create_project":
-{ Args: { "p_address"?: string,"p_budget"?: number,"p_client_name"?: string,"p_name": string,"p_start_date"?: string,"p_target_date"?: string }; Returns: string
+{ Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
                            },
 "is_project_client":
 { Args: { "p_project": string }; Returns: boolean
@@ -531,11 +512,13 @@ isOneToOne: false
 "mark_notifications_read":
 { Args: { "p_ids"?: (string)[] }; Returns: undefined
                            },
-"notification_pref":
-{ Args: { "p_channel": Database["public"]['Enums']["notification_channel"],"p_kind": string,"p_user": string }; Returns: Database["public"]['Enums']["notification_frequency"]
-                           },
 "notify_project_clients":
 { Args: { "p_body": string,"p_link"?: string,"p_project": string,"p_title": string }; Returns: undefined
+                           },
+"project_visible_contacts":
+{ Args: { "p_project": string }; Returns: {
+              "email": string,"full_name": string,"is_primary": boolean,"phone": string,"role": Database["public"]['Enums']["project_contact_role"]
+            }[]
                            },
 "revoke_invitation":
 { Args: { "p_invitation": string }; Returns: boolean
@@ -551,7 +534,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_role": "manager"|"client","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+  "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -667,8 +650,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"project_role": ["manager", "client"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const
-

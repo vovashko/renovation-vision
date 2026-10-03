@@ -7,15 +7,16 @@ import { ClientCard } from "@/features/people/ui/client-card";
 import { ClientContactSheet } from "@/features/people/ui/client-contact-sheet";
 import { CrewSheet } from "@/features/people/ui/crew-sheet";
 import { TeamCard } from "@/features/people/ui/team-card";
-import { useCrew, useMembers } from "@/features/people/hooks";
+import { useMembers, useProjectContacts } from "@/features/people/hooks";
+import { crewOf, primaryIn } from "@/features/people/domain/contacts";
 import { budgetStatus, daysUntil } from "@/domain/attention";
 import { projectIssues } from "../domain/project-issues";
-import { useClientContact, useProject } from "../hooks";
+import { useProject } from "../hooks";
 import { ProjectDetailsSheet } from "./project-details-sheet";
 import { ShortcutsCard, type Shortcut } from "./shortcuts-card";
 import { StatusCard } from "./status-card";
 import { useRooms, useStages } from "@/features/work/hooks";
-import type { CrewMember } from "@/lib/database.types";
+import type { ProjectContact } from "@/lib/database.types";
 
 type Sheet = "details" | "contact" | "photo" | "expense" | null;
 
@@ -26,10 +27,9 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const { data: stages } = useStages(projectId);
   const { data: rooms } = useRooms(projectId);
   const { data: members = [] } = useMembers(projectId);
-  const { data: contact } = useClientContact(projectId);
-  const { data: crew = [] } = useCrew(projectId);
+  const { data: links = [] } = useProjectContacts(projectId);
   const [sheet, setSheet] = useState<Sheet>(null);
-  const [person, setPerson] = useState<CrewMember | "new" | null>(null);
+  const [person, setPerson] = useState<ProjectContact | "new" | null>(null);
   const sheetProps = (name: Exclude<Sheet, null>) => ({ open: sheet === name, onOpenChange: (v: boolean) => setSheet(v ? name : null) });
   const openDetails = () => setSheet("details");
   const openContact = () => setSheet("contact");
@@ -49,6 +49,9 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const done = stages.filter((s) => s.status === "done").length;
   const left = project.target_date ? daysUntil(project.target_date) : null;
   const issues = projectIssues(project, stages, rooms);
+  const crew = crewOf(links);
+  const client = primaryIn(links, "client");
+  const clientUsers = members.filter((m) => m.role === "client");
 
   const shortcuts: Shortcut[] = [
     { key: "photo", label: t("shortcuts.uploadPhoto"), icon: "add_a_photo", onClick: () => setSheet("photo") },
@@ -80,28 +83,28 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
             daysLeft={left}
             budgetUsedPct={budget.usedPct}
             budgetOver={budget.over}
+            currency={project.currency}
             issues={issues}
             onOpenDetails={openDetails}
           />
         </div>
         <ShortcutsCard shortcuts={shortcuts} />
-        <ClientCard
-          projectId={projectId}
-          clientName={project.client_name}
-          contact={contact}
-          appUsers={members.filter((m) => m.role === "client")}
-          onEdit={openContact}
-        />
+        <ClientCard projectId={projectId} client={client} appUsers={clientUsers} onEdit={openContact} />
         <div className="min-w-0 lg:col-span-2">
           <TeamCard managers={members.filter((m) => m.role === "manager")} crew={crew} onAdd={openNewPerson} onEdit={setPerson} />
         </div>
       </div>
 
       <ProjectDetailsSheet project={project} {...detailsSheetProps} />
-      <ClientContactSheet projectId={projectId} contact={contact} {...contactSheetProps} />
+      <ClientContactSheet
+        projectId={projectId}
+        client={client}
+        defaultName={clientUsers.map((m) => m.profile.full_name).join(" & ")}
+        {...contactSheetProps}
+      />
       <UploadSheet projectId={projectId} stages={stages} rooms={rooms} {...photoSheetProps} />
       <ExpenseSheet projectId={projectId} stages={stages} expense={expenseSheetValue} onClose={closeSheet} />
-      <CrewSheet projectId={projectId} person={person} onClose={closePerson} />
+      <CrewSheet projectId={projectId} links={links} person={person} onClose={closePerson} />
     </div>
   );
 }

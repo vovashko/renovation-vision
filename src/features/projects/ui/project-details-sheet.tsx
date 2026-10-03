@@ -11,6 +11,7 @@ import { FormField } from "@/shared/ui/form-field";
 import type { ProjectSummary } from "@/lib/database.types";
 import { projectEditSchema, type ProjectEditValues } from "../domain/schemas";
 import { useUpdateProject } from "../hooks";
+import { ProjectFields } from "./project-fields";
 
 /** The manager's "Project details" sheet: everything here is visible to the client. */
 export function ProjectDetailsSheet({
@@ -50,12 +51,7 @@ export function ProjectDetailsSheet({
         <FormField control={form.control} name="name" label={t("details.name")}>
           {(field) => <Input {...field} className="h-11" />}
         </FormField>
-        <FormField control={form.control} name="address" label={t("details.address")}>
-          {(field) => <Input {...field} className="h-11" />}
-        </FormField>
-        <FormField control={form.control} name="client_name" label={t("details.clientName")}>
-          {(field) => <Input {...field} className="h-11" />}
-        </FormField>
+        <ProjectFields control={form.control} current={project} size="lg" />
         <div className="grid grid-cols-2 gap-3">
           <FormField control={form.control} name="start_date" label={t("details.start")}>
             {(field) => <Input type="date" {...field} className="h-11" />}
@@ -97,8 +93,12 @@ export function ProjectDetailsSheet({
 function projectToForm(project: ProjectSummary): ProjectEditValues {
   return {
     name: project.name,
-    address: project.address,
-    client_name: project.client_name,
+    address_line: project.address_line,
+    postal_code: project.postal_code,
+    city: project.city,
+    country: project.country,
+    currency: project.currency,
+    status: project.status,
     start_date: project.start_date ?? "",
     target_date: project.target_date ?? "",
     budget: project.budget,

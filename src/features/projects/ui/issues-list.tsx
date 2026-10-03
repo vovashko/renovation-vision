@@ -28,7 +28,18 @@ const rowClass =
 type Row = { title: string; detail?: string; link?: Pick<LinkProps, "to" | "params" | "search" | "hash">; onClick?: () => void };
 
 /** The manager overview's "needs attention" list: blocked/late stages and rooms, the budget, then data checks. */
-export function IssuesList({ issues, projectId, onOpenDetails }: { issues: ProjectIssue[]; projectId: string; onOpenDetails: () => void }) {
+export function IssuesList({
+  issues,
+  projectId,
+  currency,
+  onOpenDetails,
+}: {
+  issues: ProjectIssue[];
+  projectId: string;
+  /** The project's currency, for the over-budget amounts. */
+  currency: string;
+  onOpenDetails: () => void;
+}) {
   const { t } = useTranslation(["projects", "work", "common"]);
   const format = useFormat();
   if (!issues.length) return null;
@@ -58,7 +69,10 @@ export function IssuesList({ issues, projectId, onOpenDetails }: { issues: Proje
       case "over_budget":
         return {
           title: t("common:attention.overBudget", { pct: issue.overPct }),
-          detail: t("issues.overBudgetDetail", { spent: format.money(issue.spent), budget: format.money(issue.budget) }),
+          detail: t("issues.overBudgetDetail", {
+            spent: format.money(issue.spent, currency),
+            budget: format.money(issue.budget, currency),
+          }),
           link: { to: "/projects/$projectId/budget", params },
         };
       case "inconsistency": {

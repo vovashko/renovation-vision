@@ -60,7 +60,13 @@ function BudgetPage() {
         <h2 className="mb-3 flex flex-wrap items-center gap-2 text-title-lg">
           {t("budget:expenses.heading")} <InternalBadge />
         </h2>
-        <ExpenseTable expenses={expenses} stages={stages} onSelect={setEditing} onOpenReceipt={(path) => void openReceipt(path)} />
+        <ExpenseTable
+          expenses={expenses}
+          stages={stages}
+          currency={project.currency}
+          onSelect={setEditing}
+          onOpenReceipt={(path) => void openReceipt(path)}
+        />
       </section>
 
       <ExpenseSheet projectId={projectId} expense={editing} stages={stages} onClose={() => setEditing(null)} />

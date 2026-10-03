@@ -10,11 +10,14 @@ import type { Expense, Stage } from "@/lib/database.types";
 export function ExpenseTable({
   expenses,
   stages,
+  currency,
   onSelect,
   onOpenReceipt,
 }: {
   expenses: Expense[];
   stages: Stage[];
+  /** The project's currency. */
+  currency: string;
   onSelect: (expense: Expense) => void;
   onOpenReceipt: (path: string) => void;
 }) {
@@ -43,7 +46,7 @@ export function ExpenseTable({
     {
       key: "amount",
       header: t("budget:expenses.amount"),
-      cell: (e) => format.money(e.amount),
+      cell: (e) => format.money(e.amount, currency),
       align: "end",
       className: "font-medium whitespace-nowrap tabular-nums",
     },
@@ -72,7 +75,7 @@ export function ExpenseTable({
   const empty: DataTableEmpty = {
     icon: "receipt_long",
     title: t("budget:expenses.emptyTitle"),
-    description: t("budget:expenses.emptyDescription", { amount: format.money(0) }),
+    description: t("budget:expenses.emptyDescription", { amount: format.money(0, currency) }),
   };
 
   return (
@@ -86,7 +89,7 @@ export function ExpenseTable({
       footer={
         <TableRow>
           <TableCell colSpan={4}>{t("budget:expenses.total")}</TableCell>
-          <TableCell className="text-right tabular-nums">{format.money(expensesTotal(expenses))}</TableCell>
+          <TableCell className="text-right tabular-nums">{format.money(expensesTotal(expenses), currency)}</TableCell>
           <TableCell />
         </TableRow>
       }

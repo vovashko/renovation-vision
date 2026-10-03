@@ -5,32 +5,40 @@ import { FormSheet } from "@/shared/ui/form-sheet";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { FormField } from "@/shared/ui/form-field";
-import type { CrewMember } from "@/lib/database.types";
+import type { ProjectContact } from "@/lib/database.types";
 import { crewFormSchema, type CrewFormValues } from "../domain/schemas";
-import { useDeleteCrew, useSaveCrew } from "../hooks";
+import { useAddCrew, useRemoveCrew, useUpdateCrew } from "../hooks";
 
-const emptyCrew: CrewFormValues = { name: "", trade: "", phone: "", email: "" };
+const emptyCrew: CrewFormValues = { full_name: "", trade: "", phone: "", email: "" };
 
-function crewToForm(person: CrewMember): CrewFormValues {
-  return { name: person.name, trade: person.trade, phone: person.phone, email: person.email };
+function crewToForm({ contact }: ProjectContact): CrewFormValues {
+  return { full_name: contact.full_name, trade: contact.trade ?? "", phone: contact.phone ?? "", email: contact.email ?? "" };
 }
 
-/** Add / edit sheet for the site crew (not app users): used by the Team card's "Add person" and row edit. */
+/**
+ * Add / edit sheet for the site crew: used by the Team card's "Add person" and row edit. Adding creates an
+ * address-book contact and links it to the project; removing only unlinks it.
+ */
 export function CrewSheet({
   projectId,
+  links,
   person,
   onClose,
 }: {
   projectId: string;
-  /** "new" to add, a crew member to edit, null when closed. */
-  person: CrewMember | "new" | null;
+  /** All of the project's contacts, to place a new crew member after the others. */
+  links: ProjectContact[];
+  /** "new" to add, a crew link to edit, null when closed. */
+  person: ProjectContact | "new" | null;
   onClose: () => void;
 }) {
   const { t } = useTranslation(["people", "common"]);
   const confirm = useConfirm();
   const isNew = person === "new";
-  const save = useSaveCrew(projectId);
-  const remove = useDeleteCrew(projectId);
+  const add = useAddCrew(projectId, links);
+  const update = useUpdateCrew(projectId);
+  const remove = useRemoveCrew(projectId);
+  const saving = add.isPending || update.isPending;
   const form = useZodForm(crewFormSchema, person && person !== "new" ? crewToForm(person) : emptyCrew);
 
   return (
@@ -48,10 +56,11 @@ export function CrewSheet({
         noValidate
         className="space-y-4"
         onSubmit={form.handleSubmit((values: CrewFormValues) => {
-          save.mutate(isNew ? values : { id: (person as CrewMember).id, ...values }, { onSuccess: onClose });
+          if (person === "new") add.mutate(values, { onSuccess: onClose });
+          else if (person) update.mutate({ link: person, values }, { onSuccess: onClose });
         })}
       >
-        <FormField control={form.control} name="name" label={t("crew.name")}>
+        <FormField control={form.control} name="full_name" label={t("crew.name")}>
           {(field) => <Input autoComplete="off" {...field} />}
         </FormField>
         <FormField control={form.control} name="trade" label={t("crew.trade")}>
@@ -65,8 +74,8 @@ export function CrewSheet({
             {(field) => <Input type="email" autoComplete="off" {...field} />}
           </FormField>
         </div>
-        <Button type="submit" disabled={save.isPending} className="w-full">
-          {save.isPending ? t("common:state.saving") : isNew ? t("crew.submitAdd") : t("crew.submitSave")}
+        <Button type="submit" disabled={saving} className="w-full">
+          {saving ? t("common:state.saving") : isNew ? t("crew.submitAdd") : t("crew.submitSave")}
         </Button>
         {person && person !== "new" && (
           <Button
@@ -75,9 +84,13 @@ export function CrewSheet({
             className="w-full"
             disabled={remove.isPending}
             onClick={async () => {
-              if (await confirm({ title: t("crew.removeConfirmTitle", { name: person.name }), destructive: true })) {
-                remove.mutate(person, { onSuccess: onClose });
-              }
+              const ok = await confirm({
+                title: t("crew.removeConfirmTitle", { name: person.contact.full_name }),
+                description: t("crew.removeConfirmDescription"),
+                confirmLabel: t("crew.remove"),
+                destructive: true,
+              });
+              if (ok) remove.mutate(person, { onSuccess: onClose });
             }}
           >
             {t("crew.remove")}

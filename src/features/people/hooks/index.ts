@@ -2,13 +2,29 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import type { CrewMember, Member, ProjectRole } from "@/lib/database.types";
-import { peopleRepo, type CrewInput } from "../data/people.repo";
+import type { Member, ProjectContact, ProjectRole } from "@/lib/database.types";
+import { peopleRepo } from "../data/people.repo";
+import { nextSortOrder, toContactFields } from "../domain/contacts";
+import type { ClientContactValues, CrewFormValues } from "../domain/schemas";
 
 export const useMembers = (projectId: string) =>
   useQuery({ queryKey: keys.members(projectId), queryFn: () => peopleRepo.listMembers(projectId) });
 
-export const useCrew = (projectId: string) => useQuery({ queryKey: keys.crew(projectId), queryFn: () => peopleRepo.listCrew(projectId) });
+/** Every contact on the project (crew, client, PoC…): managers only. */
+export const useProjectContacts = (projectId: string) =>
+  useQuery({ queryKey: keys.projectContacts(projectId), queryFn: () => peopleRepo.listProjectContacts(projectId) });
+
+/** The project's client-visible contacts (the PoC): any member. */
+export const useVisibleContacts = (projectId: string) =>
+  useQuery({ queryKey: keys.visibleContacts(projectId), queryFn: () => peopleRepo.listVisibleContacts(projectId) });
+
+/** Contact edits show up in the manager's lists, the client's "Your contact" card and the client name on the project. */
+const contactKeys = (projectId: string) => [
+  keys.projectContacts(projectId),
+  keys.visibleContacts(projectId),
+  keys.project(projectId),
+  keys.projects,
+];
 
 export function useAddMember(projectId: string) {
   const { t } = useTranslation(["people"]);
@@ -26,18 +42,50 @@ export function useRemoveMember(projectId: string) {
   });
 }
 
-export function useSaveCrew(projectId: string) {
+/** Adds a crew member: a new address-book contact (kind crew), linked to the project after the others. */
+export function useAddCrew(projectId: string, links: ProjectContact[]) {
   const { t } = useTranslation(["people"]);
-  return useMutationWithToast((input: CrewInput) => peopleRepo.saveCrew(projectId, input), {
-    invalidate: [keys.crew(projectId)],
-    success: (input) => t("crew.saved", { name: input.name }),
+  return useMutationWithToast(
+    (values: CrewFormValues) =>
+      peopleRepo.addProjectContact(projectId, {
+        kind: "crew",
+        role: "crew",
+        fields: { ...toContactFields(values), full_name: values.full_name },
+        sortOrder: nextSortOrder(links, "crew"),
+      }),
+    { invalidate: contactKeys(projectId), success: (values) => t("crew.saved", { name: values.full_name }) },
+  );
+}
+
+/** Edits a crew member's address-book entry. */
+export function useUpdateCrew(projectId: string) {
+  const { t } = useTranslation(["people"]);
+  return useMutationWithToast(
+    ({ link, values }: { link: ProjectContact; values: CrewFormValues }) =>
+      peopleRepo.updateContact(link.contact_id, { ...toContactFields(values), full_name: values.full_name }),
+    { invalidate: contactKeys(projectId), success: ({ values }) => t("crew.saved", { name: values.full_name }) },
+  );
+}
+
+/** Takes a crew member off the project; they stay in the address book. */
+export function useRemoveCrew(projectId: string) {
+  const { t } = useTranslation(["people"]);
+  return useMutationWithToast((link: ProjectContact) => peopleRepo.unlinkProjectContact(link.id), {
+    invalidate: contactKeys(projectId),
+    success: (link) => t("crew.removed", { name: link.contact.full_name }),
   });
 }
 
-export function useDeleteCrew(projectId: string) {
+/** Saves the client card: edits the primary client contact, or creates and links one when there is none. */
+export function useSaveClientContact(projectId: string, client: ProjectContact | undefined) {
   const { t } = useTranslation(["people"]);
-  return useMutationWithToast((crew: CrewMember) => peopleRepo.deleteCrew(crew.id), {
-    invalidate: [keys.crew(projectId)],
-    success: (crew) => t("crew.removed", { name: crew.name }),
-  });
+  return useMutationWithToast(
+    (values: ClientContactValues) => {
+      const fields = { ...toContactFields(values), full_name: values.full_name };
+      return client
+        ? peopleRepo.updateContact(client.contact_id, fields)
+        : peopleRepo.addProjectContact(projectId, { kind: "client", role: "client", fields, isPrimary: true });
+    },
+    { invalidate: contactKeys(projectId), success: t("clientContact.saved") },
+  );
 }

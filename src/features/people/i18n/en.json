@@ -36,14 +36,17 @@
   "clientContact": {
     "title": "Client contact",
     "description": "Only managers see these details.",
+    "name": "Name",
+    "nameHint": "As shown on the project, e.g. \"Sarah & Tom Bennett\".",
     "phone": "Phone",
     "email": "Email",
-    "submit": "Save contact"
+    "submit": "Save contact",
+    "saved": "Client contact saved"
   },
   "crew": {
     "addTitle": "Add a person",
     "editTitle": "Edit person",
-    "description": "Site crew and trades. Only managers see this list.",
+    "description": "Site crew and trades, kept in your contacts. Only managers see this list.",
     "name": "Name",
     "trade": "Role or trade",
     "tradePlaceholder": "Electrician, site lead…",
@@ -58,6 +61,21 @@
     "emailAria": "Email {{name}}",
     "editAria": "Edit {{name}}",
     "saved": "Saved {{name}}",
-    "removed": "Removed {{name}}"
+    "removed": "Removed {{name}}",
+    "removeConfirmDescription": "They stay in your contacts, so you can add them to another project."
+  },
+  "yourContact": {
+    "heading_one": "Your contact",
+    "heading_other": "Your contacts",
+    "message": "Message",
+    "callAria": "Call {{name}}",
+    "emailAria": "Email {{name}}",
+    "role": {
+      "poc": "Your point of contact",
+      "client": "Client",
+      "crew": "Site crew",
+      "supplier": "Supplier",
+      "architect": "Architect"
+    }
   }
 }

@@ -55,7 +55,8 @@ select pg_temp.check((select count(*) from public.renders) = 4, 'client sees 4 v
 select pg_temp.check((select count(*) from public.ai_knowledge) = 4, 'client sees only visible AI knowledge');
 select pg_temp.check((select count(*) from public.expenses) = 0, 'client cannot read expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 0, 'client cannot read internal budget notes');
-select pg_temp.check((select count(*) from public.project_crew) = 0, 'client cannot read the crew list');
+select pg_temp.check((select count(*) from public.contacts) = 0, 'client cannot read the contacts book');
+select pg_temp.check((select count(*) from public.project_contacts) = 0, 'client cannot read the crew list');
 select pg_temp.check((select count(*) from public.activity_log) = 0, 'client cannot read the activity log');
 select pg_temp.check((select count(*) from public.messages) = 5, 'client reads the chat');
 select pg_temp.check((select count(*) from public.notifications) = 5, 'client reads only their own notifications');
@@ -85,9 +86,15 @@ begin
   end;
 
   begin
-    insert into public.project_crew (project_id, name)
-    values ('b0000000-0000-4000-8000-000000000001', 'x');
-    raise exception 'FAILED: client added a crew member';
+    insert into public.contacts (kind, full_name) values ('crew', 'x');
+    raise exception 'FAILED: client added a contact';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    insert into public.project_contacts (project_id, contact_id, role)
+    values ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000003', 'poc');
+    raise exception 'FAILED: client linked a contact';
   exception when insufficient_privilege then null;
   end;
 
@@ -123,11 +130,14 @@ select pg_temp.as_user('a0000000-0000-4000-8000-000000000001');
 select pg_temp.check((select count(*) from public.photos) = 9, 'manager sees drafts');
 select pg_temp.check((select count(*) from public.expenses) = 9, 'manager reads expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 1, 'manager reads internal notes');
-select pg_temp.check((select client_phone from public.project_internal) = '+1 555 0142', 'manager reads client contact');
-select pg_temp.check((select count(*) from public.project_crew) = 4, 'manager reads the crew list');
-insert into public.project_crew (project_id, name, trade) values ('b0000000-0000-4000-8000-000000000001', 'Test Tiler', 'Tiler');
+select pg_temp.check((select c.phone from public.contacts c join public.project_contacts pc on pc.contact_id = c.id
+  where pc.role = 'client' and pc.is_primary) = '+1 555 0142', 'manager reads client contact');
+select pg_temp.check((select count(*) from public.project_contacts where role = 'crew') = 4, 'manager reads the crew list');
+with c as (insert into public.contacts (kind, full_name, trade) values ('crew', 'Test Tiler', 'Tiler') returning id)
+insert into public.project_contacts (project_id, contact_id, role, sort_order)
+select 'b0000000-0000-4000-8000-000000000001', c.id, 'crew', 5 from c;
 select pg_temp.check(
-  (select count(*) from public.activity_log where entity_type = 'project_crew' and summary = 'Added crew member "Test Tiler"') = 1,
+  (select count(*) from public.activity_log where entity_type = 'project_contacts' and summary = 'Added crew member "Test Tiler"') = 1,
   'crew changes are written to the activity log');
 select pg_temp.check((select count(*) from public.ai_knowledge) = 5, 'manager reads all AI knowledge');
 select pg_temp.check((select count(*) from storage.objects) = 3, 'manager reads all project files');

@@ -4,31 +4,42 @@ import { Input } from "@/components/ui/input";
 import { FormSheet } from "@/shared/ui/form-sheet";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { FormField } from "@/shared/ui/form-field";
-import { useUpdateClientContact } from "@/features/projects/hooks";
+import type { ProjectContact } from "@/lib/database.types";
 import { clientContactSchema, type ClientContactValues } from "../domain/schemas";
-import type { ClientContact } from "./client-card";
+import { useSaveClientContact } from "../hooks";
 
-/** The manager-only "client contact" sheet on the overview. */
+function toForm(client: ProjectContact | undefined, defaultName: string): ClientContactValues {
+  return {
+    full_name: client?.contact.full_name ?? defaultName,
+    phone: client?.contact.phone ?? "",
+    email: client?.contact.email ?? "",
+  };
+}
+
+/** The manager-only "client contact" sheet on the overview: edits (or creates) the primary client contact. */
 export function ClientContactSheet({
   projectId,
   open,
   onOpenChange,
-  contact,
+  client,
+  defaultName,
 }: {
   projectId: string;
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  contact: ClientContact | undefined;
+  client: ProjectContact | undefined;
+  /** Pre-fills the name when the project has no client contact yet (e.g. the invited clients' names). */
+  defaultName: string;
 }) {
   const { t } = useTranslation(["people", "common"]);
-  const save = useUpdateClientContact(projectId);
-  const form = useZodForm(clientContactSchema, { client_phone: contact?.client_phone ?? "", client_email: contact?.client_email ?? "" });
+  const save = useSaveClientContact(projectId, client);
+  const form = useZodForm(clientContactSchema, toForm(client, defaultName));
 
   return (
     <FormSheet
       open={open}
       onOpenChange={(v) => {
-        if (v) form.reset({ client_phone: contact?.client_phone ?? "", client_email: contact?.client_email ?? "" });
+        if (v) form.reset(toForm(client, defaultName));
         onOpenChange(v);
       }}
       title={t("clientContact.title")}
@@ -39,10 +50,13 @@ export function ClientContactSheet({
         className="space-y-4"
         onSubmit={form.handleSubmit((values: ClientContactValues) => save.mutate(values, { onSuccess: () => onOpenChange(false) }))}
       >
-        <FormField control={form.control} name="client_phone" label={t("clientContact.phone")}>
+        <FormField control={form.control} name="full_name" label={t("clientContact.name")} description={t("clientContact.nameHint")}>
+          {(field) => <Input autoComplete="off" {...field} />}
+        </FormField>
+        <FormField control={form.control} name="phone" label={t("clientContact.phone")}>
           {(field) => <Input type="tel" autoComplete="off" {...field} />}
         </FormField>
-        <FormField control={form.control} name="client_email" label={t("clientContact.email")}>
+        <FormField control={form.control} name="email" label={t("clientContact.email")}>
           {(field) => <Input type="email" autoComplete="off" {...field} />}
         </FormField>
         <Button type="submit" disabled={save.isPending} className="w-full">

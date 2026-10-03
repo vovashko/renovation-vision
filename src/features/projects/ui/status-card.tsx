@@ -22,6 +22,7 @@ export function StatusCard({
   daysLeft,
   budgetUsedPct,
   budgetOver,
+  currency,
   issues,
   onOpenDetails,
 }: {
@@ -36,6 +37,8 @@ export function StatusCard({
   daysLeft: number | null;
   budgetUsedPct: number;
   budgetOver: boolean;
+  /** The project's currency (over-budget amounts in the issues list). */
+  currency: string;
   issues: ProjectIssue[];
   onOpenDetails: () => void;
 }) {
@@ -109,7 +112,7 @@ export function StatusCard({
         </Note>
       )}
 
-      <IssuesList issues={issues} projectId={projectId} onOpenDetails={onOpenDetails} />
+      <IssuesList issues={issues} projectId={projectId} currency={currency} onOpenDetails={onOpenDetails} />
     </Card>
   );
 }
