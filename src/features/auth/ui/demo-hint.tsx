@@ -8,7 +8,7 @@ const DEMO_HINT = import.meta.env.VITE_DEMO_HINT === "true";
 const DEMO_ACCOUNTS = {
   managerEmail: "jonas@renovision.demo",
   clientEmail: "sarah@renovision.demo",
-  password: "renovision-demo",
+  password: "renovision-demo-2026",
 };
 
 function DemoRow({ label, value }: { label: string; value: string }) {

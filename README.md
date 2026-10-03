@@ -51,12 +51,12 @@ bun run dev
 
 Sign in with one of the seeded demo accounts (see `supabase/seed.sql` for the full list):
 
-| Role    | Email                   | Password          | Language (`profiles.locale`) |
-| ------- | ----------------------- | ----------------- | ---------------------------- |
-| Manager | `jonas@renovision.demo` | `renovision-demo` | `pl`                         |
-| Client  | `sarah@renovision.demo` | `renovision-demo` | `pl`                         |
-| Client  | `tom@renovision.demo`   | `renovision-demo` | `en`                         |
-| Admin   | `admin@renovision.demo` | `renovision-demo` | `pl`                         |
+| Role    | Email                   | Password               | Language (`profiles.locale`) |
+| ------- | ----------------------- | ---------------------- | ---------------------------- |
+| Manager | `jonas@renovision.demo` | `renovision-demo-2026` | `pl`                         |
+| Client  | `sarah@renovision.demo` | `renovision-demo-2026` | `pl`                         |
+| Client  | `tom@renovision.demo`   | `renovision-demo-2026` | `en`                         |
+| Admin   | `admin@renovision.demo` | `renovision-demo-2026` | `pl`                         |
 
 Useful scripts: `bun run db:start` (`supabase start`), `bun run db:reset` (reset + reseed media),
 `bun run db:types` (regenerate `src/domain/db.types.ts` from the running local schema).
@@ -323,7 +323,7 @@ update private.app_settings set enforce_staff_mfa = true;  -- or false
 confirmation on sign-up, passwords of at least 10 characters with letters and digits, `secure_password_change`
 (recent sign-in needed to change a password), and TOTP MFA enrol/verify enabled. Hosted projects take the same
 settings from the dashboard (Authentication → Providers / Sign In / MFA). Seeded users are already confirmed and keep
-their `renovision-demo` password (the length rule only applies to new passwords).
+their `renovision-demo-2026` password, which meets the password rules.
 
 Tests: `tests/db/auth_hardening.test.sql`.
 
@@ -551,8 +551,8 @@ only from an `aal2` session (gotrue's rule) and never a staff member's last one 
 and `127.0.0.1` (gotrue also accepts any port on `site_url`'s host). Hosted projects need their deployed origin in
 Authentication → URL Configuration. Restart the local stack after changing them.
 
-**Demo passwords.** `renovision-demo` predates the password rules, so the admin API refuses to set it again; restore
-it with SQL: `update auth.users set encrypted_password = extensions.crypt('renovision-demo', extensions.gen_salt('bf')) where email = '…';`.
+**Demo passwords.** All demo accounts use `renovision-demo-2026`, which meets the password rules, so the admin API can set it
+again; with SQL: `update auth.users set encrypted_password = extensions.crypt('renovision-demo-2026', extensions.gen_salt('bf')) where email = '…';`.
 
 ## Security headers
 

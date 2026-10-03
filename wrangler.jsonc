@@ -20,9 +20,9 @@
   // `ratelimits` is not inherited, so each env below repeats it with its own namespace_id
   // (a namespace is an account-wide counter: preview and production must not share one).
   "ratelimits": [
-    { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "1001", "simple": { "limit": 120, "period": 60 } },
-    { "name": "RATE_LIMIT_INVITE", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
-    { "name": "RATE_LIMIT_EMAIL", "namespace_id": "1003", "simple": { "limit": 5, "period": 60 } },
+    { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "72101", "simple": { "limit": 120, "period": 60 } },
+    { "name": "RATE_LIMIT_INVITE", "namespace_id": "72102", "simple": { "limit": 10, "period": 60 } },
+    { "name": "RATE_LIMIT_EMAIL", "namespace_id": "72103", "simple": { "limit": 5, "period": 60 } },
   ],
   "env": {
     // `bun run deploy:preview` — a scratch Worker for reviewing branches before they merge.
@@ -32,9 +32,9 @@
         "APP_ENV": "preview",
       },
       "ratelimits": [
-        { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "2001", "simple": { "limit": 120, "period": 60 } },
-        { "name": "RATE_LIMIT_INVITE", "namespace_id": "2002", "simple": { "limit": 10, "period": 60 } },
-        { "name": "RATE_LIMIT_EMAIL", "namespace_id": "2003", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "72201", "simple": { "limit": 120, "period": 60 } },
+        { "name": "RATE_LIMIT_INVITE", "namespace_id": "72202", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RATE_LIMIT_EMAIL", "namespace_id": "72203", "simple": { "limit": 5, "period": 60 } },
       ],
     },
     // `bun run deploy` — the live Worker.
@@ -44,9 +44,9 @@
         "APP_ENV": "production",
       },
       "ratelimits": [
-        { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "3001", "simple": { "limit": 120, "period": 60 } },
-        { "name": "RATE_LIMIT_INVITE", "namespace_id": "3002", "simple": { "limit": 10, "period": 60 } },
-        { "name": "RATE_LIMIT_EMAIL", "namespace_id": "3003", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "72301", "simple": { "limit": 120, "period": 60 } },
+        { "name": "RATE_LIMIT_INVITE", "namespace_id": "72302", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RATE_LIMIT_EMAIL", "namespace_id": "72303", "simple": { "limit": 5, "period": 60 } },
       ],
     },
   },

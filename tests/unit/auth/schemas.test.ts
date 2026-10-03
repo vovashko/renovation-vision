@@ -29,7 +29,7 @@ describe("auth schemas", () => {
   });
 
   it("sign-in accepts any non-empty password (the rules only apply to new passwords)", () => {
-    expect(signInSchema.safeParse({ email: "sarah@renovision.demo", password: "renovision-demo" }).success).toBe(true);
+    expect(signInSchema.safeParse({ email: "sarah@renovision.demo", password: "renovision-demo-2026" }).success).toBe(true);
     expect(messages(signInSchema.safeParse({ email: "sarah@renovision.demo", password: "" }))).toContain("common:form.required");
   });
 
