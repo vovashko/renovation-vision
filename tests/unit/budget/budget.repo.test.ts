@@ -76,7 +76,7 @@ describe("budgetRepo receipt path", () => {
     const file = new File(["hello"], "receipt.PNG", { type: "image/png" });
     await budgetRepo.saveExpense("11111111-1111-1111-1111-111111111111", {
       description: "Tiles",
-      category: "Materials",
+      category: "materials",
       amount: 10,
       spent_on: "2026-04-19",
       receiptFile: file,

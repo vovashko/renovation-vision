@@ -300,7 +300,7 @@ path, and only an `admin` may call it (not on their own account; with an `aal2` 
 
 **Staff 2FA.** Internal data needs an MFA-verified (`aal2`) session while enforcement is on. _Restrictive_ RLS
 policies (`… : staff mfa`, `as restrictive`, ANDed with the existing permissive ones) require `private.staff_mfa_ok()`
-on `expenses`, `project_internal`, `contacts`, `project_contacts`, `activity_log` and `storage.objects` in bucket `project-internal`
+on `expenses`, `project_internal`, `contacts`, `project_contacts`, `stage_budgets`, `materials`, `activity_log` and `storage.objects` in bucket `project-internal`
 (receipts). An `aal1` manager still sees the rest of the project (stages, rooms, photos, chat, the budget/spent
 totals), just none of those rows. Clients are unaffected: they have no access to those tables anyway, and the storage
 policy only looks at `project-internal`.
@@ -360,6 +360,42 @@ projects ──< project_contacts >── contacts ──(user_id, optional)─�
 Both tables also carry the restrictive staff-MFA policy (see **Roles & 2FA enforcement**). Linking and unlinking
 is written to the activity log ("Added crew member "Marek Nowak""); edits to a contact itself are not, because
 the log is per project and a contact isn't. Tests: `tests/db/contacts.test.sql`.
+
+## Costs & materials (T31)
+
+```
+stages ──1:1── stage_budgets (planned_cost)          expenses.category: enum cost_category
+   │                                                   labour | materials | permits | disposal | equipment | other
+   ├──< expenses (spent)
+   └──< materials ── expense_id ──> expenses          material_status: planned | ordered | delivered | installed
+          quantity × unit_price, unit, status, room, supplier_contact_id ──> contacts, progress_entry_id (T32)
+stage_costs (view): project_id, stage_id, planned, spent, committed, remaining
+```
+
+- **Planned cost** lives in `stage_budgets` (one row per stage, created with the stage), not on `stages`: clients read
+  `stages`, and column privileges can't hide a column from clients only (clients and managers are both
+  `authenticated`). Managers update `planned_cost` only; the row goes with its stage.
+- **`stage_costs`** (`security_invoker`): `spent` is the sum of the stage's expenses; `committed` is `quantity ×
+unit_price` of its `ordered`/`delivered` materials not yet linked to an expense (once linked, the expense counts
+  them, so nothing is counted twice); `remaining = planned − spent − committed`. It starts from `stage_budgets`, so a
+  client, or an `aal1` manager while 2FA is enforced, gets no rows rather than zeroes.
+- **`import_materials(project, rows)`** inserts a JSON array of `{ name, quantity, unit, unit_price, status, stage,
+room, supplier, notes }` all-or-nothing: stage and room by name within the project, supplier by contact name or
+  company. It returns `{ inserted }` or raises `22023` with `DETAIL` = a JSON array of `{ row (1-based), field,
+message }`, where `message` is a stable code (`required`, `not_a_number`, `must_be_positive`,
+  `must_not_be_negative`, `too_large`, `too_long`, `invalid_unit`, `invalid_status`, `not_found`, `ambiguous`,
+  `not_an_object`). Managers of the project only, with an `aal2` session while 2FA is enforced.
+
+| Table / view / function     | Client                     | Project manager                     | Other staff |
+| --------------------------- | -------------------------- | ----------------------------------- | ----------- |
+| `stages`                    | visible stages (unchanged) | all (unchanged)                     | —           |
+| `stage_budgets`             | —                          | read, insert, update `planned_cost` | —           |
+| `materials`                 | —                          | all                                 | —           |
+| `stage_costs`               | no rows                    | their projects' stages              | —           |
+| `import_materials(p, rows)` | rejected (42501)           | their projects                      | rejected    |
+
+`stage_budgets` and `materials` also carry the restrictive staff-MFA policy. Materials (and planned-cost updates)
+go to the activity log. Tests: `tests/db/costs.test.sql`.
 
 ## Sessions & route guards
 
