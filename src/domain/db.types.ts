@@ -185,6 +185,12 @@ isOneToOne: false
       referencedRelation: "expenses"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "materials_progress_entry_id_fkey"
+      columns: ["progress_entry_id"]
+isOneToOne: false
+      referencedRelation: "progress_entries"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "materials_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false

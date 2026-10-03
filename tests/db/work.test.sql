@@ -200,8 +200,8 @@ select pg_temp.check(
   'a new entry defaults to today, the author and hidden');
 select pg_temp.check(
   (select count(*) from public.activity_log where entity_type = 'progress_entries' and action = 'insert'
-     and entity_id = '70000000-0000-4000-8000-0000000000aa' and params ->> 'entity' = 'progress_entries') = 1,
-  'log_activity fires for progress_entries (entity falls back to the table name)');
+     and entity_id = '70000000-0000-4000-8000-0000000000aa' and params ->> 'entity' = 'diary_entry') = 1,
+  'log_activity fires for progress_entries, logged as a diary entry');
 
 update public.progress_entries set is_visible = true, hours = 8 where id = '70000000-0000-4000-8000-0000000000aa';
 select pg_temp.check(

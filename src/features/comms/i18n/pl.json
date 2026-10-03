@@ -112,7 +112,10 @@
       "crew_member": "osobę z ekipy",
       "client_contact": "kontakt klienta",
       "point_of_contact": "osobę kontaktową",
-      "contact": "kontakt"
+      "contact": "kontakt",
+      "material": "materiał",
+      "stage_budget": "budżet etapu",
+      "diary_entry": "wpis w dzienniku"
     },
     "plain": {
       "insert": "Dodano {{entity}}",

@@ -108,7 +108,10 @@
       "crew_member": "crew member",
       "client_contact": "client contact",
       "point_of_contact": "point of contact",
-      "contact": "contact"
+      "contact": "contact",
+      "material": "material",
+      "stage_budget": "stage budget",
+      "diary_entry": "diary entry"
     },
     "plain": {
       "insert": "Added {{entity}}",
