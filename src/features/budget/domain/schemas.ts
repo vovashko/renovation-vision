@@ -1,9 +1,17 @@
 import { z } from "zod";
+import type { CostCategory } from "@/lib/database.types";
 
-// The current fixed category list. Values are stored as-is on `expenses.category` (a free-text
-// column with existing rows in this exact casing), so they stay stable while the labels translate
-// through the `budget:category.*` i18n keys.
-export const EXPENSE_CATEGORIES = ["Labour", "Materials", "Permits", "Disposal", "Equipment", "Other"] as const;
+// The values of the `cost_category` enum (`expenses.category`), in the order the form offers them. The
+// labels translate through the `budget:category.*` i18n keys. `satisfies` keeps the list in step with
+// the database enum: a value the enum doesn't have fails the typecheck.
+export const EXPENSE_CATEGORIES = [
+  "labour",
+  "materials",
+  "permits",
+  "disposal",
+  "equipment",
+  "other",
+] as const satisfies readonly CostCategory[];
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
 
 /**

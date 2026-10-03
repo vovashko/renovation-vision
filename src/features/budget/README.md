@@ -1,6 +1,8 @@
 # Budget (`features/budget`)
 
-Manager-only money: the budget, expenses and receipts (`project-internal` bucket), internal notes: `expenses`, `project_internal`.
+Manager-only money: the budget, expenses (category: the `cost_category` enum) and receipts (`project-internal` bucket),
+internal notes: `expenses`, `project_internal`. The schema for stage planned costs and materials (`stage_budgets`,
+`materials`, `stage_costs`, `import_materials`) is in place (T31; README → Costs & materials); their screens come later (T42).
 
 - **Routes:** `/budget`
 - **UI:** `BudgetStats`, `ExpenseTable`, `InternalNotes`

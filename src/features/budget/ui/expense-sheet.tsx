@@ -20,21 +20,18 @@ function defaultsFor(expense: Expense | "new", stages: Stage[]): ExpenseFormInpu
       description: "",
       amount: "",
       spent_on: new Date().toISOString().slice(0, 10),
-      category: "Materials",
+      category: "materials",
       stage_id: stages.find((s) => s.status === "progress")?.id ?? "",
       vendor: "",
       vendor_notes: "",
       receiptFile: null,
     };
   }
-  const category = (EXPENSE_CATEGORIES as readonly string[]).includes(expense.category)
-    ? (expense.category as ExpenseFormInput["category"])
-    : "Other";
   return {
     description: expense.description,
     amount: String(expense.amount),
     spent_on: expense.spent_on,
-    category,
+    category: expense.category,
     stage_id: expense.stage_id ?? "",
     vendor: expense.vendor,
     vendor_notes: expense.vendor_notes,

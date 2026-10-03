@@ -95,13 +95,13 @@ isOneToOne: false
                   ]
                 },"expenses": {
                   Row: {
-                    "amount": number,"category": string,"created_at": string,"created_by": string | null,"description": string,"id": string,"project_id": string,"receipt_path": string | null,"spent_on": string,"stage_id": string | null,"updated_at": string,"vendor": string,"vendor_notes": string
+                    "amount": number,"category": Database["public"]['Enums']["cost_category"],"created_at": string,"created_by": string | null,"description": string,"id": string,"project_id": string,"receipt_path": string | null,"spent_on": string,"stage_id": string | null,"updated_at": string,"vendor": string,"vendor_notes": string
                   }
                   Insert: {
-                    "amount": number,"category"?: string,"created_at"?: string,"created_by"?: string | null,"description": string,"id"?: string,"project_id": string,"receipt_path"?: string | null,"spent_on"?: string,"stage_id"?: string | null,"updated_at"?: string,"vendor"?: string,"vendor_notes"?: string
+                    "amount": number,"category"?: Database["public"]['Enums']["cost_category"],"created_at"?: string,"created_by"?: string | null,"description": string,"id"?: string,"project_id": string,"receipt_path"?: string | null,"spent_on"?: string,"stage_id"?: string | null,"updated_at"?: string,"vendor"?: string,"vendor_notes"?: string
                   }
                   Update: {
-                    "amount"?: number,"category"?: string,"created_at"?: string,"created_by"?: string | null,"description"?: string,"id"?: string,"project_id"?: string,"receipt_path"?: string | null,"spent_on"?: string,"stage_id"?: string | null,"updated_at"?: string,"vendor"?: string,"vendor_notes"?: string
+                    "amount"?: number,"category"?: Database["public"]['Enums']["cost_category"],"created_at"?: string,"created_by"?: string | null,"description"?: string,"id"?: string,"project_id"?: string,"receipt_path"?: string | null,"spent_on"?: string,"stage_id"?: string | null,"updated_at"?: string,"vendor"?: string,"vendor_notes"?: string
                   }
                   Relationships: [
                     {
@@ -158,6 +158,61 @@ isOneToOne: false
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"materials": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"expense_id": string | null,"id": string,"name": string,"notes": string,"progress_entry_id": string | null,"project_id": string,"quantity": number,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["material_status"],"supplier_contact_id": string | null,"unit": string,"unit_price": number,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"expense_id"?: string | null,"id"?: string,"name": string,"notes"?: string,"progress_entry_id"?: string | null,"project_id": string,"quantity"?: number,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["material_status"],"supplier_contact_id"?: string | null,"unit"?: string,"unit_price"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"expense_id"?: string | null,"id"?: string,"name"?: string,"notes"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"quantity"?: number,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["material_status"],"supplier_contact_id"?: string | null,"unit"?: string,"unit_price"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "materials_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "materials_expense_id_fkey"
+      columns: ["expense_id"]
+isOneToOne: false
+      referencedRelation: "expenses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "materials_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "materials_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "materials_room_id_fkey"
+      columns: ["room_id"]
+isOneToOne: false
+      referencedRelation: "rooms"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "materials_stage_id_fkey"
+      columns: ["stage_id"]
+isOneToOne: false
+      referencedRelation: "stages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "materials_supplier_contact_id_fkey"
+      columns: ["supplier_contact_id"]
+isOneToOne: false
+      referencedRelation: "contacts"
       referencedColumns: ["id"]
     }
                   ]
@@ -466,6 +521,37 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"stage_budgets": {
+                  Row: {
+                    "created_at": string,"planned_cost": number,"project_id": string,"stage_id": string,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"planned_cost"?: number,"project_id": string,"stage_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"planned_cost"?: number,"project_id"?: string,"stage_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stage_budgets_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stage_budgets_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stage_budgets_stage_id_fkey"
+      columns: ["stage_id"]
+isOneToOne: true
+      referencedRelation: "stages"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"stages": {
                   Row: {
                     "client_note": string,"created_at": string,"end_date": string,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"project_id": string,"sort_order": number,"start_date": string,"status": Database["public"]['Enums']["work_status"],"updated_at": string
@@ -538,6 +624,31 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"stage_costs": {
+                  Row: {
+                    "committed": number | null,"planned": number | null,"project_id": string | null,"remaining": number | null,"spent": number | null,"stage_id": string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stage_budgets_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stage_budgets_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stage_budgets_stage_id_fkey"
+      columns: ["stage_id"]
+isOneToOne: true
+      referencedRelation: "stages"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Functions: {
@@ -546,6 +657,9 @@ isOneToOne: false
                            },
 "create_project":
 { Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
+                           },
+"import_materials":
+{ Args: { "p_project": string,"p_rows": Json }; Returns: Json
                            },
 "is_project_client":
 { Args: { "p_project": string }; Returns: boolean
@@ -587,7 +701,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -703,7 +817,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const
