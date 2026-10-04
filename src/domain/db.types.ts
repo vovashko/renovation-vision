@@ -674,7 +674,7 @@ isOneToOne: false
           Views: {
             "project_summary": {
                   Row: {
-                    "address": string | null,"address_line": string | null,"budget": number | null,"city": string | null,"client_display_name": string | null,"country": string | null,"created_at": string | null,"currency": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"name": string | null,"overall_progress": number | null,"plan_image_opts": Json | null,"plan_image_path": string | null,"postal_code": string | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"status": Database["public"]['Enums']["project_status"] | null,"target_date": string | null,"updated_at": string | null
+                    "address": string | null,"address_line": string | null,"budget": number | null,"city": string | null,"client_display_name": string | null,"country": string | null,"created_at": string | null,"currency": string | null,"current_stage": string | null,"id": string | null,"manager_name": string | null,"my_role": Database["public"]['Enums']["project_role"] | null,"name": string | null,"overall_progress": number | null,"plan_image_opts": Json | null,"plan_image_path": string | null,"postal_code": string | null,"schedule_note": string | null,"schedule_status": Database["public"]['Enums']["schedule_status"] | null,"spent": number | null,"stages_done": number | null,"stages_total": number | null,"start_date": string | null,"status": Database["public"]['Enums']["project_status"] | null,"target_date": string | null,"updated_at": string | null
                   }
                   Relationships: [
                     
@@ -711,7 +711,7 @@ isOneToOne: true
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
                            },
 "create_project":
-{ Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
+{ Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_email"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
                            },
 "import_materials":
 { Args: { "p_project": string,"p_rows": Json }; Returns: Json
@@ -750,6 +750,9 @@ isOneToOne: true
                            },
 "set_account_type":
 { Args: { "p_type": Database["public"]['Enums']["account_type"],"p_user": string }; Returns: undefined
+                           },
+"set_project_client":
+{ Args: { "p_email"?: string,"p_full_name": string,"p_phone"?: string,"p_project": string }; Returns: string
                            },
 "shares_project_with":
 { Args: { "p_user": string }; Returns: boolean

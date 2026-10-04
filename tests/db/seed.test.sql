@@ -109,5 +109,14 @@ select pg_temp.check(
   'the demo project has no plan image'
 );
 
+-- Client access (T35): the client contact carries Sarah's login and is linked to her; Tom is an extra login.
+select pg_temp.check(
+  (select email = 'sarah@renovision.demo' and user_id = 'a0000000-0000-4000-8000-000000000002'
+     from public.contacts where id = '10000000-0000-4000-8000-000000000002'),
+  'the client contact is linked to Sarah''s account');
+select pg_temp.check(
+  (select count(*) from public.project_members where project_id = 'b0000000-0000-4000-8000-000000000001' and role = 'client') = 2,
+  'Sarah and Tom are the demo project''s clients');
+
 select 'seed tests passed' as result;
 rollback;
