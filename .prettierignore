@@ -10,4 +10,5 @@ bun.lock
 routeTree.gen.ts
 docs
 supabase
+code_handoff
 src/domain/db.types.ts

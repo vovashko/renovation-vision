@@ -1,0 +1,10 @@
+/* Append to src/styles.css (after the state-layer utility). Used by <Skeleton>. */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    background-color: var(--color-surface-container);
+  }
+  50% {
+    background-color: var(--color-surface-container-high);
+  }
+}
