@@ -108,5 +108,11 @@
     "heading": "Coś poszło nie tak",
     "retry": "Spróbuj ponownie"
   },
-  "overallProgress": "Ogólny postęp"
+  "overallProgress": "Ogólny postęp",
+  "deviation": {
+    "days_one": "{{sign}}{{count}} dzień",
+    "days_few": "{{sign}}{{count}} dni",
+    "days_many": "{{sign}}{{count}} dni",
+    "days_other": "{{sign}}{{count}} dnia"
+  }
 }

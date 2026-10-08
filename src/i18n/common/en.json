@@ -106,5 +106,9 @@
     "heading": "Something went wrong",
     "retry": "Try again"
   },
-  "overallProgress": "Overall progress"
+  "overallProgress": "Overall progress",
+  "deviation": {
+    "days_one": "{{sign}}{{count}} day",
+    "days_other": "{{sign}}{{count}} days"
+  }
 }

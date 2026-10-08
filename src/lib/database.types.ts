@@ -41,6 +41,8 @@ export type Project = Pick<
   | "start_date"
   | "target_date"
   | "budget"
+  | "planned_target_date"
+  | "planned_budget"
   | "spent"
   | "schedule_status"
   | "schedule_note"
