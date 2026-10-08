@@ -114,7 +114,7 @@ function ClientOverview({ projectId }: { projectId: string }) {
           <h2 id="floor-plan" className="text-title-lg">
             {t("work:overview.floorPlanVisualisation")}
           </h2>
-          <Link to="/projects/$projectId/progress" search={planSearch} params={params} className={sectionLink}>
+          <Link to="/projects/$projectId/design" search={planSearch} params={params} className={sectionLink}>
             {t("work:overview.openPlan")}
             <Icon name="arrow_forward" size={20} />
           </Link>

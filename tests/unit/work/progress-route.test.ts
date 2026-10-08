@@ -53,10 +53,10 @@ describe("stages -> progress redirect", () => {
   });
 });
 
-describe("plan -> progress redirect", () => {
-  it("redirects to progress?view=plan, keeping the room param", () => {
+describe("plan -> design redirect", () => {
+  it("redirects to design?view=plan, keeping the room param", () => {
     const redirect = redirectFrom(PlanRoute, { params: { projectId: "p1" }, search: { room: "kitchen" } });
-    expect(redirect?.options.to).toBe("/projects/$projectId/progress");
+    expect(redirect?.options.to).toBe("/projects/$projectId/design");
     expect(redirect?.options.params).toEqual({ projectId: "p1" });
     expect(redirect?.options.search).toEqual({ view: "plan", room: "kitchen" });
   });

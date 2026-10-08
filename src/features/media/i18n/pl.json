@@ -13,8 +13,11 @@
   "designPage": {
     "heading": "Planowana aranżacja",
     "metaDescription": "Dodawaj wizualizacje projektowe i pary zdjęć przed/po dla każdego pomieszczenia.",
-    "descriptionManager": "Wizualizacje pokazują klientowi, jak będzie wyglądać każde pomieszczenie po zakończeniu.",
-    "descriptionClient": "Jak będzie wyglądać każde pomieszczenie po zakończeniu.",
+    "tabsLabel": "Widok projektu",
+    "tabRenders": "Wizualizacje",
+    "tabPlan": "Rzut",
+    "descriptionManager": "Wizualizacje pokazują klientowi, jak będzie wyglądać każde pomieszczenie po zakończeniu, a rzut to układ pomieszczeń w jednym miejscu.",
+    "descriptionClient": "Jak będzie wyglądać każde pomieszczenie po zakończeniu oraz rzut z układem pomieszczeń.",
     "addRender": "Dodaj wizualizację",
     "emptyTitle": "Nie ma jeszcze wizualizacji",
     "emptyManager": "Dodaj wizualizacje projektanta, aby klient mógł zobaczyć docelowy wygląd.",
