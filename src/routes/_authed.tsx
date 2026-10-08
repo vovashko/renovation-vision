@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AppRail } from "@/shared/ui/app-rail";
 import { BottomNav } from "@/shared/ui/bottom-nav";
+import { ShareLinkButton } from "@/shared/ui/share-link-button";
 import { QuickActions } from "@/shared/ui/quick-actions";
 import { useProject } from "@/features/projects/hooks";
 import { mfaHref, resolveStaffMfaStep } from "@/features/auth/hooks";
@@ -49,6 +50,7 @@ function ProjectTopBar({ project, narrow }: { project?: ProjectSummary; narrow?:
             </div>
           )}
         </div>
+        <ShareLinkButton />
       </Card>
     </header>
   );

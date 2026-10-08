@@ -30,7 +30,7 @@
   },
   "layout": {
     "notAvailableTitle": "Projekt niedostępny",
-    "notAvailableText": "Nie istnieje albo nie jesteś jego uczestnikiem."
+    "notAvailableText": "Nie istnieje albo należy do innego konta. Zaloguj się kontem, na które wysłano zaproszenie."
   },
   "details": {
     "title": "Szczegóły projektu",

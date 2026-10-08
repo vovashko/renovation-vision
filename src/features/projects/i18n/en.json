@@ -30,7 +30,7 @@
   },
   "layout": {
     "notAvailableTitle": "Project not available",
-    "notAvailableText": "It doesn't exist, or you're not a member of it."
+    "notAvailableText": "It doesn't exist, or it belongs to a different account. Sign in with the account the invitation was sent to."
   },
   "details": {
     "title": "Project details",
