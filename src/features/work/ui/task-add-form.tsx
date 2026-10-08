@@ -20,12 +20,12 @@ export function TaskAddForm({ rooms, onAdd }: { rooms: Room[]; onAdd: (values: {
   });
 
   return (
-    <form className="mt-3 flex flex-wrap gap-2" noValidate onSubmit={submit}>
+    <form className="mt-3 flex flex-wrap gap-2 sm:flex-nowrap" noValidate onSubmit={submit}>
       <Input
         {...nameField}
         placeholder={t("addTask.placeholder")}
         aria-label={t("addTask.nameLabel")}
-        className="h-10 min-w-0 flex-1 basis-full sm:basis-auto"
+        className="h-10 min-w-0 flex-1 basis-full sm:basis-0"
       />
       <NativeSelect size="sm" {...roomField} aria-label={t("addTask.roomLabel")} className="w-36 shrink-0">
         <NativeSelectOption value="">{t("addTask.noRoom")}</NativeSelectOption>

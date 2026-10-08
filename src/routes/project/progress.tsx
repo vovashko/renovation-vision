@@ -106,7 +106,7 @@ function ProgressPage() {
       </div>
 
       {search.view === "timeline" ? (
-        <div id="progress-panel-timeline" role="tabpanel" aria-labelledby="progress-tab-timeline" className="mt-6 max-w-5xl">
+        <div id="progress-panel-timeline" role="tabpanel" aria-labelledby="progress-tab-timeline" className="mt-6">
           {stages.length === 0 ? (
             <StagesEmpty />
           ) : (

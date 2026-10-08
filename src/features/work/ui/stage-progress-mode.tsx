@@ -9,8 +9,21 @@ import { VisibleSwitch } from "@/shared/ui/form-sheet";
 import type { Status } from "@/domain/status";
 import type { ProgressMode } from "@/lib/database.types";
 
-/** The stage form's "how is progress set" switch: from the checklist (`tasks`) or by hand (`manual`). */
-export function ProgressModeControl({ value, onChange }: { value: ProgressMode; onChange: (mode: ProgressMode) => void }) {
+/**
+ * The stage form's "how is progress set" switch: automatic from the checklist (`tasks`) or by hand (`manual`),
+ * with a one-line explanation of the selected mode right below it.
+ */
+export function ProgressModeControl({
+  value,
+  onChange,
+  done,
+  total,
+}: {
+  value: ProgressMode;
+  onChange: (mode: ProgressMode) => void;
+  done: number;
+  total: number;
+}) {
   const { t } = useTranslation("work");
   const labelId = useId();
   const modes: { key: ProgressMode; label: string }[] = [
@@ -33,6 +46,13 @@ export function ProgressModeControl({ value, onChange }: { value: ProgressMode; 
           </SegmentedControlItem>
         ))}
       </SegmentedControl>
+      <FieldDescription>
+        {value === "manual"
+          ? t("stageForm.modeManualHint")
+          : total > 0
+            ? t("stageForm.computedFromTasks", { done, total })
+            : t("stageForm.computedNoTasks")}
+      </FieldDescription>
     </Field>
   );
 }
@@ -44,14 +64,10 @@ export function ProgressModeControl({ value, onChange }: { value: ProgressMode; 
 export function TaskDerivedProgress({
   status,
   progress,
-  done,
-  total,
   onBlockedChange,
 }: {
   status: Status;
   progress: number;
-  done: number;
-  total: number;
   onBlockedChange: (blocked: boolean) => void;
 }) {
   const { t } = useTranslation("work");
@@ -63,9 +79,7 @@ export function TaskDerivedProgress({
         <StatusPill status={status} size="sm" />
       </div>
       <ProgressBar value={progress} tone={statusTone[status]} />
-      <FieldDescription>
-        {total > 0 ? t("stageForm.computedFromTasks", { done, total }) : t("stageForm.computedNoTasks")} {t("stageForm.computedStatus")}
-      </FieldDescription>
+      <FieldDescription>{t("stageForm.computedStatus")}</FieldDescription>
       <VisibleSwitch id={switchId} checked={status === "blocked"} onChange={onBlockedChange} label={t("stageForm.blocked")} />
     </Field>
   );
