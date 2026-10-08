@@ -36,7 +36,7 @@ export function useDeleteStage(projectId: string) {
 export function useSaveTask(projectId: string) {
   const { t } = useTranslation(["work"]);
   return useMutationWithToast((input: TaskInput) => workRepo.saveTask(projectId, input), {
-    invalidate: [keys.stages(projectId), keys.rooms(projectId), ...projectInvalidation(projectId)],
+    invalidate: [keys.stages(projectId), keys.rooms(projectId), keys.roomView(projectId), ...projectInvalidation(projectId)],
     error: (error) => translateWorkError((key, params) => t(key as never, params), error),
   });
 }
@@ -44,7 +44,7 @@ export function useSaveTask(projectId: string) {
 export function useDeleteTask(projectId: string) {
   const { t } = useTranslation(["work"]);
   return useMutationWithToast((task: Pick<Task, "id" | "name">) => workRepo.deleteTask(task.id), {
-    invalidate: [keys.stages(projectId), keys.rooms(projectId), ...projectInvalidation(projectId)],
+    invalidate: [keys.stages(projectId), keys.rooms(projectId), keys.roomView(projectId), ...projectInvalidation(projectId)],
     success: (task) => t("work:stageForm.taskRemoved", { name: task.name }),
     error: (error) => translateWorkError((key, params) => t(key as never, params), error),
   });
@@ -62,7 +62,7 @@ export function useSaveRoom(projectId: string) {
 export function useDeleteRoom(projectId: string) {
   const { t } = useTranslation(["work"]);
   return useMutationWithToast((roomId: string) => workRepo.deleteRoom(roomId), {
-    invalidate: [keys.rooms(projectId), keys.stages(projectId), ...projectInvalidation(projectId)],
+    invalidate: [keys.rooms(projectId), keys.stages(projectId), keys.roomView(projectId), ...projectInvalidation(projectId)],
     success: t("work:roomForm.removed"),
     error: (error) => translateWorkError((key, params) => t(key as never, params), error),
   });

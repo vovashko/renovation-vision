@@ -22,6 +22,7 @@ export const routes = rootRoute("__root.tsx", [
         // Kept as redirects to progress?view=timeline / progress?view=plan so old links still work.
         route("stages", "project/stages.tsx"),
         route("plan", "project/plan.tsx"),
+        route("rooms/$roomId", "project/room.tsx"),
         route("photos", "project/photos.tsx"),
         route("design", "project/design.tsx"),
         route("budget", "project/budget.tsx"),

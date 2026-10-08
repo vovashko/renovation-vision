@@ -119,13 +119,15 @@ insert into public.project_contacts (project_id, contact_id, role, is_primary, v
 -- ---------------------------------------------------------------------------
 -- Rooms (same geometry as the client app's floor plan)
 -- ---------------------------------------------------------------------------
-insert into public.rooms (id, project_id, key, name, status, progress, x, y, w, h, sort_order, client_note) values
-  ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'living', 'Living Room', 'progress', 60, 20, 20, 320, 220, 1, 'Drywall finished; taping and priming this week.'),
-  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'progress', 10, 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
-  ('d0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'dining', 'Dining', 'progress', 45, 340, 160, 240, 80, 3, 'Walls boarded and insulated.'),
-  ('d0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'bath', 'Bathroom', 'progress', 80, 20, 240, 160, 160, 4, 'Plumbing re-routed and signed off. Tiling follows with the flooring stage.'),
-  ('d0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'bed1', 'Bedroom 1', 'progress', 35, 180, 240, 200, 160, 5, 'Subfloor levelled; oak planks acclimatising.'),
-  ('d0000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001', 'bed2', 'Bedroom 2', 'blocked', 15, 380, 240, 200, 160, 6, 'Waiting on the electrical inspector to sign off the new circuit before the walls can be closed.');
+-- progress_mode: the three rooms that have tasks show hand-set numbers that differ from their checklist, so they
+-- stay 'manual' (same rule as the stages below); the others have no tasks yet, so tasks mode keeps their values.
+insert into public.rooms (id, project_id, key, name, status, progress, progress_mode, x, y, w, h, sort_order, client_note) values
+  ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'living', 'Living Room', 'progress', 60, 'manual', 20, 20, 320, 220, 1, 'Drywall finished; taping and priming this week.'),
+  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'progress', 10, 'manual', 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
+  ('d0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'dining', 'Dining', 'progress', 45, 'tasks', 340, 160, 240, 80, 3, 'Walls boarded and insulated.'),
+  ('d0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'bath', 'Bathroom', 'progress', 80, 'manual', 20, 240, 160, 160, 4, 'Plumbing re-routed and signed off. Tiling follows with the flooring stage.'),
+  ('d0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'bed1', 'Bedroom 1', 'progress', 35, 'tasks', 180, 240, 200, 160, 5, 'Subfloor levelled; oak planks acclimatising.'),
+  ('d0000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001', 'bed2', 'Bedroom 2', 'blocked', 15, 'tasks', 380, 240, 200, 160, 6, 'Waiting on the electrical inspector to sign off the new circuit before the walls can be closed.');
 
 -- ---------------------------------------------------------------------------
 -- Stages (2026 dates, same progress as the client app)
@@ -263,24 +265,34 @@ join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' an
 insert into public.contacts (id, kind, full_name, company, trade, phone, email, created_by) values
   ('10000000-0000-4000-8000-000000000007', 'supplier', 'Piotr Lis', 'Nordic Oak Supply', 'Timber & flooring', '+1 555 0151', 'orders@example.com', 'a0000000-0000-4000-8000-000000000001');
 
-insert into public.materials (id, project_id, stage_id, room_id, name, supplier_contact_id, quantity, unit, unit_price, status, expense_id, notes, created_by)
+insert into public.materials (id, project_id, stage_id, room_id, name, supplier_contact_id, quantity, unit, unit_price, status, order_by_date, delivery_date, expense_id, notes, created_by)
 select m.id, 'b0000000-0000-4000-8000-000000000001', s.id, r.id, m.name, m.supplier::uuid, m.quantity, m.unit, m.unit_price,
-       m.status::public.material_status,
+       m.status::public.material_status, m.order_by_date::date, m.delivery_date::date,
        (select e.id from public.expenses e
          where e.project_id = 'b0000000-0000-4000-8000-000000000001' and e.description = m.expense),
        m.notes, 'a0000000-0000-4000-8000-000000000001'
 from (values
-  ('20000000-0000-4000-8000-000000000001'::uuid, 'floor', null, 'Oak planks', '10000000-0000-4000-8000-000000000007', 68.000, 'm2', 94.85, 'delivered', 'Oak planks (68 m²)', 'Two spare boxes kept for repairs.'),
-  ('20000000-0000-4000-8000-000000000002'::uuid, 'floor', null, 'Oak skirting boards', '10000000-0000-4000-8000-000000000007', 42.000, 'm', 18.50, 'ordered', null, ''),
-  ('20000000-0000-4000-8000-000000000003'::uuid, 'floor', 'bath', 'Sage zellige wall tiles', null, 9.500, 'm2', 189.00, 'delivered', null, 'Invoice to follow with the adhesive.'),
-  ('20000000-0000-4000-8000-000000000004'::uuid, 'floor', 'bath', 'Tile adhesive and grout', null, 6.000, 'bag', 42.00, 'planned', null, ''),
-  ('20000000-0000-4000-8000-000000000005'::uuid, 'kitch', 'kitchen', 'Kitchen cabinets (matte white)', null, 1.000, 'set', 14800.00, 'ordered', null, '30% deposit due May 1.'),
-  ('20000000-0000-4000-8000-000000000006'::uuid, 'kitch', 'kitchen', 'Quartz worktop', null, 1.000, 'pcs', 3900.00, 'planned', null, 'Templated once the cabinets are fixed.'),
-  ('20000000-0000-4000-8000-000000000007'::uuid, 'paint', null, 'Wall paint (soft white)', null, 24.000, 'l', 38.00, 'planned', null, ''),
-  ('20000000-0000-4000-8000-000000000008'::uuid, 'wall', null, 'Drywall boards (12.5 mm)', null, 160.000, 'pcs', 28.50, 'installed', 'Drywall boards and insulation', '')
-) as m (id, stage_key, room_key, name, supplier, quantity, unit, unit_price, status, expense, notes)
+  ('20000000-0000-4000-8000-000000000001'::uuid, 'floor', null, 'Oak planks', '10000000-0000-4000-8000-000000000007', 68.000, 'm2', 94.85, 'delivered', null, '2026-04-18', 'Oak planks (68 m²)', 'Two spare boxes kept for repairs.'),
+  ('20000000-0000-4000-8000-000000000002'::uuid, 'floor', null, 'Oak skirting boards', '10000000-0000-4000-8000-000000000007', 42.000, 'm', 18.50, 'ordered', null, '2026-05-04', null, ''),
+  ('20000000-0000-4000-8000-000000000003'::uuid, 'floor', 'bath', 'Sage zellige wall tiles', null, 9.500, 'm2', 189.00, 'delivered', null, '2026-04-15', null, 'Invoice to follow with the adhesive.'),
+  ('20000000-0000-4000-8000-000000000004'::uuid, 'floor', 'bath', 'Tile adhesive and grout', null, 6.000, 'bag', 42.00, 'planned', '2026-04-28', null, null, ''),
+  ('20000000-0000-4000-8000-000000000005'::uuid, 'kitch', 'kitchen', 'Kitchen cabinets (matte white)', null, 1.000, 'set', 14800.00, 'ordered', null, '2026-05-06', null, '30% deposit due May 1.'),
+  ('20000000-0000-4000-8000-000000000006'::uuid, 'kitch', 'kitchen', 'Quartz worktop', null, 1.000, 'pcs', 3900.00, 'planned', '2026-05-12', null, null, 'Templated once the cabinets are fixed.'),
+  ('20000000-0000-4000-8000-000000000007'::uuid, 'paint', null, 'Wall paint (soft white)', null, 24.000, 'l', 38.00, 'planned', '2026-05-20', null, null, ''),
+  ('20000000-0000-4000-8000-000000000008'::uuid, 'wall', null, 'Drywall boards (12.5 mm)', null, 160.000, 'pcs', 28.50, 'installed', null, '2026-03-20', 'Drywall boards and insulation', '')
+) as m (id, stage_key, room_key, name, supplier, quantity, unit, unit_price, status, order_by_date, delivery_date, expense, notes)
 join public.stages s on s.project_id = 'b0000000-0000-4000-8000-000000000001' and s.key = m.stage_key
 left join public.rooms r on r.project_id = 'b0000000-0000-4000-8000-000000000001' and r.key = m.room_key;
+
+-- An investor warning on the kitchen: the cabinets are ordered, the worktop still has to be ordered.
+insert into public.room_warnings (id, project_id, room_id, text, created_by)
+select '21000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', r.id,
+       'The worktop is not ordered yet; the template visit and the fitting date depend on it. No change to the end date yet.',
+       'a0000000-0000-4000-8000-000000000001'
+from public.rooms r where r.project_id = 'b0000000-0000-4000-8000-000000000001' and r.key = 'kitchen';
+insert into public.room_warning_materials (warning_id, material_id, project_id) values
+  ('21000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001'),
+  ('21000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001');
 
 -- ---------------------------------------------------------------------------
 -- Chat (same conversation as the client app; "me" = Sarah)

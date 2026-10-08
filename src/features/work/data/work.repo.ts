@@ -4,7 +4,8 @@ import { supabase } from "@/lib/supabase";
 import type { Room, Stage, Task } from "@/lib/database.types";
 
 export type StageInput = Partial<Omit<Stage, "tasks" | "project_id">>;
-export type TaskInput = Partial<Omit<Task, "project_id">> & { stage_id: string };
+/** A task belongs to a stage and/or a room: pass `stage_id`, `room_id` or both when creating one. */
+export type TaskInput = Partial<Omit<Task, "project_id">>;
 export type RoomInput = Partial<Omit<Room, "project_id">>;
 
 type Result<T> = { data: T | null; error: { message: string } | null };

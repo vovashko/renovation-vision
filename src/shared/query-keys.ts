@@ -12,6 +12,8 @@ export const keys = {
   members: (id: string) => ["members", id] as const,
   stages: (id: string) => ["stages", id] as const,
   rooms: (id: string) => ["rooms", id] as const,
+  /** Everything the room view loads (tasks, materials, warnings of every room): invalidate with a project id. */
+  roomView: (id: string) => ["roomView", id] as const,
   photos: (id: string) => ["photos", id] as const,
   renders: (id: string) => ["renders", id] as const,
   expenses: (id: string) => ["expenses", id] as const,

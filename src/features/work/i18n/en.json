@@ -125,7 +125,7 @@
     "hideGeometry": "Hide position & size",
     "delete": "Delete room",
     "deleteConfirmTitle": "Delete room?",
-    "deleteConfirmDescription": "Delete {{name}}? Photos and tasks keep existing without a room.",
+    "deleteConfirmDescription": "Delete {{name}}? Photos, materials and stage tasks keep existing without a room; works that belong only to this room and its warnings are removed.",
     "saved": "{{name}} saved — the client's plan is updated",
     "removed": "Room removed",
     "statusProgressMismatch": "Completed and 100% always go together"
@@ -134,6 +134,7 @@
     "label": "Selected room",
     "progress": "Progress",
     "progressAriaLabel": "{{name}} progress",
+    "openRoom": "Open room: works, materials, warnings",
     "clickPrompt": "Click any room on the floor plan to view its current renovation status."
   },
   "floorPlan": {
@@ -148,6 +149,83 @@
     "stageDoneTasksOpen_many": "{{stage}} is Completed, but {{count}} tasks are still open.",
     "stageDoneTasksOpen_other": "{{stage}} is Completed, but {{count}} tasks are still open.",
     "stagePendingTasksDone": "{{stage}} is Pending, but some of its tasks are already checked off."
+  },
+  "roomView": {
+    "back": "Back to the floor plan",
+    "notFoundTitle": "Room not available",
+    "notFoundText": "This room doesn't exist or isn't shared with you.",
+    "progressFromWorks": "Progress follows the works below.",
+    "progressManual": "Progress and status are set by hand (add works to derive them)."
+  },
+  "roomWorks": {
+    "heading": "Works",
+    "empty": "No works in this room yet.",
+    "stage": "Stage: {{name}}",
+    "stateLabel": "State of \"{{name}}\"",
+    "state": {
+      "todo": "To do",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "addLabel": "New work",
+    "addPlaceholder": "Add a work, e.g. Paint walls",
+    "stageLabel": "Stage (optional)",
+    "noStage": "No stage"
+  },
+  "materials": {
+    "heading": "Materials",
+    "empty": "No materials listed for this room.",
+    "add": "Add material",
+    "addTitle": "Add material",
+    "editTitle": "Edit material",
+    "formDescription": "Quantity, status and dates. Prices stay in Budget and are never shown to the client.",
+    "edit": "Edit {{name}}",
+    "remove": "Remove {{name}}",
+    "removeConfirmTitle": "Remove \"{{name}}\"?",
+    "saved": "Material saved",
+    "removed": "Material removed",
+    "status": {
+      "planned": "Not ordered",
+      "ordered": "Ordered",
+      "delivered": "Delivered",
+      "installed": "Installed"
+    },
+    "date": {
+      "orderBy": "Order by {{date}} at the latest",
+      "delivery": "Delivery {{date}}",
+      "delivered": "Delivered {{date}}"
+    },
+    "form": {
+      "name": "Material",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "status": "Status",
+      "orderBy": "Order by (latest)",
+      "orderByHint": "Shown in red until the material is ordered.",
+      "delivery": "Delivery date"
+    }
+  },
+  "warnings": {
+    "title": "Note to the investor",
+    "heading": "Warnings",
+    "empty": "No warnings for this room.",
+    "add": "Add warning",
+    "addTitle": "Add warning",
+    "editTitle": "Edit warning",
+    "formDescription": "A risk the investor should know about. It does not change any date.",
+    "edit": "Edit warning",
+    "remove": "Remove warning",
+    "removeConfirmTitle": "Remove this warning?",
+    "resolved": "Resolved",
+    "saved": "Warning saved",
+    "removed": "Warning removed",
+    "form": {
+      "text": "Warning",
+      "textHint": "What could go wrong, and why.",
+      "materials": "Related materials",
+      "materialsHint": "The investor sees the warning until all of these are delivered. With none selected it stays until you remove it.",
+      "noMaterials": "Add materials to this room first to link them."
+    }
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} can't be marked Completed while tasks are open: {{tasks}}.",

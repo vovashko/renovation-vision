@@ -95,10 +95,27 @@ export type Member = Pick<Tables<"project_members">, "project_id" | "user_id" | 
 
 export type Room = Pick<
   Tables<"rooms">,
-  "id" | "project_id" | "key" | "name" | "status" | "progress" | "x" | "y" | "w" | "h" | "client_note" | "sort_order" | "is_visible"
+  | "id"
+  | "project_id"
+  | "key"
+  | "name"
+  | "status"
+  | "progress"
+  | "progress_mode"
+  | "x"
+  | "y"
+  | "w"
+  | "h"
+  | "client_note"
+  | "sort_order"
+  | "is_visible"
 >;
 
-export type Task = Pick<Tables<"tasks">, "id" | "project_id" | "stage_id" | "room_id" | "name" | "done" | "sort_order" | "is_visible">;
+/** A checklist item. `stage_id` and/or `room_id` is set; `in_progress` marks a started, unfinished task (progress counts `done` only). */
+export type Task = Pick<
+  Tables<"tasks">,
+  "id" | "project_id" | "stage_id" | "room_id" | "name" | "done" | "in_progress" | "sort_order" | "is_visible"
+>;
 
 export type Stage = Pick<
   Tables<"stages">,
@@ -172,6 +189,20 @@ export type Material = Pick<
   | "notes"
   | "created_at"
 >;
+
+/**
+ * What `room_materials(room)` returns: a room's material without prices, supplier or notes. The only material
+ * read open to clients. Postgres marks every function column nullable, hence the NonNullable mapping.
+ */
+type RoomMaterialRow = Database["public"]["Functions"]["room_materials"]["Returns"][number];
+export type RoomMaterial = {
+  [K in keyof RoomMaterialRow]: K extends "order_by_date" | "delivery_date" ? string | null : NonNullable<RoomMaterialRow[K]>;
+};
+
+/** An investor warning on a room, with the ids of the materials it is linked to. Never changes a date. */
+export type RoomWarning = Pick<Tables<"room_warnings">, "id" | "project_id" | "room_id" | "text" | "created_by" | "created_at"> & {
+  material_ids: string[];
+};
 
 // Postgres marks every view column nullable; stage_costs starts from stage_budgets and coalesces its sums.
 type StageCostsView = Views<"stage_costs">;
