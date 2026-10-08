@@ -488,6 +488,52 @@ projects ──< stages (progress_mode: tasks | manual) ──< tasks
 
 Tests: `tests/db/work.test.sql`.
 
+## Room view (#56)
+
+`/projects/<id>/rooms/<room>` (opened from the plan's selected-room panel): a room's works, materials with their
+delivery status, and warnings for the investor. Everything is entered by hand by the site manager; clients read it.
+
+```
+rooms ──< tasks (stage_id and/or room_id, state: todo | in_progress | done)    ONE source of progress
+rooms ──< materials (order_by_date, delivery_date, status planned|ordered|delivered|installed)
+rooms ──< room_warnings (text) ──< room_warning_materials >── materials
+```
+
+- **Works are tasks.** `tasks.stage_id` is now nullable (at least one of `stage_id` / `room_id` is required); a task
+  may belong to a stage, a room or both. `done` stays the only progress flag; the new `in_progress` flag only marks a
+  started, unfinished task (state = done ? done : in_progress ? in progress : to do, `@/domain/progress` `taskState`).
+  `tasks.project_id` still comes from the stage, or from the room for a room-only task. Deleting a room deletes its
+  room-only tasks; its stage tasks stay without a room.
+- **Room progress is derived**, like a stage's: `rooms.progress_mode` (`tasks` default | `manual`). In `tasks` mode, once
+  a room has tasks, `progress` = the same `round(100 * done / total)` rule as stages (`deriveFromTasks`), status follows
+  it, `blocked` is never overridden (progress capped at 99), and `(status = 'done') = (progress = 100)` still holds. A room
+  without tasks keeps its hand-set values. Existing rooms whose numbers differ from their tasks were backfilled to
+  `manual` (the demo's Living Room, Kitchen and Bathroom). The old "re-opening a task on a Completed room" guard now only
+  applies to `manual` rooms. A stage's progress only counts its own tasks; room-only tasks never touch it.
+- **Material colours** (`@/domain/materials`): red = `planned` (not ordered, "najpóźniej zamówić do <order_by_date>"),
+  orange = `ordered` ("dostawa <delivery_date>"), green = `delivered` / `installed`. `installed` is kept.
+- **Clients never see prices.** `materials` stays managers-only (restrictive staff-MFA policy included). Clients read a
+  room's materials through `room_materials(room)`: a security-definer function returning only name, quantity, unit,
+  status and the two dates (no price, supplier, notes or expense), for managers (with an MFA session while 2FA is
+  enforced) and for clients of the project (visible rooms only). A `security_invoker` view could not do this: it would
+  return nothing to clients, and column privileges can't tell two `authenticated` users apart. Same pattern as
+  `project_visible_contacts`. The room view's material form has no price field.
+- **Warnings ("Uwaga do inwestora")** are risks, never a date change. A warning is **open while any linked material is
+  `planned` or `ordered`; a warning with no linked material stays open until a manager removes it**
+  (`private.warning_is_open` in the database, `isWarningOpen` in `@/domain/room-warnings`). Clients only read open
+  warnings of visible rooms (RLS: `private.client_can_see_warning`); managers read all of them and see the resolved ones
+  marked. Linked materials must belong to the warning's room. `rooms.client_note` is untouched.
+
+| Table / function         | Client                                      | Project manager  |
+| ------------------------ | ------------------------------------------- | ---------------- |
+| `tasks`                  | visible tasks (room-only: of visible rooms) | read/write       |
+| `room_materials(room)`   | the safe columns, visible rooms             | the safe columns |
+| `materials`              | —                                           | all (unchanged)  |
+| `room_warnings`          | open warnings of visible rooms              | read/write       |
+| `room_warning_materials` | the links of those warnings                 | read/write       |
+
+Tests: `tests/db/room_view.test.sql`, `tests/unit/work/room-view*.test.ts(x)`, `tests/unit/domain/{materials,room-warnings}.test.ts`.
+
 ## Sessions & route guards
 
 **Cookie sessions.** The browser Supabase client (`@/lib/supabase`) is `@supabase/ssr`'s `createBrowserClient`, so

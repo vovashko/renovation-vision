@@ -50,6 +50,7 @@ const task = (name: string, done = false): Task => ({
   room_id: null,
   name,
   done,
+  in_progress: false,
   sort_order: 0,
   is_visible: true,
 });
@@ -76,6 +77,7 @@ const room = (patch: Partial<Room> & { name: string }): Room => ({
   key: patch.name.toLowerCase(),
   status: "progress",
   progress: 50,
+  progress_mode: "tasks",
   x: 0,
   y: 0,
   w: 1,

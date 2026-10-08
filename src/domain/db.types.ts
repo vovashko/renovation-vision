@@ -336,13 +336,13 @@ isOneToOne: false
                   ]
                 },"materials": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"expense_id": string | null,"id": string,"name": string,"notes": string,"progress_entry_id": string | null,"project_id": string,"quantity": number,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["material_status"],"supplier_contact_id": string | null,"unit": string,"unit_price": number,"updated_at": string
+                    "created_at": string,"created_by": string | null,"delivery_date": string | null,"expense_id": string | null,"id": string,"name": string,"notes": string,"order_by_date": string | null,"progress_entry_id": string | null,"project_id": string,"quantity": number,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["material_status"],"supplier_contact_id": string | null,"unit": string,"unit_price": number,"updated_at": string
                   }
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"expense_id"?: string | null,"id"?: string,"name": string,"notes"?: string,"progress_entry_id"?: string | null,"project_id": string,"quantity"?: number,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["material_status"],"supplier_contact_id"?: string | null,"unit"?: string,"unit_price"?: number,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"delivery_date"?: string | null,"expense_id"?: string | null,"id"?: string,"name": string,"notes"?: string,"order_by_date"?: string | null,"progress_entry_id"?: string | null,"project_id": string,"quantity"?: number,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["material_status"],"supplier_contact_id"?: string | null,"unit"?: string,"unit_price"?: number,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"expense_id"?: string | null,"id"?: string,"name"?: string,"notes"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"quantity"?: number,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["material_status"],"supplier_contact_id"?: string | null,"unit"?: string,"unit_price"?: number,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"delivery_date"?: string | null,"expense_id"?: string | null,"id"?: string,"name"?: string,"notes"?: string,"order_by_date"?: string | null,"progress_entry_id"?: string | null,"project_id"?: string,"quantity"?: number,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["material_status"],"supplier_contact_id"?: string | null,"unit"?: string,"unit_price"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -724,15 +724,89 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"rooms": {
+                },"room_warning_materials": {
                   Row: {
-                    "client_note": string,"created_at": string,"h": number,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"project_id": string,"sort_order": number,"status": Database["public"]['Enums']["work_status"],"updated_at": string,"w": number,"x": number,"y": number
+                    "created_at": string,"material_id": string,"project_id": string,"warning_id": string
                   }
                   Insert: {
-                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key": string,"name": string,"progress"?: number,"project_id": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number,"x"?: number,"y"?: number
+                    "created_at"?: string,"material_id": string,"project_id"?: string,"warning_id": string
                   }
                   Update: {
-                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key"?: string,"name"?: string,"progress"?: number,"project_id"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number,"x"?: number,"y"?: number
+                    "created_at"?: string,"material_id"?: string,"project_id"?: string,"warning_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "room_warning_materials_material_id_fkey"
+      columns: ["material_id"]
+isOneToOne: false
+      referencedRelation: "materials"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "room_warning_materials_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "room_warning_materials_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "room_warning_materials_warning_id_fkey"
+      columns: ["warning_id"]
+isOneToOne: false
+      referencedRelation: "room_warnings"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"room_warnings": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"project_id": string,"room_id": string,"text": string,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"project_id": string,"room_id": string,"text": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"project_id"?: string,"room_id"?: string,"text"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "room_warnings_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "room_warnings_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "room_warnings_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "room_warnings_room_id_fkey"
+      columns: ["room_id"]
+isOneToOne: false
+      referencedRelation: "rooms"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"rooms": {
+                  Row: {
+                    "client_note": string,"created_at": string,"h": number,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"progress_mode": Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order": number,"status": Database["public"]['Enums']["work_status"],"updated_at": string,"w": number,"x": number,"y": number
+                  }
+                  Insert: {
+                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key": string,"name": string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number,"x"?: number,"y"?: number
+                  }
+                  Update: {
+                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key"?: string,"name"?: string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number,"x"?: number,"y"?: number
                   }
                   Relationships: [
                     {
@@ -807,13 +881,13 @@ isOneToOne: false
                   ]
                 },"tasks": {
                   Row: {
-                    "completed_at": string | null,"created_at": string,"done": boolean,"id": string,"is_visible": boolean,"name": string,"project_id": string,"room_id": string | null,"sort_order": number,"stage_id": string,"updated_at": string
+                    "completed_at": string | null,"created_at": string,"done": boolean,"id": string,"in_progress": boolean,"is_visible": boolean,"name": string,"project_id": string,"room_id": string | null,"sort_order": number,"stage_id": string | null,"updated_at": string
                   }
                   Insert: {
-                    "completed_at"?: string | null,"created_at"?: string,"done"?: boolean,"id"?: string,"is_visible"?: boolean,"name": string,"project_id": string,"room_id"?: string | null,"sort_order"?: number,"stage_id": string,"updated_at"?: string
+                    "completed_at"?: string | null,"created_at"?: string,"done"?: boolean,"id"?: string,"in_progress"?: boolean,"is_visible"?: boolean,"name": string,"project_id": string,"room_id"?: string | null,"sort_order"?: number,"stage_id"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "completed_at"?: string | null,"created_at"?: string,"done"?: boolean,"id"?: string,"is_visible"?: boolean,"name"?: string,"project_id"?: string,"room_id"?: string | null,"sort_order"?: number,"stage_id"?: string,"updated_at"?: string
+                    "completed_at"?: string | null,"created_at"?: string,"done"?: boolean,"id"?: string,"in_progress"?: boolean,"is_visible"?: boolean,"name"?: string,"project_id"?: string,"room_id"?: string | null,"sort_order"?: number,"stage_id"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -938,6 +1012,11 @@ isOneToOne: true
                            },
 "revoke_invitation":
 { Args: { "p_invitation": string }; Returns: boolean
+                           },
+"room_materials":
+{ Args: { "p_room": string }; Returns: {
+              "delivery_date": string,"id": string,"name": string,"order_by_date": string,"project_id": string,"quantity": number,"room_id": string,"status": Database["public"]['Enums']["material_status"],"unit": string
+            }[]
                            },
 "set_account_type":
 { Args: { "p_type": Database["public"]['Enums']["account_type"],"p_user": string }; Returns: undefined

@@ -15,6 +15,7 @@ import { TaskAddForm } from "@/features/work/ui/task-add-form";
 import { StageFormSheet } from "@/features/work/ui/stage-form";
 import { FloorPlan } from "@/features/work/ui/floor-plan";
 import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
+import { OpenRoomLink } from "@/features/work/ui/open-room-link";
 import { RoomList } from "@/features/work/ui/room-list";
 import { RoomsEmpty } from "@/features/work/ui/rooms-empty";
 import { RoomEditor, RoomForm } from "@/features/work/ui/room-form";
@@ -211,12 +212,15 @@ function ProgressPage() {
                 onSelect={(r) => setActiveRoomId(r.id)}
                 detail={
                   !activeRoom ? undefined : isManager ? (
-                    <RoomEditor
-                      key={activeRoom.id + activeRoom.status + activeRoom.progress}
-                      projectId={projectId}
-                      room={activeRoom}
-                      openTasks={openTasksFor(activeRoom.id).map((t2) => t2.name)}
-                    />
+                    <>
+                      <RoomEditor
+                        key={activeRoom.id + activeRoom.status + activeRoom.progress}
+                        projectId={projectId}
+                        room={activeRoom}
+                        openTasks={openTasksFor(activeRoom.id).map((t2) => t2.name)}
+                      />
+                      <OpenRoomLink projectId={projectId} roomId={activeRoom.id} />
+                    </>
                   ) : (
                     <SelectedRoomPanel room={activeRoom}>
                       {activeRoom.client_note && <p className="mt-5 text-body-md text-on-surface-variant">{activeRoom.client_note}</p>}
@@ -230,6 +234,7 @@ function ProgressPage() {
                           </ul>
                         </div>
                       )}
+                      <OpenRoomLink projectId={projectId} roomId={activeRoom.id} />
                     </SelectedRoomPanel>
                   )
                 }

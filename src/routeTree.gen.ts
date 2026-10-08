@@ -35,6 +35,7 @@ import { Route as projectProgressRouteImport } from './routes/project/progress'
 import { Route as projectStagesRouteImport } from './routes/project/stages'
 import { Route as projectTeamRouteImport } from './routes/project/team'
 import { Route as projectUpdatesRouteImport } from './routes/project/updates'
+import { Route as projectRoomRouteImport } from './routes/project/room'
 
 const authedRoute = authedRouteImport.update({
   id: '/_authed',
@@ -165,6 +166,11 @@ const projectUpdatesRoute = projectUpdatesRouteImport.update({
   path: '/updates',
   getParentRoute: () => projectLayoutRoute,
 } as any)
+const projectRoomRoute = projectRoomRouteImport.update({
+  id: '/rooms/$roomId',
+  path: '/rooms/$roomId',
+  getParentRoute: () => projectLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof indexRoute
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/stages': typeof projectStagesRoute
   '/projects/$projectId/team': typeof projectTeamRoute
   '/projects/$projectId/updates': typeof projectUpdatesRoute
+  '/projects/$projectId/rooms/$roomId': typeof projectRoomRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof forgotPasswordRoute
@@ -217,6 +224,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId/stages': typeof projectStagesRoute
   '/projects/$projectId/team': typeof projectTeamRoute
   '/projects/$projectId/updates': typeof projectUpdatesRoute
+  '/projects/$projectId/rooms/$roomId': typeof projectRoomRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/_authed/projects/$projectId/stages': typeof projectStagesRoute
   '/_authed/projects/$projectId/team': typeof projectTeamRoute
   '/_authed/projects/$projectId/updates': typeof projectUpdatesRoute
+  '/_authed/projects/$projectId/rooms/$roomId': typeof projectRoomRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
+    | '/projects/$projectId/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/stages'
     | '/projects/$projectId/team'
     | '/projects/$projectId/updates'
+    | '/projects/$projectId/rooms/$roomId'
   id:
     | '__root__'
     | '/_authed'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/_authed/projects/$projectId/stages'
     | '/_authed/projects/$projectId/team'
     | '/_authed/projects/$projectId/updates'
+    | '/_authed/projects/$projectId/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -522,6 +534,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof projectUpdatesRouteImport
       parentRoute: typeof projectLayoutRoute
     }
+    '/_authed/projects/$projectId/rooms/$roomId': {
+      id: '/_authed/projects/$projectId/rooms/$roomId'
+      path: '/rooms/$roomId'
+      fullPath: '/projects/$projectId/rooms/$roomId'
+      preLoaderRoute: typeof projectRoomRouteImport
+      parentRoute: typeof projectLayoutRoute
+    }
   }
 }
 
@@ -539,6 +558,7 @@ interface projectLayoutRouteChildren {
   projectStagesRoute: typeof projectStagesRoute
   projectTeamRoute: typeof projectTeamRoute
   projectUpdatesRoute: typeof projectUpdatesRoute
+  projectRoomRoute: typeof projectRoomRoute
 }
 
 const projectLayoutRouteChildren: projectLayoutRouteChildren = {
@@ -555,6 +575,7 @@ const projectLayoutRouteChildren: projectLayoutRouteChildren = {
   projectStagesRoute: projectStagesRoute,
   projectTeamRoute: projectTeamRoute,
   projectUpdatesRoute: projectUpdatesRoute,
+  projectRoomRoute: projectRoomRoute,
 }
 
 const projectLayoutRouteWithChildren = projectLayoutRoute._addFileChildren(

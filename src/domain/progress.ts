@@ -40,6 +40,18 @@ export function taskProgress(done: number, total: number): number {
   return Math.min(99, Math.max(1, Math.round((100 * done) / total)));
 }
 
+/** A task's state: `done` is the only progress flag; `in_progress` only marks a started, unfinished task. */
+export type TaskState = "todo" | "in_progress" | "done";
+
+export function taskState(task: { done: boolean; in_progress: boolean }): TaskState {
+  return task.done ? "done" : task.in_progress ? "in_progress" : "todo";
+}
+
+/** The `done` / `in_progress` columns for a chosen state (the database also clears `in_progress` on a done task). */
+export function taskFlags(state: TaskState): { done: boolean; in_progress: boolean } {
+  return { done: state === "done", in_progress: state === "in_progress" };
+}
+
 /**
  * The progress and status of a stage in `tasks` mode, mirroring the database (`private.stage_derived`):
  * status follows the checklist (0% pending, 1–99% in progress, 100% done), except that `blocked` is never
