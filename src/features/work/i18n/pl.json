@@ -99,14 +99,14 @@
     "descriptionManager": "Wybierz pomieszczenie, aby zaktualizować to, co widzi klient na swoim planie.",
     "descriptionClient": "Wybierz pomieszczenie, aby zobaczyć jego postęp i to, co się w nim dzieje.",
     "addRoom": "Dodaj pomieszczenie",
-    "addRoomDescription": "Pozycja w jednostkach planu (600 szerokości × 420 wysokości).",
+    "addRoomDescription": "Wymiary pomieszczenia w metrach, np. z rzutu. Rozmieszczenie na planie liczy się samo: im większe pomieszczenie, tym więcej miejsca zajmuje.",
     "roomsHeading": "Pomieszczenia",
     "stillToDo": "Pozostało do zrobienia",
     "clickPrompt": "Kliknij dowolne pomieszczenie na rzucie, aby zobaczyć jego aktualny status remontu."
   },
   "roomsEmpty": {
     "title": "Brak pomieszczeń",
-    "description": "Dodaj pomieszczenia wraz z ich pozycją na siatce planu 600×420."
+    "description": "Dodaj pomieszczenia wraz z wymiarami — plan rozmieści je sam, proporcjonalnie do powierzchni."
   },
   "roomForm": {
     "name": "Nazwa pomieszczenia",
@@ -117,15 +117,11 @@
     "notePlaceholderBlocked": "Na co czeka?",
     "visibleToClient": "Widoczne dla klienta",
     "blockedByTasks": "Nie można oznaczyć jako ukończone, gdy zadania są otwarte: {{tasks}}.",
-    "geometryX": "X",
-    "geometryY": "Y",
-    "geometryW": "Szer.",
-    "geometryH": "Wys.",
+    "sizeW": "Szerokość (m)",
+    "sizeH": "Długość (m)",
     "save": "Zapisz pomieszczenie",
     "add": "Dodaj pomieszczenie",
     "saving": "Zapisywanie…",
-    "showGeometry": "Edytuj pozycję i rozmiar",
-    "hideGeometry": "Ukryj pozycję i rozmiar",
     "delete": "Usuń pomieszczenie",
     "deleteConfirmTitle": "Usunąć pomieszczenie?",
     "deleteConfirmDescription": "Usunąć {{name}}? Zdjęcia, materiały i zadania etapów pozostaną bez przypisanego pomieszczenia; prace przypisane tylko do tego pomieszczenia oraz jego uwagi zostaną usunięte.",

@@ -120,17 +120,17 @@ insert into public.project_contacts (project_id, contact_id, role, is_primary, v
   ('b0000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000006', 'crew', false, false, 4);
 
 -- ---------------------------------------------------------------------------
--- Rooms (same geometry as the client app's floor plan)
+-- Rooms (width × length in metres; the plan lays them out from these)
 -- ---------------------------------------------------------------------------
 -- progress_mode: the three rooms that have tasks show hand-set numbers that differ from their checklist, so they
 -- stay 'manual' (same rule as the stages below); the others have no tasks yet, so tasks mode keeps their values.
-insert into public.rooms (id, project_id, key, name, status, progress, progress_mode, x, y, w, h, sort_order, client_note) values
-  ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'living', 'Living Room', 'progress', 60, 'manual', 20, 20, 320, 220, 1, 'Drywall finished; taping and priming this week.'),
-  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'progress', 10, 'manual', 340, 20, 240, 140, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
-  ('d0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'dining', 'Dining', 'progress', 45, 'tasks', 340, 160, 240, 80, 3, 'Walls boarded and insulated.'),
-  ('d0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'bath', 'Bathroom', 'progress', 80, 'manual', 20, 240, 160, 160, 4, 'Plumbing re-routed and signed off. Tiling follows with the flooring stage.'),
-  ('d0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'bed1', 'Bedroom 1', 'progress', 35, 'tasks', 180, 240, 200, 160, 5, 'Subfloor levelled; oak planks acclimatising.'),
-  ('d0000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001', 'bed2', 'Bedroom 2', 'blocked', 15, 'tasks', 380, 240, 200, 160, 6, 'Waiting on the electrical inspector to sign off the new circuit before the walls can be closed.');
+insert into public.rooms (id, project_id, key, name, status, progress, progress_mode, w, h, sort_order, client_note) values
+  ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'living', 'Living Room', 'progress', 60, 'manual', 8, 5.5, 1, 'Drywall finished; taping and priming this week.'),
+  ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', 'kitchen', 'Kitchen', 'progress', 10, 'manual', 6, 3.5, 2, 'New circuit panel in place. Cabinets arrive for the Kitchen Install stage.'),
+  ('d0000000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001', 'dining', 'Dining', 'progress', 45, 'tasks', 6, 2, 3, 'Walls boarded and insulated.'),
+  ('d0000000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001', 'bath', 'Bathroom', 'progress', 80, 'manual', 4, 4, 4, 'Plumbing re-routed and signed off. Tiling follows with the flooring stage.'),
+  ('d0000000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001', 'bed1', 'Bedroom 1', 'progress', 35, 'tasks', 5, 4, 5, 'Subfloor levelled; oak planks acclimatising.'),
+  ('d0000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001', 'bed2', 'Bedroom 2', 'blocked', 15, 'tasks', 5, 4, 6, 'Waiting on the electrical inspector to sign off the new circuit before the walls can be closed.');
 
 -- ---------------------------------------------------------------------------
 -- Stages (2026 dates, same progress as the client app)

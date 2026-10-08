@@ -98,20 +98,7 @@ export type Member = Pick<Tables<"project_members">, "project_id" | "user_id" | 
 
 export type Room = Pick<
   Tables<"rooms">,
-  | "id"
-  | "project_id"
-  | "key"
-  | "name"
-  | "status"
-  | "progress"
-  | "progress_mode"
-  | "x"
-  | "y"
-  | "w"
-  | "h"
-  | "client_note"
-  | "sort_order"
-  | "is_visible"
+  "id" | "project_id" | "key" | "name" | "status" | "progress" | "progress_mode" | "w" | "h" | "client_note" | "sort_order" | "is_visible"
 >;
 
 /** A checklist item. `stage_id` and/or `room_id` is set; `in_progress` marks a started, unfinished task (progress counts `done` only). */

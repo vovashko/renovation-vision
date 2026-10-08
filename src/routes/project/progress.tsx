@@ -273,10 +273,9 @@ function ProgressPage() {
             >
               <RoomForm
                 projectId={projectId}
-                initial={{ name: "", status: "pending", progress: 0, client_note: "", is_visible: true, x: 20, y: 20, w: 160, h: 120 }}
+                initial={{ name: "", status: "pending", progress: 0, client_note: "", is_visible: true, w: 4, h: 3 }}
                 onSaved={() => setAddingRoom(false)}
                 extra={{ sort_order: rooms.length + 1 }}
-                showGeometry
               />
             </FormSheet>
           )}

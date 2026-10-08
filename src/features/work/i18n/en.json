@@ -99,14 +99,14 @@
     "descriptionManager": "Select a room to update what the client sees on their plan.",
     "descriptionClient": "Select a room to see its progress and what is happening there.",
     "addRoom": "Add room",
-    "addRoomDescription": "Position is in plan units (600 wide × 420 high).",
+    "addRoomDescription": "Room dimensions in metres, e.g. from the floor plan. The layout is calculated for you: the bigger the room, the more space it takes.",
     "roomsHeading": "Rooms",
     "stillToDo": "Still to do",
     "clickPrompt": "Click any room on the floor plan to view its current renovation status."
   },
   "roomsEmpty": {
     "title": "No rooms yet",
-    "description": "Add rooms with their position on the 600×420 plan grid."
+    "description": "Add rooms with their dimensions — the plan lays them out proportionally to their area."
   },
   "roomForm": {
     "name": "Room name",
@@ -117,15 +117,11 @@
     "notePlaceholderBlocked": "What is it waiting on?",
     "visibleToClient": "Visible to client",
     "blockedByTasks": "Can't mark Completed while tasks are open: {{tasks}}.",
-    "geometryX": "X",
-    "geometryY": "Y",
-    "geometryW": "W",
-    "geometryH": "H",
+    "sizeW": "Width (m)",
+    "sizeH": "Length (m)",
     "save": "Save room",
     "add": "Add room",
     "saving": "Saving…",
-    "showGeometry": "Edit position & size",
-    "hideGeometry": "Hide position & size",
     "delete": "Delete room",
     "deleteConfirmTitle": "Delete room?",
     "deleteConfirmDescription": "Delete {{name}}? Photos, materials and stage tasks keep existing without a room; works that belong only to this room and its warnings are removed.",

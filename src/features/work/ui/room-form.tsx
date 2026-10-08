@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
@@ -21,7 +20,7 @@ import { useDeleteRoom, useSaveRoom } from "../hooks/mutations";
 import type { RoomInput } from "../data/work.repo";
 import type { Room } from "@/lib/database.types";
 
-const GEOMETRY_KEYS = ["x", "y", "w", "h"] as const;
+const SIZE_KEYS = ["w", "h"] as const;
 
 /** The room fields shared by the "Add room" sheet and the selected room's inline editor. */
 export function RoomForm({
@@ -29,7 +28,6 @@ export function RoomForm({
   initial,
   id,
   openTasks = [],
-  showGeometry,
   compact,
   extra,
   onSaved,
@@ -38,7 +36,6 @@ export function RoomForm({
   initial: RoomFormValues;
   id?: string;
   openTasks?: string[];
-  showGeometry?: boolean;
   compact?: boolean;
   extra?: Partial<RoomInput>;
   onSaved?: () => void;
@@ -123,29 +120,24 @@ export function RoomForm({
             />
           )}
         />
-        {showGeometry && (
-          <div className="grid grid-cols-4 gap-2">
-            {GEOMETRY_KEYS.map((k) => (
-              <FormField
-                key={k}
-                control={form.control}
-                name={k}
-                label={t(`work:roomForm.geometry${k.toUpperCase() as "X" | "Y" | "W" | "H"}`)}
-              >
-                {(field) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    min={k === "w" || k === "h" ? 10 : 0}
-                    max={k === "x" || k === "w" ? 600 : 420}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    className="h-10 px-2"
-                  />
-                )}
-              </FormField>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-3">
+          {SIZE_KEYS.map((k) => (
+            <FormField key={k} control={form.control} name={k} label={t(`work:roomForm.size${k.toUpperCase() as "W" | "H"}`)}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  inputMode="decimal"
+                  min={0.5}
+                  max={100}
+                  step={0.01}
+                  onChange={(e) => field.onChange(e.target.value === "" ? Number.NaN : Number(e.target.value))}
+                  className="h-11"
+                />
+              )}
+            </FormField>
+          ))}
+        </div>
         <Button type="submit" disabled={save.isPending || blockedByTasks} className="min-h-11 w-full">
           {save.isPending ? t("work:roomForm.saving") : id ? t("work:roomForm.save") : t("work:roomForm.add")}
         </Button>
@@ -157,7 +149,6 @@ export function RoomForm({
 /** The selected room's inline editor on the plan page: name/header, fields and delete. */
 export function RoomEditor({ projectId, room, openTasks }: { projectId: string; room: Room; openTasks: string[] }) {
   const { t } = useTranslation(["work", "common"]);
-  const [geometry, setGeometry] = useState(false);
   const confirm = useConfirm();
   const remove = useDeleteRoom(projectId);
 
@@ -175,12 +166,9 @@ export function RoomEditor({ projectId, room, openTasks }: { projectId: string; 
       <div className="text-body-md text-on-surface-variant">{t("work:selectedRoom.label")}</div>
       <h3 className="mt-1 text-title-lg">{room.name}</h3>
       <div className="mt-4">
-        <RoomForm projectId={projectId} initial={room} id={room.id} openTasks={openTasks} showGeometry={geometry} compact />
+        <RoomForm projectId={projectId} initial={room} id={room.id} openTasks={openTasks} compact />
       </div>
-      <div className="mt-3 flex flex-wrap justify-between gap-2">
-        <button type="button" onClick={() => setGeometry((g) => !g)} className="text-body-sm text-primary hover:underline">
-          {geometry ? t("work:roomForm.hideGeometry") : t("work:roomForm.showGeometry")}
-        </button>
+      <div className="mt-3 flex flex-wrap justify-end gap-2">
         <button type="button" onClick={onDelete} className="inline-flex items-center gap-1 text-body-sm text-destructive hover:underline">
           <Icon name="delete" size={16} /> {t("work:roomForm.delete")}
         </button>

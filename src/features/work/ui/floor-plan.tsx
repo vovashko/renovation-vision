@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { Status } from "@/domain/status";
 import { useStatusLabel } from "@/i18n";
 import { statusContainer, statusOutline } from "@/components/ui/status-ui";
 import { Card } from "@/components/ui/card";
+import { layoutRooms } from "@/domain/floor-plan-layout";
 import { StatusLegend } from "@/components/status-pill";
 import { SelectedRoomPanel, type SelectedRoom } from "./selected-room-panel";
 
@@ -13,15 +14,14 @@ export type FloorPlanRoom = {
   name: string;
   status: Status;
   progress: number;
-  // Position on a 600x420 plan grid.
-  x: number;
-  y: number;
+  /** Real width and length in metres: the plan sizes and places the tile from these. */
   w: number;
   h: number;
   muted?: boolean;
 };
 
-// Plan geometry: rooms live on a 600x420 grid. Each tile is inset by GAP on every side so
+// Plan geometry: rooms are laid out on a 600x420 grid by `layoutRooms`, each tile's area proportional to the
+// room's real area. Each tile is inset by GAP on every side so
 // neighbouring rooms sit 2*GAP plan-units apart (~6px at a typical rendered width). This grid
 // has no shadcn/spec primitive to compose from — it's a genuinely bespoke, positioned widget —
 // so its tiles are styled here directly, through the shared status-ui.ts token maps only.
@@ -49,6 +49,7 @@ export function FloorPlan({
   const { t } = useTranslation("work");
   const statusLabel = useStatusLabel();
   const active = rooms.find((r) => r.id === activeId) ?? null;
+  const layout = useMemo(() => layoutRooms(rooms, GRID_W, GRID_H), [rooms]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
@@ -62,6 +63,8 @@ export function FloorPlan({
           {rooms.map((r) => {
             const isActive = active?.id === r.id;
             const isPending = r.status === "pending";
+            const box = layout.get(r.id);
+            if (!box) return null;
             return (
               <button
                 key={r.id}
@@ -70,10 +73,10 @@ export function FloorPlan({
                 aria-pressed={onSelect ? isActive : undefined}
                 aria-label={t("floorPlan.tileLabel", { name: r.name, status: statusLabel(r.status), progress: r.progress })}
                 style={{
-                  left: pct(r.x + GAP, GRID_W),
-                  top: pct(r.y + GAP, GRID_H),
-                  width: pct(Math.max(r.w - GAP * 2, 1), GRID_W),
-                  height: pct(Math.max(r.h - GAP * 2, 1), GRID_H),
+                  left: pct(box.x + GAP, GRID_W),
+                  top: pct(box.y + GAP, GRID_H),
+                  width: pct(Math.max(box.w - GAP * 2, 1), GRID_W),
+                  height: pct(Math.max(box.h - GAP * 2, 1), GRID_H),
                 }}
                 className={cn(
                   "absolute flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md px-1 text-center transition-opacity",

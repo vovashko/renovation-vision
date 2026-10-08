@@ -5,9 +5,9 @@ import { FloorPlan, type FloorPlanRoom } from "@/features/work/ui/floor-plan";
 afterEach(cleanup);
 
 const rooms: FloorPlanRoom[] = [
-  { id: "kitchen", name: "Kitchen", status: "pending", progress: 0, x: 20, y: 20, w: 160, h: 120 },
-  { id: "bath", name: "Bathroom", status: "done", progress: 100, x: 200, y: 20, w: 120, h: 120 },
-  { id: "hall", name: "Hallway", status: "progress", progress: 40, x: 20, y: 160, w: 160, h: 100 },
+  { id: "kitchen", name: "Kitchen", status: "pending", progress: 0, w: 4, h: 3 },
+  { id: "bath", name: "Bathroom", status: "done", progress: 100, w: 3, h: 3 },
+  { id: "hall", name: "Hallway", status: "progress", progress: 40, w: 4, h: 2.5 },
 ];
 
 describe("FloorPlan", () => {
