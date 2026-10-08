@@ -112,13 +112,13 @@ select pg_temp.check(
 select pg_temp.as_admin();
 
 -- ===========================================================================
--- project_summary exposes the baseline (last columns, existing ones intact)
+-- project_summary exposes the baseline (then my_role from client_access; existing columns intact)
 -- ===========================================================================
 select pg_temp.check(
   (select array_agg(column_name::text order by ordinal_position) filter (where ordinal_position > 25)
      from information_schema.columns where table_schema = 'public' and table_name = 'project_summary')
-  = array['planned_target_date', 'planned_budget'],
-  'project_summary ends with planned_target_date, planned_budget');
+  = array['planned_target_date', 'planned_budget', 'my_role'],
+  'project_summary ends with planned_target_date, planned_budget, my_role');
 select pg_temp.check(
   (select count(*) = 1 from public.project_summary
     where id = 'b0000000-0000-4000-8000-000000000001' and planned_budget = 84500

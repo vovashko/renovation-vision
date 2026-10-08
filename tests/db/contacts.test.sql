@@ -57,7 +57,7 @@ select pg_temp.check(
   'Marek (site lead) and Ana (electrician) lead the crew, in order');
 select pg_temp.check(
   (select c.full_name = 'Sarah & Tom Bennett' and c.kind = 'client' and c.phone = '+1 555 0142'
-          and c.email = 'sarah.bennett@example.com' and pc.is_primary and not pc.visible_to_client
+          and c.email = 'sarah@renovision.demo' and pc.is_primary and not pc.visible_to_client
      from public.project_contacts pc join public.contacts c on c.id = pc.contact_id
     where pc.role = 'client'),
   'the Bennetts are the primary client contact, hidden from the client view');

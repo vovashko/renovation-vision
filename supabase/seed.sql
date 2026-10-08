@@ -100,10 +100,12 @@ insert into public.project_members (project_id, user_id, role, last_read_at) val
 -- Contacts (the company address book) and who is on this project. Staff only, except the PoC row
 -- marked visible_to_client, which the client reads through project_visible_contacts().
 -- Example numbers and addresses.
+-- The client contact carries Sarah's login email and is linked to her account, so the client card shows access;
+-- Tom keeps his own explicit client membership above (a second login the client-access sync leaves alone).
 -- ---------------------------------------------------------------------------
 insert into public.contacts (id, kind, full_name, trade, phone, whatsapp, email, user_id, created_by) values
   ('10000000-0000-4000-8000-000000000001', 'other', 'Jonas Weber', 'Project manager', '+1 555 0100', null, 'jonas@renovision.demo', 'a0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001'),
-  ('10000000-0000-4000-8000-000000000002', 'client', 'Sarah & Tom Bennett', null, '+1 555 0142', null, 'sarah.bennett@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
+  ('10000000-0000-4000-8000-000000000002', 'client', 'Sarah & Tom Bennett', null, '+1 555 0142', null, 'sarah@renovision.demo', 'a0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000001'),
   ('10000000-0000-4000-8000-000000000003', 'crew', 'Marek Nowak', 'Site lead', '+1 555 0107', '+15550107', 'marek@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
   ('10000000-0000-4000-8000-000000000004', 'crew', 'Ana Petrović', 'Electrician', '+1 555 0118', null, 'ana@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
   ('10000000-0000-4000-8000-000000000005', 'crew', 'Luis Ortega', 'Plumber', '+1 555 0123', null, 'luis@example.com', null, 'a0000000-0000-4000-8000-000000000001'),
