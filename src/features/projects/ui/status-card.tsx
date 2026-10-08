@@ -110,7 +110,7 @@ export function StatusCard({
           </span>
           <span className="text-title-lg tabular-nums">{progress}%</span>
         </div>
-        <ProgressBar value={progress} className="mt-2" />
+        <ProgressBar value={progress} tone={onTrack ? "primary" : "blocked"} className="mt-2" />
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
           {facts.map((f) => (
             <div key={f.label} className="min-w-0">

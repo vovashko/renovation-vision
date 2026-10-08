@@ -52,7 +52,7 @@ export function ProjectListItem({ project }: { project: ProjectSummary }) {
           </span>
           <span className="text-title-md tabular-nums">{project.overall_progress}%</span>
         </div>
-        <Progress value={project.overall_progress} className="mt-2" />
+        <Progress value={project.overall_progress} tone={behind ? "blocked" : "primary"} className="mt-2" />
         <div className="mt-4 flex w-full flex-wrap gap-x-4 gap-y-1 text-body-sm text-on-surface-variant">
           <span>
             {t("list.client")} <span className="text-on-surface">{project.client_display_name || "—"}</span>
