@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { photoEditSchema, renderSchema, uploadPhotosSchema } from "@/features/media/domain/schemas";
+import { photoEditSchema, renderSchema, resolveTaskId, uploadPhotosSchema } from "@/features/media/domain/schemas";
 
 function file(name = "photo.jpg") {
   return new File(["x"], name, { type: "image/jpeg" });
@@ -7,12 +7,12 @@ function file(name = "photo.jpg") {
 
 describe("uploadPhotosSchema", () => {
   it("accepts one or more files with the other fields optional/blank", () => {
-    const result = uploadPhotosSchema.safeParse({ files: [file()], stageId: "", roomId: "", caption: "", publish: false });
+    const result = uploadPhotosSchema.safeParse({ files: [file()], stageId: "", taskId: "", roomId: "", caption: "", publish: false });
     expect(result.success).toBe(true);
   });
 
   it("rejects an empty file list with an i18n key message", () => {
-    const result = uploadPhotosSchema.safeParse({ files: [], stageId: "", roomId: "", caption: "", publish: false });
+    const result = uploadPhotosSchema.safeParse({ files: [], stageId: "", taskId: "", roomId: "", caption: "", publish: false });
     expect(result.success).toBe(false);
     if (!result.success) expect(result.error.issues[0].message).toBe("media:upload.filesRequired");
   });
@@ -20,11 +20,17 @@ describe("uploadPhotosSchema", () => {
 
 describe("photoEditSchema", () => {
   it("accepts blank caption/alt/stage/room", () => {
-    expect(photoEditSchema.safeParse({ caption: "", alt: "", stageId: "", roomId: "" }).success).toBe(true);
+    expect(photoEditSchema.safeParse({ caption: "", alt: "", stageId: "", taskId: "", roomId: "" }).success).toBe(true);
   });
 
   it("accepts a filled-in edit", () => {
-    const result = photoEditSchema.safeParse({ caption: "New tiles", alt: "The new kitchen tiles", stageId: "s1", roomId: "r1" });
+    const result = photoEditSchema.safeParse({
+      caption: "New tiles",
+      alt: "The new kitchen tiles",
+      stageId: "s1",
+      taskId: "",
+      roomId: "r1",
+    });
     expect(result.success).toBe(true);
   });
 });
@@ -52,5 +58,26 @@ describe("renderSchema", () => {
   it("accepts editing a render without replacing its file", () => {
     const result = renderSchema(false).safeParse({ ...base, title: "Kitchen", file: null });
     expect(result.success).toBe(true);
+  });
+});
+
+describe("resolveTaskId", () => {
+  const stages = [
+    { id: "wall", tasks: [{ id: "t1" }, { id: "t2" }] },
+    { id: "floor", tasks: [{ id: "t3" }] },
+  ];
+
+  it("keeps a task that belongs to the chosen step", () => {
+    expect(resolveTaskId(stages, "wall", "t2")).toBe("t2");
+  });
+
+  it("drops a task from another step, so changing the step never leaves a stale task", () => {
+    expect(resolveTaskId(stages, "floor", "t2")).toBeNull();
+  });
+
+  it("is null for the whole step, an unknown step, or no step at all", () => {
+    expect(resolveTaskId(stages, "wall", "")).toBeNull();
+    expect(resolveTaskId(stages, "nope", "t1")).toBeNull();
+    expect(resolveTaskId(stages, "", "t1")).toBeNull();
   });
 });

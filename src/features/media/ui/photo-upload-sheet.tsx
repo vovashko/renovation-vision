@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { FileInput } from "@/components/ui/file-input";
@@ -7,7 +8,7 @@ import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { FormField } from "@/shared/ui/form-field";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
-import { uploadPhotosSchema } from "@/features/media/domain/schemas";
+import { resolveTaskId, uploadPhotosSchema } from "@/features/media/domain/schemas";
 import { isHeic } from "@/features/media/domain/upload";
 import { useUploadPhotos } from "@/features/media/hooks/use-photos";
 import type { Room, Stage } from "@/lib/database.types";
@@ -20,6 +21,8 @@ export function UploadSheet({
   stages,
   rooms,
   capture = false,
+  defaultStageId,
+  defaultTaskId,
 }: {
   projectId: string;
   open: boolean;
@@ -28,10 +31,21 @@ export function UploadSheet({
   rooms: Room[];
   /** Opens straight to the camera on a phone (the quick-actions FAB's "Upload photo"). */
   capture?: boolean;
+  /** Pre-selects a step (and task) when the sheet is opened from a step or task card. */
+  defaultStageId?: string;
+  defaultTaskId?: string;
 }) {
   const { t } = useTranslation(["media", "common"]);
   const current = stages.find((s) => s.status === "progress")?.id ?? "";
-  const form = useZodForm(uploadPhotosSchema, { files: [], stageId: current, roomId: "", caption: "", publish: false });
+  const initialStage = defaultStageId ?? current;
+  const initial = { files: [], stageId: initialStage, taskId: defaultTaskId ?? "", roomId: "", caption: "", publish: false };
+  const form = useZodForm(uploadPhotosSchema, initial);
+  // Opened from a step or task card: start from that step/task instead of the current stage.
+  useEffect(() => {
+    if (open)
+      form.reset({ files: [], stageId: defaultStageId ?? current, taskId: defaultTaskId ?? "", roomId: "", caption: "", publish: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-seed only when the sheet opens or its target changes
+  }, [open, defaultStageId, defaultTaskId]);
   const upload = useUploadPhotos(projectId);
   const files = form.watch("files");
   const publish = form.watch("publish");
@@ -41,12 +55,17 @@ export function UploadSheet({
     upload.mutate(
       {
         files: values.files,
-        meta: { stage_id: values.stageId || null, room_id: values.roomId || null, caption: values.caption.trim() },
+        meta: {
+          stage_id: values.stageId || null,
+          task_id: resolveTaskId(stages, values.stageId, values.taskId),
+          room_id: values.roomId || null,
+          caption: values.caption.trim(),
+        },
         publish: values.publish,
       },
       {
         onSuccess: () => {
-          form.reset({ files: [], stageId: current, roomId: "", caption: "", publish: false });
+          form.reset(initial);
           onOpenChange(false);
         },
       },

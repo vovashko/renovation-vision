@@ -8,6 +8,7 @@ function photo(overrides: Partial<Photo> = {}): Photo {
     project_id: "proj-1",
     stage_id: null,
     room_id: null,
+    task_id: null,
     progress_entry_id: null,
     storage_path: "path.jpg",
     alt: "A photo",

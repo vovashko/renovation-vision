@@ -135,6 +135,7 @@ export type Photo = Pick<
   | "project_id"
   | "stage_id"
   | "room_id"
+  | "task_id"
   | "progress_entry_id"
   | "storage_path"
   | "alt"

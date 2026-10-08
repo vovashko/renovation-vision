@@ -484,13 +484,13 @@ isOneToOne: false
                   ]
                 },"photos": {
                   Row: {
-                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at": string,"updated_at": string,"uploaded_by": string | null
+                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"task_id": string | null,"taken_at": string,"updated_at": string,"uploaded_by": string | null
                   }
                   Insert: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"task_id"?: string | null,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Update: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"task_id"?: string | null,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -522,6 +522,12 @@ isOneToOne: false
       columns: ["stage_id"]
 isOneToOne: false
       referencedRelation: "stages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "photos_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "photos_uploaded_by_fkey"

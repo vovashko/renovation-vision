@@ -1,4 +1,4 @@
-import { Link, useParams, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -7,6 +7,7 @@ import { ProfilePanel } from "@/components/profile-panel";
 import { TabBar, TabBarItem, TabBarRow } from "@/components/ui/tab-bar";
 import { useAuth } from "@/lib/auth";
 import { useNavRole } from "@/shared/ui/nav-role";
+import { useNavProjectId } from "@/shared/ui/nav-project";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
 import { useNavCounts } from "@/shared/ui/nav-counts";
 
@@ -17,7 +18,7 @@ import { useNavCounts } from "@/shared/ui/nav-counts";
  */
 export function BottomNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { projectId } = useParams({ strict: false }) as { projectId?: string };
+  const projectId = useNavProjectId();
   const { profile } = useAuth();
   const role = useNavRole();
   const isManager = role === "manager";
@@ -28,7 +29,7 @@ export function BottomNav() {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Outside a project (reachable at /settings, and at /projects for a manager): a single row back.
+  // Outside a project (/projects for a manager, or /settings with no project opened yet): a single row back.
   if (!projectId) {
     return (
       <TabBar>

@@ -219,12 +219,13 @@ select pg_temp.check(
   'the manager deletes entries, and that is logged');
 
 do $$
-declare v_other uuid; v_other_stage uuid; v_other_room uuid;
+declare v_other uuid; v_other_stage uuid; v_other_room uuid; v_other_task uuid;
 begin
   v_other := public.create_project('Elm Road House');
   insert into public.stages (project_id, key, name, start_date, end_date)
   values (v_other, 'demo', 'Demolition', current_date, current_date) returning id into v_other_stage;
   insert into public.rooms (project_id, key, name) values (v_other, 'hall', 'Hall') returning id into v_other_room;
+  insert into public.tasks (project_id, stage_id, name) values (v_other, v_other_stage, 'Strip walls') returning id into v_other_task;
 
   begin
     insert into public.progress_entries (project_id, stage_id, note) values ('b0000000-0000-4000-8000-000000000001', v_other_stage, 'x');
@@ -257,6 +258,12 @@ begin
     raise exception 'FAILED: photo attached to another project''s diary entry';
   exception when check_violation then null;
   end;
+  begin
+    insert into public.photos (project_id, storage_path, task_id)
+    values ('b0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001/photos/x.jpg', v_other_task);
+    raise exception 'FAILED: photo linked to another project''s task';
+  exception when check_violation then null;
+  end;
 end $$;
 
 -- Diary photos: the client still sees a photo only once it is published.
@@ -269,6 +276,15 @@ select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
 select pg_temp.check(
   (select count(*) from public.photos where progress_entry_id is not null) = 1,
   'client sees the published diary photo, not the draft one');
+
+-- Photos linked to a task: the task's stage becomes the photo's stage when none is given.
+insert into public.photos (project_id, storage_path, task_id)
+select t.project_id, t.project_id || '/photos/task-link.jpg', t.id from public.tasks t
+where t.name = 'Remove old flooring' and t.project_id = 'b0000000-0000-4000-8000-000000000001';
+select pg_temp.check(
+  (select p.stage_id = t.stage_id from public.photos p join public.tasks t on t.id = p.task_id
+   where p.storage_path like '%/photos/task-link.jpg'),
+  'a photo linked to a task takes the task''s stage');
 
 -- ===========================================================================
 -- Floor-plan image
