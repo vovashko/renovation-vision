@@ -43,6 +43,8 @@
     "addStage": "Dodaj etap"
   },
   "stageRow": {
+    "addStagePhotos": "Dodaj zdjęcia do etapu {{name}}",
+    "addTaskPhotos": "Dodaj zdjęcia do zadania {{name}}",
     "photos_one": "{{count}} zdjęcie",
     "photos_few": "{{count}} zdjęcia",
     "photos_many": "{{count}} zdjęć",

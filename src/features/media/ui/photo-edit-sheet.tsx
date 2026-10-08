@@ -8,7 +8,7 @@ import { FormField } from "@/shared/ui/form-field";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { StageRoomFields } from "@/features/media/ui/stage-room-fields";
-import { photoEditSchema } from "@/features/media/domain/schemas";
+import { photoEditSchema, resolveTaskId } from "@/features/media/domain/schemas";
 import { useDeletePhoto, useUpdatePhoto } from "@/features/media/hooks/use-photos";
 import type { Photo, Room, Stage } from "@/lib/database.types";
 
@@ -28,12 +28,18 @@ export function PhotoEditSheet({
 }) {
   const { t } = useTranslation(["media", "common"]);
   const confirm = useConfirm();
-  const form = useZodForm(photoEditSchema, { caption: "", alt: "", stageId: "", roomId: "" });
+  const form = useZodForm(photoEditSchema, { caption: "", alt: "", stageId: "", taskId: "", roomId: "" });
   const [lastId, setLastId] = useState<string | null>(null);
   useEffect(() => {
     if (photo && photo.id !== lastId) {
       setLastId(photo.id);
-      form.reset({ caption: photo.caption, alt: photo.alt, stageId: photo.stage_id ?? "", roomId: photo.room_id ?? "" });
+      form.reset({
+        caption: photo.caption,
+        alt: photo.alt,
+        stageId: photo.stage_id ?? "",
+        taskId: photo.task_id ?? "",
+        roomId: photo.room_id ?? "",
+      });
     }
   }, [photo, lastId, form]);
 
@@ -45,7 +51,13 @@ export function PhotoEditSheet({
     update.mutate(
       {
         id: photo.id,
-        patch: { caption: values.caption, alt: values.alt, stage_id: values.stageId || null, room_id: values.roomId || null },
+        patch: {
+          caption: values.caption,
+          alt: values.alt,
+          stage_id: values.stageId || null,
+          task_id: resolveTaskId(stages, values.stageId, values.taskId),
+          room_id: values.roomId || null,
+        },
       },
       { onSuccess: onClose },
     );

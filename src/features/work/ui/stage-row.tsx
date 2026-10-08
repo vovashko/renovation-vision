@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { cn } from "@/lib/utils";
 import type { Status } from "@/domain/status";
 import { statusMarker, statusTone } from "@/components/ui/status-ui";
 
-export type StageRowTask = { id?: string; name: string; done: boolean; muted?: boolean; roomName?: string };
+export type StageRowTask = { id?: string; name: string; done: boolean; muted?: boolean; roomName?: string; photoCount?: number };
 
 /** Vertical timeline for StageRows: a 2px line at x=21 in a 60px gutter (the spec's stage timeline gutter). */
 export function StageRowList({ children, className }: { children: ReactNode; className?: string }) {
@@ -47,6 +48,7 @@ export function StageRow({
   tasks,
   onToggleTask,
   onRemoveTask,
+  onAddTaskPhotos,
   headerExtra,
   lateDays,
   rooms,
@@ -64,6 +66,8 @@ export function StageRow({
   /** When set, checklist items become toggleable. */
   onToggleTask?: (task: StageRowTask, i: number) => void;
   onRemoveTask?: (task: StageRowTask, i: number) => void;
+  /** When set, each task gets a button to add photos for it. */
+  onAddTaskPhotos?: (task: StageRowTask, i: number) => void;
   headerExtra?: ReactNode;
   /** Days past the end date, shown as an attention badge and the card's attention outline. */
   lateDays?: number;
@@ -153,6 +157,22 @@ export function StageRow({
                     <CheckBox done={t2.done} />
                     {label}
                   </>
+                )}
+                {!!t2.photoCount && (
+                  <span className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant">
+                    <Icon name="photo_camera" size={16} />
+                    {t2.photoCount}
+                  </span>
+                )}
+                {onAddTaskPhotos && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onAddTaskPhotos(t2, i)}
+                    aria-label={t("work:stageRow.addTaskPhotos", { name: t2.name })}
+                  >
+                    <Icon name="add_a_photo" size={20} />
+                  </Button>
                 )}
                 {onRemoveTask && (
                   <button

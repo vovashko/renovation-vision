@@ -34,6 +34,8 @@
   },
   "fields": {
     "stage": "Stage",
+    "task": "Task",
+    "wholeStage": "Whole stage",
     "room": "Room",
     "caption": "Caption",
     "altLabel": "Image description (for screen readers)"
