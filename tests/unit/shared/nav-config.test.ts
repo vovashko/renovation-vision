@@ -25,8 +25,8 @@ describe("nav-config", () => {
     expect(projectNav.map((i) => i.key)).toEqual([
       "overview",
       "progress",
-      "photos",
       "design",
+      "photos",
       "documents",
       "budget",
       "chat",
@@ -55,7 +55,7 @@ describe("nav-config", () => {
   });
 
   it("a client sees only the client sections; a manager sees everything", () => {
-    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "photos", "design", "documents", "chat", "decisions"]);
+    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "design", "photos", "documents", "chat", "decisions"]);
     expect(navItemsFor("manager")).toHaveLength(projectNav.length);
     expect(managerOnlySections).toEqual(["budget", "updates", "knowledge", "team"]);
   });
