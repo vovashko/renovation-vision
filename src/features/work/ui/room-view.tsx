@@ -16,7 +16,7 @@ function BackToPlan({ projectId, roomId }: { projectId: string; roomId?: string 
   const { t } = useTranslation("work");
   return (
     <Link
-      to="/projects/$projectId/progress"
+      to="/projects/$projectId/design"
       params={{ projectId }}
       search={{ view: "plan", room: roomId }}
       className="inline-flex items-center gap-1 text-label-lg text-primary"

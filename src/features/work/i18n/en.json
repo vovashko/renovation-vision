@@ -37,9 +37,6 @@
     "title": "Progress",
     "descriptionManager": "Tick tasks as the crew finishes them. Clients see visible stages and tasks instantly.",
     "descriptionClient": "Every stage of your renovation and its checklist, updated by your site manager.",
-    "tabsLabel": "Progress view",
-    "tabTimeline": "Timeline",
-    "tabPlan": "Floor plan",
     "addStage": "Add stage"
   },
   "stageRow": {

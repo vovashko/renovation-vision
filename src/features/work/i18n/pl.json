@@ -37,9 +37,6 @@
     "title": "Postęp",
     "descriptionManager": "Odznaczaj zadania w miarę postępu ekipy. Klienci od razu widzą widoczne etapy i zadania.",
     "descriptionClient": "Każdy etap Twojego remontu i jego lista zadań, aktualizowane przez kierownika budowy.",
-    "tabsLabel": "Widok postępu",
-    "tabTimeline": "Oś czasu",
-    "tabPlan": "Rzut",
     "addStage": "Dodaj etap"
   },
   "stageRow": {

@@ -13,8 +13,11 @@
   "designPage": {
     "heading": "Planned design",
     "metaDescription": "Upload design renders and before/after pairs for each room.",
-    "descriptionManager": "Renders show the client how each room will look when finished.",
-    "descriptionClient": "How each room will look when it is finished.",
+    "tabsLabel": "Project view",
+    "tabRenders": "Visualisations",
+    "tabPlan": "Floor plan",
+    "descriptionManager": "Renders show the client how each room will look when finished, and the floor plan lays out the rooms in one place.",
+    "descriptionClient": "How each room will look when it is finished, plus the floor plan of the rooms.",
     "addRender": "Add render",
     "emptyTitle": "No renders yet",
     "emptyManager": "Add the designer's renders so the client can see the finished look.",
