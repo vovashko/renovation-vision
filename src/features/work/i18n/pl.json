@@ -127,7 +127,7 @@
     "hideGeometry": "Ukryj pozycję i rozmiar",
     "delete": "Usuń pomieszczenie",
     "deleteConfirmTitle": "Usunąć pomieszczenie?",
-    "deleteConfirmDescription": "Usunąć {{name}}? Zdjęcia i zadania pozostaną bez przypisanego pomieszczenia.",
+    "deleteConfirmDescription": "Usunąć {{name}}? Zdjęcia, materiały i zadania etapów pozostaną bez przypisanego pomieszczenia; prace przypisane tylko do tego pomieszczenia oraz jego uwagi zostaną usunięte.",
     "saved": "{{name}} zapisane — plan klienta zaktualizowany",
     "removed": "Pomieszczenie usunięte",
     "statusProgressMismatch": "Ukończone i 100% zawsze idą razem"
@@ -136,6 +136,7 @@
     "label": "Wybrane pomieszczenie",
     "progress": "Postęp",
     "progressAriaLabel": "Postęp: {{name}}",
+    "openRoom": "Otwórz pomieszczenie: prace, materiały, uwagi",
     "clickPrompt": "Kliknij dowolne pomieszczenie na rzucie, aby zobaczyć jego aktualny status remontu."
   },
   "floorPlan": {
@@ -150,6 +151,83 @@
     "stageDoneTasksOpen_many": "{{stage}} jest ukończony, ale {{count}} zadań jest wciąż otwartych.",
     "stageDoneTasksOpen_other": "{{stage}} jest ukończony, ale {{count}} zadania jest wciąż otwarte.",
     "stagePendingTasksDone": "{{stage}} ma status „oczekuje”, ale część jego zadań jest już odznaczona."
+  },
+  "roomView": {
+    "back": "Wróć do rzutu",
+    "notFoundTitle": "Pomieszczenie niedostępne",
+    "notFoundText": "To pomieszczenie nie istnieje albo nie zostało Ci udostępnione.",
+    "progressFromWorks": "Postęp wynika z prac poniżej.",
+    "progressManual": "Postęp i status ustawiasz ręcznie (dodaj prace, aby wyliczać je automatycznie)."
+  },
+  "roomWorks": {
+    "heading": "Prace",
+    "empty": "W tym pomieszczeniu nie ma jeszcze prac.",
+    "stage": "Etap: {{name}}",
+    "stateLabel": "Stan: „{{name}}”",
+    "state": {
+      "todo": "Do zrobienia",
+      "in_progress": "W trakcie",
+      "done": "Zrobione"
+    },
+    "addLabel": "Nowa praca",
+    "addPlaceholder": "Dodaj pracę, np. Malowanie ścian",
+    "stageLabel": "Etap (opcjonalnie)",
+    "noStage": "Bez etapu"
+  },
+  "materials": {
+    "heading": "Materiały",
+    "empty": "Brak materiałów w tym pomieszczeniu.",
+    "add": "Dodaj materiał",
+    "addTitle": "Dodaj materiał",
+    "editTitle": "Edytuj materiał",
+    "formDescription": "Ilość, status i terminy. Ceny zostają w Budżecie i nigdy nie są widoczne dla klienta.",
+    "edit": "Edytuj: {{name}}",
+    "remove": "Usuń: {{name}}",
+    "removeConfirmTitle": "Usunąć „{{name}}”?",
+    "saved": "Zapisano materiał",
+    "removed": "Usunięto materiał",
+    "status": {
+      "planned": "Nie zamówiono",
+      "ordered": "Zamówiono",
+      "delivered": "Dostarczono",
+      "installed": "Zamontowano"
+    },
+    "date": {
+      "orderBy": "Najpóźniej zamówić do {{date}}",
+      "delivery": "Dostawa {{date}}",
+      "delivered": "Dostarczono {{date}}"
+    },
+    "form": {
+      "name": "Materiał",
+      "quantity": "Ilość",
+      "unit": "Jednostka",
+      "status": "Status",
+      "orderBy": "Najpóźniej zamówić do",
+      "orderByHint": "Na czerwono, dopóki materiał nie zostanie zamówiony.",
+      "delivery": "Data dostawy"
+    }
+  },
+  "warnings": {
+    "title": "Uwaga do inwestora",
+    "heading": "Uwagi",
+    "empty": "Brak uwag dla tego pomieszczenia.",
+    "add": "Dodaj uwagę",
+    "addTitle": "Dodaj uwagę",
+    "editTitle": "Edytuj uwagę",
+    "formDescription": "Ryzyko, o którym inwestor powinien wiedzieć. Nie zmienia żadnego terminu.",
+    "edit": "Edytuj uwagę",
+    "remove": "Usuń uwagę",
+    "removeConfirmTitle": "Usunąć tę uwagę?",
+    "resolved": "Rozwiązana",
+    "saved": "Zapisano uwagę",
+    "removed": "Usunięto uwagę",
+    "form": {
+      "text": "Uwaga",
+      "textHint": "Co może pójść nie tak i dlaczego.",
+      "materials": "Powiązane materiały",
+      "materialsHint": "Inwestor widzi uwagę, dopóki wszystkie te materiały nie zostaną dostarczone. Bez wybranych materiałów uwaga zostaje, aż ją usuniesz.",
+      "noMaterials": "Najpierw dodaj materiały do tego pomieszczenia, aby je powiązać."
+    }
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} nie może być oznaczone jako ukończone, gdy zadania są otwarte: {{tasks}}.",
