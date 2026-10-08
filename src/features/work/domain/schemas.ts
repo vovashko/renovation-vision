@@ -45,10 +45,9 @@ export const roomFormSchema = z
     progress: z.number().min(0).max(100),
     client_note: z.string(),
     is_visible: z.boolean(),
-    x: z.number().min(0).max(600),
-    y: z.number().min(0).max(420),
-    w: z.number().min(10).max(600),
-    h: z.number().min(10).max(420),
+    // Real dimensions in metres; the plan lays rooms out from these (src/domain/floor-plan-layout.ts).
+    w: z.number().min(0.5).max(100),
+    h: z.number().min(0.5).max(100),
   })
   .refine(statusMatchesProgress, { message: "work:roomForm.statusProgressMismatch", path: ["progress"] });
 

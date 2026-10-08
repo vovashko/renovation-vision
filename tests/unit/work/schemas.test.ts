@@ -78,10 +78,8 @@ const validRoom = {
   progress: 0,
   client_note: "",
   is_visible: true,
-  x: 20,
-  y: 20,
-  w: 160,
-  h: 120,
+  w: 4,
+  h: 3,
 };
 
 describe("roomFormSchema", () => {
@@ -102,9 +100,10 @@ describe("roomFormSchema", () => {
     expect(roomFormSchema.safeParse({ ...validRoom, status: "done", progress: 100 }).success).toBe(true);
   });
 
-  it("rejects geometry outside the 600x420 plan grid", () => {
-    expect(roomFormSchema.safeParse({ ...validRoom, x: 700 }).success).toBe(false);
-    expect(roomFormSchema.safeParse({ ...validRoom, w: 5 }).success).toBe(false);
+  it("rejects implausible room dimensions (metres)", () => {
+    expect(roomFormSchema.safeParse({ ...validRoom, w: 0.1 }).success).toBe(false);
+    expect(roomFormSchema.safeParse({ ...validRoom, h: 150 }).success).toBe(false);
+    expect(roomFormSchema.safeParse({ ...validRoom, w: Number.NaN }).success).toBe(false);
   });
 });
 

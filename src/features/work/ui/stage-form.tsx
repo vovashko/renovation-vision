@@ -134,9 +134,9 @@ export function StageFormSheet({
               {(field) => <Input {...field} type="date" className="h-11" />}
             </FormField>
           </div>
-          <ProgressModeControl value={mode} onChange={setMode} />
+          <ProgressModeControl value={mode} onChange={setMode} done={tasksDone} total={tasks.length} />
           {mode === "tasks" ? (
-            <TaskDerivedProgress status={status} progress={progress} done={tasksDone} total={tasks.length} onBlockedChange={setBlocked} />
+            <TaskDerivedProgress status={status} progress={progress} onBlockedChange={setBlocked} />
           ) : (
             <>
               <FormField control={form.control} name="status" label={t("work:stageForm.status")}>

@@ -78,8 +78,6 @@ const room = (patch: Partial<Room> & { name: string }): Room => ({
   status: "progress",
   progress: 50,
   progress_mode: "tasks",
-  x: 0,
-  y: 0,
   w: 1,
   h: 1,
   client_note: "",

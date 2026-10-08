@@ -8,7 +8,8 @@ import { UserAvatar } from "@/components/user-avatar";
 import { cn } from "@/lib/utils";
 import type { Member, ProjectContact } from "@/lib/database.types";
 import { telHref as tel } from "../domain/contacts";
-const onPanelButton = buttonVariants({ variant: "panel" });
+// Equal-width CTAs on one row; they only wrap (and then stretch to fill the row) when the card is too narrow.
+const onPanelButton = cn(buttonVariants({ variant: "panel" }), "min-w-0 flex-1 basis-28");
 
 function ContactLine({ icon, href, children }: { icon: string; href?: string; children: ReactNode }) {
   const inner = (
@@ -86,8 +87,8 @@ export function ClientCard({
           <ContactLine icon="mail">{t("client.noEmail")}</ContactLine>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <Link to="/projects/$projectId/chat" params={{ projectId }} className={cn(onPanelButton, "col-span-2")}>
+      <div className="flex flex-wrap gap-2">
+        <Link to="/projects/$projectId/chat" params={{ projectId }} className={onPanelButton}>
           <Icon name="chat_bubble" size={20} />
           {t("client.message")}
         </Link>

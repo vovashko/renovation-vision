@@ -72,8 +72,8 @@ beforeEach(() => h.update.mockReset());
 describe("StageFormSheet progress mode", () => {
   it("tasks mode shows progress and status read-only, computed from the checklist", () => {
     renderSheet(stage());
-    expect(screen.getByRole("radio", { name: "From tasks" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByText(/Calculated from the checklist: 1 of 2 tasks done\./)).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Automatic" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByText(/Progress is calculated from the checklist: 1 of 2 tasks done\./)).toBeInTheDocument();
     expect(screen.getByText("Progress — 50%")).toBeInTheDocument();
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
     expect(screen.queryByRole("combobox", { name: "Status" })).not.toBeInTheDocument();
@@ -85,7 +85,7 @@ describe("StageFormSheet progress mode", () => {
     expect(screen.getByRole("combobox", { name: "Status" })).toBeInTheDocument();
     expect(screen.getByText("Progress — 65%")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("radio", { name: "From tasks" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Automatic" }));
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
     expect(screen.getByText("Progress — 50%")).toBeInTheDocument();
   });
@@ -109,10 +109,9 @@ describe("StageFormSheet progress mode", () => {
 });
 
 describe("TaskDerivedProgress", () => {
-  it("explains an empty checklist and reports blocked changes", () => {
+  it("shows the derived status and reports blocked changes", () => {
     const onBlockedChange = vi.fn();
-    render(<TaskDerivedProgress status="pending" progress={0} done={0} total={0} onBlockedChange={onBlockedChange} />);
-    expect(screen.getByText(/which has no tasks yet/)).toBeInTheDocument();
+    render(<TaskDerivedProgress status="pending" progress={0} onBlockedChange={onBlockedChange} />);
     expect(screen.getByText("Pending")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("switch", { name: "Blocked" }));
     expect(onBlockedChange).toHaveBeenCalledWith(true);
@@ -122,10 +121,18 @@ describe("TaskDerivedProgress", () => {
 describe("ProgressModeControl", () => {
   it("marks the current mode and reports a change", () => {
     const onChange = vi.fn();
-    render(<ProgressModeControl value="manual" onChange={onChange} />);
+    render(<ProgressModeControl value="manual" onChange={onChange} done={0} total={0} />);
     expect(screen.getByRole("radiogroup", { name: "Progress" })).toBeInTheDocument();
+    expect(screen.getByText("You set the status and progress yourself.")).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Manual" })).toHaveAttribute("aria-checked", "true");
-    fireEvent.click(screen.getByRole("radio", { name: "From tasks" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Automatic" }));
     expect(onChange).toHaveBeenCalledWith("tasks");
+  });
+
+  it("explains the automatic mode right below the switch, including an empty checklist", () => {
+    const { rerender } = render(<ProgressModeControl value="tasks" onChange={vi.fn()} done={2} total={5} />);
+    expect(screen.getByText("Progress is calculated from the checklist: 2 of 5 tasks done.")).toBeInTheDocument();
+    rerender(<ProgressModeControl value="tasks" onChange={vi.fn()} done={0} total={0} />);
+    expect(screen.getByText(/which has no tasks yet/)).toBeInTheDocument();
   });
 });

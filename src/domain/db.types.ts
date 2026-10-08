@@ -800,13 +800,13 @@ isOneToOne: false
                   ]
                 },"rooms": {
                   Row: {
-                    "client_note": string,"created_at": string,"h": number,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"progress_mode": Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order": number,"status": Database["public"]['Enums']["work_status"],"updated_at": string,"w": number,"x": number,"y": number
+                    "client_note": string,"created_at": string,"h": number,"id": string,"is_visible": boolean,"key": string,"name": string,"progress": number,"progress_mode": Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order": number,"status": Database["public"]['Enums']["work_status"],"updated_at": string,"w": number
                   }
                   Insert: {
-                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key": string,"name": string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number,"x"?: number,"y"?: number
+                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key": string,"name": string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number
                   }
                   Update: {
-                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key"?: string,"name"?: string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number,"x"?: number,"y"?: number
+                    "client_note"?: string,"created_at"?: string,"h"?: number,"id"?: string,"is_visible"?: boolean,"key"?: string,"name"?: string,"progress"?: number,"progress_mode"?: Database["public"]['Enums']["progress_mode"],"project_id"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["work_status"],"updated_at"?: string,"w"?: number
                   }
                   Relationships: [
                     {
