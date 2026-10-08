@@ -172,7 +172,7 @@ Code is split by layer, then by feature:
 ```
 src/domain/            pure entities and rules: status, progress, money, dates, attention, consistency, budget,
                        db.types.ts (generated). No React, no Supabase, no UI imports.
-src/features/<f>/      f ∈ projects | work | media | budget | comms | people | knowledge | auth | settings | admin | import
+src/features/<f>/      f ∈ projects | work | media | documents | budget | comms | people | knowledge | auth | settings | admin | import
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js

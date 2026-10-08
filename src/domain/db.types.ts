@@ -93,6 +93,49 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"documents": {
+                  Row: {
+                    "archived_at": string | null,"archived_by": string | null,"category": Database["public"]['Enums']["document_category"],"created_at": string,"description": string,"file_name": string,"id": string,"is_current": boolean,"mime_type": string,"project_id": string,"room_id": string | null,"size_bytes": number,"storage_path": string,"task_id": string | null,"title": string,"updated_at": string,"uploaded_by": string | null,"version": number,"version_group": string
+                  }
+                  Insert: {
+                    "archived_at"?: string | null,"archived_by"?: string | null,"category": Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name": string,"id"?: string,"is_current"?: boolean,"mime_type": string,"project_id": string,"room_id"?: string | null,"size_bytes": number,"storage_path": string,"task_id"?: string | null,"title": string,"updated_at"?: string,"uploaded_by"?: string | null,"version"?: number,"version_group"?: string
+                  }
+                  Update: {
+                    "archived_at"?: string | null,"archived_by"?: string | null,"category"?: Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name"?: string,"id"?: string,"is_current"?: boolean,"mime_type"?: string,"project_id"?: string,"room_id"?: string | null,"size_bytes"?: number,"storage_path"?: string,"task_id"?: string | null,"title"?: string,"updated_at"?: string,"uploaded_by"?: string | null,"version"?: number,"version_group"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "documents_archived_by_fkey"
+      columns: ["archived_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "documents_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "documents_room_id_fkey"
+      columns: ["room_id"]
+isOneToOne: false
+      referencedRelation: "rooms"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "documents_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "documents_uploaded_by_fkey"
+      columns: ["uploaded_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"expenses": {
                   Row: {
                     "amount": number,"category": Database["public"]['Enums']["cost_category"],"created_at": string,"created_by": string | null,"description": string,"id": string,"project_id": string,"receipt_path": string | null,"spent_on": string,"stage_id": string | null,"updated_at": string,"vendor": string,"vendor_notes": string
@@ -759,7 +802,7 @@ isOneToOne: true
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","document_category": "contract"|"estimate"|"invoices"|"installation_photos"|"warranties"|"manuals","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -875,7 +918,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"document_category": ["contract", "estimate", "invoices", "installation_photos", "warranties", "manuals"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const
