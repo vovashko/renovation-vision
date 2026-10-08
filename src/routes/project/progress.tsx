@@ -20,6 +20,8 @@ import { RoomList } from "@/features/work/ui/room-list";
 import { RoomsEmpty } from "@/features/work/ui/rooms-empty";
 import { RoomEditor, RoomForm } from "@/features/work/ui/room-form";
 import { ProgressTabs, type ProgressView } from "@/features/work/ui/progress-tabs";
+import { usePhotos } from "@/features/media/hooks/use-photos";
+import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { useRooms, useStages, useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks";
 import { daysLate } from "@/domain/attention";
 import { deriveStatus } from "@/domain/progress";
@@ -52,8 +54,10 @@ function ProgressPage() {
   const confirm = useConfirm();
   const { data: stages, isLoading: stagesLoading } = useStages(projectId);
   const { data: rooms, isLoading: roomsLoading } = useRooms(projectId);
+  const { data: photos } = usePhotos(projectId);
   const [editingStage, setEditingStage] = useState<Stage | "new" | null>(null);
   const [addingRoom, setAddingRoom] = useState(false);
+  const [photoTarget, setPhotoTarget] = useState<{ stageId: string; taskId?: string } | null>(null);
   const [activeRoomId, setActiveRoomId] = useState<string | null>(search.room ?? null);
 
   const saveTask = useSaveTask(projectId);
@@ -113,6 +117,9 @@ function ProgressPage() {
             <StageRowList>
               {stages.map((s, i) => {
                 const done = s.tasks.filter((t2) => t2.done).length;
+                const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name;
+                const stageRooms = [...new Set(s.tasks.map((t2) => roomName(t2.room_id)).filter((n): n is string => !!n))];
+                const photoCount = photos ? photos.filter((p) => p.stage_id === s.id).length : undefined;
                 const fromChecklist = s.tasks.length ? Math.round((done / s.tasks.length) * 100) : null;
                 return (
                   <div key={s.id} id={s.id} className="scroll-mt-20">
@@ -124,14 +131,30 @@ function ProgressPage() {
                       status={s.status}
                       progress={s.progress}
                       lateDays={daysLate(s)}
+                      rooms={stageRooms}
+                      photoCount={photoCount}
                       dimmed={isManager && !s.is_visible}
-                      tasks={s.tasks.map((t2) => ({ ...t2, muted: isManager && !t2.is_visible }))}
+                      tasks={s.tasks.map((t2) => ({
+                        ...t2,
+                        roomName: roomName(t2.room_id),
+                        muted: isManager && !t2.is_visible,
+                        photoCount: photos ? photos.filter((p) => p.task_id === t2.id).length : undefined,
+                      }))}
+                      onAddTaskPhotos={isManager ? (t2) => setPhotoTarget({ stageId: s.id, taskId: t2.id }) : undefined}
                       onToggleTask={isManager ? (t2) => saveTask.mutate({ id: t2.id, stage_id: s.id, done: !t2.done }) : undefined}
                       onRemoveTask={isManager ? (t2) => removeTaskWithConfirm(s.tasks.find((x) => x.id === t2.id)!) : undefined}
                       headerExtra={
                         isManager && (
                           <>
                             {!s.is_visible && <VisibilityBadge visible={false} />}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setPhotoTarget({ stageId: s.id })}
+                              aria-label={t("work:stageRow.addStagePhotos", { name: s.name })}
+                            >
+                              <Icon name="add_a_photo" size={20} />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -188,6 +211,18 @@ function ProgressPage() {
                 );
               })}
             </StageRowList>
+          )}
+
+          {isManager && (
+            <UploadSheet
+              projectId={projectId}
+              open={!!photoTarget}
+              onOpenChange={(v) => !v && setPhotoTarget(null)}
+              stages={stages}
+              rooms={rooms}
+              defaultStageId={photoTarget?.stageId}
+              defaultTaskId={photoTarget?.taskId}
+            />
           )}
 
           {isManager && (

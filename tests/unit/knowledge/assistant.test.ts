@@ -91,6 +91,7 @@ const photo = (patch: Partial<Photo> & { caption: string }): Photo => ({
   project_id: "p1",
   stage_id: null,
   room_id: null,
+  task_id: null,
   progress_entry_id: null,
   storage_path: "path.jpg",
   alt: patch.caption,

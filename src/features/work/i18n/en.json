@@ -43,6 +43,11 @@
     "addStage": "Add stage"
   },
   "stageRow": {
+    "addStagePhotos": "Add photos to {{name}}",
+    "addTaskPhotos": "Add photos to task {{name}}",
+    "photos_one": "{{count}} photo",
+    "photos_other": "{{count}} photos",
+    "noPhotos": "No photos yet",
     "progress": "Progress",
     "progressAriaLabel": "{{name}} progress",
     "editStage": "Edit {{name}}",

@@ -1,4 +1,4 @@
-import { Link, useParams, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "@/assets/renovision-logo.svg";
@@ -8,6 +8,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { ProfilePanel } from "@/components/profile-panel";
 import { useAuth } from "@/lib/auth";
 import { useNavRole } from "@/shared/ui/nav-role";
+import { useNavProjectId } from "@/shared/ui/nav-project";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
 import { useNavCounts } from "@/shared/ui/nav-counts";
 
@@ -39,7 +40,7 @@ function ProfileRailItem() {
  */
 export function AppRail() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { projectId } = useParams({ strict: false }) as { projectId?: string };
+  const projectId = useNavProjectId();
   const role = useNavRole();
   const isManager = role === "manager";
   const items = navItemsFor(role);

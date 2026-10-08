@@ -6,10 +6,10 @@ import { supabase, MEDIA_BUCKET } from "@/lib/supabase";
 import { fileExt } from "@/domain/text";
 import type { Photo, Render } from "@/lib/database.types";
 
-export type PhotoMeta = { stage_id: string | null; room_id: string | null; caption: string };
+export type PhotoMeta = { stage_id: string | null; task_id: string | null; room_id: string | null; caption: string };
 /** A file ready to upload, plus its EXIF capture date (null when it has none — the caller then uses "now"). */
 export type PhotoUploadItem = { file: File; takenAt: string | null };
-export type PhotoPatch = Partial<Pick<Photo, "caption" | "alt" | "stage_id" | "room_id" | "status">>;
+export type PhotoPatch = Partial<Pick<Photo, "caption" | "alt" | "stage_id" | "task_id" | "room_id" | "status">>;
 export type RenderInput = Partial<Omit<Render, "project_id" | "url" | "storage_path">> & { file?: File | null };
 
 type Result<T> = { data: T | null; error: { message: string } | null };
@@ -67,6 +67,7 @@ async function uploadPhotos(projectId: string, items: PhotoUploadItem[], meta: P
         project_id: projectId,
         storage_path: path,
         stage_id: meta.stage_id,
+        task_id: meta.task_id,
         room_id: meta.room_id,
         caption: meta.caption,
         alt: meta.caption || file.name,

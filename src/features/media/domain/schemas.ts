@@ -11,17 +11,19 @@ export const uploadPhotosSchema = z.object({
     .refine((files) => files.every((f) => validateFile(f, "photo") !== "type"), "media:upload.fileTypeNotAllowed")
     .refine((files) => files.every((f) => validateFile(f, "photo") !== "size"), "media:upload.fileTooLarge"),
   stageId: z.string(),
+  taskId: z.string(),
   roomId: z.string(),
   caption: z.string(),
   publish: z.boolean(),
 });
 export type UploadPhotosValues = z.output<typeof uploadPhotosSchema>;
 
-/** Photo edit sheet: caption, alt text, stage and room. */
+/** Photo edit sheet: caption, alt text, stage, task and room. */
 export const photoEditSchema = z.object({
   caption: z.string(),
   alt: z.string(),
   stageId: z.string(),
+  taskId: z.string(),
   roomId: z.string(),
 });
 export type PhotoEditValues = z.output<typeof photoEditSchema>;
@@ -48,3 +50,12 @@ export function renderSchema(isNew: boolean) {
     .refine((v) => !isNew || v.file !== null, { message: "media:render.fileRequired", path: ["file"] });
 }
 export type RenderValues = z.output<ReturnType<typeof renderSchema>>;
+
+/**
+ * The task id to store for a photo: only a task that belongs to the chosen step counts, so changing the step
+ * after picking a task never leaves the photo pointing at another step's task.
+ */
+export function resolveTaskId(stages: { id: string; tasks: { id: string }[] }[], stageId: string, taskId: string): string | null {
+  if (!stageId || !taskId) return null;
+  return stages.find((s) => s.id === stageId)?.tasks.some((t) => t.id === taskId) ? taskId : null;
+}

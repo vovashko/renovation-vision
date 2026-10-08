@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
+import { useWatch, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { FormField } from "@/shared/ui/form-field";
 import type { Room, Stage } from "@/lib/database.types";
 
-type StageRoomValues = { stageId: string; roomId: string };
+type StageRoomValues = { stageId: string; taskId: string; roomId: string };
 
-/** Stage + room pickers, side by side, shared by the upload sheet and the photo edit sheet. */
+/** Stage + room pickers, side by side, and a task picker for the chosen stage; shared by the upload sheet and the photo edit sheet. */
 export function StageRoomFields<TValues extends FieldValues & StageRoomValues>({
   control,
   stages,
@@ -17,6 +17,8 @@ export function StageRoomFields<TValues extends FieldValues & StageRoomValues>({
   rooms: Room[];
 }) {
   const { t } = useTranslation(["media"]);
+  const stageId = useWatch({ control, name: "stageId" as FieldPath<TValues> }) as string;
+  const tasks = stages.find((s) => s.id === stageId)?.tasks ?? [];
   return (
     <div className="grid grid-cols-2 gap-3">
       <FormField control={control} name={"stageId" as FieldPath<TValues>} label={t("fields.stage")}>
@@ -43,6 +45,22 @@ export function StageRoomFields<TValues extends FieldValues & StageRoomValues>({
           </NativeSelect>
         )}
       </FormField>
+      {tasks.length > 0 && (
+        <div className="col-span-2">
+          <FormField control={control} name={"taskId" as FieldPath<TValues>} label={t("fields.task")}>
+            {(field) => (
+              <NativeSelect {...field}>
+                <NativeSelectOption value="">{t("fields.wholeStage")}</NativeSelectOption>
+                {tasks.map((task) => (
+                  <NativeSelectOption key={task.id} value={task.id}>
+                    {task.name}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+            )}
+          </FormField>
+        </div>
+      )}
     </div>
   );
 }
