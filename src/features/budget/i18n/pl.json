@@ -5,15 +5,15 @@
     "addExpense": "Dodaj wydatek"
   },
   "stats": {
-    "budget": "Budżet",
-    "clientSeesBudget": "Klient to widzi",
+    "budget": "Prognozowany budżet",
     "spent": "Wydano",
     "clientSeesSpent": "Klient widzi tę sumę",
     "overBudget": "Ponad budżet",
     "remaining": "Pozostało",
     "leftToSpend": "Zostało do wydania",
     "used": "Wykorzystano",
-    "projectComplete": "Projekt ukończony w {{pct}}%"
+    "projectComplete": "Projekt ukończony w {{pct}}%",
+    "plannedBudget": "Planowany: {{amount}}"
   },
   "expenses": {
     "heading": "Wydatki",

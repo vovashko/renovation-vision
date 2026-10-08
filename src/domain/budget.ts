@@ -18,3 +18,11 @@ export function budgetSummary(project: { budget: number; spent: number }) {
 export function expensesTotal(expenses: { amount: number }[]): number {
   return expenses.reduce((sum, e) => sum + e.amount, 0);
 }
+
+/**
+ * Budget deviation: the projected (current) budget minus the planned one. Positive when the project is
+ * now expected to cost more, negative when less, 0 when equal, so the UI can hide it.
+ */
+export function budgetDeviation(planned: number, projected: number): number {
+  return Math.round((projected - planned) * 100) / 100 || 0;
+}

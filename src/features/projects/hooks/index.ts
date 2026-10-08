@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import { projectsRepo, type NewProject, type ProjectPatch } from "../data/projects.repo";
+import { projectsRepo, RepoError, type NewProject, type ProjectPatch } from "../data/projects.repo";
 import type { ProjectStatus } from "../domain/project-fields";
 
 /** `projectStatusLabel("on_hold")` → "Wstrzymany" / "On hold" (`projects:projectStatus.*`). */
@@ -28,9 +28,11 @@ export function useCreateProject() {
 }
 
 export function useUpdateProject(projectId: string) {
-  const { t } = useTranslation(["projects"]);
+  const { t } = useTranslation(["projects", "common"]);
   return useMutationWithToast((patch: ProjectPatch) => projectsRepo.updateProject(projectId, patch), {
     invalidate: [keys.project(projectId), keys.projects],
     success: t("details.saved"),
+    error: (e) =>
+      e instanceof RepoError && e.hint === "baseline_locked" ? t("details.baselineLocked") : e.message || t("common:errors.generic"),
   });
 }
