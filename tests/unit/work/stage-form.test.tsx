@@ -35,6 +35,7 @@ const task = (id: string, done: boolean): Task => ({
   room_id: null,
   name: `Task ${id}`,
   done,
+  in_progress: false,
   sort_order: 0,
   is_visible: true,
 });

@@ -239,7 +239,8 @@ select pg_temp.check(
   'client still reads the stages'' tasks (the progress page''s select("*, tasks(*)"))');
 select pg_temp.check(not exists (
   select 1 from information_schema.columns
-  where table_schema = 'public' and table_name in ('stages', 'project_summary') and column_name like '%planned%'),
+  where table_schema = 'public' and table_name in ('stages', 'project_summary') and column_name like '%planned%'
+    and column_name not in ('planned_target_date', 'planned_budget')),  -- the project baseline is not a stage cost
   'no planned-cost column on the client-readable stages or project_summary');
 select pg_temp.denied($q$insert into public.materials (project_id, name) values ('b0000000-0000-4000-8000-000000000001', 'x')$q$,
   'client added a material');

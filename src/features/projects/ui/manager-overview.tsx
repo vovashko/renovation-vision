@@ -10,6 +10,7 @@ import { TeamCard } from "@/features/people/ui/team-card";
 import { useMembers, useProjectContacts } from "@/features/people/hooks";
 import { crewOf, primaryIn } from "@/features/people/domain/contacts";
 import { budgetStatus, daysUntil } from "@/domain/attention";
+import { scheduleDeviationDays } from "@/domain/dates";
 import { projectIssues } from "../domain/project-issues";
 import { useProject } from "../hooks";
 import { ProjectDetailsSheet } from "./project-details-sheet";
@@ -80,6 +81,7 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
             stagesDone={done}
             stagesTotal={stages.length}
             targetDate={project.target_date}
+            targetDeviationDays={scheduleDeviationDays(project.planned_target_date, project.target_date)}
             daysLeft={left}
             budgetUsedPct={budget.usedPct}
             budgetOver={budget.over}

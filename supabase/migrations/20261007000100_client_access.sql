@@ -524,7 +524,8 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
--- 9. project_summary gains my_role (last column; columns and options otherwise unchanged)
+-- 9. project_summary gains my_role (last column; columns and options otherwise unchanged; this migration runs
+--    after planned_baseline, so the view keeps planned_target_date and planned_budget before it)
 -- ---------------------------------------------------------------------------
 create or replace view public.project_summary
 with (security_invoker = true) as
@@ -568,6 +569,8 @@ select
   ) as client_display_name,
   p.plan_image_path,
   p.plan_image_opts,
+  p.planned_target_date,
+  p.planned_budget,
   (
     select m.role from public.project_members m
     where m.project_id = p.id and m.user_id = (select auth.uid())

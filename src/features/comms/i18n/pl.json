@@ -72,7 +72,12 @@
       "render_published": "Wizualizacja",
       "schedule_status": "Harmonogram",
       "message": "Wiadomość",
-      "manual": "Ogłoszenie"
+      "manual": "Ogłoszenie",
+      "decision_new": "Decyzja",
+      "decision_answer": "Odpowiedź",
+      "decision_question": "Pytanie",
+      "decision_rejected": "Odrzucono",
+      "decision_reopened": "Wznowiono"
     },
     "stage_status": {
       "title": "Aktualizacja etapu: {{stage}}",
@@ -95,6 +100,21 @@
       "title": "Nowa wiadomość od: {{sender}}",
       "titleNoSender": "Nowa wiadomość",
       "attachment": "Wysłano załącznik"
+    },
+    "decision_new": {
+      "title": "Potrzebna decyzja: {{title}}"
+    },
+    "decision_answer": {
+      "title": "Odpowiedź do sprawy: {{title}}"
+    },
+    "decision_question": {
+      "title": "Pytanie do sprawy: {{title}}"
+    },
+    "decision_rejected": {
+      "title": "Odrzucono: {{title}}"
+    },
+    "decision_reopened": {
+      "title": "Wznowiono: {{title}}"
     }
   },
   "activity": {
@@ -144,6 +164,20 @@
       "cta": "Otwórz w RenoVision",
       "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision.",
       "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}"
+    },
+    "decisionNew": {
+      "title": "Sprawa czeka na Twoją decyzję: {{title}}",
+      "body": "Kierownik budowy przesłał do decyzji sprawę „{{title}}”. Otwórz ją, aby zobaczyć zdjęcia i wpływ na budżet oraz termin.",
+      "cta": "Zobacz sprawę"
+    },
+    "confirmationCode": {
+      "subject": "Twój kod potwierdzenia — RenoVision",
+      "preheader": "Kod do zaakceptowania sprawy „{{title}}”",
+      "heading": "Potwierdź zaakceptowanie decyzji",
+      "intro": "Wpisz ten kod w RenoVision, aby zaakceptować sprawę „{{title}}”. Akceptacja jest ostateczna i zmienia budżet oraz termin zakończenia projektu.",
+      "validity": "Kod jest ważny {{minutes}} minut i działa tylko raz.",
+      "ignore": "Jeśli to nie Ty prosiłeś o kod, zignoruj tę wiadomość — nic się nie zmieni.",
+      "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision."
     }
   }
 }

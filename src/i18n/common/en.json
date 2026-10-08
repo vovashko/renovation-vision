@@ -42,9 +42,12 @@
     "plan": "Plan",
     "progress": "Progress",
     "photos": "Photos",
+    "documents": "Documents",
     "design": "Design",
     "budget": "Budget",
     "chat": "Chat",
+    "decisions": "Decisions",
+    "withCount": "{{label}}, {{count}} pending",
     "updates": "Updates",
     "knowledge": "AI knowledge",
     "team": "Team",
@@ -105,5 +108,14 @@
     "heading": "Something went wrong",
     "retry": "Try again"
   },
-  "overallProgress": "Overall progress"
+  "overallProgress": "Overall progress",
+  "shareLink": {
+    "label": "Copy link for investor",
+    "copied": "Link copied. The investor will need to sign in with their client account.",
+    "failed": "Couldn't copy the link. Copy it from the address bar instead."
+  },
+  "deviation": {
+    "days_one": "{{sign}}{{count}} day",
+    "days_other": "{{sign}}{{count}} days"
+  }
 }

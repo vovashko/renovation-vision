@@ -44,9 +44,12 @@
     "plan": "Plan",
     "progress": "Postęp",
     "photos": "Zdjęcia",
+    "documents": "Dokumentacja",
     "design": "Projekt",
     "budget": "Budżet",
     "chat": "Czat",
+    "decisions": "Decyzje",
+    "withCount": "{{label}}, oczekuje: {{count}}",
     "updates": "Aktualności",
     "knowledge": "Wiedza AI",
     "team": "Zespół",
@@ -107,5 +110,16 @@
     "heading": "Coś poszło nie tak",
     "retry": "Spróbuj ponownie"
   },
-  "overallProgress": "Ogólny postęp"
+  "overallProgress": "Ogólny postęp",
+  "shareLink": {
+    "label": "Kopiuj link dla inwestora",
+    "copied": "Link skopiowany. Inwestor musi zalogować się swoim kontem klienta.",
+    "failed": "Nie udało się skopiować linku. Skopiuj go z paska adresu."
+  },
+  "deviation": {
+    "days_one": "{{sign}}{{count}} dzień",
+    "days_few": "{{sign}}{{count}} dni",
+    "days_many": "{{sign}}{{count}} dni",
+    "days_other": "{{sign}}{{count}} dnia"
+  }
 }

@@ -151,3 +151,31 @@ describe("the updates page's items render translated text", () => {
     expect(screen.getByText("Zaktualizowano etap „Flooring”")).toBeInTheDocument();
   });
 });
+
+describe("useNotificationText: investor decisions (#55)", () => {
+  const params = { title: "Extra socket", text: "Is the price final?" };
+
+  it("renders every decision kind in both languages, with the question / answer / reason as written", () => {
+    const cases = [
+      ["decision_new", "Decision needed: Extra socket", "Potrzebna decyzja: Extra socket"],
+      ["decision_answer", "Answer on: Extra socket", "Odpowiedź do sprawy: Extra socket"],
+      ["decision_question", "Question on: Extra socket", "Pytanie do sprawy: Extra socket"],
+      ["decision_rejected", "Rejected: Extra socket", "Odrzucono: Extra socket"],
+      ["decision_reopened", "Reopened: Extra socket", "Wznowiono: Extra socket"],
+    ] as const;
+    for (const [kind, en, pl] of cases) {
+      expect(textIn("en", { kind, params, ...legacy })).toEqual({ title: en, body: "Is the price final?" });
+      expect(textIn("pl", { kind, params, ...legacy })).toEqual({ title: pl, body: "Is the price final?" });
+    }
+  });
+
+  it("falls back to the legacy text when the title is missing", () => {
+    expect(textIn("pl", { kind: "decision_new", params: {}, ...legacy })).toEqual({ title: "LEGACY TITLE", body: "LEGACY BODY" });
+  });
+
+  it("labels the kinds", () => {
+    const { result } = renderHook(() => useNotificationKindLabel(), { wrapper: wrapper("pl") });
+    expect(result.current("decision_question")).toBe("Pytanie");
+    expect(result.current("decision_new")).toBe("Decyzja");
+  });
+});

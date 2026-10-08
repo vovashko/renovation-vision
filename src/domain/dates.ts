@@ -60,3 +60,13 @@ export function formatDayLabel(d: DateInput, locale: string, today: Date = new D
   }
   return new Intl.DateTimeFormat(locale, { weekday: "short", month: "short", day: "2-digit" }).format(toDate(d));
 }
+
+/**
+ * Schedule deviation in calendar days: how far the current end date is from the planned one.
+ * Positive when the current date is later (a slip), negative when earlier, 0 when equal or when
+ * either date is missing, so the UI can hide it.
+ */
+export function scheduleDeviationDays(planned: string | null | undefined, current: string | null | undefined): number {
+  if (!planned || !current) return 0;
+  return Math.round((dayStart(parseDate(current)) - dayStart(parseDate(planned))) / DAY_MS) || 0;
+}

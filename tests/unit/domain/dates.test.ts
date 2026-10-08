@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { NO_DATE, dayOffset, formatDate, formatDayLabel, parseDate, toDate } from "@/domain/dates";
+import { NO_DATE, dayOffset, formatDate, formatDayLabel, parseDate, scheduleDeviationDays, toDate } from "@/domain/dates";
 
 const plain = (s: string) => s.replace(/[\u00a0\u202f]/g, " ");
 
@@ -81,5 +81,25 @@ describe("relative days", () => {
   it("formatDayLabel falls back to weekday + short date", () => {
     expect(plain(formatDayLabel("2026-04-10", "en", today))).toBe("Fri, Apr 10");
     expect(plain(formatDayLabel("2026-04-10", "pl", today))).toBe("pt., 10 kwi");
+  });
+});
+
+describe("scheduleDeviationDays", () => {
+  it("is positive when the current end date is later, negative when earlier", () => {
+    expect(scheduleDeviationDays("2026-06-10", "2026-06-12")).toBe(2);
+    expect(scheduleDeviationDays("2026-06-10", "2026-06-09")).toBe(-1);
+  });
+
+  it("is 0 when the dates are equal or one is missing", () => {
+    expect(scheduleDeviationDays("2026-06-10", "2026-06-10")).toBe(0);
+    expect(scheduleDeviationDays(null, "2026-06-10")).toBe(0);
+    expect(scheduleDeviationDays("2026-06-10", null)).toBe(0);
+  });
+
+  it("counts calendar days across month ends, leap days and DST changes", () => {
+    expect(scheduleDeviationDays("2026-01-31", "2026-03-01")).toBe(29);
+    expect(scheduleDeviationDays("2028-02-28", "2028-03-01")).toBe(2);
+    expect(scheduleDeviationDays("2026-03-28", "2026-03-30")).toBe(2);
+    expect(scheduleDeviationDays("2026-10-24", "2026-10-26")).toBe(2);
   });
 });

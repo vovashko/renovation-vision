@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { materialStatuses, type MaterialStatus } from "@/domain/materials";
+import type { TaskState } from "@/domain/progress";
 import type { Status } from "@/domain/status";
 import type { ProgressMode } from "@/lib/database.types";
 
@@ -59,3 +61,41 @@ export const taskAddFormSchema = z.object({
 });
 
 export type TaskAddFormValues = z.infer<typeof taskAddFormSchema>;
+
+// --- Room view (issue #56): the room's works, materials and investor warnings ---------------------
+
+const TASK_STATES = ["todo", "in_progress", "done"] as const satisfies readonly TaskState[];
+
+export const taskStateSchema = z.enum(TASK_STATES);
+
+export const roomTaskFormSchema = z.object({
+  name: z.string().trim().min(1, "common:form.required"),
+  // "" means "no stage" (a work that belongs to the room only).
+  stage_id: z.string(),
+});
+
+export type RoomTaskFormValues = z.infer<typeof roomTaskFormSchema>;
+
+export const materialStatusSchema = z.enum(materialStatuses as [MaterialStatus, ...MaterialStatus[]]);
+
+/** Dates are `YYYY-MM-DD` from a date input; "" means "not set". */
+const optionalDate = z.string().regex(/^(\d{4}-\d{2}-\d{2})?$/, "common:form.invalid");
+
+export const materialFormSchema = z.object({
+  name: z.string().trim().min(1, "common:form.required"),
+  quantity: z.number({ message: "common:form.invalid" }).positive("common:form.invalid").max(999_999_999, "common:form.invalid"),
+  unit: z.string().trim().min(1, "common:form.required").max(16, "common:form.invalid"),
+  status: materialStatusSchema,
+  order_by_date: optionalDate,
+  delivery_date: optionalDate,
+});
+
+export type MaterialFormValues = z.infer<typeof materialFormSchema>;
+
+export const warningFormSchema = z.object({
+  text: z.string().trim().min(1, "common:form.required").max(2000, "common:form.invalid"),
+  // The materials this risk is about; none means the warning stays until the manager removes it.
+  material_ids: z.array(z.string()),
+});
+
+export type WarningFormValues = z.infer<typeof warningFormSchema>;

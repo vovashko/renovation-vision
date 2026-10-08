@@ -12,13 +12,22 @@ export const keys = {
   members: (id: string) => ["members", id] as const,
   stages: (id: string) => ["stages", id] as const,
   rooms: (id: string) => ["rooms", id] as const,
+  /** Everything the room view loads (tasks, materials, warnings of every room): invalidate with a project id. */
+  roomView: (id: string) => ["roomView", id] as const,
   photos: (id: string) => ["photos", id] as const,
   renders: (id: string) => ["renders", id] as const,
+  documents: (id: string) => ["documents", id] as const,
   expenses: (id: string) => ["expenses", id] as const,
   messages: (id: string) => ["messages", id] as const,
   notifications: (id: string) => ["notifications", id] as const,
   activity: (id: string) => ["activity", id] as const,
   knowledge: (id: string) => ["knowledge", id] as const,
+  /** A project's investor decisions; the keys below nest under it, so invalidating this refreshes all of them. */
+  decisions: (id: string) => ["decisions", id] as const,
+  /** How many of the project's decisions are pending (the navigation badge). */
+  decisionCount: (id: string) => ["decisions", id, "count"] as const,
+  /** One decision's history. */
+  decisionEvents: (id: string, decisionId: string) => ["decisions", id, "events", decisionId] as const,
   /** A project's contacts (crew, client, PoC…) as its managers see them. */
   projectContacts: (id: string) => ["projectContacts", id] as const,
   /** A project's client-visible contacts (`project_visible_contacts`), for any member. */

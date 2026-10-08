@@ -27,8 +27,10 @@ describe("nav-config", () => {
       "progress",
       "photos",
       "design",
+      "documents",
       "budget",
       "chat",
+      "decisions",
       "updates",
       "knowledge",
       "team",
@@ -53,19 +55,34 @@ describe("nav-config", () => {
   });
 
   it("a client sees only the client sections; a manager sees everything", () => {
-    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "photos", "design", "chat"]);
+    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "photos", "design", "documents", "chat", "decisions"]);
     expect(navItemsFor("manager")).toHaveLength(projectNav.length);
     expect(managerOnlySections).toEqual(["budget", "updates", "knowledge", "team"]);
   });
 
   it("puts four client sections in the phone tab bar and the rest under More", () => {
     expect(navItemsFor("client", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "chat"]);
-    expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design"]);
+    expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design", "documents", "decisions"]);
   });
 
   it("puts the same four tabs in the phone tab bar for a manager, with the rest under More", () => {
     expect(navItemsFor("manager", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "chat"]);
-    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual(["design", "budget", "updates", "knowledge", "team"]);
+    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual([
+      "design",
+      "documents",
+      "budget",
+      "decisions",
+      "updates",
+      "knowledge",
+      "team",
+    ]);
+  });
+
+  it("shows Decisions to both roles, with a count badge", () => {
+    const item = projectNav.find((i) => i.key === "decisions")!;
+    expect(item.roles).toEqual(["manager", "client"]);
+    expect(item.counted).toBe(true);
+    expect(managerOnlySections).not.toContain("decisions");
   });
 
   it("builds section URLs and router targets", () => {

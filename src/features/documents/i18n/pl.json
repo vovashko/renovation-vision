@@ -1,0 +1,83 @@
+{
+  "page": {
+    "heading": "Dokumentacja",
+    "descriptionManager": "Umowa, kosztorys, faktury, zdjęcia instalacji, gwarancje i instrukcje. Tylko Ty możesz dodawać i edytować; inwestor może przeglądać i pobierać.",
+    "descriptionClient": "Umowa, kosztorys, faktury, zdjęcia instalacji, gwarancje i instrukcje urządzeń w jednym miejscu.",
+    "metaDescription": "Dokumentacja projektu: umowa, kosztorys, faktury, zdjęcia instalacji, gwarancje i instrukcje."
+  },
+  "tabs": { "aria": "Kategorie dokumentów" },
+  "categories": {
+    "contract": "Umowa",
+    "estimate": "Kosztorys",
+    "invoices": "Faktury",
+    "installation_photos": "Zdjęcia instalacji przed zakryciem",
+    "warranties": "Gwarancje",
+    "manuals": "Instrukcje urządzeń"
+  },
+  "item": {
+    "meta": "Dodano {{date}} · {{type}} · {{size}}",
+    "new": "Nowe",
+    "archived": "Zarchiwizowane",
+    "version": "Wersja {{version}}",
+    "currentVersion": "Aktualna · wersja {{version}}",
+    "history_one": "Wcześniejsza wersja ({{count}})",
+    "history_few": "Wcześniejsze wersje ({{count}})",
+    "history_many": "Wcześniejszych wersji ({{count}})",
+    "history_other": "Wcześniejszej wersji ({{count}})"
+  },
+  "gallery": { "noRoom": "Bez pomieszczenia" },
+  "actions": {
+    "add": "Dodaj dokument",
+    "newVersion": "Dodaj nową wersję",
+    "showArchived": "Pokaż zarchiwizowane dokumenty",
+    "downloadAria": "Pobierz: {{title}}",
+    "editAria": "Edytuj: {{title}}",
+    "archiveAria": "Archiwizuj: {{title}}",
+    "restoreAria": "Przywróć: {{title}}"
+  },
+  "empty": {
+    "title": "Brak dokumentów",
+    "manager": "Użyj „Dodaj dokument”, aby wgrać pierwszy plik w tej kategorii.",
+    "client": "Kierownik budowy nie dodał jeszcze nic do tej kategorii."
+  },
+  "confirm": {
+    "archiveTitle": "Zarchiwizować ten dokument?",
+    "archiveBody": "Zniknie z widoku inwestora i z tej listy. Możesz go przywrócić przez „Pokaż zarchiwizowane dokumenty”. Nic nie jest usuwane."
+  },
+  "upload": {
+    "sheetTitle": "Dodaj dokument",
+    "sheetDescription": "Plik PDF, obraz (JPG, PNG, WebP, HEIC), Word lub Excel, do 25 MB.",
+    "category": "Kategoria",
+    "newVersionSwitch": "To nowa wersja istniejącego dokumentu",
+    "versionOf": "Nowa wersja dokumentu",
+    "titleLabel": "Tytuł",
+    "titlePlaceholder": "np. Umowa z aneksem 1",
+    "file": "Plik",
+    "fileHint": "PDF, JPG, PNG, WebP, HEIC, DOCX lub XLSX, do 25 MB.",
+    "room": "Pomieszczenie",
+    "chooseRoom": "Wybierz pomieszczenie",
+    "work": "Prace (opcjonalnie)",
+    "descriptionLabel": "Opis (opcjonalnie)",
+    "descriptionPlaceholder": "np. model, numer seryjny, okres gwarancji",
+    "submit": "Wgraj",
+    "uploading": "Wgrywanie…",
+    "fileRequired": "Wybierz plik",
+    "fileTypeNotAllowed": "Ten typ pliku jest niedozwolony. Użyj PDF, JPG, PNG, WebP, HEIC, DOCX lub XLSX.",
+    "fileExtensionMismatch": "Rozszerzenie pliku nie pasuje do jego typu",
+    "fileEmpty": "Plik jest pusty",
+    "fileTooLarge": "Plik jest większy niż 25 MB",
+    "photoMustBeImage": "Zdjęcia instalacji muszą być obrazami",
+    "roomRequired": "Wybierz pomieszczenie, którego dotyczy zdjęcie",
+    "titleTooLong": "Tytuł może mieć najwyżej 200 znaków",
+    "descriptionTooLong": "Opis może mieć najwyżej 2000 znaków"
+  },
+  "edit": { "title": "Edytuj dokument", "save": "Zapisz" },
+  "toast": {
+    "uploaded": "Dokument został dodany",
+    "versionUploaded": "Dodano nową wersję; poprzednia została w historii",
+    "updated": "Dokument został zaktualizowany",
+    "archived": "Dokument został zarchiwizowany",
+    "restored": "Dokument został przywrócony",
+    "downloadFailed": "Nie udało się pobrać pliku"
+  }
+}

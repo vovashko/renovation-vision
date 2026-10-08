@@ -172,7 +172,7 @@ Code is split by layer, then by feature:
 ```
 src/domain/            pure entities and rules: status, progress, money, dates, attention, consistency, budget,
                        db.types.ts (generated). No React, no Supabase, no UI imports.
-src/features/<f>/      f ∈ projects | work | media | budget | comms | people | knowledge | auth | settings | admin | import
+src/features/<f>/      f ∈ projects | work | media | documents | budget | decisions | comms | people | knowledge | auth | settings | admin | import
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js
@@ -429,6 +429,31 @@ message }`, where `message` is a stable code (`required`, `not_a_number`, `must_
 `stage_budgets` and `materials` also carry the restrictive staff-MFA policy. Materials (and planned-cost updates)
 go to the activity log. Tests: `tests/db/costs.test.sql`.
 
+## Investor decisions (#55)
+
+Cases the site manager submits and the investor (a `client` of the project) decides; only an **accepted** case moves
+`projects.target_date` (+ `days_delta`) and `projects.budget` (+ `cost_delta`), both of which may be negative. Full design,
+state machine and the code-verification rationale: `src/features/decisions/README.md`.
+
+```
+decisions ──< decision_photos            1..10 photos, project-media <project>/decisions/…
+    │  ──< decision_events               append-only: submitted | question | answer | accepted | rejected | reopened | edited
+    └──< decision_confirmations          sha256(salt:code), 10 min, 5 attempts, single use; no API access (admin client only)
+status: pending ⇄ question · pending | question → accepted (final) | rejected → reopened → pending
+```
+
+- **Access.** Managers and clients of the project SELECT; all table privileges are revoked and every change is a
+  `SECURITY DEFINER` function that checks the caller's project role and the state (`create_decision`, `update_decision`,
+  `answer_decision_question` for managers; `ask_decision_question`, `reject_decision`, `accept_decision` for clients;
+  `reopen_decision` for either). Anonymous callers have no access.
+- **Accepting needs an emailed code.** The `requestDecisionCode` server function stores a salted hash with the admin client and
+  emails the code; `accept_decision(decision, code)` verifies it in the database (owner, expiry, attempts, single use) and
+  applies the totals in the same transaction, idempotently (row lock). Codes are never logged. Rate limit: the `email` policy.
+- **Notifications.** `notifications` kinds `decision_new | decision_answer | decision_question | decision_rejected |
+decision_reopened` (params `{ title, text }`), plus the `confirmationCode` email and a new-case notice by email.
+
+Tests: `tests/db/investor_decisions.test.sql`, `tests/unit/decisions/*`, `tests/unit/server/decisions.test.ts`.
+
 ## Work data (T32)
 
 ```
@@ -462,6 +487,52 @@ projects ──< stages (progress_mode: tasks | manual) ──< tasks
 | `import_stages`                       | —                                     | execute         |
 
 Tests: `tests/db/work.test.sql`.
+
+## Room view (#56)
+
+`/projects/<id>/rooms/<room>` (opened from the plan's selected-room panel): a room's works, materials with their
+delivery status, and warnings for the investor. Everything is entered by hand by the site manager; clients read it.
+
+```
+rooms ──< tasks (stage_id and/or room_id, state: todo | in_progress | done)    ONE source of progress
+rooms ──< materials (order_by_date, delivery_date, status planned|ordered|delivered|installed)
+rooms ──< room_warnings (text) ──< room_warning_materials >── materials
+```
+
+- **Works are tasks.** `tasks.stage_id` is now nullable (at least one of `stage_id` / `room_id` is required); a task
+  may belong to a stage, a room or both. `done` stays the only progress flag; the new `in_progress` flag only marks a
+  started, unfinished task (state = done ? done : in_progress ? in progress : to do, `@/domain/progress` `taskState`).
+  `tasks.project_id` still comes from the stage, or from the room for a room-only task. Deleting a room deletes its
+  room-only tasks; its stage tasks stay without a room.
+- **Room progress is derived**, like a stage's: `rooms.progress_mode` (`tasks` default | `manual`). In `tasks` mode, once
+  a room has tasks, `progress` = the same `round(100 * done / total)` rule as stages (`deriveFromTasks`), status follows
+  it, `blocked` is never overridden (progress capped at 99), and `(status = 'done') = (progress = 100)` still holds. A room
+  without tasks keeps its hand-set values. Existing rooms whose numbers differ from their tasks were backfilled to
+  `manual` (the demo's Living Room, Kitchen and Bathroom). The old "re-opening a task on a Completed room" guard now only
+  applies to `manual` rooms. A stage's progress only counts its own tasks; room-only tasks never touch it.
+- **Material colours** (`@/domain/materials`): red = `planned` (not ordered, "najpóźniej zamówić do <order_by_date>"),
+  orange = `ordered` ("dostawa <delivery_date>"), green = `delivered` / `installed`. `installed` is kept.
+- **Clients never see prices.** `materials` stays managers-only (restrictive staff-MFA policy included). Clients read a
+  room's materials through `room_materials(room)`: a security-definer function returning only name, quantity, unit,
+  status and the two dates (no price, supplier, notes or expense), for managers (with an MFA session while 2FA is
+  enforced) and for clients of the project (visible rooms only). A `security_invoker` view could not do this: it would
+  return nothing to clients, and column privileges can't tell two `authenticated` users apart. Same pattern as
+  `project_visible_contacts`. The room view's material form has no price field.
+- **Warnings ("Uwaga do inwestora")** are risks, never a date change. A warning is **open while any linked material is
+  `planned` or `ordered`; a warning with no linked material stays open until a manager removes it**
+  (`private.warning_is_open` in the database, `isWarningOpen` in `@/domain/room-warnings`). Clients only read open
+  warnings of visible rooms (RLS: `private.client_can_see_warning`); managers read all of them and see the resolved ones
+  marked. Linked materials must belong to the warning's room. `rooms.client_note` is untouched.
+
+| Table / function         | Client                                      | Project manager  |
+| ------------------------ | ------------------------------------------- | ---------------- |
+| `tasks`                  | visible tasks (room-only: of visible rooms) | read/write       |
+| `room_materials(room)`   | the safe columns, visible rooms             | the safe columns |
+| `materials`              | —                                           | all (unchanged)  |
+| `room_warnings`          | open warnings of visible rooms              | read/write       |
+| `room_warning_materials` | the links of those warnings                 | read/write       |
+
+Tests: `tests/db/room_view.test.sql`, `tests/unit/work/room-view*.test.ts(x)`, `tests/unit/domain/{materials,room-warnings}.test.ts`.
 
 ## Sessions & route guards
 
@@ -527,6 +598,15 @@ after a loading screen) and in the browser on navigation. The decisions are pure
 
 These guards decide what to render and where to send people. **RLS is still the enforcement**: a guard that
 let someone through could not show them data Postgres refuses to return.
+
+### Sharing a page with the investor
+
+There is no anonymous or token access. "Copy link for investor" (managers only, in the project top bar, not on
+manager-only sections) copies the URL of the current project page, query string included (`investorShareUrl` in
+`features/auth/domain/guards.ts`). The investor opens it, is sent to `/login?redirect=<that page>`, signs in with
+their client account and lands on the page; nobody signed out sees anything. An account that isn't a member of the
+project gets "Project not available". To revoke access, remove or change the project's client: the link then stops
+working for that account (RLS and the guards decide, the URL carries no permission).
 
 ### Auth screens & 2FA (T22)
 
@@ -951,10 +1031,11 @@ a Brevo account aren't blocked.
 **Templates** (`src/server/email/templates/*.ts`) are plain functions, `(params, locale) => { subject,
 html, text }`, rendered through the shared design-system components:
 
-| Template       | Params                                                        | Used by (later)                          |
-| -------------- | ------------------------------------------------------------- | ---------------------------------------- |
-| `notification` | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)      |
-| `digest`       | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41) |
+| Template           | Params                                                        | Used by (later)                                     |
+| ------------------ | ------------------------------------------------------------- | --------------------------------------------------- |
+| `notification`     | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)                 |
+| `digest`           | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41)            |
+| `confirmationCode` | `{ siteUrl, title, code, ttlMinutes }`                        | Investor decisions (#55); `sensitive`: never logged |
 
 Chrome strings (subject, button label, disclaimer) live in the `comms` i18n namespace
 (`src/features/comms/i18n/{en,pl}.json` → `email.notification`/`email.digest`), so the en/pl parity

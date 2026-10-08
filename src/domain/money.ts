@@ -12,6 +12,8 @@ export const DEFAULT_CURRENCY: Currency = "PLN";
 export type MoneyOptions = {
   /** Fraction digits: 2 (default) for amounts and totals, 0 for whole-unit summaries. */
   decimals?: 0 | 2;
+  /** Always show the sign of a non-zero amount: "+1 000 zł", "-500 zł" (deviations). */
+  signed?: boolean;
 };
 
 /** `formatMoney(12345, "PLN", "pl")` → "12 345,00 zł"; `formatMoney(12345, "PLN", "en")` → "PLN 12,345.00". */
@@ -22,5 +24,6 @@ export function formatMoney(amount: number, currency: Currency | undefined, loca
     currency: currency ?? DEFAULT_CURRENCY,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
+    ...(opts.signed ? { signDisplay: "exceptZero" as const } : {}),
   }).format(amount);
 }

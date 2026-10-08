@@ -5,8 +5,8 @@ Stages, rooms and tasks, their status and progress, the floor plan and the sched
 A stage's `progress_mode` is `tasks` (progress and status computed from the checklist by the database, read-only
 in `StageFormSheet` except "blocked") or `manual` (README → Work data).
 
-- **Routes:** `/projects/$projectId` (overview), `/stages`, `/plan`
-- **UI:** `StageFormSheet` (+ `ProgressModeControl`, `TaskDerivedProgress`), `StageRow`, `StageTimeline`, `FloorPlan`, `RoomList`, `SelectedRoomPanel`, `OverviewStats`, `ProjectHeader`
+- **Routes:** `/projects/$projectId` (overview), `/stages`, `/plan`, `/rooms/$roomId` (the room view)
+- **UI:** `StageFormSheet` (+ `ProgressModeControl`, `TaskDerivedProgress`), `StageRow`, `StageTimeline`, `FloorPlan`, `RoomList`, `SelectedRoomPanel`, `OverviewStats`, `ProjectHeader`; the room view: `RoomView` (+ `RoomWorks`, `RoomMaterials`, `RoomWarnings`, `MaterialForm`, `WarningForm`)
 - **i18n namespace:** `work` (`useTranslation(["work", "common"])`)
 
 Layers (README → Architecture): `domain/` pure rules (optional, shared ones live in `src/domain`) · `data/`
