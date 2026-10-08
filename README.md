@@ -172,7 +172,7 @@ Code is split by layer, then by feature:
 ```
 src/domain/            pure entities and rules: status, progress, money, dates, attention, consistency, budget,
                        db.types.ts (generated). No React, no Supabase, no UI imports.
-src/features/<f>/      f ∈ projects | work | media | budget | comms | people | knowledge | auth | settings | admin | import
+src/features/<f>/      f ∈ projects | work | media | budget | decisions | comms | people | knowledge | auth | settings | admin | import
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js
@@ -428,6 +428,31 @@ message }`, where `message` is a stable code (`required`, `not_a_number`, `must_
 
 `stage_budgets` and `materials` also carry the restrictive staff-MFA policy. Materials (and planned-cost updates)
 go to the activity log. Tests: `tests/db/costs.test.sql`.
+
+## Investor decisions (#55)
+
+Cases the site manager submits and the investor (a `client` of the project) decides; only an **accepted** case moves
+`projects.target_date` (+ `days_delta`) and `projects.budget` (+ `cost_delta`), both of which may be negative. Full design,
+state machine and the code-verification rationale: `src/features/decisions/README.md`.
+
+```
+decisions ──< decision_photos            1..10 photos, project-media <project>/decisions/…
+    │  ──< decision_events               append-only: submitted | question | answer | accepted | rejected | reopened | edited
+    └──< decision_confirmations          sha256(salt:code), 10 min, 5 attempts, single use; no API access (admin client only)
+status: pending ⇄ question · pending | question → accepted (final) | rejected → reopened → pending
+```
+
+- **Access.** Managers and clients of the project SELECT; all table privileges are revoked and every change is a
+  `SECURITY DEFINER` function that checks the caller's project role and the state (`create_decision`, `update_decision`,
+  `answer_decision_question` for managers; `ask_decision_question`, `reject_decision`, `accept_decision` for clients;
+  `reopen_decision` for either). Anonymous callers have no access.
+- **Accepting needs an emailed code.** The `requestDecisionCode` server function stores a salted hash with the admin client and
+  emails the code; `accept_decision(decision, code)` verifies it in the database (owner, expiry, attempts, single use) and
+  applies the totals in the same transaction, idempotently (row lock). Codes are never logged. Rate limit: the `email` policy.
+- **Notifications.** `notifications` kinds `decision_new | decision_answer | decision_question | decision_rejected |
+decision_reopened` (params `{ title, text }`), plus the `confirmationCode` email and a new-case notice by email.
+
+Tests: `tests/db/investor_decisions.test.sql`, `tests/unit/decisions/*`, `tests/unit/server/decisions.test.ts`.
 
 ## Work data (T32)
 
@@ -951,10 +976,11 @@ a Brevo account aren't blocked.
 **Templates** (`src/server/email/templates/*.ts`) are plain functions, `(params, locale) => { subject,
 html, text }`, rendered through the shared design-system components:
 
-| Template       | Params                                                        | Used by (later)                          |
-| -------------- | ------------------------------------------------------------- | ---------------------------------------- |
-| `notification` | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)      |
-| `digest`       | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41) |
+| Template           | Params                                                        | Used by (later)                                     |
+| ------------------ | ------------------------------------------------------------- | --------------------------------------------------- |
+| `notification`     | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)                 |
+| `digest`           | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41)            |
+| `confirmationCode` | `{ siteUrl, title, code, ttlMinutes }`                        | Investor decisions (#55); `sensitive`: never logged |
 
 Chrome strings (subject, button label, disclaimer) live in the `comms` i18n namespace
 (`src/features/comms/i18n/{en,pl}.json` → `email.notification`/`email.digest`), so the en/pl parity

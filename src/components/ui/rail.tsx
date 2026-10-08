@@ -3,6 +3,7 @@ import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { CountBadge } from "@/components/ui/count-badge";
 import { Icon } from "@/components/ui/icon";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -89,6 +90,8 @@ type RailItemProps = Omit<React.ComponentProps<"button">, "children"> & {
   /** Visible label when expanded; also the tooltip and the accessible name. */
   label: string;
   active?: boolean;
+  /** A count shown on the icon (cases waiting for a decision); hidden at 0. */
+  badge?: number;
   /** Render the given child (a router <Link>, an <a>) instead of a <button>. */
   asChild?: boolean;
   children?: React.ReactNode;
@@ -99,7 +102,7 @@ type RailItemProps = Omit<React.ComponentProps<"button">, "children"> & {
  * also the tooltip (shown to the right) and the `aria-label`; pass `aria-label` to override the latter.
  * With `asChild`, the icon cell and label are rendered inside the child element.
  */
-function RailItem({ icon, label, active = false, asChild = false, className, children, ...props }: RailItemProps) {
+function RailItem({ icon, label, active = false, badge = 0, asChild = false, className, children, ...props }: RailItemProps) {
   const Comp = asChild ? Slot : "button";
   return (
     <Tooltip>
@@ -113,7 +116,10 @@ function RailItem({ icon, label, active = false, asChild = false, className, chi
           className={cn(railItemVariants({ active }), className)}
           {...props}
         >
-          <span className="grid w-14 shrink-0 place-items-center">{typeof icon === "string" ? <Icon name={icon} size={24} /> : icon}</span>
+          <span className="relative grid w-14 shrink-0 place-items-center">
+            {typeof icon === "string" ? <Icon name={icon} size={24} /> : icon}
+            <CountBadge count={badge} className="absolute top-2 right-2 h-4 min-w-4 px-1 text-label-sm" />
+          </span>
           <span className={labelClass}>{label}</span>
           <Slottable>{children}</Slottable>
         </Comp>

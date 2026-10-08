@@ -93,6 +93,136 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"decision_confirmations": {
+                  Row: {
+                    "attempts": number,"code_hash": string,"consumed_at": string | null,"created_at": string,"decision_id": string,"expires_at": string,"id": string,"salt": string,"user_id": string
+                  }
+                  Insert: {
+                    "attempts"?: number,"code_hash": string,"consumed_at"?: string | null,"created_at"?: string,"decision_id": string,"expires_at": string,"id"?: string,"salt": string,"user_id": string
+                  }
+                  Update: {
+                    "attempts"?: number,"code_hash"?: string,"consumed_at"?: string | null,"created_at"?: string,"decision_id"?: string,"expires_at"?: string,"id"?: string,"salt"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "decision_confirmations_decision_id_fkey"
+      columns: ["decision_id"]
+isOneToOne: false
+      referencedRelation: "decisions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decision_confirmations_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"decision_events": {
+                  Row: {
+                    "actor_id": string | null,"actor_role": Database["public"]['Enums']["project_role"] | null,"created_at": string,"decision_id": string,"id": number,"kind": Database["public"]['Enums']["decision_event_kind"],"project_id": string,"text": string
+                  }
+                  Insert: {
+                    "actor_id"?: string | null,"actor_role"?: Database["public"]['Enums']["project_role"] | null,"created_at"?: string,"decision_id": string,"id"?: never,"kind": Database["public"]['Enums']["decision_event_kind"],"project_id": string,"text"?: string
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"actor_role"?: Database["public"]['Enums']["project_role"] | null,"created_at"?: string,"decision_id"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["decision_event_kind"],"project_id"?: string,"text"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "decision_events_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decision_events_decision_id_fkey"
+      columns: ["decision_id"]
+isOneToOne: false
+      referencedRelation: "decisions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decision_events_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decision_events_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"decision_photos": {
+                  Row: {
+                    "created_at": string,"decision_id": string,"id": string,"project_id": string,"sort_order": number,"storage_path": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"decision_id": string,"id"?: string,"project_id": string,"sort_order"?: number,"storage_path": string
+                  }
+                  Update: {
+                    "created_at"?: string,"decision_id"?: string,"id"?: string,"project_id"?: string,"sort_order"?: number,"storage_path"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "decision_photos_decision_id_fkey"
+      columns: ["decision_id"]
+isOneToOne: false
+      referencedRelation: "decisions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decision_photos_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decision_photos_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"decisions": {
+                  Row: {
+                    "cost_delta": number,"created_at": string,"created_by": string | null,"days_delta": number,"decided_at": string | null,"decided_by": string | null,"decision_reason": string,"description": string,"id": string,"project_id": string,"status": Database["public"]['Enums']["decision_status"],"title": string,"updated_at": string
+                  }
+                  Insert: {
+                    "cost_delta"?: number,"created_at"?: string,"created_by"?: string | null,"days_delta"?: number,"decided_at"?: string | null,"decided_by"?: string | null,"decision_reason"?: string,"description"?: string,"id"?: string,"project_id": string,"status"?: Database["public"]['Enums']["decision_status"],"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "cost_delta"?: number,"created_at"?: string,"created_by"?: string | null,"days_delta"?: number,"decided_at"?: string | null,"decided_by"?: string | null,"decision_reason"?: string,"description"?: string,"id"?: string,"project_id"?: string,"status"?: Database["public"]['Enums']["decision_status"],"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "decisions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decisions_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decisions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decisions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"expenses": {
                   Row: {
                     "amount": number,"category": Database["public"]['Enums']["cost_category"],"created_at": string,"created_by": string | null,"description": string,"id": string,"project_id": string,"receipt_path": string | null,"spent_on": string,"stage_id": string | null,"updated_at": string,"vendor": string,"vendor_notes": string
@@ -707,8 +837,20 @@ isOneToOne: true
                 }
           }
           Functions: {
-            "add_project_member":
+            "accept_decision":
+{ Args: { "p_code": string,"p_decision": string }; Returns: string
+                           },
+"add_project_member":
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
+                           },
+"answer_decision_question":
+{ Args: { "p_decision": string,"p_text": string }; Returns: undefined
+                           },
+"ask_decision_question":
+{ Args: { "p_decision": string,"p_text": string }; Returns: undefined
+                           },
+"create_decision":
+{ Args: { "p_cost_delta": number,"p_days_delta": number,"p_description": string,"p_photos": (string)[],"p_project": string,"p_title": string }; Returns: string
                            },
 "create_project":
 { Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
@@ -745,6 +887,12 @@ isOneToOne: true
               "email": string,"full_name": string,"is_primary": boolean,"phone": string,"role": Database["public"]['Enums']["project_contact_role"]
             }[]
                            },
+"reject_decision":
+{ Args: { "p_decision": string,"p_reason": string }; Returns: undefined
+                           },
+"reopen_decision":
+{ Args: { "p_decision": string }; Returns: undefined
+                           },
 "revoke_invitation":
 { Args: { "p_invitation": string }; Returns: boolean
                            },
@@ -756,10 +904,13 @@ isOneToOne: true
                            },
 "staff_mfa_required":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"update_decision":
+{ Args: { "p_add_photos"?: (string)[],"p_cost_delta": number,"p_days_delta": number,"p_decision": string,"p_description": string,"p_remove_photos"?: (string)[],"p_title": string }; Returns: (string)[]
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","decision_event_kind": "submitted"|"question"|"answer"|"accepted"|"rejected"|"reopened"|"edited","decision_status": "pending"|"accepted"|"rejected"|"question","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -875,7 +1026,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"decision_event_kind": ["submitted", "question", "answer", "accepted", "rejected", "reopened", "edited"],"decision_status": ["pending", "accepted", "rejected", "question"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const

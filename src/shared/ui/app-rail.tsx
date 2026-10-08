@@ -9,6 +9,7 @@ import { ProfilePanel } from "@/components/profile-panel";
 import { useAuth } from "@/lib/auth";
 import { useNavRole } from "@/shared/ui/nav-role";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
+import { useNavCounts } from "@/shared/ui/nav-counts";
 
 /** Avatar row pinned at the very bottom of the rail; opens the profile panel instead of navigating. */
 function ProfileRailItem() {
@@ -42,6 +43,7 @@ export function AppRail() {
   const role = useNavRole();
   const isManager = role === "manager";
   const items = navItemsFor(role);
+  const counts = useNavCounts(projectId, role);
   const { t } = useTranslation(["common"]);
 
   return (
@@ -60,8 +62,18 @@ export function AppRail() {
         {projectId &&
           items.map((item) => {
             const href = projectPath(projectId, item.section);
+            const count = item.counted ? (counts[item.key] ?? 0) : 0;
+            const label = t(item.labelKey);
             return (
-              <RailItem key={item.key} asChild icon={item.icon} label={t(item.labelKey)} active={path === href}>
+              <RailItem
+                key={item.key}
+                asChild
+                icon={item.icon}
+                label={label}
+                badge={count}
+                aria-label={count > 0 ? t("nav.withCount", { label, count }) : label}
+                active={path === href}
+              >
                 <Link to={projectRoute(item.section)} params={{ projectId }} />
               </RailItem>
             );

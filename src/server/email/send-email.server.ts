@@ -52,9 +52,9 @@ export async function sendEmail<T extends EmailTemplateName>(input: SendEmailInp
   }
 
   const from = env.emailFrom?.trim() || DEFAULT_EMAIL_FROM;
-  const { subject, html, text } = renderEmail(input.template, input.params, input.locale);
+  const { subject, html, text, sensitive } = renderEmail(input.template, input.params, input.locale);
   try {
-    await provider.send({ to: input.to, from, subject, html, text });
+    await provider.send({ to: input.to, from, subject, html, text, sensitive });
     log.info("email sent", { provider: provider.name });
   } catch (error) {
     if (error instanceof ServerFnError) {

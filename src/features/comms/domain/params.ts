@@ -14,6 +14,12 @@ export const NOTIFICATION_KINDS = [
   "schedule_status",
   "message",
   "manual",
+  // Investor decisions (#55): params { title, text }.
+  "decision_new",
+  "decision_answer",
+  "decision_question",
+  "decision_rejected",
+  "decision_reopened",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 

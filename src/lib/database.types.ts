@@ -223,3 +223,33 @@ export type NotificationPreference = Pick<Tables<"notification_preferences">, "u
 export type Consent = Pick<Tables<"consents">, "id" | "user_id" | "kind" | "version" | "granted_at">;
 
 export type Knowledge = Pick<Tables<"ai_knowledge">, "id" | "project_id" | "title" | "content" | "tags" | "is_visible" | "updated_at">;
+
+export type DecisionStatus = Enums<"decision_status">;
+export type DecisionEventKind = Enums<"decision_event_kind">;
+
+/** A photo of an investor decision; `url` is a signed `project-media` URL added by the repository. */
+export type DecisionPhoto = Pick<Tables<"decision_photos">, "id" | "decision_id" | "storage_path" | "sort_order"> & { url: string };
+
+/** One row of a case's append-only history. `actor_role` is the actor's project role when it happened. */
+export type DecisionEvent = Pick<
+  Tables<"decision_events">,
+  "id" | "decision_id" | "kind" | "actor_id" | "actor_role" | "text" | "created_at"
+>;
+
+/** An investor decision case. `cost_delta` and `days_delta` may be negative; only an accepted case moves the project's totals. */
+export type Decision = Pick<
+  Tables<"decisions">,
+  | "id"
+  | "project_id"
+  | "title"
+  | "description"
+  | "cost_delta"
+  | "days_delta"
+  | "status"
+  | "created_by"
+  | "created_at"
+  | "updated_at"
+  | "decided_by"
+  | "decided_at"
+  | "decision_reason"
+> & { photos: DecisionPhoto[] };

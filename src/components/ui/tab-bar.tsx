@@ -3,6 +3,7 @@ import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { CountBadge } from "@/components/ui/count-badge";
 import { Icon } from "@/components/ui/icon";
 
 // v5 bottom navigation bar (phones only; the desktop nav rail lives in `ui/rail.tsx`). A fixed
@@ -73,13 +74,15 @@ type TabBarRowProps = Omit<React.ComponentProps<"button">, "children"> & {
   /** Material Symbols name, or a node such as an avatar. */
   icon: string | React.ReactNode;
   active?: boolean;
+  /** A count shown at the end of the row (cases waiting for a decision); hidden at 0. */
+  badge?: number;
   /** Render the given child (a router <Link>) instead of a <button>. */
   asChild?: boolean;
   children?: React.ReactNode;
 };
 
 /** A full-width row in the "More" sheet: icon + label, rounded-full like an M3 nav-drawer item. */
-function TabBarRow({ icon, active = false, asChild = false, className, children, ...props }: TabBarRowProps) {
+function TabBarRow({ icon, active = false, badge = 0, asChild = false, className, children, ...props }: TabBarRowProps) {
   const Comp = asChild ? Slot : "button";
   return (
     <Comp
@@ -90,6 +93,7 @@ function TabBarRow({ icon, active = false, asChild = false, className, children,
     >
       {typeof icon === "string" ? <Icon name={icon} size={24} fill={active} /> : icon}
       <Slottable>{children}</Slottable>
+      <CountBadge count={badge} className="ml-auto" />
     </Comp>
   );
 }

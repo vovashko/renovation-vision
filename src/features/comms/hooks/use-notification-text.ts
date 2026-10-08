@@ -72,6 +72,16 @@ export function useNotificationText(): (n: Pick<Notification, "kind" | "params" 
             body: preview || (paramFlag(p, "attachment") ? t("notifications.message.attachment") : ""),
           };
         }
+        case "decision_new":
+        case "decision_answer":
+        case "decision_question":
+        case "decision_rejected":
+        case "decision_reopened": {
+          // params { title, text }: the case's title and the question / answer / reason, shown as written.
+          const title = paramName(p, "title");
+          if (!title) return legacy;
+          return { title: t(`notifications.${n.kind}.title`, { title }), body: paramText(p, "text") ?? n.body };
+        }
         case "manual": {
           const title = paramName(p, "title");
           return title ? { title, body: paramText(p, "body") ?? "" } : legacy;

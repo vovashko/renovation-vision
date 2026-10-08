@@ -68,7 +68,12 @@
       "render_published": "Render",
       "schedule_status": "Schedule",
       "message": "Message",
-      "manual": "Announcement"
+      "manual": "Announcement",
+      "decision_new": "Decision",
+      "decision_answer": "Answer",
+      "decision_question": "Question",
+      "decision_rejected": "Rejected",
+      "decision_reopened": "Reopened"
     },
     "stage_status": {
       "title": "Stage update: {{stage}}",
@@ -91,6 +96,21 @@
       "title": "New message from {{sender}}",
       "titleNoSender": "New message",
       "attachment": "Sent an attachment"
+    },
+    "decision_new": {
+      "title": "Decision needed: {{title}}"
+    },
+    "decision_answer": {
+      "title": "Answer on: {{title}}"
+    },
+    "decision_question": {
+      "title": "Question on: {{title}}"
+    },
+    "decision_rejected": {
+      "title": "Rejected: {{title}}"
+    },
+    "decision_reopened": {
+      "title": "Reopened: {{title}}"
     }
   },
   "activity": {
@@ -140,6 +160,20 @@
       "cta": "Open in RenoVision",
       "disclaimer": "You're receiving this email because you have an active project on RenoVision.",
       "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}"
+    },
+    "decisionNew": {
+      "title": "A decision needs your attention: {{title}}",
+      "body": "Your site manager submitted \"{{title}}\" for your decision. Open it to see the photos and what it changes in the budget and the schedule.",
+      "cta": "Review the case"
+    },
+    "confirmationCode": {
+      "subject": "Your confirmation code — RenoVision",
+      "preheader": "Your code to accept \"{{title}}\"",
+      "heading": "Confirm accepting the decision",
+      "intro": "Enter this code in RenoVision to accept \"{{title}}\". Accepting is final and updates the project budget and end date.",
+      "validity": "The code is valid for {{minutes}} minutes and works once.",
+      "ignore": "If you didn't ask for this code, ignore this email and nothing will change.",
+      "disclaimer": "You're receiving this email because you have an active project on RenoVision."
     }
   }
 }
