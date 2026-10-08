@@ -50,6 +50,12 @@ export function useFormat(): Formatters {
   );
 }
 
+/** `daysDeviation(2)` → "+2 days" / "+2 dni", `daysDeviation(-1)` → "-1 dzień" (`common:deviation.days`, plural-aware). */
+export function useDaysDeviation(): (days: number) => string {
+  const { t } = useTranslation("common");
+  return useCallback((days: number) => t("deviation.days", { count: Math.abs(days), sign: days > 0 ? "+" : "-" }), [t]);
+}
+
 /** `statusLabel("done")` → "Ukończone" / "Completed" (`common:status.*`). */
 export function useStatusLabel(): (status: Status) => string {
   const { t } = useTranslation("common");

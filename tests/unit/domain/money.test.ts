@@ -44,3 +44,11 @@ describe("formatMoney", () => {
     expect(plain(formatMoney(5, undefined, "pl"))).toBe("5,00 zł");
   });
 });
+
+describe("formatMoney signed", () => {
+  it("shows the sign of a non-zero amount and none for zero", () => {
+    expect(plain(formatMoney(12000, "PLN", "pl", { decimals: 0, signed: true }))).toBe("+12 000 zł");
+    expect(plain(formatMoney(-500, "PLN", "pl", { decimals: 0, signed: true }))).toBe("-500 zł");
+    expect(plain(formatMoney(0, "PLN", "pl", { decimals: 0, signed: true }))).toBe("0 zł");
+  });
+});

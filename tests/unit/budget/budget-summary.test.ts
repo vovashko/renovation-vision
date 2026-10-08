@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { budgetSummary, expensesTotal } from "@/domain/budget";
+import { budgetDeviation, budgetSummary, expensesTotal } from "@/domain/budget";
 
 describe("budgetSummary", () => {
   it("handles a zero budget", () => {
@@ -39,5 +39,20 @@ describe("expensesTotal", () => {
 
   it("is 0 for an empty list", () => {
     expect(expensesTotal([])).toBe(0);
+  });
+});
+
+describe("budgetDeviation", () => {
+  it("is projected minus planned: positive when more expensive, negative when cheaper", () => {
+    expect(budgetDeviation(80000, 81000)).toBe(1000);
+    expect(budgetDeviation(80000, 79500)).toBe(-500);
+  });
+
+  it("is 0 when equal, so the UI hides it", () => {
+    expect(budgetDeviation(80000, 80000)).toBe(0);
+  });
+
+  it("does not leak floating point noise", () => {
+    expect(budgetDeviation(0.1, 0.3)).toBe(0.2);
   });
 });

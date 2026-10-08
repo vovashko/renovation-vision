@@ -17,6 +17,8 @@ export type ProjectPatch = Partial<
     | "start_date"
     | "target_date"
     | "budget"
+    | "planned_target_date"
+    | "planned_budget"
     | "schedule_status"
     | "schedule_note"
   >
@@ -29,11 +31,21 @@ export type NewProject = Pick<Project, "name" | "address_line" | "postal_code" |
   target_date: string | null;
 };
 
-type Result<T> = { data: T | null; error: { message: string } | null };
+type Result<T> = { data: T | null; error: { message: string; hint?: string | null } | null };
+
+/** An error from the database; `hint` is the machine-readable code a trigger raised (e.g. `baseline_locked`). */
+export class RepoError extends Error {
+  constructor(
+    message: string,
+    readonly hint?: string,
+  ) {
+    super(message);
+  }
+}
 
 async function must<T>(p: PromiseLike<Result<T>>): Promise<T> {
   const { data, error } = await p;
-  if (error) throw new Error(error.message);
+  if (error) throw new RepoError(error.message, error.hint ?? undefined);
   return data as T;
 }
 
@@ -51,12 +63,12 @@ const toNumber = <T extends Record<string, unknown>>(row: T, ...keys: (keyof T)[
 export const projectsRepo = {
   async listProjects(): Promise<ProjectSummary[]> {
     const rows = await must(sb().from("project_summary").select("*").order("name"));
-    return (rows as ProjectSummary[]).map((r) => toNumber(r, "budget", "spent"));
+    return (rows as ProjectSummary[]).map((r) => toNumber(r, "budget", "planned_budget", "spent"));
   },
 
   async getProject(id: string): Promise<ProjectSummary> {
     const row = await must(sb().from("project_summary").select("*").eq("id", id).single());
-    return toNumber(row as unknown as ProjectSummary, "budget", "spent");
+    return toNumber(row as unknown as ProjectSummary, "budget", "planned_budget", "spent");
   },
 
   async createProject(input: NewProject): Promise<string> {

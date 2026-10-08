@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { scheduleStatuses } from "@/domain/status";
-import { useScheduleLabel } from "@/i18n";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { useFormat, useScheduleLabel } from "@/i18n";
 import { FormSheet } from "@/shared/ui/form-sheet";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { FormField } from "@/shared/ui/form-field";
@@ -25,6 +26,9 @@ export function ProjectDetailsSheet({
 }) {
   const { t } = useTranslation(["projects", "common"]);
   const scheduleLabel = useScheduleLabel();
+  const format = useFormat();
+  // The database locks the baseline once the project leaves planning, so it is only editable then.
+  const baselineEditable = project.status === "planning";
   const save = useUpdateProject(project.id);
   const form = useZodForm(projectEditSchema, projectToForm(project));
 
@@ -42,8 +46,14 @@ export function ProjectDetailsSheet({
         noValidate
         className="space-y-4"
         onSubmit={form.handleSubmit((values: ProjectEditValues) => {
+          const { planned_target_date, planned_budget, ...rest } = values;
           save.mutate(
-            { ...values, start_date: values.start_date || null, target_date: values.target_date || null },
+            {
+              ...rest,
+              start_date: values.start_date || null,
+              target_date: values.target_date || null,
+              ...(baselineEditable ? { planned_target_date: planned_target_date || null, planned_budget } : {}),
+            },
             { onSuccess: () => onOpenChange(false) },
           );
         })}
@@ -63,6 +73,29 @@ export function ProjectDetailsSheet({
         <FormField control={form.control} name="budget" label={t("details.budget")} description={t("details.budgetHint")}>
           {(field) => <Input type="number" min={0} step={100} {...field} className="h-11" />}
         </FormField>
+        {baselineEditable ? (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField control={form.control} name="planned_target_date" label={t("details.plannedTarget")}>
+                {(field) => <Input type="date" {...field} className="h-11" />}
+              </FormField>
+              <FormField control={form.control} name="planned_budget" label={t("details.plannedBudget")}>
+                {(field) => <Input type="number" min={0} step={100} {...field} className="h-11" />}
+              </FormField>
+            </div>
+            <p className="text-body-sm text-on-surface-variant">{t("details.plannedEditableHint")}</p>
+          </>
+        ) : (
+          <Field>
+            <FieldLabel>
+              {t("details.plannedTarget")} · {t("details.plannedBudget")}
+            </FieldLabel>
+            <p className="text-body-md">
+              {format.date(project.planned_target_date, "long")} · {format.money(project.planned_budget, project.currency)}
+            </p>
+            <FieldDescription>{t("details.plannedLockedHint")}</FieldDescription>
+          </Field>
+        )}
         <FormField
           control={form.control}
           name="schedule_status"
@@ -102,6 +135,8 @@ function projectToForm(project: ProjectSummary): ProjectEditValues {
     start_date: project.start_date ?? "",
     target_date: project.target_date ?? "",
     budget: project.budget,
+    planned_target_date: project.planned_target_date ?? "",
+    planned_budget: project.planned_budget,
     schedule_status: project.schedule_status,
     schedule_note: project.schedule_note ?? "",
   };

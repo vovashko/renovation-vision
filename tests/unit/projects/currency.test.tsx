@@ -24,6 +24,8 @@ const project = (currency: string): ProjectSummary => ({
   start_date: "2026-03-02",
   target_date: "2026-06-10",
   budget: 84500,
+  planned_target_date: "2026-06-10",
+  planned_budget: 84500,
   spent: 51200,
   schedule_status: "on_schedule",
   schedule_note: "",
