@@ -6,7 +6,7 @@
     "clientName": "Client name",
     "clientNameHint": "Saved as the client contact. You can add their phone and email on the overview.",
     "start": "Start",
-    "target": "Target",
+    "target": "End",
     "budget": "Budget",
     "submit": "Create project"
   },
@@ -21,7 +21,7 @@
     "now": "Now: {{stage}}",
     "overallProgress": "Overall progress",
     "client": "Client",
-    "target": "Target",
+    "target": "End",
     "spent": "Spent"
   },
   "home": {
@@ -37,15 +37,20 @@
     "description": "Everything here is visible to the client.",
     "name": "Project name",
     "start": "Start",
-    "target": "Target",
-    "budget": "Budget",
-    "budgetHint": "Spent is calculated from the expenses on the Budget page.",
+    "target": "Current end date",
+    "budget": "Projected budget",
+    "budgetHint": "Spent is calculated from the expenses on the Budget page. The planned budget stays as the baseline.",
     "scheduleStatus": "Schedule status",
     "scheduleStatusHint": "Shown on the client's overview. Changing it notifies the client.",
     "scheduleNote": "Schedule note for the client",
     "scheduleNotePlaceholder": "Why the schedule is what it is, in plain words.",
     "submit": "Save details",
-    "saved": "Project updated — the client app shows it now"
+    "saved": "Project updated — the client app shows it now",
+    "plannedTarget": "Planned end date",
+    "plannedBudget": "Planned budget",
+    "plannedLockedHint": "The baseline can only be changed while the project is in planning.",
+    "plannedEditableHint": "The baseline. Editable while the project is in planning; locked once work starts.",
+    "baselineLocked": "The planned end date and budget are locked once the project leaves planning."
   },
   "shortcuts": {
     "heading": "Shortcuts",
@@ -67,7 +72,7 @@
     "noteForClient": "Note for the client: ",
     "stagesDone": "Stages done",
     "stagesDoneValue": "{{done}} of {{total}}",
-    "target": "Target",
+    "target": "End",
     "pastTarget": "Past target",
     "daysLeft": "Days left",
     "daysLeftValue_one": "{{count}} day",

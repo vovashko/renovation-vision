@@ -76,10 +76,11 @@ on conflict (id) do update
 -- address is generated from address_line / postal_code / city; amounts are in the project's currency.
 insert into public.projects (
   id, name, address_line, postal_code, city, country, currency, status, start_date, target_date, budget, spent,
-  schedule_status, schedule_note, created_by
+  planned_target_date, planned_budget, schedule_status, schedule_note, created_by
 ) values (
   'b0000000-0000-4000-8000-000000000001', 'Maple Street Apartment', '42 Maple Street, Apt 5B', '', '', 'PL', 'PLN', 'active',
   '2026-03-02', '2026-06-10', 84500, 51200,
+  '2026-06-10', 84500,
   'at_risk',
   'Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week.',
   'a0000000-0000-4000-8000-000000000001'
@@ -342,7 +343,8 @@ insert into public.ai_knowledge (project_id, title, content, tags, is_visible, c
 -- ---------------------------------------------------------------------------
 update public.projects set
   start_date = start_date + (current_date - date '2026-04-20'),
-  target_date = target_date + (current_date - date '2026-04-20')
+  target_date = target_date + (current_date - date '2026-04-20'),
+  planned_target_date = planned_target_date + (current_date - date '2026-04-20')
 where id = 'b0000000-0000-4000-8000-000000000001';
 
 update public.project_members set

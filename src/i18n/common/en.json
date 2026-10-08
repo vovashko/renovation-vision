@@ -110,5 +110,9 @@
     "label": "Copy link for investor",
     "copied": "Link copied. The investor will need to sign in with their client account.",
     "failed": "Couldn't copy the link. Copy it from the address bar instead."
+  },
+  "deviation": {
+    "days_one": "{{sign}}{{count}} day",
+    "days_other": "{{sign}}{{count}} days"
   }
 }

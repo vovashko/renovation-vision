@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Note } from "@/components/ui/note";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { useFormat, useScheduleLabel } from "@/i18n";
+import { useDaysDeviation, useFormat, useScheduleLabel } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { ScheduleStatus } from "@/lib/database.types";
 import type { ProjectIssue } from "../domain/project-issues";
@@ -19,6 +19,7 @@ export function StatusCard({
   stagesDone,
   stagesTotal,
   targetDate,
+  targetDeviationDays,
   daysLeft,
   budgetUsedPct,
   budgetOver,
@@ -34,6 +35,8 @@ export function StatusCard({
   stagesDone: number;
   stagesTotal: number;
   targetDate: string | null;
+  /** Current end date minus the planned one in calendar days (0 = on plan, nothing is shown). */
+  targetDeviationDays: number;
   daysLeft: number | null;
   budgetUsedPct: number;
   budgetOver: boolean;
@@ -45,12 +48,25 @@ export function StatusCard({
   const { t } = useTranslation(["projects", "common"]);
   const format = useFormat();
   const scheduleLabel = useScheduleLabel();
+  const daysDeviation = useDaysDeviation();
   const onTrack = scheduleStatus === "on_schedule";
   const pastTarget = daysLeft !== null && daysLeft < 0;
 
   const facts = [
     { label: t("status.stagesDone"), value: t("status.stagesDoneValue", { done: stagesDone, total: stagesTotal }) },
-    { label: t("status.target"), value: format.date(targetDate, "short") },
+    {
+      label: t("status.target"),
+      value: (
+        <>
+          {format.date(targetDate, "short")}
+          {targetDeviationDays !== 0 && (
+            <span className={cn("ml-1 text-body-md", targetDeviationDays > 0 ? "text-attention-text" : "text-success-text")}>
+              {daysDeviation(targetDeviationDays)}
+            </span>
+          )}
+        </>
+      ),
+    },
     {
       label: pastTarget ? t("status.pastTarget") : t("status.daysLeft"),
       value: daysLeft === null ? "—" : t("status.daysLeftValue", { count: Math.abs(daysLeft) }),

@@ -16,7 +16,7 @@
   },
   "stats": {
     "started": "Rozpoczęto",
-    "target": "Termin: {{date}}",
+    "target": "Koniec: {{date}}",
     "stagesDone": "Etapy ukończone",
     "onSchedule": "Zgodnie z planem",
     "stagesLate_one": "{{count}} etap opóźniony",
@@ -26,10 +26,12 @@
     "budgetSpent": "Wydany budżet",
     "overBudget": "↑ {{pct}}% ponad budżet",
     "budgetUsed": "{{pct}}% wykorzystane",
-    "ofPlan": "z planowanych {{amount}}",
+    "ofPlan": "z budżetu {{amount}}",
     "siteManager": "Kierownik budowy",
     "pointOfContact": "Twoja osoba kontaktowa",
-    "noManager": "—"
+    "noManager": "—",
+    "plannedTarget": "Planowany: {{date}}",
+    "plannedBudget": "Planowany budżet: {{amount}}"
   },
   "progress": {
     "title": "Postęp",

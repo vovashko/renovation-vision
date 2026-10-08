@@ -2,13 +2,14 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Stat, StatChange, StatDelta, StatLabel, StatValue } from "@/components/ui/stat";
 import { useFormat } from "@/i18n";
-import type { budgetSummary } from "@/domain/budget";
+import { budgetDeviation, type budgetSummary } from "@/domain/budget";
 import type { ProjectSummary } from "@/lib/database.types";
 
 /** The Budget page's four stat tiles: Budget, Spent (attention over budget), Remaining, Used. */
 export function BudgetStats({ project, budget }: { project: ProjectSummary; budget: ReturnType<typeof budgetSummary> }) {
   const { t } = useTranslation(["budget", "common"]);
   const format = useFormat();
+  const overrun = budgetDeviation(project.planned_budget, project.budget);
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <Stat>
@@ -16,7 +17,14 @@ export function BudgetStats({ project, budget }: { project: ProjectSummary; budg
           <Icon name="euro" size={20} /> {t("budget:stats.budget")}
         </StatLabel>
         <StatValue>{format.money(project.budget, project.currency)}</StatValue>
-        <StatChange>{t("budget:stats.clientSeesBudget")}</StatChange>
+        <StatChange>
+          {overrun !== 0 && (
+            <StatDelta tone={overrun > 0 ? "attention" : "good"}>
+              {format.money(overrun, project.currency, { decimals: 0, signed: true })}
+            </StatDelta>
+          )}
+          {t("budget:stats.plannedBudget", { amount: format.money(project.planned_budget, project.currency) })}
+        </StatChange>
       </Stat>
       <Stat variant={budget.over ? "attention" : "default"}>
         <StatLabel>

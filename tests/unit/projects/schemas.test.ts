@@ -70,12 +70,20 @@ describe("projectEditSchema", () => {
     start_date: "2026-01-01",
     target_date: "2026-06-01",
     budget: 5000,
+    planned_target_date: "2026-05-01",
+    planned_budget: 4500,
     schedule_status: "on_schedule",
     schedule_note: "",
   };
 
   it("accepts a valid edit", () => {
     expect(projectEditSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("carries the planned baseline and rejects a negative planned budget", () => {
+    const result = projectEditSchema.safeParse(base);
+    expect(result.success && result.data.planned_budget).toBe(4500);
+    expect(projectEditSchema.safeParse({ ...base, planned_budget: -1 }).success).toBe(false);
   });
 
   it("no longer carries the client name (it lives on the client card)", () => {

@@ -112,5 +112,11 @@
     "label": "Kopiuj link dla inwestora",
     "copied": "Link skopiowany. Inwestor musi zalogować się swoim kontem klienta.",
     "failed": "Nie udało się skopiować linku. Skopiuj go z paska adresu."
+  },
+  "deviation": {
+    "days_one": "{{sign}}{{count}} dzień",
+    "days_few": "{{sign}}{{count}} dni",
+    "days_many": "{{sign}}{{count}} dni",
+    "days_other": "{{sign}}{{count}} dnia"
   }
 }
