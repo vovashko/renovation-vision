@@ -126,7 +126,7 @@ export function StageRow({
           </div>
           <ProgressBar
             value={progress}
-            tone={statusTone[status]}
+            tone={lateDays ? "blocked" : statusTone[status]}
             className="mt-2"
             aria-label={t("work:stageRow.progressAriaLabel", { name })}
           />
