@@ -12,6 +12,7 @@ export function ProjectHeader({
   progress,
   currentStage,
   behind,
+  alerts,
   actions,
 }: {
   name: string;
@@ -21,6 +22,8 @@ export function ProjectHeader({
   currentStage?: string | null;
   /** Behind schedule: the overall progress bar turns red. */
   behind?: boolean;
+  /** Warnings and alerts (e.g. the schedule note), shown at the bottom of the card. */
+  alerts?: ReactNode;
   actions?: ReactNode;
 }) {
   const { t } = useTranslation("work");
@@ -52,6 +55,7 @@ export function ProjectHeader({
           </div>
         )}
       </div>
+      {alerts && <div className="w-full">{alerts}</div>}
     </Card>
   );
 }

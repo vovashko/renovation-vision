@@ -84,16 +84,17 @@ function ClientOverview({ projectId }: { projectId: string }) {
         progress={project.overall_progress}
         currentStage={project.current_stage}
         behind={project.schedule_status !== "on_schedule"}
+        alerts={
+          project.schedule_note && (
+            <Note>
+              <span className="font-medium text-on-surface">{t("work:overview.scheduleNote")}</span>
+              {project.schedule_note}
+            </Note>
+          )
+        }
       />
 
       <OverviewStats project={project} stages={stages} />
-
-      {project.schedule_note && (
-        <Note className="-mt-4">
-          <span className="font-medium text-on-surface">{t("work:overview.scheduleNote")}</span>
-          {project.schedule_note}
-        </Note>
-      )}
 
       <YourContactCard projectId={projectId} />
 
