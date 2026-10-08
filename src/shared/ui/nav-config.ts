@@ -32,6 +32,7 @@ export const projectNav: NavItem[] = [
   { key: "progress", section: "progress", icon: "checklist", labelKey: "common:nav.progress", roles: everyone, placement: "tab" },
   { key: "photos", section: "photos", icon: "photo_camera", labelKey: "common:nav.photos", roles: everyone, placement: "tab" },
   { key: "design", section: "design", icon: "palette", labelKey: "common:nav.design", roles: everyone, placement: "more" },
+  { key: "documents", section: "documents", icon: "folder_open", labelKey: "common:nav.documents", roles: everyone, placement: "more" },
   {
     key: "budget",
     section: "budget",

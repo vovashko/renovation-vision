@@ -1,0 +1,81 @@
+{
+  "page": {
+    "heading": "Documentation",
+    "descriptionManager": "Contract, estimate, invoices, installation photos, warranties and manuals. Only you can upload and edit; the investor can view and download.",
+    "descriptionClient": "Your contract, estimate, invoices, installation photos, warranties and device manuals in one place.",
+    "metaDescription": "Project documentation: contract, estimate, invoices, installation photos, warranties and manuals."
+  },
+  "tabs": { "aria": "Document categories" },
+  "categories": {
+    "contract": "Contract",
+    "estimate": "Estimate",
+    "invoices": "Invoices",
+    "installation_photos": "Installation photos before covering",
+    "warranties": "Warranties",
+    "manuals": "Device manuals"
+  },
+  "item": {
+    "meta": "Added {{date}} · {{type}} · {{size}}",
+    "new": "New",
+    "archived": "Archived",
+    "version": "Version {{version}}",
+    "currentVersion": "Current · version {{version}}",
+    "history_one": "Earlier version ({{count}})",
+    "history_other": "Earlier versions ({{count}})"
+  },
+  "gallery": { "noRoom": "No room" },
+  "actions": {
+    "add": "Add document",
+    "newVersion": "Upload new version",
+    "showArchived": "Show archived documents",
+    "downloadAria": "Download {{title}}",
+    "editAria": "Edit {{title}}",
+    "archiveAria": "Archive {{title}}",
+    "restoreAria": "Restore {{title}}"
+  },
+  "empty": {
+    "title": "No documents here yet",
+    "manager": "Use “Add document” to upload the first one in this category.",
+    "client": "Your site manager hasn't added anything to this category yet."
+  },
+  "confirm": {
+    "archiveTitle": "Archive this document?",
+    "archiveBody": "It is hidden from the investor and from this list. You can restore it with “Show archived documents”. Nothing is deleted."
+  },
+  "upload": {
+    "sheetTitle": "Add a document",
+    "sheetDescription": "PDF, image (JPG, PNG, WebP, HEIC), Word or Excel file, up to 25 MB.",
+    "category": "Category",
+    "newVersionSwitch": "This is a new version of an existing document",
+    "versionOf": "New version of",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Contract with annex 1",
+    "file": "File",
+    "fileHint": "PDF, JPG, PNG, WebP, HEIC, DOCX or XLSX, up to 25 MB.",
+    "room": "Room",
+    "chooseRoom": "Choose a room",
+    "work": "Work (optional)",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "e.g. model, serial number, warranty period",
+    "submit": "Upload",
+    "uploading": "Uploading…",
+    "fileRequired": "Choose a file",
+    "fileTypeNotAllowed": "This file type isn't allowed. Use PDF, JPG, PNG, WebP, HEIC, DOCX or XLSX.",
+    "fileExtensionMismatch": "The file extension doesn't match its type",
+    "fileEmpty": "The file is empty",
+    "fileTooLarge": "The file is larger than 25 MB",
+    "photoMustBeImage": "Installation photos must be images",
+    "roomRequired": "Choose the room the photo belongs to",
+    "titleTooLong": "The title can be at most 200 characters",
+    "descriptionTooLong": "The description can be at most 2000 characters"
+  },
+  "edit": { "title": "Edit document", "save": "Save" },
+  "toast": {
+    "uploaded": "Document uploaded",
+    "versionUploaded": "New version uploaded; the previous one is kept in the history",
+    "updated": "Document updated",
+    "archived": "Document archived",
+    "restored": "Document restored",
+    "downloadFailed": "Couldn't download the file"
+  }
+}

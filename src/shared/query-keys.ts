@@ -14,6 +14,7 @@ export const keys = {
   rooms: (id: string) => ["rooms", id] as const,
   photos: (id: string) => ["photos", id] as const,
   renders: (id: string) => ["renders", id] as const,
+  documents: (id: string) => ["documents", id] as const,
   expenses: (id: string) => ["expenses", id] as const,
   messages: (id: string) => ["messages", id] as const,
   notifications: (id: string) => ["notifications", id] as const,
