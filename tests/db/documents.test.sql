@@ -277,6 +277,8 @@ select pg_temp.no_rows(format($q$update public.documents set archived_at = now()
 select pg_temp.denied(format($q$delete from public.documents where id = %L$q$, (select id from ids where name = 'i1')), 'client deleted a document');
 
 -- Storage: clients read non-archived files, never upload.
+-- What the Storage API does for a delete (storage.protect_delete refuses direct SQL deletes otherwise).
+select set_config('storage.allow_delete_query', 'true', true);
 select pg_temp.as_admin();
 insert into storage.objects (bucket_id, name)
 select 'project-documents', storage_path from public.documents where project_id = 'b0000000-0000-4000-8000-000000000001';
