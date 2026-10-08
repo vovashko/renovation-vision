@@ -8,7 +8,10 @@ import type { AuthContext } from "@/server/middleware/auth";
 // A manager ACCOUNT (profiles.account_type = "manager") who is only a CLIENT on this project
 // (project_members.role = "client") must get the client role, and with it the client nav.
 const h = vi.hoisted(() => ({ params: {} as { projectId?: string }, getProjectAccess: vi.fn() }));
-vi.mock("@tanstack/react-router", () => ({ useParams: () => h.params }));
+vi.mock("@tanstack/react-router", () => ({
+  useParams: () => h.params,
+  useRouterState: ({ select }: { select: (r: unknown) => unknown }) => select({ location: { pathname: "/" } }),
+}));
 vi.mock("@/server/functions/session", () => ({ getProjectAccess: h.getProjectAccess, getSession: vi.fn() }));
 vi.mock("@/lib/auth", () => ({
   useAuth: () => ({

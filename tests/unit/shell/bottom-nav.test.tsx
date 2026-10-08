@@ -55,6 +55,7 @@ function setUp({ role, path, projectId }: { role: "manager" | "client"; path: st
 }
 
 beforeEach(() => {
+  window.sessionStorage.clear();
   pendingDecisions.count = 0;
   mockedUseAuth.mockReset();
   mockedUseParams.mockReset();
@@ -135,5 +136,21 @@ describe("BottomNav", () => {
     render(<BottomNav />);
     expect(screen.getByRole("link", { name: "Back" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "More pages" })).not.toBeInTheDocument();
+  });
+
+  it("keeps the project's tabs on Settings, using the last project opened", () => {
+    window.sessionStorage.setItem("renovision:last-project", JSON.stringify({ userId: "u1", projectId: "p1" }));
+    setUp({ role: "manager", path: "/settings", projectId: undefined });
+    vi.mocked(useProjectRole).mockReturnValue("manager");
+    render(<BottomNav />);
+    expect(screen.getByRole("link", { name: "Progress" })).toHaveAttribute("href", "/projects/p1/progress");
+    expect(screen.queryByRole("link", { name: "Back" })).not.toBeInTheDocument();
+  });
+
+  it("does not carry one user's last project over to another user on Settings", () => {
+    window.sessionStorage.setItem("renovision:last-project", JSON.stringify({ userId: "someone-else", projectId: "p1" }));
+    setUp({ role: "client", path: "/settings", projectId: undefined });
+    render(<BottomNav />);
+    expect(screen.getByRole("link", { name: "Back" })).toBeInTheDocument();
   });
 });

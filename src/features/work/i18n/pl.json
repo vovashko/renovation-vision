@@ -43,6 +43,11 @@
     "addStage": "Dodaj etap"
   },
   "stageRow": {
+    "photos_one": "{{count}} zdjęcie",
+    "photos_few": "{{count}} zdjęcia",
+    "photos_many": "{{count}} zdjęć",
+    "photos_other": "{{count}} zdjęcia",
+    "noPhotos": "Brak zdjęć",
     "progress": "Postęp",
     "progressAriaLabel": "Postęp: {{name}}",
     "editStage": "Edytuj {{name}}",
