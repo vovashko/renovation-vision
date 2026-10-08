@@ -38,6 +38,13 @@ export type NewProjectValues = z.output<typeof newProjectSchema>;
 
 /** The manager's "Project details" sheet. The client's name and contact details live on the client card. */
 export const projectEditSchema = z
-  .object({ ...projectFields, schedule_status: scheduleStatusEnum, schedule_note: z.string().trim() })
+  .object({
+    ...projectFields,
+    // The baseline: only editable while the project is in planning (the database locks it afterwards).
+    planned_target_date: z.string(),
+    planned_budget: z.coerce.number().min(0, "common:form.invalid"),
+    schedule_status: scheduleStatusEnum,
+    schedule_note: z.string().trim(),
+  })
   .superRefine(checkPostalCode);
 export type ProjectEditValues = z.output<typeof projectEditSchema>;

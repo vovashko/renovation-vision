@@ -16,7 +16,7 @@
   },
   "stats": {
     "started": "Started",
-    "target": "Target: {{date}}",
+    "target": "End: {{date}}",
     "stagesDone": "Stages done",
     "onSchedule": "On schedule",
     "stagesLate_one": "{{count}} stage late",
@@ -26,10 +26,12 @@
     "budgetSpent": "Budget spent",
     "overBudget": "↑ {{pct}}% over",
     "budgetUsed": "{{pct}}% used",
-    "ofPlan": "of the {{amount}} plan",
+    "ofPlan": "of the {{amount}} budget",
     "siteManager": "Site manager",
     "pointOfContact": "Your point of contact",
-    "noManager": "—"
+    "noManager": "—",
+    "plannedTarget": "Planned: {{date}}",
+    "plannedBudget": "Planned budget: {{amount}}"
   },
   "progress": {
     "title": "Progress",

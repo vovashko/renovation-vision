@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Stat, StatChange, StatDelta, StatLabel, StatValue } from "@/components/ui/stat";
 import { budgetStatus, daysLate } from "@/domain/attention";
-import { useFormat } from "@/i18n";
+import { budgetDeviation } from "@/domain/budget";
+import { scheduleDeviationDays } from "@/domain/dates";
+import { useDaysDeviation, useFormat } from "@/i18n";
 import type { ProjectSummary, Stage } from "@/lib/database.types";
 
 const DATE_STYLE = "long";
@@ -10,17 +12,26 @@ const DATE_STYLE = "long";
 export function OverviewStats({ project, stages }: { project: ProjectSummary; stages: Stage[] }) {
   const { t } = useTranslation("work");
   const format = useFormat();
+  const daysDeviation = useDaysDeviation();
   const budget = budgetStatus(project);
   const lateStages = stages.filter((s) => daysLate(s) > 0).length;
   const started = format.date(project.start_date, DATE_STYLE);
   const target = format.date(project.target_date, DATE_STYLE);
+  const slipDays = scheduleDeviationDays(project.planned_target_date, project.target_date);
+  const overrun = budgetDeviation(project.planned_budget, project.budget);
 
   return (
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label={t("overview.projectFacts")}>
       <Stat>
         <StatLabel>{t("stats.started")}</StatLabel>
         <StatValue>{started}</StatValue>
-        <StatChange>{t("stats.target", { date: target })}</StatChange>
+        <StatChange>
+          {slipDays !== 0 && <StatDelta tone={slipDays > 0 ? "attention" : "good"}>{daysDeviation(slipDays)}</StatDelta>}
+          {t("stats.target", { date: target })}
+        </StatChange>
+        {slipDays !== 0 && (
+          <StatChange>{t("stats.plannedTarget", { date: format.date(project.planned_target_date, DATE_STYLE) })}</StatChange>
+        )}
       </Stat>
       <Stat>
         <StatLabel>{t("stats.stagesDone")}</StatLabel>
@@ -40,6 +51,14 @@ export function OverviewStats({ project, stages }: { project: ProjectSummary; st
           </StatDelta>{" "}
           {t("stats.ofPlan", { amount: format.money(project.budget, project.currency) })}
         </StatChange>
+        {overrun !== 0 && (
+          <StatChange>
+            <StatDelta tone={overrun > 0 ? "attention" : "good"}>
+              {format.money(overrun, project.currency, { decimals: 0, signed: true })}
+            </StatDelta>
+            {t("stats.plannedBudget", { amount: format.money(project.planned_budget, project.currency) })}
+          </StatChange>
+        )}
       </Stat>
       <Stat>
         <StatLabel>{t("stats.siteManager")}</StatLabel>

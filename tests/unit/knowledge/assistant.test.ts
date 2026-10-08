@@ -26,6 +26,8 @@ const project = (patch: Partial<ProjectSummary> = {}): ProjectSummary => ({
   start_date: "2026-01-01",
   target_date: "2026-06-01",
   budget: 100000,
+  planned_target_date: "2026-06-01",
+  planned_budget: 100000,
   spent: 40000,
   schedule_status: "on_schedule",
   schedule_note: "",

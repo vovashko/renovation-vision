@@ -5,15 +5,15 @@
     "addExpense": "Add expense"
   },
   "stats": {
-    "budget": "Budget",
-    "clientSeesBudget": "Client sees this",
+    "budget": "Projected budget",
     "spent": "Spent",
     "clientSeesSpent": "Client sees this total",
     "overBudget": "Over budget",
     "remaining": "Remaining",
     "leftToSpend": "Left to spend",
     "used": "Used",
-    "projectComplete": "Project {{pct}}% complete"
+    "projectComplete": "Project {{pct}}% complete",
+    "plannedBudget": "Planned: {{amount}}"
   },
   "expenses": {
     "heading": "Expenses",

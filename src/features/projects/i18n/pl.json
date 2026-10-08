@@ -6,7 +6,7 @@
     "clientName": "Nazwa klienta",
     "clientNameHint": "Zapisywana jako kontakt do klienta. Telefon i e-mail dodasz w przeglądzie projektu.",
     "start": "Start",
-    "target": "Termin",
+    "target": "Koniec",
     "budget": "Budżet",
     "submit": "Utwórz projekt"
   },
@@ -21,7 +21,7 @@
     "now": "Teraz: {{stage}}",
     "overallProgress": "Postęp ogólny",
     "client": "Klient",
-    "target": "Termin",
+    "target": "Koniec",
     "spent": "Wydano"
   },
   "home": {
@@ -37,15 +37,20 @@
     "description": "Wszystko tutaj jest widoczne dla klienta.",
     "name": "Nazwa projektu",
     "start": "Start",
-    "target": "Termin",
-    "budget": "Budżet",
-    "budgetHint": "Kwota wydana jest liczona na podstawie wydatków na stronie Budżet.",
+    "target": "Aktualny koniec",
+    "budget": "Prognozowany budżet",
+    "budgetHint": "Kwota wydana jest liczona na podstawie wydatków na stronie Budżet. Planowany budżet pozostaje punktem odniesienia.",
     "scheduleStatus": "Status harmonogramu",
     "scheduleStatusHint": "Widoczny w przeglądzie klienta. Zmiana powiadamia klienta.",
     "scheduleNote": "Notatka o harmonogramie dla klienta",
     "scheduleNotePlaceholder": "Dlaczego harmonogram wygląda tak, jak wygląda — prostymi słowami.",
     "submit": "Zapisz szczegóły",
-    "saved": "Projekt zaktualizowany — aplikacja klienta pokazuje to już teraz"
+    "saved": "Projekt zaktualizowany — aplikacja klienta pokazuje to już teraz",
+    "plannedTarget": "Planowany koniec",
+    "plannedBudget": "Planowany budżet",
+    "plannedLockedHint": "Plan bazowy można zmienić tylko, gdy projekt jest w planowaniu.",
+    "plannedEditableHint": "Plan bazowy. Można go edytować w planowaniu; po starcie prac jest zablokowany.",
+    "baselineLocked": "Planowany koniec i budżet są zablokowane po wyjściu projektu z planowania."
   },
   "shortcuts": {
     "heading": "Skróty",
@@ -69,7 +74,7 @@
     "noteForClient": "Notatka dla klienta: ",
     "stagesDone": "Ukończone etapy",
     "stagesDoneValue": "{{done}} z {{total}}",
-    "target": "Termin",
+    "target": "Koniec",
     "pastTarget": "Po terminie",
     "daysLeft": "Dni do terminu",
     "daysLeftValue_one": "{{count}} dzień",
