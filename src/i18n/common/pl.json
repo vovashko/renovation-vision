@@ -48,6 +48,8 @@
     "design": "Projekt",
     "budget": "Budżet",
     "chat": "Czat",
+    "decisions": "Decyzje",
+    "withCount": "{{label}}, oczekuje: {{count}}",
     "updates": "Aktualności",
     "knowledge": "Wiedza AI",
     "team": "Zespół",

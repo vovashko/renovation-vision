@@ -28,6 +28,7 @@ export const routes = rootRoute("__root.tsx", [
         route("documents", "project/documents.tsx"),
         route("budget", "project/budget.tsx"),
         route("chat", "project/chat.tsx"),
+        route("decisions", "project/decisions.tsx"),
         route("updates", "project/updates.tsx"),
         route("knowledge", "project/knowledge.tsx"),
         route("team", "project/team.tsx"),

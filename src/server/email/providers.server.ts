@@ -17,7 +17,7 @@ import type { ServerEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { ServerFnError } from "../errors";
 
-export type OutgoingEmail = { to: string; from: string; subject: string; html: string; text: string };
+export type OutgoingEmail = { to: string; from: string; subject: string; html: string; text: string; sensitive?: boolean };
 
 export interface EmailProvider {
   readonly name: "brevo" | "log";
@@ -84,7 +84,8 @@ export function createLogProvider(): EmailProvider {
         to: message.to,
         from: message.from,
         subject: message.subject,
-        text: message.text,
+        // A sensitive email (a confirmation code) is never written to the logs, not even in development.
+        ...(message.sensitive ? { text: "[redacted: sensitive content]" } : { text: message.text }),
       });
       return Promise.resolve();
     },

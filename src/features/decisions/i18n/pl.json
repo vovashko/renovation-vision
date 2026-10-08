@@ -1,0 +1,185 @@
+{
+  "page": {
+    "title": "Decyzje",
+    "descriptionManager": "Zgłaszaj zmiany wymagające decyzji inwestora. Budżet i termin zakończenia zmienia tylko zaakceptowana sprawa.",
+    "descriptionClient": "Sprawy od kierownika budowy, które czekają na Twoją decyzję. Budżet i termin zakończenia zmienia tylko sprawa, którą zaakceptujesz.",
+    "new": "Nowa sprawa",
+    "back": "Wszystkie sprawy"
+  },
+  "summary": {
+    "pending": "Oczekuje na decyzję",
+    "questions": "Pytania do odpowiedzi",
+    "accepted": "Zaakceptowane",
+    "pendingHint": "Czeka na inwestora",
+    "pendingHintClient": "Czeka na Ciebie",
+    "questionsHint": "Inwestor zadał pytanie, odpowiedz w sprawie"
+  },
+  "status": {
+    "pending": "Oczekuje na decyzję",
+    "accepted": "Zaakceptowano",
+    "rejected": "Odrzucono",
+    "question": "Pytanie do wyjaśnienia"
+  },
+  "list": {
+    "empty": "Brak spraw",
+    "emptyManager": "Zgłoś sprawę, gdy coś na budowie wymaga decyzji inwestora.",
+    "emptyClient": "Kierownik budowy nie przesłał jeszcze niczego do Twojej decyzji.",
+    "photos_one": "{{count}} zdjęcie",
+    "photos_few": "{{count}} zdjęcia",
+    "photos_many": "{{count}} zdjęć",
+    "photos_other": "{{count}} zdjęcia",
+    "submitted": "Zgłoszono {{date}}"
+  },
+  "delta": {
+    "none": "Bez zmian",
+    "days_one": "{{count}} dzień",
+    "days_few": "{{count}} dni",
+    "days_many": "{{count}} dni",
+    "days_other": "{{count}} dnia",
+    "cost": "Koszt",
+    "time": "Czas"
+  },
+  "detail": {
+    "description": "Opis",
+    "noDescription": "Brak opisu.",
+    "cost": "Koszt",
+    "days": "Czas",
+    "photos": "Zdjęcia",
+    "openPhoto": "Otwórz zdjęcie {{index}}",
+    "decidedBy": "Decyzja: {{name}}, {{date}}",
+    "rejectionReason": "Powód odrzucenia",
+    "lockedNote": "Ta sprawa jest rozstrzygnięta i zablokowana. Jeśli coś się zmieni, zgłoś nową sprawę.",
+    "notFound": "Ta sprawa nie istnieje albo nie masz do niej dostępu."
+  },
+  "preview": {
+    "heading": "Skutki po akceptacji",
+    "budget": "Budżet: z {{from}} do {{to}}",
+    "end": "Koniec: z {{from}} do {{to}}",
+    "endUnknown": "Projekt nie ma terminu zakończenia, więc zmiana o {{days}} nie zostanie zastosowana.",
+    "noImpact": "Ta sprawa nie zmienia ani budżetu, ani terminu zakończenia.",
+    "belowZero": "Akceptacja obniżyłaby budżet poniżej zera, więc w tej postaci nie można jej zaakceptować.",
+    "appliedHeading": "Zastosowano w projekcie",
+    "onlyAccepted": "Te wartości zmienia tylko zaakceptowana sprawa."
+  },
+  "history": {
+    "heading": "Historia",
+    "empty": "Nic jeszcze nie zapisano.",
+    "former": "Były członek zespołu",
+    "system": "System",
+    "role": {
+      "manager": "Kierownik budowy",
+      "client": "Inwestor"
+    },
+    "kind": {
+      "submitted": "Zgłosił(a) sprawę",
+      "question": "Zadał(a) pytanie",
+      "answer": "Odpowiedział(a)",
+      "accepted": "Zaakceptował(a) sprawę",
+      "rejected": "Odrzucił(a) sprawę",
+      "reopened": "Wznowił(a) sprawę",
+      "edited": "Zmienił(a) sprawę"
+    }
+  },
+  "actions": {
+    "accept": "Akceptuję",
+    "reject": "Odrzuć",
+    "ask": "Zadaj pytanie",
+    "reopen": "Wznów",
+    "answer": "Odpowiedz",
+    "edit": "Edytuj",
+    "send": "Wyślij"
+  },
+  "accept": {
+    "confirmTitle": "Czy na pewno?",
+    "confirmWithImpact": "Akceptacja jest ostateczna. Budżet zmieni się z {{budgetFrom}} na {{budgetTo}}. Za chwilę wyślemy Ci e-mailem kod potwierdzenia.",
+    "confirmWithEnd": "Akceptacja jest ostateczna. Budżet zmieni się z {{budgetFrom}} na {{budgetTo}}, a termin zakończenia z {{endFrom}} na {{endTo}}. Za chwilę wyślemy Ci e-mailem kod potwierdzenia.",
+    "confirmNoImpact": "Akceptacja jest ostateczna. Ta sprawa nie zmienia budżetu ani terminu zakończenia. Za chwilę wyślemy Ci e-mailem kod potwierdzenia.",
+    "confirmLabel": "Wyślij mi kod",
+    "codeTitle": "Wpisz kod potwierdzenia",
+    "codeDescription": "Wysłaliśmy 6-cyfrowy kod na Twój adres e-mail. Jest ważny 10 minut i działa tylko raz.",
+    "codeLabel": "Kod",
+    "submit": "Zaakceptuj decyzję",
+    "submitting": "Akceptowanie…",
+    "resend": "Wyślij nowy kod",
+    "resendIn": "Nowy kod za {{seconds}} s",
+    "result": {
+      "invalid_code": "Ten kod jest nieprawidłowy. Sprawdź e-mail i spróbuj ponownie.",
+      "expired": "Ten kod wygasł. Poproś o nowy.",
+      "too_many_attempts": "Zbyt wiele błędnych prób. Poproś o nowy kod.",
+      "no_code": "Nie ma aktywnego kodu. Poproś o nowy.",
+      "not_open": "Tej sprawy nie można już zaakceptować.",
+      "already_accepted": "Ta sprawa została już zaakceptowana."
+    }
+  },
+  "message": {
+    "askTitle": "Zadaj pytanie",
+    "askDescription": "Kierownik budowy dostanie powiadomienie i odpowie w tej sprawie. Decyzję podejmiesz potem.",
+    "askLabel": "Twoje pytanie",
+    "answerTitle": "Odpowiedz na pytanie",
+    "answerDescription": "Inwestor dostanie powiadomienie i będzie mógł podjąć decyzję.",
+    "answerLabel": "Twoja odpowiedź",
+    "rejectTitle": "Odrzuć sprawę",
+    "rejectDescription": "Kierownik budowy dostanie powiadomienie. Odrzuconą sprawę można później wznowić.",
+    "rejectLabel": "Powód",
+    "rejectSubmit": "Odrzuć sprawę",
+    "lastQuestion": "Pytanie"
+  },
+  "form": {
+    "newTitle": "Nowa sprawa",
+    "editTitle": "Edytuj sprawę",
+    "description": "Inwestor zobaczy tę sprawę, podejmie decyzję i może zadawać pytania. Można ją edytować, dopóki inwestor nie zdecyduje.",
+    "title": "Tytuł",
+    "titlePlaceholder": "np. Dodatkowe gniazdka w kuchni",
+    "descriptionLabel": "Opis",
+    "descriptionPlaceholder": "Co się zmienia, dlaczego i jakie są opcje",
+    "cost": "Zmiana kosztu",
+    "costHint": "W walucie projektu. Liczba ujemna oznacza oszczędność.",
+    "days": "Zmiana czasu (dni)",
+    "daysHint": "Dni kalendarzowe. Liczba ujemna oznacza zyskany czas.",
+    "photos": "Zdjęcia",
+    "photosHint": "Co najmniej jedno zdjęcie, maksymalnie 10.",
+    "photosRequired": "Dodaj co najmniej jedno zdjęcie",
+    "tooManyPhotos": "Sprawa może mieć najwyżej 10 zdjęć",
+    "removePhoto": "Usuń zdjęcie",
+    "undoRemove": "Zachowaj zdjęcie",
+    "save": "Zapisz zmiany",
+    "submit": "Wyślij do decyzji",
+    "submitting": "Zapisywanie…",
+    "costTooLarge": "Ta kwota jest zbyt duża",
+    "costDecimals": "Użyj najwyżej dwóch miejsc po przecinku",
+    "daysWhole": "Podaj całkowitą liczbę dni",
+    "daysTooLarge": "To zbyt wiele dni",
+    "titleTooLong": "Tytuł jest za długi (do 160 znaków)",
+    "descriptionTooLong": "Opis jest za długi (do 5000 znaków)",
+    "textTooLong": "To zbyt długie (do 2000 znaków)",
+    "reasonRequired": "Powód jest wymagany",
+    "codeInvalid": "Wpisz 6-cyfrowy kod"
+  },
+  "toast": {
+    "created": "Sprawa zgłoszona. Inwestor został powiadomiony.",
+    "updated": "Sprawa zaktualizowana",
+    "questionSent": "Pytanie wysłane do kierownika budowy",
+    "answerSent": "Odpowiedź wysłana do inwestora",
+    "rejected": "Sprawa odrzucona. Kierownik budowy został powiadomiony.",
+    "reopened": "Sprawa wznowiona",
+    "codeSent": "Wysłaliśmy Ci e-mailem kod potwierdzenia",
+    "accepted": "Sprawa zaakceptowana. Budżet i termin zakończenia zostały zaktualizowane."
+  },
+  "errors": {
+    "decision_locked": "Ta sprawa jest rozstrzygnięta i nie można jej już zmieniać.",
+    "decision_not_open": "Ta sprawa nie jest już otwarta.",
+    "decision_forbidden": "Nie masz uprawnień, aby to zrobić w tym projekcie.",
+    "not_pending": "Pytanie można zadać tylko wtedy, gdy sprawa czeka na decyzję.",
+    "not_in_question": "Nie ma otwartego pytania, na które można odpowiedzieć.",
+    "not_rejected": "Wznowić można tylko odrzuconą sprawę.",
+    "reason_required": "Powód jest wymagany.",
+    "text_invalid": "Wpisz od 1 do 2000 znaków.",
+    "photos_required": "Sprawa musi mieć co najmniej jedno zdjęcie.",
+    "too_many_photos": "Sprawa może mieć najwyżej 10 zdjęć.",
+    "photo_missing": "Nie przesłano zdjęcia. Spróbuj ponownie.",
+    "too_many_codes": "Zbyt wiele kodów dla tej sprawy. Spróbuj za jakiś czas.",
+    "budget_negative": "Akceptacja obniżyłaby budżet poniżej zera.",
+    "no_email": "Twoje konto nie ma adresu e-mail, na który można wysłać kod.",
+    "rate_limited": "Zbyt wiele żądań. Spróbuj za chwilę."
+  }
+}

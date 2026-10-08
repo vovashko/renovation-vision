@@ -18,6 +18,8 @@ export type NavItem = {
   roles: ProjectRole[];
   /** Phone bottom bar: a tab of its own, or a row in the "More" sheet. The desktop rail shows both. */
   placement: "tab" | "more";
+  /** Show a count badge on this item (see `useNavCounts`): clients' pending decisions. */
+  counted?: boolean;
 };
 
 const everyone: ProjectRole[] = ["manager", "client"];
@@ -40,6 +42,16 @@ export const projectNav: NavItem[] = [
     placement: "more",
   },
   { key: "chat", section: "chat", icon: "chat_bubble", labelKey: "common:nav.chat", roles: everyone, placement: "tab" },
+  // Investor decisions (#55): managers submit and answer, clients decide. Clients get a pending-count badge.
+  {
+    key: "decisions",
+    section: "decisions",
+    icon: "fact_check",
+    labelKey: "common:nav.decisions",
+    roles: everyone,
+    placement: "more",
+    counted: true,
+  },
   { key: "updates", section: "updates", icon: "notifications", labelKey: "common:nav.updates", roles: managers, placement: "more" },
   { key: "knowledge", section: "knowledge", icon: "menu_book", labelKey: "common:nav.knowledge", roles: managers, placement: "more" },
   { key: "team", section: "team", icon: "group", labelKey: "common:nav.team", roles: managers, placement: "more" },

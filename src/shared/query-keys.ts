@@ -22,6 +22,12 @@ export const keys = {
   notifications: (id: string) => ["notifications", id] as const,
   activity: (id: string) => ["activity", id] as const,
   knowledge: (id: string) => ["knowledge", id] as const,
+  /** A project's investor decisions; the keys below nest under it, so invalidating this refreshes all of them. */
+  decisions: (id: string) => ["decisions", id] as const,
+  /** How many of the project's decisions are pending (the navigation badge). */
+  decisionCount: (id: string) => ["decisions", id, "count"] as const,
+  /** One decision's history. */
+  decisionEvents: (id: string, decisionId: string) => ["decisions", id, "events", decisionId] as const,
   /** A project's contacts (crew, client, PoC…) as its managers see them. */
   projectContacts: (id: string) => ["projectContacts", id] as const,
   /** A project's client-visible contacts (`project_visible_contacts`), for any member. */

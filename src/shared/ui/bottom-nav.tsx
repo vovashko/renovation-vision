@@ -8,6 +8,7 @@ import { TabBar, TabBarItem, TabBarRow } from "@/components/ui/tab-bar";
 import { useAuth } from "@/lib/auth";
 import { useNavRole } from "@/shared/ui/nav-role";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
+import { useNavCounts } from "@/shared/ui/nav-counts";
 
 /**
  * Phone bottom navigation (below md; `ui/tab-bar`'s `TabBar` is `md:hidden`, so this renders
@@ -22,6 +23,7 @@ export function BottomNav() {
   const isManager = role === "manager";
   const tabs = navItemsFor(role, "tab");
   const more = navItemsFor(role, "more");
+  const counts = useNavCounts(projectId, role);
   const { t } = useTranslation(["common"]);
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -72,8 +74,9 @@ export function BottomNav() {
           <div className="grid gap-1 px-1">
             {more.map((m) => {
               const active = projectPath(projectId, m.section) === path;
+              const count = m.counted ? (counts[m.key] ?? 0) : 0;
               return (
-                <TabBarRow key={m.key} asChild icon={m.icon} active={active}>
+                <TabBarRow key={m.key} asChild icon={m.icon} active={active} badge={count}>
                   <Link to={projectRoute(m.section)} params={{ projectId }} onClick={() => setOpen(false)}>
                     {t(m.labelKey)}
                   </Link>

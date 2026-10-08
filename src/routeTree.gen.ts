@@ -25,6 +25,7 @@ import { Route as settingsSecurityRouteImport } from './routes/settings/security
 import { Route as projectOverviewRouteImport } from './routes/project/overview'
 import { Route as projectBudgetRouteImport } from './routes/project/budget'
 import { Route as projectChatRouteImport } from './routes/project/chat'
+import { Route as projectDecisionsRouteImport } from './routes/project/decisions'
 import { Route as projectDesignRouteImport } from './routes/project/design'
 import { Route as projectDocumentsRouteImport } from './routes/project/documents'
 import { Route as projectKnowledgeRouteImport } from './routes/project/knowledge'
@@ -115,6 +116,11 @@ const projectChatRoute = projectChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => projectLayoutRoute,
 } as any)
+const projectDecisionsRoute = projectDecisionsRouteImport.update({
+  id: '/decisions',
+  path: '/decisions',
+  getParentRoute: () => projectLayoutRoute,
+} as any)
 const projectDesignRoute = projectDesignRouteImport.update({
   id: '/design',
   path: '/design',
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/': typeof projectOverviewRoute
   '/projects/$projectId/budget': typeof projectBudgetRoute
   '/projects/$projectId/chat': typeof projectChatRoute
+  '/projects/$projectId/decisions': typeof projectDecisionsRoute
   '/projects/$projectId/design': typeof projectDesignRoute
   '/projects/$projectId/documents': typeof projectDocumentsRoute
   '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId': typeof projectOverviewRoute
   '/projects/$projectId/budget': typeof projectBudgetRoute
   '/projects/$projectId/chat': typeof projectChatRoute
+  '/projects/$projectId/decisions': typeof projectDecisionsRoute
   '/projects/$projectId/design': typeof projectDesignRoute
   '/projects/$projectId/documents': typeof projectDocumentsRoute
   '/projects/$projectId/knowledge': typeof projectKnowledgeRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/_authed/projects/$projectId/': typeof projectOverviewRoute
   '/_authed/projects/$projectId/budget': typeof projectBudgetRoute
   '/_authed/projects/$projectId/chat': typeof projectChatRoute
+  '/_authed/projects/$projectId/decisions': typeof projectDecisionsRoute
   '/_authed/projects/$projectId/design': typeof projectDesignRoute
   '/_authed/projects/$projectId/documents': typeof projectDocumentsRoute
   '/_authed/projects/$projectId/knowledge': typeof projectKnowledgeRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
+    | '/projects/$projectId/decisions'
     | '/projects/$projectId/design'
     | '/projects/$projectId/documents'
     | '/projects/$projectId/knowledge'
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects/$projectId/budget'
     | '/projects/$projectId/chat'
+    | '/projects/$projectId/decisions'
     | '/projects/$projectId/design'
     | '/projects/$projectId/documents'
     | '/projects/$projectId/knowledge'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/_authed/projects/$projectId/'
     | '/_authed/projects/$projectId/budget'
     | '/_authed/projects/$projectId/chat'
+    | '/_authed/projects/$projectId/decisions'
     | '/_authed/projects/$projectId/design'
     | '/_authed/projects/$projectId/documents'
     | '/_authed/projects/$projectId/knowledge'
@@ -452,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof projectChatRouteImport
       parentRoute: typeof projectLayoutRoute
     }
+    '/_authed/projects/$projectId/decisions': {
+      id: '/_authed/projects/$projectId/decisions'
+      path: '/decisions'
+      fullPath: '/projects/$projectId/decisions'
+      preLoaderRoute: typeof projectDecisionsRouteImport
+      parentRoute: typeof projectLayoutRoute
+    }
     '/_authed/projects/$projectId/design': {
       id: '/_authed/projects/$projectId/design'
       path: '/design'
@@ -529,6 +548,7 @@ interface projectLayoutRouteChildren {
   projectOverviewRoute: typeof projectOverviewRoute
   projectBudgetRoute: typeof projectBudgetRoute
   projectChatRoute: typeof projectChatRoute
+  projectDecisionsRoute: typeof projectDecisionsRoute
   projectDesignRoute: typeof projectDesignRoute
   projectDocumentsRoute: typeof projectDocumentsRoute
   projectKnowledgeRoute: typeof projectKnowledgeRoute
@@ -545,6 +565,7 @@ const projectLayoutRouteChildren: projectLayoutRouteChildren = {
   projectOverviewRoute: projectOverviewRoute,
   projectBudgetRoute: projectBudgetRoute,
   projectChatRoute: projectChatRoute,
+  projectDecisionsRoute: projectDecisionsRoute,
   projectDesignRoute: projectDesignRoute,
   projectDocumentsRoute: projectDocumentsRoute,
   projectKnowledgeRoute: projectKnowledgeRoute,

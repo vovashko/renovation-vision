@@ -85,6 +85,7 @@ const TEMPLATE_PARAMS: Record<EmailTemplateName, unknown> = {
     items: [{ title: "Sandbox test item", body: "From bun run email:check." }],
     linkUrl: `${SITE_URL}/projects`,
   },
+  confirmationCode: { siteUrl: SITE_URL, title: "Sandbox test case", code: "123456", ttlMinutes: 10 },
 };
 
 type CheckResult = { template: EmailTemplateName; locale: Locale; ok: boolean; detail: string };

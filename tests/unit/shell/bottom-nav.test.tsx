@@ -31,6 +31,9 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/lib/auth", () => ({ useAuth: vi.fn() }));
 // Inside a project the nav follows the per-project role (project_members), not account_type.
 vi.mock("@/features/auth/hooks", () => ({ useProjectRole: vi.fn() }));
+// The Decisions row carries the client's pending count (a query); stub it, the badge has its own test below.
+const pendingDecisions = vi.hoisted(() => ({ count: 0 }));
+vi.mock("@/features/decisions/hooks", () => ({ usePendingDecisionCount: () => ({ data: pendingDecisions.count }) }));
 
 const mockedUseAuth = vi.mocked(useAuth);
 const mockedUseParams = vi.mocked(useParams);
@@ -52,6 +55,7 @@ function setUp({ role, path, projectId }: { role: "manager" | "client"; path: st
 }
 
 beforeEach(() => {
+  pendingDecisions.count = 0;
   mockedUseAuth.mockReset();
   mockedUseParams.mockReset();
   mockedUseRouterState.mockReset();
@@ -94,6 +98,7 @@ describe("BottomNav", () => {
     fireEvent.click(screen.getByRole("button", { name: "More pages" }));
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByRole("link", { name: "Design" })).toBeInTheDocument();
+    expect(within(dialog).getByRole("link", { name: "Decisions" })).toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: "All projects" })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: "Budget" })).not.toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: "Settings" })).toBeInTheDocument();
@@ -104,9 +109,25 @@ describe("BottomNav", () => {
     render(<BottomNav />);
     fireEvent.click(screen.getByRole("button", { name: "More pages" }));
     const dialog = await screen.findByRole("dialog");
-    for (const label of ["Design", "Budget", "Updates", "AI knowledge", "Team", "All projects", "Settings"]) {
+    for (const label of ["Design", "Budget", "Decisions", "Updates", "AI knowledge", "Team", "All projects", "Settings"]) {
       expect(within(dialog).getByRole("link", { name: label })).toBeInTheDocument();
     }
+  });
+
+  it("shows the client's pending decisions as a count on the Decisions row, and none for a manager", async () => {
+    pendingDecisions.count = 3;
+    setUp({ role: "client", path: "/projects/p1", projectId: "p1" });
+    const { unmount } = render(<BottomNav />);
+    fireEvent.click(screen.getByRole("button", { name: "More pages" }));
+    const clientDialog = await screen.findByRole("dialog");
+    expect(within(clientDialog).getByRole("link", { name: /Decisions/ })).toHaveTextContent("3");
+    unmount();
+
+    setUp({ role: "manager", path: "/projects/p1", projectId: "p1" });
+    render(<BottomNav />);
+    fireEvent.click(screen.getByRole("button", { name: "More pages" }));
+    const managerDialog = await screen.findByRole("dialog");
+    expect(within(managerDialog).getByRole("link", { name: "Decisions" })).not.toHaveTextContent("3");
   });
 
   it("falls back to a single back link outside a project", () => {

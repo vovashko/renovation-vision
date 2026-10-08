@@ -46,6 +46,8 @@
     "design": "Design",
     "budget": "Budget",
     "chat": "Chat",
+    "decisions": "Decisions",
+    "withCount": "{{label}}, {{count}} pending",
     "updates": "Updates",
     "knowledge": "AI knowledge",
     "team": "Team",

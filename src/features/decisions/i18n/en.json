@@ -1,0 +1,181 @@
+{
+  "page": {
+    "title": "Decisions",
+    "descriptionManager": "Submit changes that need the investor's decision. Only an accepted case changes the budget and the end date.",
+    "descriptionClient": "Cases from your site manager that need your decision. Only a case you accept changes the budget and the end date.",
+    "new": "New case",
+    "back": "All cases"
+  },
+  "summary": {
+    "pending": "Awaiting decision",
+    "questions": "Questions to answer",
+    "accepted": "Accepted",
+    "pendingHint": "Waiting for the investor",
+    "pendingHintClient": "Waiting for you",
+    "questionsHint": "The investor asked, you answer in the case"
+  },
+  "status": {
+    "pending": "Awaiting decision",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "question": "Question to clarify"
+  },
+  "list": {
+    "empty": "No cases yet",
+    "emptyManager": "Submit a case when something on site needs the investor's decision.",
+    "emptyClient": "Your site manager has not submitted anything for your decision.",
+    "photos_one": "{{count}} photo",
+    "photos_other": "{{count}} photos",
+    "submitted": "Submitted {{date}}"
+  },
+  "delta": {
+    "none": "No change",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "cost": "Cost",
+    "time": "Time"
+  },
+  "detail": {
+    "description": "Description",
+    "noDescription": "No description.",
+    "cost": "Cost",
+    "days": "Time",
+    "photos": "Photos",
+    "openPhoto": "Open photo {{index}}",
+    "decidedBy": "Decided by {{name}} on {{date}}",
+    "rejectionReason": "Reason for rejection",
+    "lockedNote": "This case has been decided and is locked. Submit a new case if something changes.",
+    "notFound": "This case does not exist or you do not have access to it."
+  },
+  "preview": {
+    "heading": "Impact if accepted",
+    "budget": "Budget: from {{from}} to {{to}}",
+    "end": "End date: from {{from}} to {{to}}",
+    "endUnknown": "The project has no end date, so {{days}} would not be applied.",
+    "noImpact": "This case changes neither the budget nor the end date.",
+    "belowZero": "Accepting would take the budget below zero, so it cannot be accepted as it is.",
+    "appliedHeading": "Applied to the project",
+    "onlyAccepted": "Only an accepted case changes these values."
+  },
+  "history": {
+    "heading": "History",
+    "empty": "Nothing recorded yet.",
+    "former": "Former member",
+    "system": "System",
+    "role": {
+      "manager": "Site manager",
+      "client": "Investor"
+    },
+    "kind": {
+      "submitted": "Submitted the case",
+      "question": "Asked a question",
+      "answer": "Answered",
+      "accepted": "Accepted the case",
+      "rejected": "Rejected the case",
+      "reopened": "Reopened the case",
+      "edited": "Edited the case"
+    }
+  },
+  "actions": {
+    "accept": "Accept",
+    "reject": "Reject",
+    "ask": "Ask a question",
+    "reopen": "Reopen",
+    "answer": "Answer",
+    "edit": "Edit",
+    "send": "Send"
+  },
+  "accept": {
+    "confirmTitle": "Are you sure?",
+    "confirmWithImpact": "Accepting is final. The budget will go from {{budgetFrom}} to {{budgetTo}}. Next we email you a confirmation code.",
+    "confirmWithEnd": "Accepting is final. The budget will go from {{budgetFrom}} to {{budgetTo}} and the end date from {{endFrom}} to {{endTo}}. Next we email you a confirmation code.",
+    "confirmNoImpact": "Accepting is final. This case does not change the budget or the end date. Next we email you a confirmation code.",
+    "confirmLabel": "Email me the code",
+    "codeTitle": "Enter the confirmation code",
+    "codeDescription": "We emailed a 6-digit code to your address. It is valid for 10 minutes and works once.",
+    "codeLabel": "Code",
+    "submit": "Accept the decision",
+    "submitting": "Accepting…",
+    "resend": "Send a new code",
+    "resendIn": "New code in {{seconds}} s",
+    "result": {
+      "invalid_code": "That code is not right. Check the email and try again.",
+      "expired": "That code has expired. Request a new one.",
+      "too_many_attempts": "Too many wrong attempts. Request a new code.",
+      "no_code": "There is no active code. Request a new one.",
+      "not_open": "This case can no longer be accepted.",
+      "already_accepted": "This case was already accepted."
+    }
+  },
+  "message": {
+    "askTitle": "Ask a question",
+    "askDescription": "Your site manager is notified and answers in this case. You can decide afterwards.",
+    "askLabel": "Your question",
+    "answerTitle": "Answer the question",
+    "answerDescription": "The investor is notified and can decide afterwards.",
+    "answerLabel": "Your answer",
+    "rejectTitle": "Reject the case",
+    "rejectDescription": "Your site manager is notified. You can reopen a rejected case later.",
+    "rejectLabel": "Reason",
+    "rejectSubmit": "Reject the case",
+    "lastQuestion": "Question"
+  },
+  "form": {
+    "newTitle": "New case",
+    "editTitle": "Edit case",
+    "description": "The investor sees this case, decides and can ask questions. It can be edited until the investor has decided.",
+    "title": "Title",
+    "titlePlaceholder": "e.g. Extra sockets in the kitchen",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What changes, why, and what the options are",
+    "cost": "Cost change",
+    "costHint": "In the project's currency. A negative number is a saving.",
+    "days": "Time change (days)",
+    "daysHint": "Calendar days. A negative number gains time.",
+    "photos": "Photos",
+    "photosHint": "At least one photo, up to 10.",
+    "photosRequired": "Add at least one photo",
+    "tooManyPhotos": "A case takes at most 10 photos",
+    "removePhoto": "Remove photo",
+    "undoRemove": "Keep photo",
+    "save": "Save changes",
+    "submit": "Submit for decision",
+    "submitting": "Saving…",
+    "costTooLarge": "That amount is too large",
+    "costDecimals": "Use at most two decimal places",
+    "daysWhole": "Enter a whole number of days",
+    "daysTooLarge": "That is too many days",
+    "titleTooLong": "The title is too long (up to 160 characters)",
+    "descriptionTooLong": "The description is too long (up to 5000 characters)",
+    "textTooLong": "That is too long (up to 2000 characters)",
+    "reasonRequired": "A reason is required",
+    "codeInvalid": "Enter the 6-digit code"
+  },
+  "toast": {
+    "created": "Case submitted. The investor has been notified.",
+    "updated": "Case updated",
+    "questionSent": "Question sent to your site manager",
+    "answerSent": "Answer sent to the investor",
+    "rejected": "Case rejected. Your site manager has been notified.",
+    "reopened": "Case reopened",
+    "codeSent": "We emailed you a confirmation code",
+    "accepted": "Case accepted. The budget and the end date are updated."
+  },
+  "errors": {
+    "decision_locked": "This case has been decided and can no longer be changed.",
+    "decision_not_open": "This case is no longer open.",
+    "decision_forbidden": "You are not allowed to do this in this project.",
+    "not_pending": "A question can only be asked while the case awaits a decision.",
+    "not_in_question": "There is no open question to answer.",
+    "not_rejected": "Only a rejected case can be reopened.",
+    "reason_required": "A reason is required.",
+    "text_invalid": "Write between 1 and 2000 characters.",
+    "photos_required": "A case needs at least one photo.",
+    "too_many_photos": "A case takes at most 10 photos.",
+    "photo_missing": "A photo was not uploaded. Try again.",
+    "too_many_codes": "Too many codes requested for this case. Try again in a while.",
+    "budget_negative": "Accepting would take the budget below zero.",
+    "no_email": "Your account has no email address to send the code to.",
+    "rate_limited": "Too many requests. Try again shortly."
+  }
+}
