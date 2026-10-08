@@ -11,6 +11,7 @@ export function ProjectHeader({
   managerName,
   progress,
   currentStage,
+  behind,
   actions,
 }: {
   name: string;
@@ -18,6 +19,8 @@ export function ProjectHeader({
   managerName?: string | null;
   progress: number;
   currentStage?: string | null;
+  /** Behind schedule: the overall progress bar turns red. */
+  behind?: boolean;
   actions?: ReactNode;
 }) {
   const { t } = useTranslation("work");
@@ -42,7 +45,7 @@ export function ProjectHeader({
           <span className="text-body-md text-on-surface-variant">{t("overview.overallProgress")}</span>
           <span className="text-headline-md">{progress}%</span>
         </div>
-        <ProgressBar value={progress} className="mt-2" aria-label={t("overview.overallProgress")} />
+        <ProgressBar value={progress} tone={behind ? "blocked" : "primary"} className="mt-2" aria-label={t("overview.overallProgress")} />
         {currentStage && (
           <div className="mt-3 text-body-md text-on-surface-variant">
             {t("overview.currentlyWorkingOnPrefix")} <span className="font-medium text-on-surface">{currentStage}</span>

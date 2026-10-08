@@ -83,6 +83,7 @@ function ClientOverview({ projectId }: { projectId: string }) {
         managerName={project.manager_name}
         progress={project.overall_progress}
         currentStage={project.current_stage}
+        behind={project.schedule_status !== "on_schedule"}
       />
 
       <OverviewStats project={project} stages={stages} />
