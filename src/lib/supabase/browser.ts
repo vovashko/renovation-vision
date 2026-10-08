@@ -66,6 +66,7 @@ export const supabase: SupabaseClient = typeof window === "undefined" ? requestB
 
 export const MEDIA_BUCKET = "project-media";
 export const INTERNAL_BUCKET = "project-internal";
+export const DOCUMENTS_BUCKET = "project-documents";
 
 /**
  * One-time migration of a pre-T21 session: supabase-js used to keep it in localStorage, which the

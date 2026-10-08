@@ -172,7 +172,7 @@ Code is split by layer, then by feature:
 ```
 src/domain/            pure entities and rules: status, progress, money, dates, attention, consistency, budget,
                        db.types.ts (generated). No React, no Supabase, no UI imports.
-src/features/<f>/      f ∈ projects | work | media | budget | comms | people | knowledge | auth | settings | admin | import
+src/features/<f>/      f ∈ projects | work | media | documents | budget | comms | people | knowledge | auth | settings | admin | import
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js
@@ -573,6 +573,15 @@ after a loading screen) and in the browser on navigation. The decisions are pure
 
 These guards decide what to render and where to send people. **RLS is still the enforcement**: a guard that
 let someone through could not show them data Postgres refuses to return.
+
+### Sharing a page with the investor
+
+There is no anonymous or token access. "Copy link for investor" (managers only, in the project top bar, not on
+manager-only sections) copies the URL of the current project page, query string included (`investorShareUrl` in
+`features/auth/domain/guards.ts`). The investor opens it, is sent to `/login?redirect=<that page>`, signs in with
+their client account and lands on the page; nobody signed out sees anything. An account that isn't a member of the
+project gets "Project not available". To revoke access, remove or change the project's client: the link then stops
+working for that account (RLS and the guards decide, the URL carries no permission).
 
 ### Auth screens & 2FA (T22)
 

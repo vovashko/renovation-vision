@@ -18,6 +18,7 @@ export type NotificationChannel = Enums<"notification_channel">;
 export type NotificationFrequency = Enums<"notification_frequency">;
 export type CostCategory = Enums<"cost_category">;
 export type MaterialStatus = Enums<"material_status">;
+export type DocumentCategory = Enums<"document_category">;
 
 export type Profile = Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "account_type">;
 
@@ -157,6 +158,31 @@ export type Photo = Pick<
   | "published_at"
 > & {
   /** Signed URL, resolved by the API layer. */
+  url: string;
+};
+
+/** A project document row (`documents`). The file itself is fetched through a signed URL on demand. */
+export type ProjectDocument = Pick<
+  Tables<"documents">,
+  | "id"
+  | "project_id"
+  | "category"
+  | "title"
+  | "description"
+  | "storage_path"
+  | "file_name"
+  | "mime_type"
+  | "size_bytes"
+  | "version_group"
+  | "version"
+  | "is_current"
+  | "room_id"
+  | "task_id"
+  | "uploaded_by"
+  | "archived_at"
+  | "created_at"
+> & {
+  /** Signed URL, only resolved for installation photos (the gallery thumbnails). */
   url: string;
 };
 
