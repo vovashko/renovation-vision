@@ -117,5 +117,14 @@
   "deviation": {
     "days_one": "{{sign}}{{count}} day",
     "days_other": "{{sign}}{{count}} days"
+  },
+  "a11y": {
+    "close": "Close",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "morePages": "More pages",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "more": "More"
   }
 }

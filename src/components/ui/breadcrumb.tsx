@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 
 import { cn } from "@/lib/utils";
@@ -57,12 +58,15 @@ const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentP
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
-const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => (
-  <span role="presentation" aria-hidden="true" className={cn("flex h-9 w-9 items-center justify-center", className)} {...props}>
-    <Icon name="more_horiz" size={20} />
-    <span className="sr-only">More</span>
-  </span>
-);
+const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => {
+  const { t } = useTranslation(["common"]);
+  return (
+    <span role="presentation" aria-hidden="true" className={cn("flex h-9 w-9 items-center justify-center", className)} {...props}>
+      <Icon name="more_horiz" size={20} />
+      <span className="sr-only">{t("common:a11y.more")}</span>
+    </span>
+  );
+};
 BreadcrumbEllipsis.displayName = "BreadcrumbElipssis";
 
 export { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis };
