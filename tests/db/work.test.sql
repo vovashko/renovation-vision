@@ -278,6 +278,7 @@ select pg_temp.check(
   'client sees the published diary photo, not the draft one');
 
 -- Photos linked to a task: the task's stage becomes the photo's stage when none is given.
+select pg_temp.as_user('a0000000-0000-4000-8000-000000000001');
 insert into public.photos (project_id, storage_path, task_id)
 select t.project_id, t.project_id || '/photos/task-link.jpg', t.id from public.tasks t
 where t.name = 'Remove old flooring' and t.project_id = 'b0000000-0000-4000-8000-000000000001';
