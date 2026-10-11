@@ -135,7 +135,9 @@
       "contact": "kontakt",
       "material": "materiał",
       "stage_budget": "budżet etapu",
-      "diary_entry": "wpis w dzienniku"
+      "diary_entry": "wpis w dzienniku",
+      "room_warning": "ostrzeżenie",
+      "document": "dokument"
     },
     "plain": {
       "insert": "Dodano {{entity}}",

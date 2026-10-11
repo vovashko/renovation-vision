@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 
 import { cn } from "@/lib/utils";
@@ -39,28 +40,37 @@ const PaginationLink = ({ className, isActive, size = "icon", ...props }: Pagina
 );
 PaginationLink.displayName = "PaginationLink";
 
-const PaginationPrevious = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink aria-label="Go to previous page" size="default" className={cn("gap-1 pl-2.5", className)} {...props}>
-    <Icon name="chevron_left" size={20} />
-    <span>Previous</span>
-  </PaginationLink>
-);
+const PaginationPrevious = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation(["common"]);
+  return (
+    <PaginationLink aria-label="Go to previous page" size="default" className={cn("gap-1 pl-2.5", className)} {...props}>
+      <Icon name="chevron_left" size={20} />
+      <span>{t("common:a11y.previousPage")}</span>
+    </PaginationLink>
+  );
+};
 PaginationPrevious.displayName = "PaginationPrevious";
 
-const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink aria-label="Go to next page" size="default" className={cn("gap-1 pr-2.5", className)} {...props}>
-    <span>Next</span>
-    <Icon name="chevron_right" size={20} />
-  </PaginationLink>
-);
+const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation(["common"]);
+  return (
+    <PaginationLink aria-label="Go to next page" size="default" className={cn("gap-1 pr-2.5", className)} {...props}>
+      <span>{t("common:a11y.nextPage")}</span>
+      <Icon name="chevron_right" size={20} />
+    </PaginationLink>
+  );
+};
 PaginationNext.displayName = "PaginationNext";
 
-const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => (
-  <span aria-hidden className={cn("flex h-9 w-9 items-center justify-center", className)} {...props}>
-    <Icon name="more_horiz" size={20} />
-    <span className="sr-only">More pages</span>
-  </span>
-);
+const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => {
+  const { t } = useTranslation(["common"]);
+  return (
+    <span aria-hidden className={cn("flex h-9 w-9 items-center justify-center", className)} {...props}>
+      <Icon name="more_horiz" size={20} />
+      <span className="sr-only">{t("common:a11y.morePages")}</span>
+    </span>
+  );
+};
 PaginationEllipsis.displayName = "PaginationEllipsis";
 
 export { Pagination, PaginationContent, PaginationLink, PaginationItem, PaginationPrevious, PaginationNext, PaginationEllipsis };

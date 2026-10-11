@@ -40,6 +40,8 @@ export const ACTIVITY_ENTITIES = [
   "expense",
   "ai_knowledge",
   "crew_member",
+  "room_warning",
+  "document",
 ] as const;
 export type ActivityEntity = (typeof ACTIVITY_ENTITIES)[number];
 

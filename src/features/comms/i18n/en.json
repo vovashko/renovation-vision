@@ -131,7 +131,9 @@
       "contact": "contact",
       "material": "material",
       "stage_budget": "stage budget",
-      "diary_entry": "diary entry"
+      "diary_entry": "diary entry",
+      "room_warning": "warning",
+      "document": "document"
     },
     "plain": {
       "insert": "Added {{entity}}",

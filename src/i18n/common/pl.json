@@ -121,5 +121,14 @@
     "days_few": "{{sign}}{{count}} dni",
     "days_many": "{{sign}}{{count}} dni",
     "days_other": "{{sign}}{{count}} dnia"
+  },
+  "a11y": {
+    "close": "Zamknij",
+    "previousPage": "Poprzednia",
+    "nextPage": "Następna",
+    "morePages": "Więcej stron",
+    "previousSlide": "Poprzedni slajd",
+    "nextSlide": "Następny slajd",
+    "more": "Więcej"
   }
 }
