@@ -39,6 +39,12 @@
     "descriptionClient": "Every stage of your renovation and its checklist, updated by your site manager.",
     "addStage": "Add stage"
   },
+  "summary": {
+    "stagesDone": "Stages done",
+    "overallProgress": "Overall progress",
+    "nextDeadline": "Next deadline",
+    "allDone": "All stages done"
+  },
   "stageRow": {
     "addStagePhotos": "Add photos to {{name}}",
     "addTaskPhotos": "Add photos to task {{name}}",

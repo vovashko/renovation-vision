@@ -9,7 +9,8 @@ import { Icon } from "@/components/ui/icon";
 const bannerVariants = cva("flex flex-wrap items-center gap-3 rounded-lg py-3 pr-3 pl-4 text-body-md", {
   variants: {
     variant: {
-      attention: "border border-attention-outline bg-attention-container text-on-attention-container [&_[data-slot=banner-icon]]:text-attention",
+      attention:
+        "border border-attention-outline bg-attention-container text-on-attention-container [&_[data-slot=banner-icon]]:text-attention",
       info: "bg-secondary-container text-on-secondary-container",
       error: "bg-error-container text-on-error-container [&_[data-slot=banner-icon]]:text-error",
     },

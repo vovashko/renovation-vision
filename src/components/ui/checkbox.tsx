@@ -23,4 +23,30 @@ const Checkbox = React.forwardRef<
 ));
 Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 
-export { Checkbox };
+/**
+ * Read-only checkbox (the client's view of a checklist): a grey tile with a check instead of the
+ * forest fill, a dashed box when open, no hover or focus. Not interactive, so it is not a Radix Root.
+ */
+function CheckboxReadOnly({ checked, className, ...props }: { checked: boolean } & React.HTMLAttributes<HTMLSpanElement>) {
+  return checked ? (
+    <span
+      role="img"
+      aria-label={undefined}
+      className={cn(
+        "grid size-[22px] shrink-0 place-items-center rounded-[7px] bg-surface-container-highest text-on-secondary-container",
+        className,
+      )}
+      {...props}
+    >
+      <Icon name="check" size={16} />
+    </span>
+  ) : (
+    <span
+      aria-hidden
+      className={cn("size-[22px] shrink-0 rounded-[7px] border-[1.5px] border-dashed border-outline", className)}
+      {...props}
+    />
+  );
+}
+
+export { Checkbox, CheckboxReadOnly };

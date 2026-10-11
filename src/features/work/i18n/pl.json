@@ -39,6 +39,12 @@
     "descriptionClient": "Każdy etap Twojego remontu i jego lista zadań, aktualizowane przez kierownika budowy.",
     "addStage": "Dodaj etap"
   },
+  "summary": {
+    "stagesDone": "Ukończone etapy",
+    "overallProgress": "Postęp ogólny",
+    "nextDeadline": "Najbliższy termin",
+    "allDone": "Wszystkie etapy ukończone"
+  },
   "stageRow": {
     "addStagePhotos": "Dodaj zdjęcia do etapu {{name}}",
     "addTaskPhotos": "Dodaj zdjęcia do zadania {{name}}",

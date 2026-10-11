@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
+import { CheckboxReadOnly } from "@/components/ui/checkbox";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusPill } from "@/components/status-pill";
 import { focusRing } from "@/components/ui/focus-ring";
@@ -27,7 +28,8 @@ export function StageRowList({ children, className }: { children: ReactNode; cla
   );
 }
 
-function CheckBox({ done }: { done: boolean }) {
+function CheckBox({ done, readOnly }: { done: boolean; readOnly?: boolean }) {
+  if (readOnly) return <CheckboxReadOnly checked={done} />;
   return done ? (
     <span className="grid size-[22px] shrink-0 place-items-center rounded-[7px] bg-primary text-on-primary">
       <Icon name="check" size={16} />
@@ -140,7 +142,11 @@ export function StageRow({
               </span>
             );
             return (
-              <li key={t2.id ?? t2.name} className={cn("group flex min-h-10 items-center gap-3", t2.muted && "opacity-60")}>
+              <li
+                key={t2.id ?? t2.name}
+                className={cn("group flex min-h-10 items-center gap-3", t2.muted && "opacity-60")}
+                aria-label={onToggleTask ? undefined : t2.done ? `${t2.name} — ${t("common:status.done")}` : t2.name}
+              >
                 {onToggleTask ? (
                   <button
                     type="button"
@@ -154,7 +160,7 @@ export function StageRow({
                   </button>
                 ) : (
                   <>
-                    <CheckBox done={t2.done} />
+                    <CheckBox done={t2.done} readOnly />
                     {label}
                   </>
                 )}
