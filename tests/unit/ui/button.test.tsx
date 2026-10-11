@@ -1,6 +1,43 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+
+describe("Button loading", () => {
+  it("is busy, shows a spinner and ignores clicks", () => {
+    const onClick = vi.fn();
+    const { container } = render(
+      <Button loading onClick={onClick}>
+        Save
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Save" });
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+    expect(container.querySelector(".animate-spin")).not.toBeNull();
+    fireEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("swaps the leading icon for the spinner", () => {
+    const { container } = render(
+      <Button loading>
+        <Icon name="add" /> Add
+      </Button>,
+    );
+    expect(container.querySelector(".animate-spin")).not.toBeNull();
+    expect(container.textContent).not.toContain("add");
+  });
+
+  it("is idle by default and still clickable", () => {
+    const onClick = vi.fn();
+    render(<Button onClick={onClick}>Save</Button>);
+    const button = screen.getByRole("button", { name: "Save" });
+    expect(button.getAttribute("aria-busy")).toBeNull();
+    fireEvent.click(button);
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+});
 
 describe("Button", () => {
   it("default variant uses the primary fill", () => {

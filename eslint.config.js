@@ -70,7 +70,6 @@ export default tseslint.config(
       "docs/**",
       "supabase/**",
       // Design handoff files waiting to be applied; they are copied into src/ when used.
-      "code_handoff/**",
       "src/routeTree.gen.ts",
       "src/domain/db.types.ts",
     ],

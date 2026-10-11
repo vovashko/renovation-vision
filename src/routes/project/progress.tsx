@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Note } from "@/components/ui/note";
-import { PageHeader, PageLoading } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { VisibilityBadge } from "@/shared/ui/visibility-badge";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { useNavRole } from "@/shared/ui/nav-role";
@@ -12,8 +12,11 @@ import { StageRow, StageRowList } from "@/features/work/ui/stage-row";
 import { StagesEmpty } from "@/features/work/ui/stages-empty";
 import { TaskAddForm } from "@/features/work/ui/task-add-form";
 import { StageFormSheet } from "@/features/work/ui/stage-form";
+import { ProgressSummary, ProgressSummarySkeleton } from "@/features/work/ui/progress-summary";
 import { usePhotos } from "@/features/media/hooks/use-photos";
 import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
+import { PhotoThumbs } from "@/features/media/ui/photo-thumbs";
+import { StageCardSkeleton } from "@/components/ui/skeleton";
 import { useRooms, useStages, useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks";
 import { daysLate } from "@/domain/attention";
 import { deriveStatus } from "@/domain/progress";
@@ -67,7 +70,14 @@ function ProgressPage() {
   };
   const startNewStage = () => setEditingStage("new");
 
-  if (stagesLoading || roomsLoading || !stages || !rooms) return <PageLoading />;
+  if (stagesLoading || roomsLoading || !stages || !rooms)
+    return (
+      <div className="mx-auto w-full max-w-6xl space-y-6" role="status" aria-busy>
+        <ProgressSummarySkeleton />
+        <StageCardSkeleton />
+        <StageCardSkeleton />
+      </div>
+    );
 
   return (
     <div className="mx-auto w-full max-w-6xl">
@@ -87,103 +97,109 @@ function ProgressPage() {
         {stages.length === 0 ? (
           <StagesEmpty />
         ) : (
-          <StageRowList>
-            {stages.map((s, i) => {
-              const done = s.tasks.filter((t2) => t2.done).length;
-              const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name;
-              const stageRooms = [...new Set(s.tasks.map((t2) => roomName(t2.room_id)).filter((n): n is string => !!n))];
-              const photoCount = photos ? photos.filter((p) => p.stage_id === s.id).length : undefined;
-              const fromChecklist = s.tasks.length ? Math.round((done / s.tasks.length) * 100) : null;
-              return (
-                <div key={s.id} id={s.id} className="scroll-mt-20">
-                  <StageRow
-                    index={i + 1}
-                    name={s.name}
-                    start={format.date(s.start_date, "short")}
-                    end={format.date(s.end_date, "short")}
-                    status={s.status}
-                    progress={s.progress}
-                    lateDays={daysLate(s)}
-                    rooms={stageRooms}
-                    photoCount={photoCount}
-                    dimmed={isManager && !s.is_visible}
-                    tasks={s.tasks.map((t2) => ({
-                      ...t2,
-                      roomName: roomName(t2.room_id),
-                      muted: isManager && !t2.is_visible,
-                      photoCount: photos ? photos.filter((p) => p.task_id === t2.id).length : undefined,
-                    }))}
-                    onAddTaskPhotos={isManager ? (t2) => setPhotoTarget({ stageId: s.id, taskId: t2.id }) : undefined}
-                    onToggleTask={isManager ? (t2) => saveTask.mutate({ id: t2.id, stage_id: s.id, done: !t2.done }) : undefined}
-                    onRemoveTask={isManager ? (t2) => removeTaskWithConfirm(s.tasks.find((x) => x.id === t2.id)!) : undefined}
-                    headerExtra={
-                      isManager && (
-                        <>
-                          {!s.is_visible && <VisibilityBadge visible={false} />}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setPhotoTarget({ stageId: s.id })}
-                            aria-label={t("work:stageRow.addStagePhotos", { name: s.name })}
-                          >
-                            <Icon name="add_a_photo" size={20} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingStage(s)}
-                            aria-label={t("work:stageRow.editStage", { name: s.name })}
-                          >
-                            <Icon name="edit" size={20} />
-                          </Button>
-                        </>
-                      )
-                    }
-                  >
-                    {isManager && (
-                      <TaskAddForm
-                        rooms={rooms}
-                        onAdd={({ name, room_id }) => saveTask.mutate({ stage_id: s.id, name, room_id, sort_order: s.tasks.length + 1 })}
-                      />
-                    )}
-                    {/* Tasks-mode stages follow their checklist already (database triggers); only manual ones can drift. */}
-                    {isManager &&
-                      s.progress_mode === "manual" &&
-                      fromChecklist !== null &&
-                      fromChecklist !== s.progress &&
-                      s.status !== "done" && (
-                        <Note size="sm" className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                          <span>
-                            {t("work:stageRow.checklistMismatch", {
-                              done,
-                              total: s.tasks.length,
-                              pct: fromChecklist,
-                              progress: s.progress,
-                            })}
-                          </span>
-                          <button
-                            type="button"
-                            className="font-medium text-primary hover:underline"
-                            onClick={() => {
-                              const progress = Math.min(fromChecklist, 99);
-                              saveStage.mutate({ id: s.id, progress, status: deriveStatus(s.status, progress) });
-                            }}
-                          >
-                            {t("work:stageRow.useChecklistPct", { pct: Math.min(fromChecklist, 99) })}
-                          </button>
-                        </Note>
+          <>
+            <ProgressSummary stages={stages} />
+            <div className="mt-6" />
+            <StageRowList>
+              {stages.map((s, i) => {
+                const done = s.tasks.filter((t2) => t2.done).length;
+                const roomName = (id: string | null) => rooms.find((r) => r.id === id)?.name;
+                const stageRooms = [...new Set(s.tasks.map((t2) => roomName(t2.room_id)).filter((n): n is string => !!n))];
+                const stagePhotos = photos ? photos.filter((p) => p.stage_id === s.id) : undefined;
+                const photoCount = stagePhotos?.length;
+                const fromChecklist = s.tasks.length ? Math.round((done / s.tasks.length) * 100) : null;
+                return (
+                  <div key={s.id} id={s.id} className="scroll-mt-20">
+                    <StageRow
+                      index={i + 1}
+                      name={s.name}
+                      start={format.date(s.start_date, "short")}
+                      end={format.date(s.end_date, "short")}
+                      status={s.status}
+                      progress={s.progress}
+                      lateDays={daysLate(s)}
+                      rooms={stageRooms}
+                      photoCount={photoCount}
+                      dimmed={isManager && !s.is_visible}
+                      tasks={s.tasks.map((t2) => ({
+                        ...t2,
+                        roomName: roomName(t2.room_id),
+                        muted: isManager && !t2.is_visible,
+                        photoCount: photos ? photos.filter((p) => p.task_id === t2.id).length : undefined,
+                      }))}
+                      onAddTaskPhotos={isManager ? (t2) => setPhotoTarget({ stageId: s.id, taskId: t2.id }) : undefined}
+                      onToggleTask={isManager ? (t2) => saveTask.mutate({ id: t2.id, stage_id: s.id, done: !t2.done }) : undefined}
+                      onRemoveTask={isManager ? (t2) => removeTaskWithConfirm(s.tasks.find((x) => x.id === t2.id)!) : undefined}
+                      headerExtra={
+                        isManager && (
+                          <>
+                            {!s.is_visible && <VisibilityBadge visible={false} />}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setPhotoTarget({ stageId: s.id })}
+                              aria-label={t("work:stageRow.addStagePhotos", { name: s.name })}
+                            >
+                              <Icon name="add_a_photo" size={20} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditingStage(s)}
+                              aria-label={t("work:stageRow.editStage", { name: s.name })}
+                            >
+                              <Icon name="edit" size={20} />
+                            </Button>
+                          </>
+                        )
+                      }
+                    >
+                      {!!stagePhotos?.length && <PhotoThumbs photos={stagePhotos} className="mt-4 grid grid-cols-4 gap-2" />}
+                      {isManager && (
+                        <TaskAddForm
+                          rooms={rooms}
+                          onAdd={({ name, room_id }) => saveTask.mutate({ stage_id: s.id, name, room_id, sort_order: s.tasks.length + 1 })}
+                        />
                       )}
-                    {s.client_note && (
-                      <p className="mt-3 text-body-md text-on-surface-variant">
-                        {isManager && t("work:stageRow.noteForClient")}
-                        {s.client_note}
-                      </p>
-                    )}
-                  </StageRow>
-                </div>
-              );
-            })}
-          </StageRowList>
+                      {/* Tasks-mode stages follow their checklist already (database triggers); only manual ones can drift. */}
+                      {isManager &&
+                        s.progress_mode === "manual" &&
+                        fromChecklist !== null &&
+                        fromChecklist !== s.progress &&
+                        s.status !== "done" && (
+                          <Note size="sm" className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                            <span>
+                              {t("work:stageRow.checklistMismatch", {
+                                done,
+                                total: s.tasks.length,
+                                pct: fromChecklist,
+                                progress: s.progress,
+                              })}
+                            </span>
+                            <button
+                              type="button"
+                              className="font-medium text-primary hover:underline"
+                              onClick={() => {
+                                const progress = Math.min(fromChecklist, 99);
+                                saveStage.mutate({ id: s.id, progress, status: deriveStatus(s.status, progress) });
+                              }}
+                            >
+                              {t("work:stageRow.useChecklistPct", { pct: Math.min(fromChecklist, 99) })}
+                            </button>
+                          </Note>
+                        )}
+                      {s.client_note && (
+                        <p className="mt-3 text-body-md text-on-surface-variant">
+                          {isManager && t("work:stageRow.noteForClient")}
+                          {s.client_note}
+                        </p>
+                      )}
+                    </StageRow>
+                  </div>
+                );
+              })}
+            </StageRowList>
+          </>
         )}
 
         {isManager && (
