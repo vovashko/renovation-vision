@@ -937,21 +937,50 @@ backfilled). Best-effort: a failed sync never blocks the language switch.
 **Config and template changes only take effect after `supabase stop && supabase start`.**
 
 **Hosted setup checklist** (production/preview Supabase projects — the dashboard doesn't read this
-repo's `config.toml`):
+repo's `config.toml`). Steps 1–3 and 5–7 are done by hand, once per environment; step 4 is a script —
+see `scripts/push-auth-config.ts` below.
 
-1. Create a Brevo account and **verify a sender domain** (SPF + DKIM records) so RenoVision's From
-   address isn't flagged as spam.
-2. Brevo → SMTP & API → SMTP: copy the login + an **SMTP key** (not the transactional API key below).
-3. Supabase Dashboard → Authentication → Settings → SMTP Settings: enable custom SMTP, host
-   `smtp-relay.brevo.com`, port `587`, the Brevo SMTP login/key, sender name/email matching the
-   verified domain.
-4. Supabase Dashboard → Authentication → Email Templates: **paste each `supabase/templates/*.html`
-   file's content** (run `bun run email:build` first so they're current) and the matching subject
-   (copied verbatim from `config.toml`) into the matching template. (The CLI's `supabase config push`
-   can push `[auth.email.template.*]` to a linked hosted project instead of pasting by hand —
-   untested here, but worth trying before a manual paste becomes a recurring chore.)
-5. `wrangler secret put BREVO_API_KEY --env <preview|production>` for the **app** email path below
-   (a different credential: Brevo's transactional API key, not the SMTP key from step 2).
+1. **Brevo — verify the sender.** Either a full sender domain (SPF, DKIM, and ideally DMARC records
+   at your DNS provider) or, for now, a single verified sender address. Brevo → Senders, Domains &
+   Dedicated IPs. An unverified sender gets emails flagged as spam or rejected outright.
+2. **Brevo — turn off Authorized IPs.** Security → Authorized IPs. Workers and Supabase don't send
+   from a fixed IP, so an allow-list there would block every send; turn the setting off (or add
+   every sending IP, which isn't practical here).
+3. **Brevo — create an SMTP key.** SMTP & API → SMTP. This is a **different credential** from the
+   transactional API key (`BREVO_API_KEY`, used by the app email path below) — copy the login and
+   this SMTP key for step 4.
+4. **Push the auth config** with `scripts/push-auth-config.ts` (`bun run auth:push -- --env
+<preview|production>`): patches the hosted project's email templates/subjects, `site_url` +
+   redirect allow-list, and Brevo SMTP settings through the Management API
+   (`PATCH /v1/projects/{ref}/config/auth`) — **not** `supabase config push`, which would also push
+   this repo's local-only settings (`site_url = "http://localhost:5173"`, etc.) to the hosted
+   project. Run `bun run email:build` first so the templates are current. Required environment
+   variables (no fallbacks — a missing one fails with a list of names, never a secret):
+   - `SUPABASE_ACCESS_TOKEN` — a Supabase personal/org access token (Management API bearer;
+     [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens)), shared
+     across environments.
+   - `SUPABASE_PROJECT_REF_PREVIEW` / `SUPABASE_PROJECT_REF_PRODUCTION` — the hosted project's ref
+     for the `--env` you're pushing to.
+   - `APP_ORIGIN_PREVIEW` / `APP_ORIGIN_PRODUCTION` — that environment's deployed origin, no path or
+     trailing slash (e.g. `https://renovision-preview.<account>.workers.dev`).
+   - `BREVO_SMTP_LOGIN`, `BREVO_SMTP_KEY` — from step 3.
+   - `EMAIL_FROM` — the verified sender, `"RenoVision <no-reply@renovision.app>"`.
+
+   Run `bun run auth:push -- --env preview --dry-run` first: it prints the exact payload (SMTP
+   login/key masked) without calling the API, so you can check the templates, subjects, origin and
+   allow-list before anything is sent.
+
+5. `wrangler secret put BREVO_API_KEY --env <preview|production>` and `wrangler secret put
+EMAIL_FROM --env <preview|production>` for the **app** email path below (`BREVO_API_KEY` is
+   Brevo's transactional API key — a different credential from the SMTP key in step 3).
+6. Check that `SUPABASE_SECRET_KEY` is set for that Worker (`wrangler secret put SUPABASE_SECRET_KEY
+--env <preview|production>`), and leave `EMAIL_SANDBOX` **unset** there — setting it would add
+   Brevo's sandbox header to every real app email, silently dropping it.
+7. **Smoke test:** on the deployed environment, use "Forgot password" for a real inbox you control,
+   once with `profiles.locale` set to `pl` and once to `en`. Confirm the email arrives from the
+   Brevo sender (not Supabase's own mailer), in the right language, with the logo, and that the link
+   actually resets the password. Then check Brevo → Transactional → Logs for the matching send.
+   Invite emails are covered once T40 lands (the invite link changes there).
 
 **Optional: a Send Email Hook.** Supabase Auth also supports a
 [Send Email Hook](https://supabase.com/docs/guides/auth/auth-hooks/send-email-hook) — a Postgres
