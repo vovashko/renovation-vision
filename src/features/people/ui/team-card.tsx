@@ -1,6 +1,7 @@
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { UserAvatar } from "@/components/user-avatar";
@@ -9,11 +10,13 @@ import { CrewRow } from "./crew-row";
 
 /** The manager overview's team card: managers in the app, plus the site crew (project contacts in the crew role). */
 export function TeamCard({
+  projectId,
   managers,
   crew,
   onAdd,
   onEdit,
 }: {
+  projectId: string;
   managers: Member[];
   crew: ProjectContact[];
   onAdd: () => void;
@@ -49,6 +52,10 @@ export function TeamCard({
         ))}
       </ul>
       {crew.length === 0 && <p className="mt-2 text-body-md text-on-surface-variant">{t("team.addCrewHint")}</p>}
+      <Link to="/projects/$projectId/team" params={{ projectId }} className={buttonVariants({ variant: "ghost", className: "mt-2 -ml-3" })}>
+        {t("team.manageTeam")}
+        <Icon name="chevron_right" size={20} />
+      </Link>
     </Card>
   );
 }

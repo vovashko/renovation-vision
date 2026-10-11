@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { PageLoading } from "@/components/page-header";
 import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
 import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
+import { AddTeamPersonSheet } from "@/features/people/ui/add-team-person-sheet";
 import { ClientCard } from "@/features/people/ui/client-card";
 import { ClientContactSheet } from "@/features/people/ui/client-contact-sheet";
 import { CrewSheet } from "@/features/people/ui/crew-sheet";
@@ -19,7 +20,7 @@ import { StatusCard } from "./status-card";
 import { useRooms, useStages } from "@/features/work/hooks";
 import type { ProjectContact } from "@/lib/database.types";
 
-type Sheet = "details" | "contact" | "photo" | "expense" | null;
+type Sheet = "details" | "contact" | "photo" | "expense" | "addPerson" | null;
 
 /** The manager's home for a project: status and what needs attention, shortcuts, client and team. */
 export function ManagerOverview({ projectId }: { projectId: string }) {
@@ -30,16 +31,17 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const { data: members = [] } = useMembers(projectId);
   const { data: links = [] } = useProjectContacts(projectId);
   const [sheet, setSheet] = useState<Sheet>(null);
-  const [person, setPerson] = useState<ProjectContact | "new" | null>(null);
+  const [person, setPerson] = useState<ProjectContact | null>(null);
   const sheetProps = (name: Exclude<Sheet, null>) => ({ open: sheet === name, onOpenChange: (v: boolean) => setSheet(v ? name : null) });
   const openDetails = () => setSheet("details");
   const openContact = () => setSheet("contact");
-  const openNewPerson = () => setPerson("new");
+  const openAddPerson = () => setSheet("addPerson");
   const closeSheet = () => setSheet(null);
   const closePerson = () => setPerson(null);
   const detailsSheetProps = sheetProps("details");
   const contactSheetProps = sheetProps("contact");
   const photoSheetProps = sheetProps("photo");
+  const addPersonSheetProps = sheetProps("addPerson");
   const expenseSheetValue = sheet === "expense" ? "new" : null;
 
   if (!project || !stages || !rooms) return <PageLoading />;
@@ -93,7 +95,13 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
         <ShortcutsCard shortcuts={shortcuts} />
         <ClientCard projectId={projectId} client={client} appUsers={clientUsers} onEdit={openContact} />
         <div className="min-w-0 lg:col-span-2">
-          <TeamCard managers={members.filter((m) => m.role === "manager")} crew={crew} onAdd={openNewPerson} onEdit={setPerson} />
+          <TeamCard
+            projectId={projectId}
+            managers={members.filter((m) => m.role === "manager")}
+            crew={crew}
+            onAdd={openAddPerson}
+            onEdit={setPerson}
+          />
         </div>
       </div>
 
@@ -106,7 +114,8 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
       />
       <UploadSheet projectId={projectId} stages={stages} rooms={rooms} {...photoSheetProps} />
       <ExpenseSheet projectId={projectId} stages={stages} expense={expenseSheetValue} onClose={closeSheet} />
-      <CrewSheet projectId={projectId} links={links} person={person} onClose={closePerson} />
+      <AddTeamPersonSheet projectId={projectId} links={links} {...addPersonSheetProps} />
+      <CrewSheet projectId={projectId} person={person} onClose={closePerson} />
     </div>
   );
 }

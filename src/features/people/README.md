@@ -5,9 +5,11 @@ and the project's contacts from the company address book (`contacts` + `project_
 primary client contact and the point of contact (PoC). Clients read only the client-visible contacts, through the
 `project_visible_contacts(project)` RPC.
 
-- **Routes:** `/team`; cards on the project overview (manager: client card + team card; client: "Your contact")
-- **UI:** `MemberRow`, `AddMemberForm`, `TeamCard`/`CrewRow`/`CrewSheet` (crew: add = new contact + link,
-  remove = unlink, the contact stays in the book), `ClientCard`/`ClientContactSheet` (the primary client contact),
+- **Routes:** `/team` (managers and crew; clients are set on the client card); cards on the project overview
+  (manager: client card + team card; client: "Your contact")
+- **UI:** `MemberItem`, `AddTeamPersonSheet` (manager by email, or crew: a contact only), `TeamCard`/`CrewRow`/`CrewSheet`
+  (crew: edit, remove = unlink, the contact stays in the book), `ClientCard`/`ClientContactSheet` (saves through
+  `set_project_client`; access status from `domain/client-access.ts`),
   `YourContactCard` (client overview)
 - **i18n namespace:** `people` (`useTranslation(["people", "common"])`)
 

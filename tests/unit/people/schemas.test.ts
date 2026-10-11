@@ -1,27 +1,19 @@
 import { describe, it, expect } from "vitest";
-import { clientContactSchema, crewFormSchema, memberFormSchema } from "@/features/people/domain/schemas";
+import { addManagerSchema, clientContactSchema, crewFormSchema } from "@/features/people/domain/schemas";
 
-describe("memberFormSchema", () => {
-  it("accepts a valid email and role", () => {
-    const result = memberFormSchema.safeParse({ email: "sarah@renovision.demo", role: "client" });
-    expect(result.success).toBe(true);
+describe("addManagerSchema", () => {
+  it("accepts a valid email", () => {
+    expect(addManagerSchema.safeParse({ email: "jonas@renovision.demo" }).success).toBe(true);
   });
 
   it("rejects an empty email", () => {
-    const result = memberFormSchema.safeParse({ email: "", role: "client" });
-    expect(result.success).toBe(false);
+    const result = addManagerSchema.safeParse({ email: "" });
     expect(result.success ? undefined : result.error.issues[0].message).toBe("common:form.required");
   });
 
   it("rejects a malformed email", () => {
-    const result = memberFormSchema.safeParse({ email: "not-an-email", role: "manager" });
-    expect(result.success).toBe(false);
+    const result = addManagerSchema.safeParse({ email: "not-an-email" });
     expect(result.success ? undefined : result.error.issues[0].message).toBe("common:form.invalidEmail");
-  });
-
-  it("rejects a role outside client/manager", () => {
-    const result = memberFormSchema.safeParse({ email: "sarah@renovision.demo", role: "admin" });
-    expect(result.success).toBe(false);
   });
 });
 

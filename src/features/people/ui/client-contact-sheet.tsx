@@ -32,7 +32,7 @@ export function ClientContactSheet({
   defaultName: string;
 }) {
   const { t } = useTranslation(["people", "common"]);
-  const save = useSaveClientContact(projectId, client);
+  const save = useSaveClientContact(projectId);
   const form = useZodForm(clientContactSchema, toForm(client, defaultName));
 
   return (
@@ -56,7 +56,7 @@ export function ClientContactSheet({
         <FormField control={form.control} name="phone" label={t("clientContact.phone")}>
           {(field) => <Input type="tel" autoComplete="off" {...field} />}
         </FormField>
-        <FormField control={form.control} name="email" label={t("clientContact.email")}>
+        <FormField control={form.control} name="email" label={t("clientContact.email")} description={t("clientContact.emailHint")}>
           {(field) => <Input type="email" autoComplete="off" {...field} />}
         </FormField>
         <Button type="submit" disabled={save.isPending} className="w-full">
