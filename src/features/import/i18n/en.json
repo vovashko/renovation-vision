@@ -1,1 +1,102 @@
-{}
+{
+  "button": {
+    "stages": "Import",
+    "materials": "Import"
+  },
+  "title": {
+    "stages": "Import stages and tasks",
+    "materials": "Import materials"
+  },
+  "description": {
+    "stages": "Add stages with their tasks from a spreadsheet. Nothing is saved until every row is valid.",
+    "materials": "Add materials from a spreadsheet. Rooms, stages and suppliers are matched by name. Nothing is saved until every row is valid."
+  },
+  "pick": {
+    "label": "Spreadsheet file",
+    "hint": "CSV or XLSX, up to 5 MB. The first row holds the column names.",
+    "templates": "Start from a template",
+    "templateEn": "English ({{format}})",
+    "templatePl": "Polish ({{format}})",
+    "reading": "Reading the file…"
+  },
+  "stagesHelp": "One line per task. A line with a stage name starts a stage. Lines with the same name, or none, add tasks to it.",
+  "fileErrors": {
+    "too_large": "That file is larger than 5 MB.",
+    "unsupported": "Pick a .csv or .xlsx file.",
+    "empty": "The file has no data.",
+    "unreadable": "The file couldn't be read. Check that it isn't damaged or password-protected."
+  },
+  "map": {
+    "title": "Match the columns",
+    "description": "We matched {{file}} by column name. Check each field and fix any that are wrong.",
+    "notMapped": "Not in the file",
+    "required": "required",
+    "missing": "Choose a column for: {{fields}}."
+  },
+  "fields": {
+    "name": "Name",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "client_note": "Client note",
+    "task": "Task",
+    "room": "Room",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "unit_price": "Unit price",
+    "status": "Status",
+    "stage": "Stage",
+    "supplier": "Supplier",
+    "notes": "Notes"
+  },
+  "preview": {
+    "title": "Check the rows",
+    "summaryStages": "{{stages}} stages with {{tasks}} tasks are ready to import.",
+    "summaryMaterials": "{{count}} materials are ready to import.",
+    "problems_one": "{{count}} problem to fix in the file before importing.",
+    "problems_other": "{{count}} problems to fix in the file before importing.",
+    "problemsHint": "Fix them in your spreadsheet, then pick the file again.",
+    "row": "Row {{row}}",
+    "rowField": "Row {{row}}, {{field}}",
+    "moreRows": "and {{count}} more rows",
+    "stageColumn": "Stage",
+    "tasksColumn": "Tasks"
+  },
+  "issues": {
+    "required": "is required",
+    "too_long": "is too long",
+    "invalid_date": "isn't a valid date (use 2026-03-01 or 01.03.2026)",
+    "end_before_start": "is before the start date",
+    "dates_differ": "doesn't match the dates of the stage above",
+    "task_without_stage": "has a task but no stage above it",
+    "not_a_number": "isn't a number",
+    "must_be_positive": "must be more than zero",
+    "must_not_be_negative": "can't be negative",
+    "too_large": "is too large",
+    "invalid_status": "isn't a status (planned, ordered, delivered or installed)",
+    "invalid_unit": "is too long for a unit",
+    "not_found": "wasn't found in this project",
+    "ambiguous": "matches more than one",
+    "room_not_found": "wasn't found in this project",
+    "room_ambiguous": "matches more than one room",
+    "too_many_rows": "is past the row limit",
+    "invalid": "is not valid"
+  },
+  "actions": {
+    "back": "Back",
+    "next": "Continue",
+    "import": "Import",
+    "importing": "Importing…",
+    "done": "Done",
+    "another": "Import another file"
+  },
+  "done": {
+    "stages": "Imported {{stages}} stages and {{tasks}} tasks.",
+    "materials": "Imported {{count}} materials."
+  },
+  "errors": {
+    "notReady": "Fix the problems in the file first.",
+    "rowsRejected": "The project rejected some rows. Nothing was imported.",
+    "forbidden": "Only project managers can import.",
+    "rateLimited": "Too many requests. Try again in a minute."
+  }
+}
