@@ -37,8 +37,8 @@ insert into storage.objects (bucket_id, name) values
 insert into auth.users (id, email, aud, role) values
   ('a0000000-0000-4000-8000-0000000000ff', 'other@renovision.demo', 'authenticated', 'authenticated');
 insert into public.profiles (id, full_name, account_type)
-values ('a0000000-0000-4000-8000-0000000000ff', 'Other Manager', 'manager')
-on conflict (id) do update set account_type = 'manager';
+values ('a0000000-0000-4000-8000-0000000000ff', 'Other Manager', 'admin')
+on conflict (id) do update set account_type = 'admin';
 
 -- ===========================================================================
 -- Client: Sarah
@@ -106,7 +106,7 @@ begin
   end;
 
   begin
-    update public.profiles set account_type = 'manager' where id = auth.uid();
+    update public.profiles set account_type = 'admin' where id = auth.uid();
     raise exception 'FAILED: client promoted themselves';
   exception when insufficient_privilege then null;
   end;

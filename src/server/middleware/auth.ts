@@ -4,7 +4,7 @@
 //
 //   authedFn(...)                                         // = requireUser (+ boundary, rate limit)
 //     .middleware([requireAal2])                          // 403 unless the session is MFA-verified
-//     .middleware([requireAccountType("manager", "admin")]) // 403 unless profiles.account_type matches
+//     .middleware([requireStaff])                         // 403 unless profiles.account_type is staff (admin)
 //     .middleware([requireProjectRole((i: { projectId: string }) => i.projectId, "manager")])
 //
 // requireUser:
@@ -20,6 +20,7 @@
 // ../auth.server.ts and is only referenced inside `.server()`, which the Start compiler strips
 // from the client build together with those imports.
 import { createMiddleware } from "@tanstack/react-start";
+import { isStaff } from "@/domain/account";
 import type { Enums } from "@/lib/database.types";
 import { supabase as browserSupabase } from "@/lib/supabase";
 import type { ServerSupabase } from "@/lib/supabase/server";
@@ -65,21 +66,16 @@ export const requireAal2 = createMiddleware({ type: "function" })
     return next();
   });
 
-/**
- * 403 unless `profiles.account_type` is one of `allowed` ("manager" | "client" | "admin", from the
- * generated `account_type` enum). Adds `accountType` to the context.
- */
-export function requireAccountType(...allowed: [AccountType, ...AccountType[]]) {
-  return createMiddleware({ type: "function" })
-    .middleware([requireUser])
-    .server(async ({ next, context }) => {
-      const accountType = await loadAccountType(context);
-      if (!accountType || !allowed.includes(accountType)) {
-        throw new ServerFnError("FORBIDDEN", "Your account can't do this", { reason: `account_type_${allowed.join("_or_")}_required` });
-      }
-      return next({ context: { accountType } });
-    });
-}
+/** 403 unless `profiles.account_type` is staff (`admin`, shown as "Manager"). Adds `accountType` to the context. */
+export const requireStaff = createMiddleware({ type: "function" })
+  .middleware([requireUser])
+  .server(async ({ next, context }) => {
+    const accountType = await loadAccountType(context);
+    if (!isStaff(accountType)) {
+      throw new ServerFnError("FORBIDDEN", "Your account can't do this", { reason: "staff_required" });
+    }
+    return next({ context: { accountType } });
+  });
 
 /**
  * 403 unless the caller is a `role` ("member" = any role) on the project that `projectIdFrom`

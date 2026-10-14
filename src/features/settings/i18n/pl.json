@@ -69,9 +69,8 @@
     },
     "type": {
       "title": "Typ konta",
-      "manager": "Kierownik",
       "client": "Klient",
-      "admin": "Administrator"
+      "admin": "Kierownik"
     }
   }
 }

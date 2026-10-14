@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { UserAvatar } from "@/components/user-avatar";
 import { ManagerBadge } from "@/components/manager/manager-badge";
+import { isStaff } from "@/domain/account";
 import { useAuth } from "@/lib/auth";
 
 /** Name, photo, email and the manager badge, centered at the top of the panel. */
@@ -28,7 +29,7 @@ function ProfileIdentity({ name, email, isManager }: { name: string; email: stri
 export function ProfilePanel({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { t } = useTranslation(["common"]);
   const { profile, email, signOut } = useAuth();
-  const isManager = profile?.account_type === "manager";
+  const isManager = isStaff(profile?.account_type);
   const name = profile?.full_name ?? "";
 
   return (

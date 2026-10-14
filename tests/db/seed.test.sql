@@ -14,8 +14,8 @@ end $$;
 -- auth.identities row the current GoTrue needs for password sign-in.
 -- ---------------------------------------------------------------------------
 select pg_temp.check(
-  (select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000001') = 'manager',
-  'Jonas is a manager'
+  (select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000001') = 'admin',
+  'Jonas is a manager (account type admin)'
 );
 select pg_temp.check(
   (select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000002') = 'client',
@@ -27,7 +27,7 @@ select pg_temp.check(
 );
 select pg_temp.check(
   (select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000004') = 'admin',
-  'the demo admin is an admin'
+  'the demo admin is a manager account too'
 );
 -- The local/demo seed turns staff 2FA enforcement off (the demo manager has no TOTP factor).
 select pg_temp.check(

@@ -1,22 +1,21 @@
 // Where 2FA sends someone, as pure decisions (the routes' beforeLoad hooks turn them into redirects).
 //
-// Staff (`manager`/`admin` account types) need an MFA-verified (aal2) session while
+// Staff (the `admin` account type, shown as "Manager") need an MFA-verified (aal2) session while
 // `public.staff_mfa_required()` is true: the restrictive RLS policies hide internal data from an
 // aal1 staff session anyway (README → Roles & 2FA enforcement), so the UI sends them to the 2FA
 // screen instead of showing half-empty pages. Clients are never forced.
 //
 // These decide navigation only: RLS is the enforcement. So when the setting can't be read the UI
 // fails OPEN (lets them through and logs a warning) rather than locking everyone out.
+import { isStaff } from "@/domain/account";
 
 /** The session's authenticator assurance level (the JWT `aal` claim). */
 export type Aal = "aal1" | "aal2";
 
 export type MfaStep = "pass" | "challenge" | "enroll";
 
-const STAFF = ["manager", "admin"];
-
-/** `manager` and `admin` accounts (`private.is_staff()` in SQL). */
-export const isStaffAccount = (accountType: string | null | undefined) => !!accountType && STAFF.includes(accountType);
+/** Staff accounts (`private.is_staff()` in SQL). */
+export const isStaffAccount = isStaff;
 
 export type StaffMfaInput = {
   accountType: string | null | undefined;

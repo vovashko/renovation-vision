@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
+import { isStaff } from "@/domain/account";
 import { useMe } from "../hooks/use-me";
 
 /** Account section on /settings: the two-factor status and account type, as the server reports them (getMe). */
@@ -11,9 +12,7 @@ export function AccountCard({ className }: { className?: string }) {
 
   const pending = me.isPending ? t("common:state.loading") : t("account.unavailable");
   const twoFactor = me.data ? (me.data.aal === "aal2" ? t("account.twoFactor.on") : t("account.twoFactor.off")) : pending;
-  const accountType = me.data
-    ? t(`account.type.${me.data.accountType === "manager" || me.data.accountType === "admin" ? me.data.accountType : "client"}` as const)
-    : pending;
+  const accountType = me.data ? t(isStaff(me.data.accountType) ? "account.type.admin" : "account.type.client") : pending;
 
   return (
     <Card className={className}>
