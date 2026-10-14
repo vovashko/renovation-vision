@@ -24,13 +24,13 @@ file names, version/room grouping; `schemas.ts`: zod forms) · `data/documents.r
   current version and, below it, the older ones. Archiving the current version promotes the newest older one.
 - **Installation photos:** `room_id` is required, `task_id` (a work) optional; both must belong to the project (guard
   trigger). Shown as a gallery grouped by room. jpeg/png/webp photos are re-encoded in the browser like site photos
-  (EXIF/GPS dropped); HEIC is uploaded as is.
+  (EXIF/GPS dropped); HEIC is converted to JPEG in the browser first.
 - **Invoices:** a plain file list. No payment status, amount or link to expenses. **Warranties / manuals:** list with a
   description.
 - **Archive, never delete:** `archived_at`. Archived documents are hidden from the investor (RLS) and from the
   manager's default list (a toggle shows them). There is no DELETE privilege or policy on `documents`, and storage
   objects a row points at cannot be deleted by the API (only orphans left by a failed row insert).
-- **Upload hardening:** mime allow-list pdf, jpeg, png, webp, heic, docx, xlsx; max 25 MB; the extension must match the
+- **Upload hardening:** mime allow-list pdf, jpeg, png, webp, docx, xlsx (a HEIC pick is converted to JPEG before upload); max 25 MB; the extension must match the
   mime type; the stored object name is `<project_id>/<category>/<uuid>.<ext>` and `file_name` is a sanitized name
   (`safeFileName`). The same limits are enforced by the table's check constraints and the bucket.
 - Documents from investor decisions (#55) are **not** added automatically.

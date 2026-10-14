@@ -3,15 +3,15 @@ import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { mediaRepo, type RenderInput } from "@/features/media/data/media.repo";
-import { reencodeImage } from "@/features/media/domain/strip-exif";
-import { shouldReencode } from "@/features/media/domain/upload";
+import { normalizeImage } from "@/features/media/domain/normalize-image";
+import { shouldNormalize } from "@/features/media/domain/upload";
 import { deleteRender } from "@/server/functions/media";
 import type { Render } from "@/lib/database.types";
 
-/** Strips EXIF/GPS and caps dimensions before upload (renders only ever accept jpeg/png/webp — see domain/upload.ts). */
+/** Strips EXIF/GPS and caps dimensions before upload; a HEIC render is converted to JPEG. */
 async function prepareRenderInput(input: RenderInput): Promise<RenderInput> {
-  if (!input.file || !shouldReencode(input.file.type)) return input;
-  const { file } = await reencodeImage(input.file);
+  if (!input.file || !shouldNormalize(input.file)) return input;
+  const { file } = await normalizeImage(input.file);
   return { ...input, file };
 }
 

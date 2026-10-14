@@ -768,22 +768,31 @@ Site photos and design renders (`features/media`) are validated and sanitized cl
 (`features/media/domain/upload.ts`, `strip-exif.ts` — pure rules kept separate from the canvas work so they're
 unit-testable):
 
-- **Mime type and size**, checked against the `project-media` bucket's rules: jpeg/png/webp/heic for photos
-  (jpeg/png/webp only for renders — a render is never HEIC), 15 MB max. A rejected file shows a translated error on
+- **Mime type and size**, checked against the `project-media` bucket's rules: jpeg/png/webp, 15 MB max. A HEIC/HEIF
+  pick (by mime or extension — Chrome often reports an empty type for `.heic`) passes validation because it is
+  converted to JPEG before upload; the buckets themselves no longer accept `image/heic`. A rejected file shows a translated error on
   the form field (the upload/render zod schemas call `validateFile`).
 - **EXIF/GPS stripping.** A standard raster image (jpeg/png/webp) is re-encoded: `createImageBitmap` decodes it,
   the longest edge is capped at 2560px, and it's redrawn to a canvas (`OffscreenCanvas` when available) and
   exported as JPEG at quality 0.9 — redrawing drops every metadata segment, EXIF/GPS included. The capture date
   (EXIF `DateTimeOriginal`, read with [`exifr`](https://github.com/MikeKovarik/exifr) **before** re-encoding, since
   that destroys it) becomes the photo's `taken_at` instead of "now".
-- **HEIC** can't be canvas-decoded by browsers, so it's uploaded unchanged — the upload sheet shows a translated
-  note that its location data may still be present. Its capture date is still read with `exifr`, which parses HEIC's
-  EXIF box the same way.
+- **HEIC → JPEG** (`normalizeImage`, `features/media/domain/normalize-image.ts`). The capture date is read from the
+  original with `exifr` (it parses HEIC's EXIF box). The file is then decoded natively with `createImageBitmap`
+  where the browser can (Safari 17+), otherwise by [`heic-to`](https://github.com/hoppergee/heic-to) (libheif
+  compiled to WASM), and goes through the same `reencodeImage` canvas step, so the stored file is a JPEG without
+  EXIF/GPS. The same call covers site photos, renders, documents (HEIC, and installation photos), decision photos and
+  expense-receipt images. A failed decode shows a translated error (`media:upload.heicConversionFailed`).
+  - **Licence note.** `heic-to` is LGPL-3.0. It is shipped unmodified, as a separate lazily imported chunk
+    (`import("heic-to/csp")`), fetched only when a HEIC file is picked; replacing it is a package swap.
+  - **CSP.** Compiling the WASM needs `'wasm-unsafe-eval'` in production `script-src` (next to the nonce). It permits
+    WebAssembly compilation only, not JS `eval`. The `heic-to/csp` build is used so the loader needs no `unsafe-eval`.
 - `reencodeImage`'s canvas path needs `createImageBitmap` and a real 2D canvas, neither available in jsdom (no
   `canvas` npm polyfill here): `tests/unit/media/strip-exif.test.ts` covers the pure rules and `extractTakenAt`
   (against `tests/fixtures/gps.jpg`, a hand-built JPEG carrying GPS + `DateTimeOriginal` EXIF); the re-encode path
   was checked by hand against the running app (upload → download the stored object → `exifr` shows no GPS and the
-  right `taken_at`), not in this suite.
+  right `taken_at`), not in this suite. `tests/unit/media/normalize-image.test.ts` mocks both decoders and covers the
+  routing (extension-only HEIC, native vs `heic-to`, error surface).
 
 **Atomic deletes.** `deletePhoto`, `deleteRender` and `deleteExpense` (`src/server/functions/{media,expenses}.ts`) are
 manager-only server functions (`authedFn` + `requireProjectRole(..., "manager")`) that delete the DB row and then

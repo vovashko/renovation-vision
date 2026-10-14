@@ -53,7 +53,8 @@ describe("buildCsp", () => {
 
   it("outside dev, script-src is 'self' plus the request's nonce, and never 'unsafe-inline'", () => {
     const csp = buildCsp({ supabaseUrl: SUPABASE_URL, isDev: false, nonce: NONCE });
-    expect(csp).toContain(`script-src 'self' 'nonce-${NONCE}'`);
+    expect(csp).toContain(`script-src 'self' 'nonce-${NONCE}' 'wasm-unsafe-eval'`);
+    expect(csp).not.toMatch(/script-src[^;]*'unsafe-eval'/); // wasm-unsafe-eval is WebAssembly only, not JS eval
     expect(csp).not.toContain("unsafe-inline' 'nonce"); // no unsafe-inline anywhere in script-src
     const scriptSrc = csp.split("; ").find((d) => d.startsWith("script-src"));
     expect(scriptSrc).not.toContain("unsafe-inline");

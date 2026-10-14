@@ -10,6 +10,8 @@ import {
   allowedMimeTypes,
   capDimensions,
   isHeic,
+  isHeicFile,
+  shouldNormalize,
   MAX_DIMENSION,
   MAX_UPLOAD_BYTES,
   reencodeOutputType,
@@ -29,9 +31,12 @@ describe("allowedMimeTypes / validateFile", () => {
     expect(validateFile({ type: "image/gif", size: 1024 }, "photo")).toBe("type");
   });
 
-  it("rejects HEIC for renders (jpeg/png/webp only)", () => {
+  it("storage only allows jpeg/png/webp; a HEIC pick passes validation because it is converted first", () => {
     expect(allowedMimeTypes("render")).not.toContain("image/heic");
-    expect(validateFile({ type: "image/heic", size: 1024 }, "render")).toBe("type");
+    expect(allowedMimeTypes("photo")).not.toContain("image/heic");
+    expect(validateFile({ type: "image/heic", size: 1024 }, "render")).toBeNull();
+    expect(validateFile({ name: "IMG_1.HEIC", type: "", size: 1024 }, "photo")).toBeNull();
+    expect(validateFile({ name: "a.pdf", type: "application/pdf", size: 1024 }, "render")).toBe("type");
     expect(validateFile({ type: "image/jpeg", size: 1024 }, "render")).toBeNull();
   });
 
@@ -50,6 +55,11 @@ describe("isHeic / shouldReencode / reencodeOutputType", () => {
     expect(isHeic("image/heic")).toBe(true);
     expect(isHeic("image/heif")).toBe(true);
     expect(isHeic("image/jpeg")).toBe(false);
+    expect(isHeicFile({ name: "IMG_1.HEIC", type: "" })).toBe(true);
+    expect(isHeicFile({ name: "a.heif", type: "application/octet-stream" })).toBe(true);
+    expect(isHeicFile({ name: "a.jpg", type: "image/jpeg" })).toBe(false);
+    expect(shouldNormalize({ name: "a.heic", type: "" })).toBe(true);
+    expect(shouldNormalize({ name: "a.pdf", type: "application/pdf" })).toBe(false);
     expect(shouldReencode("image/jpeg")).toBe(true);
     expect(shouldReencode("image/png")).toBe(true);
     expect(shouldReencode("image/webp")).toBe(true);

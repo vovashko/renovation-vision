@@ -17,16 +17,20 @@ export const JPEG_QUALITY = 0.9;
 const STANDARD_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const HEIC_TYPES = ["image/heic", "image/heif"] as const;
 
-/** Mime types accepted for each kind of media upload (the `project-media` bucket also allows `application/pdf`, for chat attachments — out of this feature's scope). */
-export function allowedMimeTypes(kind: MediaKind): readonly string[] {
-  return kind === "photo" ? [...STANDARD_IMAGE_TYPES, ...HEIC_TYPES] : STANDARD_IMAGE_TYPES; // renders are never HEIC
+/**
+ * Mime types the storage buckets accept (the `project-media` bucket also allows `application/pdf`, for chat
+ * attachments — out of this feature's scope). HEIC is not among them: it is converted to JPEG in the browser
+ * before upload (see ./normalize-image), so `validateFile` lets a HEIC pick through.
+ */
+export function allowedMimeTypes(_kind: MediaKind): readonly string[] {
+  return STANDARD_IMAGE_TYPES;
 }
 
 export type FileRejection = "type" | "size";
 
 /** Checks a file against the kind's mime/size rules. Returns the failing rule, or null when it's fine. */
-export function validateFile(file: { type: string; size: number }, kind: MediaKind): FileRejection | null {
-  if (!allowedMimeTypes(kind).includes(file.type)) return "type";
+export function validateFile(file: { name?: string; type: string; size: number }, kind: MediaKind): FileRejection | null {
+  if (!isHeicFile(file) && !allowedMimeTypes(kind).includes(file.type)) return "type";
   if (file.size > MAX_UPLOAD_BYTES) return "size";
   return null;
 }
@@ -35,10 +39,20 @@ export function isHeic(mimeType: string): boolean {
   return (HEIC_TYPES as readonly string[]).includes(mimeType);
 }
 
+/** HEIC/HEIF by mime type or by file extension (Chrome often reports an empty `type` for `.heic`). */
+export function isHeicFile(file: { name?: string; type: string }): boolean {
+  return isHeic(file.type.toLowerCase()) || /\.(heic|heif)$/i.test(file.name ?? "");
+}
+
+/** Whether `normalizeImage` should process this file: a standard raster image or a HEIC/HEIF photo. */
+export function shouldNormalize(file: { name?: string; type: string }): boolean {
+  return isHeicFile(file) || shouldReencode(file.type);
+}
+
 /**
  * Whether a file should be re-encoded (EXIF/GPS stripped, dimensions capped) before upload: a
- * standard raster image the browser can decode via `createImageBitmap`. Browsers can't
- * canvas-decode HEIC, so it's uploaded as-is (see the HEIC note shown in the upload sheet).
+ * standard raster image the browser can decode via `createImageBitmap`. HEIC is
+ * converted to JPEG first (see `shouldNormalize` and ./normalize-image).
  */
 export function shouldReencode(mimeType: string): boolean {
   return (STANDARD_IMAGE_TYPES as readonly string[]).includes(mimeType);
