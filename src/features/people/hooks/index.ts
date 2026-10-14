@@ -6,6 +6,7 @@ import type { Member, ProjectContact, ProjectRole } from "@/lib/database.types";
 import { peopleRepo } from "../data/people.repo";
 import { nextSortOrder, toContactFields } from "../domain/contacts";
 import type { ClientContactValues, CrewFormValues } from "../domain/schemas";
+import { usePeopleErrorText } from "./errors";
 
 export const useMembers = (projectId: string) =>
   useQuery({ queryKey: keys.members(projectId), queryFn: () => peopleRepo.listMembers(projectId) });
@@ -28,9 +29,11 @@ const contactKeys = (projectId: string) => [
 
 export function useAddMember(projectId: string) {
   const { t } = useTranslation(["people"]);
+  const errorText = usePeopleErrorText();
   return useMutationWithToast((vars: { email: string; role: ProjectRole }) => peopleRepo.addMember(projectId, vars.email, vars.role), {
     invalidate: [keys.members(projectId)],
     success: (vars) => t("team.added", { email: vars.email }),
+    error: errorText,
   });
 }
 
@@ -76,16 +79,13 @@ export function useRemoveCrew(projectId: string) {
   });
 }
 
-/** Saves the client card: edits the primary client contact, or creates and links one when there is none. */
-export function useSaveClientContact(projectId: string, client: ProjectContact | undefined) {
+/** Saves the client card through `set_project_client`; the client's access follows the email, so members refresh too. */
+export function useSaveClientContact(projectId: string) {
   const { t } = useTranslation(["people"]);
-  return useMutationWithToast(
-    (values: ClientContactValues) => {
-      const fields = { ...toContactFields(values), full_name: values.full_name };
-      return client
-        ? peopleRepo.updateContact(client.contact_id, fields)
-        : peopleRepo.addProjectContact(projectId, { kind: "client", role: "client", fields, isPrimary: true });
-    },
-    { invalidate: contactKeys(projectId), success: t("clientContact.saved") },
-  );
+  const errorText = usePeopleErrorText();
+  return useMutationWithToast((values: ClientContactValues) => peopleRepo.setProjectClient(projectId, values), {
+    invalidate: [...contactKeys(projectId), keys.members(projectId)],
+    success: t("clientContact.saved"),
+    error: errorText,
+  });
 }

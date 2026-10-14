@@ -1,12 +1,8 @@
 {
   "team": {
     "pageTitle": "Team",
-    "pageDescription": "Clients see visible project data in the RenoVision app. Managers can edit everything here.",
+    "pageDescription": "Managers on this project and the site crew. The client is set on the client card.",
     "emptyDescription": "No members yet.",
-    "addByEmail": "Add by email",
-    "addByEmailHint": "They need a RenoVision account first.",
-    "role": "Role",
-    "add": "Add",
     "clientBadge": "Client",
     "managerBadge": "Manager",
     "you": "(you)",
@@ -19,19 +15,25 @@
     "heading": "Team on this project",
     "addPerson": "Add person",
     "projectManager": "Project manager",
-    "addCrewHint": "Add the site lead and trades so their numbers are one tap away."
+    "addCrewHint": "Add the site lead and trades so their numbers are one tap away.",
+    "clientNote": "Clients aren't listed here.",
+    "clientNoteLink": "Set the client on the project overview.",
+    "manageTeam": "Manage team"
   },
   "client": {
     "heading": "Client",
     "editAria": "Edit client contact details",
     "fallbackName": "Client",
-    "inApp": "In the app: {{names}}",
-    "notInvited": "Not invited to the app yet",
     "noPhone": "No phone number yet",
     "noEmail": "No email yet",
     "message": "Message",
     "call": "Call",
-    "email": "Email"
+    "email": "Email",
+    "access": {
+      "access": "Has access",
+      "waiting": "Waiting for an account",
+      "none": "No email"
+    }
   },
   "clientContact": {
     "title": "Client contact",
@@ -41,7 +43,8 @@
     "phone": "Phone",
     "email": "Email",
     "submit": "Save contact",
-    "saved": "Client contact saved"
+    "saved": "Client contact saved",
+    "emailHint": "Gives them access to the project once they have an account."
   },
   "crew": {
     "addTitle": "Add a person",
@@ -77,5 +80,29 @@
       "supplier": "Supplier",
       "architect": "Architect"
     }
+  },
+  "addPerson": {
+    "title": "Add a person",
+    "description": "Pick what this person needs.",
+    "kind": "Type",
+    "manager": "Manager",
+    "crew": "Crew",
+    "managerEmail": "Email",
+    "managerHint": "Gives them access to the app. They need a manager account first.",
+    "crewHint": "Crew are contacts only. This doesn't give them access to the app.",
+    "submitManager": "Add manager",
+    "submitCrew": "Add crew member"
+  },
+  "errors": {
+    "client_is_project_manager": "This person manages the project, so they can't be its client.",
+    "manager_is_project_client": "This person is the project's client, so they can't manage it.",
+    "project_already_has_client": "This project already has a client.",
+    "client_email_in_use": "Another client already uses this email.",
+    "client_role_not_allowed": "Clients are added on the client card.",
+    "manager_requires_staff_account": "Only manager accounts can manage a project.",
+    "client_name_required": "The client needs a name.",
+    "not_project_manager": "Only project managers can do this.",
+    "mfa_required": "Two-factor verification is required.",
+    "account_not_found": "No RenoVision account uses this email yet. Ask them to sign up first."
   }
 }

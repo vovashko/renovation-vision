@@ -32,8 +32,12 @@ function checkPostalCode(values: { country: string; postal_code: string }, ctx: 
   }
 }
 
-/** The "New project" sheet. `client_name`, when given, becomes the project's primary client contact. */
-export const newProjectSchema = z.object({ ...projectFields, client_name: z.string().trim() }).superRefine(checkPostalCode);
+const optionalEmail = z.union([z.literal(""), z.string().trim().email("common:form.invalidEmail")]);
+
+/** The "New project" sheet. `client_name`, when given, becomes the project's client; `client_email` gives them access. */
+export const newProjectSchema = z
+  .object({ ...projectFields, client_name: z.string().trim(), client_email: optionalEmail.default("") })
+  .superRefine(checkPostalCode);
 export type NewProjectValues = z.output<typeof newProjectSchema>;
 
 /** The manager's "Project details" sheet. The client's name and contact details live on the client card. */

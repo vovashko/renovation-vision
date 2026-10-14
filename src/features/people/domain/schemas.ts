@@ -1,11 +1,10 @@
 import { z } from "zod";
 
-/** The Team page's "add by email" form. */
-export const memberFormSchema = z.object({
+/** The "Add person" sheet's manager tab: an existing manager account, by email. Clients are added on the client card. */
+export const addManagerSchema = z.object({
   email: z.string().trim().min(1, "common:form.required").email("common:form.invalidEmail"),
-  role: z.enum(["client", "manager"], { message: "common:form.invalid" }),
 });
-export type MemberFormValues = z.output<typeof memberFormSchema>;
+export type AddManagerValues = z.output<typeof addManagerSchema>;
 
 const optionalEmail = z.union([z.literal(""), z.string().trim().email("common:form.invalidEmail")]);
 
@@ -17,6 +16,7 @@ export const crewFormSchema = z.object({
   email: optionalEmail,
 });
 export type CrewFormValues = z.output<typeof crewFormSchema>;
+export const emptyCrew: CrewFormValues = { full_name: "", trade: "", phone: "", email: "" };
 
 /** The manager-only client contact sheet on the overview: the project's primary client contact. */
 export const clientContactSchema = z.object({

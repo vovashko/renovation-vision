@@ -17,6 +17,7 @@ const emptyProject: NewProjectValues = {
   currency: "PLN",
   status: "active",
   client_name: "",
+  client_email: "",
   start_date: "",
   target_date: "",
   budget: 0,
@@ -41,6 +42,14 @@ export function NewProjectForm({ onSubmit, saving }: { onSubmit: (values: NewPro
           description={t("newProject.clientNameHint")}
         >
           {(field) => <Input {...field} />}
+        </FormField>
+        <FormField
+          control={form.control}
+          name="client_email"
+          label={t("newProject.clientEmail")}
+          description={t("newProject.clientEmailHint")}
+        >
+          {(field) => <Input type="email" autoComplete="off" {...field} />}
         </FormField>
         <div className="grid grid-cols-2 gap-3">
           <FormField control={form.control} name="start_date" label={t("newProject.start")}>

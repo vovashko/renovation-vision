@@ -16,11 +16,21 @@ export type NewProjectContact = {
   visibleToClient?: boolean;
 };
 
-type Result<T> = { data: T | null; error: { message: string } | null };
+type Result<T> = { data: T | null; error: { message: string; hint?: string | null } | null };
+
+/** An error from the database; `hint` is the machine-readable code an RPC raised (e.g. `client_email_in_use`). */
+export class PeopleRepoError extends Error {
+  constructor(
+    message: string,
+    readonly hint?: string,
+  ) {
+    super(message);
+  }
+}
 
 async function must<T>(p: PromiseLike<Result<T>>): Promise<T> {
   const { data, error } = await p;
-  if (error) throw new Error(error.message);
+  if (error) throw new PeopleRepoError(error.message, error.hint ?? undefined);
   return data as T;
 }
 
@@ -87,6 +97,21 @@ export const peopleRepo = {
   /** Removes the contact from the project; the address-book entry stays. */
   async unlinkProjectContact(linkId: string): Promise<void> {
     await must(sb().from("project_contacts").delete().eq("id", linkId));
+  },
+
+  /**
+   * Sets who the project's client is (`set_project_client`): reuses a contact by email, links it, and grants
+   * access to the account with that email. Blank phone clears it. Returns the contact id.
+   */
+  async setProjectClient(projectId: string, input: { full_name: string; email: string; phone: string }): Promise<string> {
+    return must(
+      sb().rpc("set_project_client", {
+        p_project: projectId,
+        p_full_name: input.full_name,
+        p_email: input.email,
+        p_phone: input.phone,
+      }),
+    ) as Promise<string>;
   },
 
   /** The project's client-visible contacts (name, phone, email), for any member. */

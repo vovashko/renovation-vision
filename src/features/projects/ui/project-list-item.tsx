@@ -5,11 +5,11 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemHeader, ItemTitle 
 import { Progress } from "@/components/ui/progress";
 import { budgetSummary } from "@/domain/budget";
 import { useFormat, useScheduleLabel } from "@/i18n";
-import type { ProjectSummary } from "@/lib/database.types";
+import type { ProjectListing } from "../data/projects.repo";
 import { useProjectStatusLabel } from "../hooks";
 
 /** One row of the manager's project list, linking to that project's overview. */
-export function ProjectListItem({ project }: { project: ProjectSummary }) {
+export function ProjectListItem({ project }: { project: ProjectListing }) {
   const { t } = useTranslation(["projects"]);
   const format = useFormat();
   const scheduleLabel = useScheduleLabel();
@@ -32,6 +32,11 @@ export function ProjectListItem({ project }: { project: ProjectSummary }) {
             {project.status !== "active" && (
               <Badge variant="outline" size="compact">
                 {projectStatusLabel(project.status)}
+              </Badge>
+            )}
+            {project.my_role === "client" && (
+              <Badge variant="outline" size="compact" icon="person">
+                {t("list.clientBadge")}
               </Badge>
             )}
             {behind && (

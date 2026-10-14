@@ -1,12 +1,8 @@
 {
   "team": {
     "pageTitle": "Zespół",
-    "pageDescription": "Klienci widzą w aplikacji RenoVision widoczne dla nich dane projektu. Kierownicy mogą tu edytować wszystko.",
+    "pageDescription": "Kierownicy w tym projekcie i ekipa na budowie. Klienta ustawiasz na karcie klienta.",
     "emptyDescription": "Brak członków zespołu.",
-    "addByEmail": "Dodaj po e-mailu",
-    "addByEmailHint": "Muszą najpierw mieć konto RenoVision.",
-    "role": "Rola",
-    "add": "Dodaj",
     "clientBadge": "Klient",
     "managerBadge": "Kierownik",
     "you": "(Ty)",
@@ -19,19 +15,25 @@
     "heading": "Zespół w tym projekcie",
     "addPerson": "Dodaj osobę",
     "projectManager": "Kierownik projektu",
-    "addCrewHint": "Dodaj kierownika budowy i wykonawców, aby ich numery były zawsze pod ręką."
+    "addCrewHint": "Dodaj kierownika budowy i wykonawców, aby ich numery były zawsze pod ręką.",
+    "clientNote": "Klientów tu nie wyświetlamy.",
+    "clientNoteLink": "Ustaw klienta w przeglądzie projektu.",
+    "manageTeam": "Zarządzaj zespołem"
   },
   "client": {
     "heading": "Klient",
     "editAria": "Edytuj dane kontaktowe klienta",
     "fallbackName": "Klient",
-    "inApp": "W aplikacji: {{names}}",
-    "notInvited": "Jeszcze nie zaproszono do aplikacji",
     "noPhone": "Brak numeru telefonu",
     "noEmail": "Brak adresu e-mail",
     "message": "Wiadomość",
     "call": "Zadzwoń",
-    "email": "E-mail"
+    "email": "E-mail",
+    "access": {
+      "access": "Ma dostęp",
+      "waiting": "Czeka na konto",
+      "none": "Brak e-maila"
+    }
   },
   "clientContact": {
     "title": "Kontakt do klienta",
@@ -41,7 +43,8 @@
     "phone": "Telefon",
     "email": "E-mail",
     "submit": "Zapisz kontakt",
-    "saved": "Zapisano kontakt do klienta"
+    "saved": "Zapisano kontakt do klienta",
+    "emailHint": "Daje klientowi dostęp do projektu, gdy tylko założy konto."
   },
   "crew": {
     "addTitle": "Dodaj osobę",
@@ -79,5 +82,29 @@
       "supplier": "Dostawca",
       "architect": "Architekt"
     }
+  },
+  "addPerson": {
+    "title": "Dodaj osobę",
+    "description": "Wybierz, kim jest ta osoba.",
+    "kind": "Rodzaj",
+    "manager": "Kierownik",
+    "crew": "Ekipa",
+    "managerEmail": "E-mail",
+    "managerHint": "Daje dostęp do aplikacji. Osoba musi najpierw mieć konto kierownika.",
+    "crewHint": "Ekipa to tylko kontakty. Nie daje dostępu do aplikacji.",
+    "submitManager": "Dodaj kierownika",
+    "submitCrew": "Dodaj osobę z ekipy"
+  },
+  "errors": {
+    "client_is_project_manager": "Ta osoba jest kierownikiem projektu, więc nie może być jego klientem.",
+    "manager_is_project_client": "Ta osoba jest klientem projektu, więc nie może nim kierować.",
+    "project_already_has_client": "Ten projekt ma już klienta.",
+    "client_email_in_use": "Ten e-mail ma już inny klient.",
+    "client_role_not_allowed": "Klientów dodaje się na karcie klienta.",
+    "manager_requires_staff_account": "Projektem mogą kierować tylko konta kierowników.",
+    "client_name_required": "Klient musi mieć nazwę.",
+    "not_project_manager": "Mogą to zrobić tylko kierownicy projektu.",
+    "mfa_required": "Wymagana jest weryfikacja dwuskładnikowa.",
+    "account_not_found": "Żadne konto RenoVision nie używa tego e-maila. Poproś tę osobę o założenie konta."
   }
 }

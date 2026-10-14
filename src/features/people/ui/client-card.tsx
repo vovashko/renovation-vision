@@ -7,7 +7,12 @@ import { Icon } from "@/components/ui/icon";
 import { UserAvatar } from "@/components/user-avatar";
 import { cn } from "@/lib/utils";
 import type { Member, ProjectContact } from "@/lib/database.types";
+import { Badge } from "@/components/ui/badge";
+import { clientAccessStatus, type ClientAccessStatus } from "../domain/client-access";
 import { telHref as tel } from "../domain/contacts";
+
+const accessIcon: Record<ClientAccessStatus, string> = { access: "check_circle", waiting: "hourglass_top", none: "mail" };
+
 // Equal-width CTAs on one row; they only wrap (and then stretch to fill the row) when the card is too narrow.
 const onPanelButton = cn(buttonVariants({ variant: "panel" }), "min-w-0 flex-1 basis-28");
 
@@ -49,6 +54,7 @@ export function ClientCard({
 }) {
   const { t } = useTranslation(["people"]);
   const name = client?.contact.full_name || appUsers.map((m) => m.profile.full_name).join(" & ") || t("client.fallbackName");
+  const status = clientAccessStatus(client, appUsers);
   const phone = client?.contact.phone;
   const email = client?.contact.email;
   return (
@@ -65,9 +71,10 @@ export function ClientCard({
         <UserAvatar name={name} className="size-12 text-title-md" />
         <div className="min-w-0">
           <div className="truncate text-title-md">{name}</div>
-          <div className="truncate text-body-md text-on-surface-variant">
-            {appUsers.length ? t("client.inApp", { names: appUsers.map((m) => m.profile.full_name).join(", ") }) : t("client.notInvited")}
-          </div>
+          {/* T40 adds "Send invite" next to the "waiting" status. */}
+          <Badge variant="assist" size="compact" icon={accessIcon[status]} className="mt-1">
+            {t(`client.access.${status}`)}
+          </Badge>
         </div>
       </div>
       {/* On the tinted panel: a white inner list and white buttons. */}

@@ -3,6 +3,10 @@
 // `contacts` (T30) and belong to `features/people`.
 import { supabase } from "@/lib/supabase";
 import type { Project, ProjectSummary } from "@/lib/database.types";
+import type { Database } from "@/domain/db.types";
+
+// `my_role` (T35) isn't on the shared `ProjectSummary` yet; read it off the generated view type here.
+export type ProjectListing = ProjectSummary & { my_role: Database["public"]["Views"]["project_summary"]["Row"]["my_role"] };
 
 export type ProjectPatch = Partial<
   Pick<
@@ -27,6 +31,8 @@ export type ProjectPatch = Partial<
 export type NewProject = Pick<Project, "name" | "address_line" | "postal_code" | "city" | "country" | "currency" | "status" | "budget"> & {
   /** Becomes the project's primary client contact when not empty. */
   client_name: string;
+  /** With a name, gives that account access to the project (now or once it exists). */
+  client_email: string;
   start_date: string | null;
   target_date: string | null;
 };
@@ -61,14 +67,14 @@ const toNumber = <T extends Record<string, unknown>>(row: T, ...keys: (keyof T)[
 };
 
 export const projectsRepo = {
-  async listProjects(): Promise<ProjectSummary[]> {
+  async listProjects(): Promise<ProjectListing[]> {
     const rows = await must(sb().from("project_summary").select("*").order("name"));
-    return (rows as ProjectSummary[]).map((r) => toNumber(r, "budget", "planned_budget", "spent"));
+    return (rows as ProjectListing[]).map((r) => toNumber(r, "budget", "planned_budget", "spent"));
   },
 
-  async getProject(id: string): Promise<ProjectSummary> {
+  async getProject(id: string): Promise<ProjectListing> {
     const row = await must(sb().from("project_summary").select("*").eq("id", id).single());
-    return toNumber(row as unknown as ProjectSummary, "budget", "planned_budget", "spent");
+    return toNumber(row as unknown as ProjectListing, "budget", "planned_budget", "spent");
   },
 
   async createProject(input: NewProject): Promise<string> {
@@ -85,6 +91,7 @@ export const projectsRepo = {
         p_start_date: input.start_date,
         p_target_date: input.target_date,
         p_budget: input.budget,
+        p_client_email: input.client_email,
       }),
     ) as Promise<string>;
   },

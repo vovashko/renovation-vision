@@ -13,6 +13,17 @@ function ContactIcon({ href, icon, label }: { href: string; icon: string; label:
   );
 }
 
+/** The crew as a divided list (the Team page). */
+export function CrewRows({ crew, onEdit }: { crew: ProjectContact[]; onEdit: (c: ProjectContact) => void }) {
+  return (
+    <ul className="divide-y divide-outline-variant">
+      {crew.map((c) => (
+        <CrewRow key={c.id} crew={c} onEdit={onEdit} />
+      ))}
+    </ul>
+  );
+}
+
 /** One row of the team card's site crew list: a trade/phone contact and an edit button. */
 export function CrewRow({ crew, onEdit }: { crew: ProjectContact; onEdit: (c: ProjectContact) => void }) {
   const { t } = useTranslation(["people"]);

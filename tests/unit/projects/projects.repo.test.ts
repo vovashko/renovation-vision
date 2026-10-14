@@ -30,6 +30,7 @@ describe("projectsRepo.createProject", () => {
       currency: "EUR",
       status: "planning",
       client_name: "Ola Nowak",
+      client_email: "ola@example.com",
       start_date: null,
       target_date: "2026-12-01",
       budget: 120000,
@@ -48,6 +49,7 @@ describe("projectsRepo.createProject", () => {
       p_start_date: null,
       p_target_date: "2026-12-01",
       p_budget: 120000,
+      p_client_email: "ola@example.com",
     });
   });
 
@@ -63,6 +65,7 @@ describe("projectsRepo.createProject", () => {
         currency: "PLN",
         status: "active",
         client_name: "",
+        client_email: "",
         start_date: null,
         target_date: null,
         budget: 0,

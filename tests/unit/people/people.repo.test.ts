@@ -17,7 +17,7 @@ type Chain = {
 };
 
 /** A minimal thenable query-builder stand-in: every method returns itself, `await` resolves `result`. */
-function makeChain(result: { data: unknown; error: { message: string } | null }): Chain {
+function makeChain(result: { data: unknown; error: { message: string; hint?: string } | null }): Chain {
   const chain = {} as Chain;
   for (const method of ["select", "eq", "order", "update", "insert", "delete", "single"] as const) {
     chain[method] = vi.fn(() => chain);
@@ -173,6 +173,29 @@ describe("peopleRepo.updateContact / unlinkProjectContact", () => {
     expect(supabase.from).toHaveBeenCalledWith("project_contacts");
     expect(chain.delete).toHaveBeenCalled();
     expect(chain.eq).toHaveBeenCalledWith("id", "l1");
+  });
+});
+
+describe("peopleRepo.setProjectClient", () => {
+  it("calls the set_project_client RPC", async () => {
+    vi.mocked(supabase.rpc).mockReturnValue(makeChain({ data: "c9", error: null }) as never);
+    const id = await peopleRepo.setProjectClient("p1", { full_name: "Sarah", email: "sarah@renovision.demo", phone: "" });
+    expect(id).toBe("c9");
+    expect(supabase.rpc).toHaveBeenCalledWith("set_project_client", {
+      p_project: "p1",
+      p_full_name: "Sarah",
+      p_email: "sarah@renovision.demo",
+      p_phone: "",
+    });
+  });
+
+  it("keeps the machine-readable hint on the error", async () => {
+    vi.mocked(supabase.rpc).mockReturnValue(
+      makeChain({ data: null, error: { message: "Another client already uses x", hint: "client_email_in_use" } }) as never,
+    );
+    await expect(peopleRepo.setProjectClient("p1", { full_name: "S", email: "x@y.pl", phone: "" })).rejects.toMatchObject({
+      hint: "client_email_in_use",
+    });
   });
 });
 
