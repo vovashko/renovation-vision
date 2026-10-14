@@ -115,14 +115,14 @@ select pg_temp.as_admin();
 -- project_summary exposes the baseline (then my_role from client_access; existing columns intact)
 -- ===========================================================================
 select pg_temp.check(
-  (select array_agg(column_name::text order by ordinal_position) filter (where ordinal_position > 25)
+  (select array_agg(column_name::text order by ordinal_position) filter (where ordinal_position > 23)
      from information_schema.columns where table_schema = 'public' and table_name = 'project_summary')
   = array['planned_target_date', 'planned_budget', 'my_role'],
   'project_summary ends with planned_target_date, planned_budget, my_role');
 select pg_temp.check(
   (select count(*) = 1 from public.project_summary
     where id = 'b0000000-0000-4000-8000-000000000001' and planned_budget = 84500
-      and planned_target_date is not null and plan_image_opts is not null),
+      and planned_target_date is not null),
   'project_summary shows the seeded baseline');
 
 select 'planned baseline tests passed' as result;

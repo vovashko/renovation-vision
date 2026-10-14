@@ -458,7 +458,6 @@ Tests: `tests/db/investor_decisions.test.sql`, `tests/unit/decisions/*`, `tests/
 
 ```
 projects ──< stages (progress_mode: tasks | manual) ──< tasks
-   │ plan_image_path, plan_image_opts          ▲
    └──< progress_entries (site diary) ─────────┘ stage_id, room_id (same project)
              └──< photos.progress_entry_id
 ```
@@ -474,17 +473,16 @@ projects ──< stages (progress_mode: tasks | manual) ──< tasks
   `manual`, the other five `tasks`.
 - **Site diary.** `progress_entries`: a dated note per project with an optional stage, room and hours; diary photos
   point at their entry with `photos.progress_entry_id` (a photo still reaches clients only once published).
-- **Floor-plan image.** `projects.plan_image_path` (`<project_id>/plans/<file>` in `project-media`) and
-  `plan_image_opts` (`{ opacity, scale, x, y }`), both on `project_summary`.
+- **Floor plan.** A fixed layout by room count (`@/domain/floor-plan-layout`), a visual aid. Rooms keep their width
+  and length in metres (`rooms.w`, `rooms.h`) as specs, shown in the room form and room view. There is no plan
+  image (dropped in T64).
 - **`import_stages(project, rows)`** (managers): stages with nested tasks (rooms by name), all or nothing; invalid
   input raises `22023` with a JSON array of `{ row, field, code }` as the error detail.
 
-| Table / object                        | Client                                | Project manager |
-| ------------------------------------- | ------------------------------------- | --------------- |
-| `progress_entries`                    | `is_visible` entries of their project | read/write      |
-| `project-media` `<project>/plans/...` | read                                  | read/write      |
-| `projects.plan_image_*`               | read (`project_summary`)              | update          |
-| `import_stages`                       | —                                     | execute         |
+| Table / object     | Client                                | Project manager |
+| ------------------ | ------------------------------------- | --------------- |
+| `progress_entries` | `is_visible` entries of their project | read/write      |
+| `import_stages`    | —                                     | execute         |
 
 Tests: `tests/db/work.test.sql`.
 
