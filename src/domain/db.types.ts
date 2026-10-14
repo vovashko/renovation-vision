@@ -401,37 +401,6 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"messages": {
-                  Row: {
-                    "attachment_path": string | null,"body": string,"created_at": string,"edited_at": string | null,"id": string,"project_id": string,"sender_id": string | null
-                  }
-                  Insert: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id": string,"sender_id"?: string | null
-                  }
-                  Update: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id"?: string,"sender_id"?: string | null
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "messages_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "project_summary"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "messages_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "projects"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "messages_sender_id_fkey"
-      columns: ["sender_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"notification_preferences": {
                   Row: {
                     "channel": Database["public"]['Enums']["notification_channel"],"frequency": Database["public"]['Enums']["notification_frequency"],"kind": string,"updated_at": string,"user_id": string
@@ -998,9 +967,6 @@ isOneToOne: true
                            },
 "is_project_member":
 { Args: { "p_project": string }; Returns: boolean
-                           },
-"mark_chat_read":
-{ Args: { "p_project": string }; Returns: undefined
                            },
 "mark_notifications_read":
 { Args: { "p_ids"?: (string)[] }; Returns: undefined

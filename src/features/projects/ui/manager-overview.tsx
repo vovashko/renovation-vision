@@ -59,7 +59,6 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const shortcuts: Shortcut[] = [
     { key: "photo", label: t("shortcuts.uploadPhoto"), icon: "add_a_photo", onClick: () => setSheet("photo") },
     { key: "expense", label: t("shortcuts.addExpense"), icon: "receipt_long", onClick: () => setSheet("expense") },
-    { key: "chat", label: t("shortcuts.messageClient"), icon: "chat_bubble", link: { to: "/projects/$projectId/chat", params } },
     { key: "stages", label: t("shortcuts.updateStages"), icon: "checklist", link: { to: "/projects/$projectId/stages", params } },
     { key: "rooms", label: t("shortcuts.updateRooms"), icon: "floor", link: { to: "/projects/$projectId/plan", params } },
     { key: "edit", label: t("shortcuts.editProject"), icon: "edit", onClick: openDetails },
@@ -93,7 +92,7 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
           />
         </div>
         <ShortcutsCard shortcuts={shortcuts} />
-        <ClientCard projectId={projectId} client={client} appUsers={clientUsers} onEdit={openContact} />
+        <ClientCard client={client} appUsers={clientUsers} onEdit={openContact} />
         <div className="min-w-0 lg:col-span-2">
           <TeamCard
             projectId={projectId}

@@ -142,34 +142,34 @@ select pg_temp.check(
    where kind = 'manual' and params = '{"title":"Water off","body":"Thursday 9–12"}'::jsonb and title = 'Water off') = 2,
   'an announcement: kind manual with { title, body }');
 
-select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
-insert into public.messages (project_id, body) values ('b0000000-0000-4000-8000-000000000001', 'Hello from Sarah');
 select pg_temp.as_admin();
-select pg_temp.check(
-  (select count(*) from public.notifications
-   where kind = 'message' and params ->> 'sender' = 'Sarah Bennett' and params ->> 'preview' = 'Hello from Sarah'
-     and params -> 'attachment' = 'false'::jsonb
-     and recipient_id in ('a0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003')) = 2,
-  'a chat message notifies the other members with kind message and { sender, preview, attachment }');
-select pg_temp.check(
-  (select count(*) from public.notifications where kind = 'message' and params ->> 'preview' = 'Hello from Sarah'
-     and recipient_id = 'a0000000-0000-4000-8000-000000000002') = 0,
-  'the sender is not notified of their own message');
+-- The chat is gone (T66): no messages table, no message trigger, no read marker.
+select pg_temp.check(to_regclass('public.messages') is null, 'the messages table is gone');
+select pg_temp.check(to_regprocedure('private.notify_message()') is null, 'private.notify_message() is gone');
+select pg_temp.check(to_regprocedure('public.mark_chat_read(uuid)') is null, 'public.mark_chat_read(uuid) is gone');
+select pg_temp.check((select count(*) from public.notifications where kind = 'message') = 0, 'no message notifications remain');
+select pg_temp.check(not exists (select 1 from pg_policies where tablename = 'messages'), 'no messages policies remain');
+select pg_temp.check(not exists (select 1 from pg_policies where schemaname = 'storage' and policyname like '%chat%'),
+  'no chat attachment storage policy remains');
+select pg_temp.check(not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'messages'),
+  'messages is not in the realtime publication');
+select pg_temp.check(not exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname in ('public', 'private') and (case when p.prokind in ('f', 'p') then pg_get_functiondef(p.oid) end) ~* '\mpublic\.messages\M'),
+  'no function references public.messages');
+select pg_temp.check(not exists (select 1 from pg_views where schemaname = 'public' and definition ~* '\mmessages\M'),
+  'no view references messages');
 select pg_temp.check((select emailed_at is null from public.notifications order by created_at desc limit 1),
   'emailed_at starts empty');
 
 -- ===========================================================================
 -- Notification preferences
 -- ===========================================================================
--- Defaults (no rows): in_app instant; email instant for messages, daily for clients, off for staff.
+-- Defaults (no rows): in_app instant; email daily for clients, off for staff.
 select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000002', 'stage_status', 'in_app') = 'instant',
   'default: in_app is instant');
 select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000002', 'stage_status', 'email') = 'daily',
   'default: email is daily for a client');
-select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000002', 'message', 'email') = 'instant',
-  'default: email is instant for messages');
-select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000001', 'message', 'email') = 'instant',
-  'default: email is instant for messages, staff too');
 select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000001', 'stage_status', 'email') = 'off',
   'default: email is off for staff on other kinds');
 select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000001', 'stage_status', 'in_app') = 'instant',
@@ -185,7 +185,7 @@ select pg_temp.check(public.notification_pref(auth.uid(), 'stage_status', 'email
 update public.notification_preferences set frequency = 'instant' where kind = 'stage_status';
 select pg_temp.check(public.notification_pref(auth.uid(), 'stage_status', 'email') = 'instant', 'a user updates their own preference');
 select pg_temp.denied($$insert into public.notification_preferences (user_id, kind, channel, frequency)
-  values ('a0000000-0000-4000-8000-000000000003', 'message', 'email', 'off')$$, 'a user wrote another user''s preference');
+  values ('a0000000-0000-4000-8000-000000000003', 'photo_published', 'email', 'off')$$, 'a user wrote another user''s preference');
 select pg_temp.check(
   pg_temp.affected($$update public.notification_preferences set frequency = 'off' where user_id = 'a0000000-0000-4000-8000-000000000003'$$) = 0,
   'a user cannot update another user''s preference');
@@ -263,8 +263,6 @@ select pg_temp.check((select count(*) from public.consents) = 0, 'a user cannot 
 -- ===========================================================================
 -- Deleting users: personal rows go, project data stays with the author nulled
 -- ===========================================================================
-select pg_temp.as_user('a0000000-0000-4000-8000-000000000003');
-insert into public.messages (project_id, body) values ('b0000000-0000-4000-8000-000000000001', 'Tom was here');
 select pg_temp.as_admin();
 
 create temp table counts_before as
@@ -272,14 +270,12 @@ select (select count(*) from public.projects) as projects, (select count(*) from
        (select count(*) from public.rooms) as rooms, (select count(*) from public.tasks) as tasks,
        (select count(*) from public.photos) as photos, (select count(*) from public.renders) as renders,
        (select count(*) from public.expenses) as expenses, (select count(*) from public.ai_knowledge) as knowledge,
-       (select count(*) from public.messages) as messages, (select count(*) from public.activity_log) as activity;
+       (select count(*) from public.activity_log) as activity;
 
 -- A client.
 delete from auth.users where id = 'a0000000-0000-4000-8000-000000000003';
 select pg_temp.check((select count(*) from public.profiles where id = 'a0000000-0000-4000-8000-000000000003') = 0,
   'the profile goes with the auth user');
-select pg_temp.check((select count(*) from public.messages where body = 'Tom was here' and sender_id is null) = 1,
-  'a deleted client''s message stays, with sender_id null');
 select pg_temp.check((select count(*) from public.project_members where user_id = 'a0000000-0000-4000-8000-000000000003') = 0,
   'their membership is removed');
 select pg_temp.check((select count(*) from public.notifications where recipient_id = 'a0000000-0000-4000-8000-000000000003') = 0,
@@ -304,14 +300,10 @@ select pg_temp.check(
       and c.rooms = (select count(*) from public.rooms) and c.tasks = (select count(*) from public.tasks)
       and c.photos = (select count(*) from public.photos) and c.renders = (select count(*) from public.renders)
       and c.expenses = (select count(*) from public.expenses) and c.knowledge = (select count(*) from public.ai_knowledge)
-      and c.messages = (select count(*) from public.messages)
    from counts_before c),
   'no project data is deleted with its author');
 select pg_temp.check((select count(*) from public.activity_log) >= (select activity from counts_before),
   'the activity log keeps every row');
-select pg_temp.check(
-  (select count(*) from public.messages where sender_id is null) = 4, -- Jonas's 3 seeded + Tom's
-  'a deleted manager''s messages stay, with sender_id null');
 select pg_temp.check((select count(*) from public.photos where uploaded_by is not null) = 0, 'photos.uploaded_by is nulled');
 select pg_temp.check((select count(*) from public.expenses where created_by is not null) = 0, 'expenses.created_by is nulled');
 select pg_temp.check((select count(*) from public.ai_knowledge where created_by is not null) = 0, 'ai_knowledge.created_by is nulled');
@@ -327,10 +319,6 @@ select pg_temp.check(
 select pg_temp.check(
   (select count(*) from public.activity_log where actor_id = 'a0000000-0000-4000-8000-000000000001') > 0,
   'activity_log.actor_id has no foreign key: the trail keeps the old actor id');
-
--- The chat still reads for the remaining members.
-select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
-select pg_temp.check((select count(*) from public.messages where sender_id is null) = 4, 'members still read the former members'' messages');
 
 select pg_temp.as_admin();
 select 'comms tests passed' as result;

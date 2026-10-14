@@ -29,12 +29,13 @@ describe("nav-config", () => {
       "photos",
       "documents",
       "budget",
-      "chat",
       "decisions",
       "updates",
-      "knowledge",
       "team",
     ]);
+    // The chat and the AI knowledge page are gone (T66).
+    expect(projectNav.map((i) => i.key)).not.toContain("chat");
+    expect(projectNav.map((i) => i.key)).not.toContain("knowledge");
   });
 
   it("every label is a common:nav or work:nav key that exists in both en and pl", () => {
@@ -55,27 +56,19 @@ describe("nav-config", () => {
   });
 
   it("a client sees only the client sections; a manager sees everything", () => {
-    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "design", "photos", "documents", "chat", "decisions"]);
+    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "design", "photos", "documents", "decisions"]);
     expect(navItemsFor("manager")).toHaveLength(projectNav.length);
-    expect(managerOnlySections).toEqual(["budget", "updates", "knowledge", "team"]);
+    expect(managerOnlySections).toEqual(["budget", "updates", "team"]);
   });
 
-  it("puts four client sections in the phone tab bar and the rest under More", () => {
-    expect(navItemsFor("client", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "chat"]);
-    expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design", "documents", "decisions"]);
+  it("puts four client sections in the phone tab bar (Documents is the fourth) and the rest under More", () => {
+    expect(navItemsFor("client", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "documents"]);
+    expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design", "decisions"]);
   });
 
-  it("puts the same four tabs in the phone tab bar for a manager, with the rest under More", () => {
-    expect(navItemsFor("manager", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "chat"]);
-    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual([
-      "design",
-      "documents",
-      "budget",
-      "decisions",
-      "updates",
-      "knowledge",
-      "team",
-    ]);
+  it("puts four manager sections in the phone tab bar (Budget is the fourth), with the rest under More", () => {
+    expect(navItemsFor("manager", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "budget"]);
+    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual(["design", "documents", "decisions", "updates", "team"]);
   });
 
   it("shows Decisions to both roles, with a count badge", () => {
@@ -89,6 +82,6 @@ describe("nav-config", () => {
     expect(projectPath("p1", "")).toBe("/projects/p1");
     expect(projectPath("p1", "budget")).toBe("/projects/p1/budget");
     expect(projectRoute("")).toBe("/projects/$projectId");
-    expect(projectRoute("chat")).toBe("/projects/$projectId/chat");
+    expect(projectRoute("budget")).toBe("/projects/$projectId/budget");
   });
 });

@@ -53,14 +53,10 @@ describe("useNotificationText: kind + params → translated text", () => {
     expect(textIn("pl", n)).toEqual({ title: "Harmonogram: Zagrożony", body: "Bedroom 2 is blocked." });
   });
 
-  it("message: sender, no sender, attachment only", () => {
+  it("the removed chat kind (message) falls back to the stored text", () => {
     const n = { kind: "message", params: { sender: "Jonas Weber", preview: "Hi!", attachment: false }, ...legacy };
-    expect(textIn("en", n)).toEqual({ title: "New message from Jonas Weber", body: "Hi!" });
-    expect(textIn("pl", n)).toEqual({ title: "Nowa wiadomość od: Jonas Weber", body: "Hi!" });
-    expect(textIn("pl", { kind: "message", params: { sender: null, preview: "", attachment: true }, ...legacy })).toEqual({
-      title: "Nowa wiadomość",
-      body: "Wysłano załącznik",
-    });
+    expect(textIn("en", n)).toEqual(legacy);
+    expect(textIn("pl", n)).toEqual(legacy);
   });
 
   it("manual: the announcement as written", () => {
@@ -126,10 +122,10 @@ describe("the updates page's items render translated text", () => {
   });
 
   it("InboxNotificationItem in English", () => {
-    const message = { ...notification, kind: "message", params: { sender: "Sarah Bennett", preview: "Thanks!", attachment: false } };
-    render(createElement(wrapper("en"), null, createElement(InboxNotificationItem, { notification: message })));
-    expect(screen.getByText("New message from Sarah Bennett")).toBeInTheDocument();
-    expect(screen.getByText("Thanks!")).toBeInTheDocument();
+    const announcement = { ...notification, kind: "manual", params: { title: "Water off", body: "Thursday 9–12" } };
+    render(createElement(wrapper("en"), null, createElement(InboxNotificationItem, { notification: announcement })));
+    expect(screen.getByText("Water off")).toBeInTheDocument();
+    expect(screen.getByText("Thursday 9–12")).toBeInTheDocument();
   });
 
   it("ActivityLog in Polish", () => {

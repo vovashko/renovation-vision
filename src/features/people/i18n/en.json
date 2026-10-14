@@ -6,8 +6,6 @@
     "clientBadge": "Client",
     "managerBadge": "Manager",
     "you": "(you)",
-    "lastRead": "Last read chat {{when}}",
-    "neverRead": "Hasn't opened the chat yet",
     "removeAria": "Remove {{name}}",
     "removeConfirmTitle": "Remove {{name}} from this project?",
     "added": "Added {{email}}",
@@ -26,7 +24,7 @@
     "fallbackName": "Client",
     "noPhone": "No phone number yet",
     "noEmail": "No email yet",
-    "message": "Message",
+    "whatsapp": "WhatsApp",
     "call": "Call",
     "email": "Email",
     "access": {
@@ -70,7 +68,7 @@
   "yourContact": {
     "heading_one": "Your contact",
     "heading_other": "Your contacts",
-    "message": "Message",
+    "whatsappAria": "Message {{name}} on WhatsApp",
     "callAria": "Call {{name}}",
     "emailAria": "Email {{name}}",
     "role": {

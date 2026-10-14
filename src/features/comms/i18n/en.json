@@ -1,35 +1,4 @@
 {
-  "chat": {
-    "tabs": {
-      "ariaLabel": "Chat mode",
-      "people": "Site manager",
-      "ai": "Ask AI"
-    },
-    "header": {
-      "online": "Online",
-      "offline": "Offline",
-      "clientRole_one": "Client · {{count}} member",
-      "clientRole_other": "Client · {{count}} members",
-      "noClientInvited": "No client invited yet",
-      "defaultClientName": "Client",
-      "defaultManagerName": "Site manager",
-      "formerMember": "Former member"
-    },
-    "empty": {
-      "managerDescription": "No messages yet. Say hello — your client gets a notification.",
-      "clientDescription": "No messages yet. Ask your site manager anything about the project."
-    },
-    "composer": {
-      "managerPlaceholder": "Message your client…",
-      "clientPlaceholder": "Message your manager…",
-      "attach": "Attach",
-      "removeAttachment": "Remove attachment",
-      "send": "Send",
-      "empty": "Write a message or attach a file",
-      "tooLong": "Message is too long"
-    },
-    "handOverTemplate": "Hi {{name}}, question: {{question}}"
-  },
   "updates": {
     "title": "Updates",
     "description": "Status changes, published photos and new renders notify your client automatically.",
@@ -53,7 +22,8 @@
     },
     "inbox": {
       "heading": "Your inbox",
-      "systemSender": "System"
+      "systemSender": "System",
+      "formerMember": "Former member"
     },
     "activity": {
       "heading": "Activity log",
@@ -67,7 +37,6 @@
       "photo_published": "Photo",
       "render_published": "Render",
       "schedule_status": "Schedule",
-      "message": "Message",
       "manual": "Announcement",
       "decision_new": "Decision",
       "decision_answer": "Answer",
@@ -91,11 +60,6 @@
     },
     "schedule_status": {
       "title": "Schedule: {{status}}"
-    },
-    "message": {
-      "title": "New message from {{sender}}",
-      "titleNoSender": "New message",
-      "attachment": "Sent an attachment"
     },
     "decision_new": {
       "title": "Decision needed: {{title}}"

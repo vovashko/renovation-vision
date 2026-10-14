@@ -1,4 +1,4 @@
-import { useParams, useRouterState } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
 import { useRooms, useStages } from "@/features/work/hooks";
 import { useNavRole } from "@/shared/ui/nav-role";
-import { projectPath } from "@/shared/ui/nav-config";
 
 /**
  * Manager-only phone FAB, sitting above the bottom bar (`bottom-nav.tsx`). Actions are a plain list
@@ -19,11 +18,9 @@ import { projectPath } from "@/shared/ui/nav-config";
 export function QuickActions() {
   const role = useNavRole();
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
-  const path = useRouterState({ select: (r) => r.location.pathname });
 
-  // Managers only, inside a project, and never on the chat page (the FAB would sit over the composer).
+  // Managers only, inside a project.
   if (role !== "manager" || !projectId) return null;
-  if (path.replace(/\/$/, "") === projectPath(projectId, "chat")) return null;
 
   return <QuickActionsPanel projectId={projectId} />;
 }

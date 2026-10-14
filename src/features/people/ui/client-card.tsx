@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Member, ProjectContact } from "@/lib/database.types";
 import { Badge } from "@/components/ui/badge";
 import { clientAccessStatus, type ClientAccessStatus } from "../domain/client-access";
+import { contactLinks } from "../domain/contact-links";
 import { telHref as tel } from "../domain/contacts";
 
 const accessIcon: Record<ClientAccessStatus, string> = { access: "check_circle", waiting: "hourglass_top", none: "mail" };
@@ -41,12 +41,10 @@ function ContactLine({ icon, href, children }: { icon: string; href?: string; ch
 
 /** The manager overview's client card: the project's primary client contact, and quick actions. */
 export function ClientCard({
-  projectId,
   client,
   appUsers,
   onEdit,
 }: {
-  projectId: string;
   /** The primary client contact (`project_contacts` role client), if there is one. */
   client: ProjectContact | undefined;
   appUsers: Member[];
@@ -57,6 +55,7 @@ export function ClientCard({
   const status = clientAccessStatus(client, appUsers);
   const phone = client?.contact.phone;
   const email = client?.contact.email;
+  const links = contactLinks({ phone, whatsapp: client?.contact.whatsapp, email });
   return (
     <Card variant="tinted" className="flex flex-col gap-4 p-5 md:p-6" aria-labelledby="client-heading">
       <div className="flex items-center justify-between gap-3">
@@ -95,10 +94,12 @@ export function ClientCard({
         )}
       </div>
       <div className="flex flex-wrap gap-2">
-        <Link to="/projects/$projectId/chat" params={{ projectId }} className={onPanelButton}>
-          <Icon name="chat_bubble" size={20} />
-          {t("client.message")}
-        </Link>
+        {links.whatsapp && (
+          <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" className={onPanelButton}>
+            <Icon name="chat" size={20} />
+            {t("client.whatsapp")}
+          </a>
+        )}
         {phone && (
           <a href={tel(phone)} className={onPanelButton}>
             <Icon name="call" size={20} />

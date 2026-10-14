@@ -58,7 +58,6 @@ select pg_temp.check((select count(*) from public.project_internal) = 0, 'client
 select pg_temp.check((select count(*) from public.contacts) = 0, 'client cannot read the contacts book');
 select pg_temp.check((select count(*) from public.project_contacts) = 0, 'client cannot read the crew list');
 select pg_temp.check((select count(*) from public.activity_log) = 0, 'client cannot read the activity log');
-select pg_temp.check((select count(*) from public.messages) = 5, 'client reads the chat');
 select pg_temp.check((select count(*) from public.notifications) = 5, 'client reads only their own notifications');
 select pg_temp.check((select count(*) from public.project_members) = 3, 'client sees the project team');
 select pg_temp.check((select manager_name from public.project_summary) = 'Jonas Weber', 'summary shows manager');
@@ -99,13 +98,6 @@ begin
   end;
 
   begin
-    insert into public.messages (project_id, sender_id, body)
-    values ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'spoof');
-    raise exception 'FAILED: client sent a message as the manager';
-  exception when insufficient_privilege then null;
-  end;
-
-  begin
     update public.profiles set account_type = 'admin' where id = auth.uid();
     raise exception 'FAILED: client promoted themselves';
   exception when insufficient_privilege then null;
@@ -118,7 +110,6 @@ begin
   end;
 end $$;
 
-insert into public.messages (project_id, body) values ('b0000000-0000-4000-8000-000000000001', 'Hello from Sarah');
 select public.mark_notifications_read();
 select pg_temp.check((select count(*) from public.notifications where read_at is null) = 0, 'client marks notifications read');
 

@@ -1,37 +1,4 @@
 {
-  "chat": {
-    "tabs": {
-      "ariaLabel": "Tryb czatu",
-      "people": "Kierownik projektu",
-      "ai": "Zapytaj AI"
-    },
-    "header": {
-      "online": "Online",
-      "offline": "Offline",
-      "clientRole_one": "Klient · {{count}} osoba",
-      "clientRole_few": "Klient · {{count}} osoby",
-      "clientRole_many": "Klient · {{count}} osób",
-      "clientRole_other": "Klient · {{count}} osoby",
-      "noClientInvited": "Nie zaproszono jeszcze klienta",
-      "defaultClientName": "Klient",
-      "defaultManagerName": "Kierownik projektu",
-      "formerMember": "Były członek zespołu"
-    },
-    "empty": {
-      "managerDescription": "Brak wiadomości. Napisz coś — klient otrzyma powiadomienie.",
-      "clientDescription": "Brak wiadomości. Zapytaj kierownika projektu o cokolwiek związanego z projektem."
-    },
-    "composer": {
-      "managerPlaceholder": "Napisz do klienta…",
-      "clientPlaceholder": "Napisz do kierownika projektu…",
-      "attach": "Załącz plik",
-      "removeAttachment": "Usuń załącznik",
-      "send": "Wyślij",
-      "empty": "Napisz wiadomość lub dodaj załącznik",
-      "tooLong": "Wiadomość jest zbyt długa"
-    },
-    "handOverTemplate": "Cześć {{name}}, pytanie: {{question}}"
-  },
   "updates": {
     "title": "Aktualności",
     "description": "Zmiany statusu, opublikowane zdjęcia i nowe wizualizacje automatycznie powiadamiają klienta.",
@@ -57,7 +24,8 @@
     },
     "inbox": {
       "heading": "Twoja skrzynka odbiorcza",
-      "systemSender": "System"
+      "systemSender": "System",
+      "formerMember": "Były członek zespołu"
     },
     "activity": {
       "heading": "Dziennik aktywności",
@@ -71,7 +39,6 @@
       "photo_published": "Zdjęcie",
       "render_published": "Wizualizacja",
       "schedule_status": "Harmonogram",
-      "message": "Wiadomość",
       "manual": "Ogłoszenie",
       "decision_new": "Decyzja",
       "decision_answer": "Odpowiedź",
@@ -95,11 +62,6 @@
     },
     "schedule_status": {
       "title": "Harmonogram: {{status}}"
-    },
-    "message": {
-      "title": "Nowa wiadomość od: {{sender}}",
-      "titleNoSender": "Nowa wiadomość",
-      "attachment": "Wysłano załącznik"
     },
     "decision_new": {
       "title": "Potrzebna decyzja: {{title}}"
