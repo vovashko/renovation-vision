@@ -40,7 +40,6 @@ function UpdatesPage() {
     { value: "/plan", label: t("common:nav.plan") },
     { value: "/photos", label: t("common:nav.photos") },
     { value: "/design", label: t("common:nav.design") },
-    { value: "/chat", label: t("common:nav.chat") },
   ];
 
   if (isLoading || !notifications) return <PageLoading />;
@@ -48,7 +47,7 @@ function UpdatesPage() {
   // No actor: a change made by the system (a trigger, a migration). An actor who is no longer on the
   // team (or whose account was deleted): "Former member".
   const nameOf = (id: string | null) =>
-    id ? (members.find((m) => m.user_id === id)?.profile.full_name ?? t("chat.header.formerMember")) : t("updates.inbox.systemSender");
+    id ? (members.find((m) => m.user_id === id)?.profile.full_name ?? t("updates.inbox.formerMember")) : t("updates.inbox.systemSender");
 
   // One notification is fanned out per client; group them back into one "sent" item.
   const sent = new Map<string, { n: Notification; total: number; read: number }>();

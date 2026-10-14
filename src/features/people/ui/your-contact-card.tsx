@@ -1,19 +1,18 @@
-import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { UserAvatar } from "@/components/user-avatar";
 import type { ProjectContactRole, VisibleContact } from "@/lib/database.types";
-import { telHref } from "../domain/contacts";
+import { contactLinks } from "../domain/contact-links";
 import { useVisibleContacts } from "../hooks";
-
-const iconButton = buttonVariants({ variant: "outline", size: "icon" });
 
 function ContactItem({ contact, roleLabel }: { contact: VisibleContact; roleLabel: string }) {
   const { t } = useTranslation(["people"]);
   const name = contact.full_name;
+  // Clients only get a phone and an email for a contact, so WhatsApp uses the phone.
+  const links = contactLinks({ phone: contact.phone, email: contact.email });
   return (
     <Item variant="plain">
       <ItemMedia>
@@ -24,15 +23,26 @@ function ContactItem({ contact, roleLabel }: { contact: VisibleContact; roleLabe
         <ItemDescription>{roleLabel}</ItemDescription>
       </ItemContent>
       <ItemActions>
-        {contact.phone && (
-          <a href={telHref(contact.phone)} aria-label={t("yourContact.callAria", { name })} className={iconButton}>
-            <Icon name="call" size={22} />
-          </a>
+        {links.whatsapp && (
+          <Button asChild variant="outline" size="icon" aria-label={t("yourContact.whatsappAria", { name })}>
+            <a href={links.whatsapp} target="_blank" rel="noopener noreferrer">
+              <Icon name="chat" size={22} />
+            </a>
+          </Button>
         )}
-        {contact.email && (
-          <a href={`mailto:${contact.email}`} aria-label={t("yourContact.emailAria", { name })} className={iconButton}>
-            <Icon name="mail" size={22} />
-          </a>
+        {links.tel && (
+          <Button asChild variant="outline" size="icon" aria-label={t("yourContact.callAria", { name })}>
+            <a href={links.tel}>
+              <Icon name="call" size={22} />
+            </a>
+          </Button>
+        )}
+        {links.mailto && (
+          <Button asChild variant="outline" size="icon" aria-label={t("yourContact.emailAria", { name })}>
+            <a href={links.mailto}>
+              <Icon name="mail" size={22} />
+            </a>
+          </Button>
         )}
       </ItemActions>
     </Item>
@@ -41,7 +51,8 @@ function ContactItem({ contact, roleLabel }: { contact: VisibleContact; roleLabe
 
 /**
  * The client overview's "Your contact" card: the project's point of contact (and any other contact the
- * manager made visible to the client), from `project_visible_contacts`. Renders nothing when there is none.
+ * manager made visible to the client), from `project_visible_contacts`, each with WhatsApp, Call and
+ * Email buttons for the details they have. Renders nothing when there is no contact.
  */
 export function YourContactCard({ projectId }: { projectId: string }) {
   const { t } = useTranslation(["people"]);
@@ -51,15 +62,9 @@ export function YourContactCard({ projectId }: { projectId: string }) {
 
   return (
     <Card className="flex flex-col gap-2 p-5 md:p-6" aria-labelledby="your-contact-heading">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="your-contact-heading" className="text-title-lg">
-          {t("yourContact.heading", { count: contacts.length })}
-        </h2>
-        <Link to="/projects/$projectId/chat" params={{ projectId }} className={buttonVariants({ variant: "ghost" })}>
-          <Icon name="chat_bubble" size={20} />
-          {t("yourContact.message")}
-        </Link>
-      </div>
+      <h2 id="your-contact-heading" className="text-title-lg">
+        {t("yourContact.heading", { count: contacts.length })}
+      </h2>
       <ul className="divide-y divide-outline-variant">
         {contacts.map((c) => (
           <li key={`${c.role}-${c.full_name}`}>

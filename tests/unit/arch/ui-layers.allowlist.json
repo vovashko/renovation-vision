@@ -35,11 +35,6 @@
     "reason": "One-off wrapper for the two-row contact list on the tinted client card."
   },
   {
-    "file": "features/knowledge/ui/ai-thinking.tsx",
-    "snippet": "animate-bounce rounded-full bg-primary [animation-delay:-0.15s]",
-    "reason": "One-off animated dot for the AI-thinking indicator; not reused."
-  },
-  {
     "file": "features/media/ui/photo-card.tsx",
     "snippet": "aspect-[4/3] w-full items-center justify-center bg-surface-container-high",
     "reason": "One-off missing-image placeholder box."
@@ -78,11 +73,6 @@
     "file": "features/work/ui/stage-row.tsx",
     "snippet": "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
     "reason": "One-off hover/focus-reveal remove-task button."
-  },
-  {
-    "file": "routes/project/chat.tsx",
-    "snippet": "top-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)]",
-    "reason": "Layout-only: the chat panel's own fixed/responsive positioning and safe-area math."
   },
   {
     "file": "features/work/ui/room-form.tsx",

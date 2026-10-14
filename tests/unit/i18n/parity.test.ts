@@ -39,19 +39,7 @@ describe("i18n resources", () => {
   it("finds the common namespace and every feature namespace", () => {
     expect(namespaces[0]).toBe("common");
     expect(namespaces).toEqual(
-      expect.arrayContaining([
-        "projects",
-        "work",
-        "media",
-        "budget",
-        "comms",
-        "people",
-        "knowledge",
-        "auth",
-        "settings",
-        "admin",
-        "import",
-      ]),
+      expect.arrayContaining(["projects", "work", "media", "budget", "comms", "people", "auth", "settings", "admin", "import"]),
     );
   });
 

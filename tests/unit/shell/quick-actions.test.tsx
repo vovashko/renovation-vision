@@ -62,13 +62,7 @@ describe("QuickActions", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders nothing on the chat page", () => {
-    setUp({ role: "manager", path: "/projects/p1/chat", projectId: "p1" });
-    const { container } = render(<QuickActions />);
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it("shows the FAB for a manager inside a project, off the chat page", () => {
+  it("shows the FAB for a manager inside a project", () => {
     setUp({ role: "manager", path: "/projects/p1", projectId: "p1" });
     render(<QuickActions />);
     expect(screen.getByRole("button", { name: "Quick actions" })).toBeInTheDocument();

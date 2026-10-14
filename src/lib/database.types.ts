@@ -1,8 +1,8 @@
 // App-facing row types for the shared RenoVision Supabase schema, derived from the generated
 // `src/domain/db.types.ts` (regenerate with `bun run db:types` after a migration change).
 // Each exported type below picks exactly the columns the portal reads/writes, plus a few
-// app-side extras computed by the API layer (Photo/Render `url`, Stage `tasks`, Message
-// `attachment_url`, Member `profile`) that don't exist as columns.
+// app-side extras computed by the API layer (Photo/Render `url`, Stage `tasks`,
+// Member `profile`) that don't exist as columns.
 import type { Database } from "@/domain/db.types";
 
 export type Tables<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Row"];
@@ -225,11 +225,6 @@ type StageCostsView = Views<"stage_costs">;
 /** Planned, spent, committed (ordered/delivered materials not yet linked to an expense) and remaining, per stage. */
 export type StageCost = { [K in keyof StageCostsView]: NonNullable<StageCostsView[K]> };
 
-/** `sender_id` is null once the sender's account was deleted (shown as "Former member"). */
-export type Message = Pick<Tables<"messages">, "id" | "project_id" | "sender_id" | "body" | "attachment_path" | "created_at"> & {
-  attachment_url?: string | null;
-};
-
 /** A jsonb object column (notification/activity `params`): read its values defensively. */
 export type JsonParams = Record<string, unknown>;
 
@@ -266,8 +261,6 @@ export type Invitation = Pick<
 export type NotificationPreference = Pick<Tables<"notification_preferences">, "user_id" | "kind" | "channel" | "frequency">;
 
 export type Consent = Pick<Tables<"consents">, "id" | "user_id" | "kind" | "version" | "granted_at">;
-
-export type Knowledge = Pick<Tables<"ai_knowledge">, "id" | "project_id" | "title" | "content" | "tags" | "is_visible" | "updated_at">;
 
 export type DecisionStatus = Enums<"decision_status">;
 export type DecisionEventKind = Enums<"decision_event_kind">;
