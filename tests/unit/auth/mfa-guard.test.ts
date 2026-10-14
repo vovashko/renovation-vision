@@ -27,7 +27,7 @@ const UNVERIFIED = [{ id: "f2", friendlyName: "Phone", status: "unverified", cre
 type Hook = (opts: Record<string, unknown>) => unknown;
 const beforeLoad = (AuthedRoute.options as unknown as { beforeLoad: Hook }).beforeLoad;
 
-async function run(accountType: "manager" | "admin" | "client", aal: "aal1" | "aal2", queryClient = new QueryClient()) {
+async function run(accountType: "admin" | "client", aal: "aal1" | "aal2", queryClient = new QueryClient()) {
   const user = { id: `u-${accountType}`, email: null, aal };
   const auth = { user, profile: { full_name: "X", avatar_url: null, account_type: accountType } };
   try {
@@ -49,26 +49,24 @@ describe("_authed staff 2FA redirect", () => {
   it("staff + required + aal1 + a verified factor → /mfa (challenge), keeping where they were going", async () => {
     h.isStaffMfaRequired.mockResolvedValue(true);
     h.listFactors.mockResolvedValue(VERIFIED);
-    for (const type of ["manager", "admin"] as const) {
-      expect(hrefOf(await run(type, "aal1"))).toBe(`/mfa?redirect=${encodeURIComponent("/projects/p1/budget")}`);
-    }
+    expect(hrefOf(await run("admin", "aal1"))).toBe(`/mfa?redirect=${encodeURIComponent("/projects/p1/budget")}`);
   });
 
   it("staff + required + aal1 + no verified factor (none, or only an abandoned one) → /mfa/enroll", async () => {
     h.isStaffMfaRequired.mockResolvedValue(true);
     h.listFactors.mockResolvedValueOnce([]).mockResolvedValueOnce(UNVERIFIED);
-    expect(hrefOf(await run("manager", "aal1"))).toBe(`/mfa/enroll?redirect=${encodeURIComponent("/projects/p1/budget")}`);
-    expect(hrefOf(await run("manager", "aal1"))).toMatch(/^\/mfa\/enroll\?/);
+    expect(hrefOf(await run("admin", "aal1"))).toBe(`/mfa/enroll?redirect=${encodeURIComponent("/projects/p1/budget")}`);
+    expect(hrefOf(await run("admin", "aal1"))).toMatch(/^\/mfa\/enroll\?/);
   });
 
   it("staff + not required → pass (factors never asked)", async () => {
     h.isStaffMfaRequired.mockResolvedValue(false);
-    expect(await run("manager", "aal1")).toMatchObject({ returned: { user: { aal: "aal1" } } });
+    expect(await run("admin", "aal1")).toMatchObject({ returned: { user: { aal: "aal1" } } });
     expect(h.listFactors).not.toHaveBeenCalled();
   });
 
   it("staff + aal2 → pass, without even asking whether 2FA is required", async () => {
-    expect(await run("manager", "aal2")).toMatchObject({ returned: { user: { aal: "aal2" } } });
+    expect(await run("admin", "aal2")).toMatchObject({ returned: { user: { aal: "aal2" } } });
     expect(h.isStaffMfaRequired).not.toHaveBeenCalled();
   });
 
@@ -80,7 +78,7 @@ describe("_authed staff 2FA redirect", () => {
 
   it("RPC error → pass (fail open) with a warning logged", async () => {
     h.isStaffMfaRequired.mockRejectedValue(new Error("permission denied for function staff_mfa_required"));
-    expect(await run("manager", "aal1")).toMatchObject({ returned: { user: { id: "u-manager" } } });
+    expect(await run("admin", "aal1")).toMatchObject({ returned: { user: { id: "u-admin" } } });
     expect(h.warn).toHaveBeenCalledWith(expect.stringContaining("staff_mfa_required"), {
       err: "permission denied for function staff_mfa_required",
     });
@@ -89,8 +87,8 @@ describe("_authed staff 2FA redirect", () => {
   it("caches staff_mfa_required() per session (the query client), not per navigation", async () => {
     h.isStaffMfaRequired.mockResolvedValue(false);
     const queryClient = new QueryClient();
-    await run("manager", "aal1", queryClient);
-    await run("manager", "aal1", queryClient);
+    await run("admin", "aal1", queryClient);
+    await run("admin", "aal1", queryClient);
     expect(h.isStaffMfaRequired).toHaveBeenCalledTimes(1);
   });
 });

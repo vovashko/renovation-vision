@@ -60,7 +60,7 @@ insert into auth.users (id, email, aud, role) values
   ('a0000000-0000-4000-8000-0000000000f1', 'other-manager@test.demo', 'authenticated', 'authenticated'),
   ('a0000000-0000-4000-8000-0000000000c1', 'c1@test.demo', 'authenticated', 'authenticated'),
   ('a0000000-0000-4000-8000-0000000000c2', 'c2@test.demo', 'authenticated', 'authenticated');
-update public.profiles set account_type = 'manager' where id = 'a0000000-0000-4000-8000-0000000000f1';
+update public.profiles set account_type = 'admin' where id = 'a0000000-0000-4000-8000-0000000000f1';
 
 -- ===========================================================================
 -- Seed: the Bennett contact is Sarah's; Tom is an explicit extra login

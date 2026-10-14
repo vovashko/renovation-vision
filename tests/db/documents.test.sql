@@ -67,8 +67,8 @@ end $$;
 insert into auth.users (id, email, aud, role) values
   ('a0000000-0000-4000-8000-0000000000ff', 'other@renovision.demo', 'authenticated', 'authenticated');
 insert into public.profiles (id, full_name, account_type)
-values ('a0000000-0000-4000-8000-0000000000ff', 'Other Manager', 'manager')
-on conflict (id) do update set account_type = 'manager';
+values ('a0000000-0000-4000-8000-0000000000ff', 'Other Manager', 'admin')
+on conflict (id) do update set account_type = 'admin';
 
 select pg_temp.as_user('a0000000-0000-4000-8000-0000000000ff');
 select public.create_project('Elm Road House');

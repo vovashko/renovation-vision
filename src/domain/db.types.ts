@@ -244,6 +244,12 @@ isOneToOne: false
       foreignKeyName: "documents_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "documents_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
       referencedRelation: "projects"
       referencedColumns: ["id"]
     },{
@@ -484,13 +490,13 @@ isOneToOne: false
                   ]
                 },"photos": {
                   Row: {
-                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"task_id": string | null,"taken_at": string,"updated_at": string,"uploaded_by": string | null
+                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at": string,"task_id": string | null,"updated_at": string,"uploaded_by": string | null
                   }
                   Insert: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"task_id"?: string | null,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at"?: string,"task_id"?: string | null,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Update: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"task_id"?: string | null,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"taken_at"?: string,"task_id"?: string | null,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -735,7 +741,7 @@ isOneToOne: false
                     "created_at": string,"material_id": string,"project_id": string,"warning_id": string
                   }
                   Insert: {
-                    "created_at"?: string,"material_id": string,"project_id"?: string,"warning_id": string
+                    "created_at"?: string,"material_id": string,"project_id": string,"warning_id": string
                   }
                   Update: {
                     "created_at"?: string,"material_id"?: string,"project_id"?: string,"warning_id"?: string
@@ -1041,7 +1047,7 @@ isOneToOne: true
                            }
           }
           Enums: {
-            "account_type": "manager"|"client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","decision_event_kind": "submitted"|"question"|"answer"|"accepted"|"rejected"|"reopened"|"edited","decision_status": "pending"|"accepted"|"rejected"|"question","document_category": "contract"|"estimate"|"invoices"|"installation_photos"|"warranties"|"manuals","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
+            "account_type": "client"|"admin","contact_kind": "client"|"crew"|"supplier"|"architect"|"other","cost_category": "labour"|"materials"|"permits"|"disposal"|"equipment"|"other","decision_event_kind": "submitted"|"question"|"answer"|"accepted"|"rejected"|"reopened"|"edited","decision_status": "pending"|"accepted"|"rejected"|"question","document_category": "contract"|"estimate"|"invoices"|"installation_photos"|"warranties"|"manuals","material_status": "planned"|"ordered"|"delivered"|"installed","notification_channel": "in_app"|"email","notification_frequency": "instant"|"daily"|"off","photo_status": "draft"|"published","progress_mode": "tasks"|"manual","project_contact_role": "client"|"poc"|"crew"|"supplier"|"architect","project_role": "manager"|"client","project_status": "planning"|"active"|"on_hold"|"completed"|"archived","schedule_status": "on_schedule"|"at_risk"|"delayed","work_status": "done"|"progress"|"pending"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1157,7 +1163,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "account_type": ["manager", "client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"decision_event_kind": ["submitted", "question", "answer", "accepted", "rejected", "reopened", "edited"],"decision_status": ["pending", "accepted", "rejected", "question"],"document_category": ["contract", "estimate", "invoices", "installation_photos", "warranties", "manuals"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
+            "account_type": ["client", "admin"],"contact_kind": ["client", "crew", "supplier", "architect", "other"],"cost_category": ["labour", "materials", "permits", "disposal", "equipment", "other"],"decision_event_kind": ["submitted", "question", "answer", "accepted", "rejected", "reopened", "edited"],"decision_status": ["pending", "accepted", "rejected", "question"],"document_category": ["contract", "estimate", "invoices", "installation_photos", "warranties", "manuals"],"material_status": ["planned", "ordered", "delivered", "installed"],"notification_channel": ["in_app", "email"],"notification_frequency": ["instant", "daily", "off"],"photo_status": ["draft", "published"],"progress_mode": ["tasks", "manual"],"project_contact_role": ["client", "poc", "crew", "supplier", "architect"],"project_role": ["manager", "client"],"project_status": ["planning", "active", "on_hold", "completed", "archived"],"schedule_status": ["on_schedule", "at_risk", "delayed"],"work_status": ["done", "progress", "pending", "blocked"]
           }
         }
 } as const

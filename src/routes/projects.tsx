@@ -11,6 +11,7 @@ import { NewProjectForm } from "@/features/projects/ui/new-project-form";
 import { ProjectListItem } from "@/features/projects/ui/project-list-item";
 import { useCreateProject, useProjects } from "@/features/projects/hooks";
 import type { NewProjectValues } from "@/features/projects/domain/schemas";
+import { isStaff } from "@/domain/account";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authed/projects/")({
@@ -25,7 +26,7 @@ function ProjectsPage() {
   const { profile } = useAuth();
   const { data: projects, isLoading } = useProjects();
   const [open, setOpen] = useState(false);
-  if (profile?.account_type !== "manager") return <Navigate to="/" replace />;
+  if (!isStaff(profile?.account_type)) return <Navigate to="/" replace />;
 
   return (
     <div className="mx-auto w-full max-w-6xl">

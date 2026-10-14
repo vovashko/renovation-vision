@@ -1,3 +1,4 @@
+import { isStaff } from "@/domain/account";
 import { useProjectRole } from "@/features/auth/hooks";
 import { useAuth } from "@/lib/auth";
 import type { ProjectRole } from "@/lib/database.types";
@@ -14,7 +15,7 @@ import { useNavProjectId } from "./nav-project";
  */
 export function navRoleFor(projectRole: ProjectRole | null, inProject: boolean, accountType: string | null | undefined): ProjectRole {
   if (inProject) return projectRole ?? "client";
-  return accountType === "manager" ? "manager" : "client";
+  return isStaff(accountType) ? "manager" : "client";
 }
 
 /** The signed-in user's role for navigation (the desktop rail, the phone bar, quick actions, role-aware pages). */

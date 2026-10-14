@@ -6,7 +6,7 @@ const h = vi.hoisted(() => ({
   headers: {} as Record<string, string>,
   getClaims: vi.fn(),
   cookieSession: null as null | { access_token: string },
-  accountType: "manager" as string | null,
+  accountType: "admin" as string | null,
   projectRoles: {} as Record<string, boolean>,
   clients: [] as { accessToken?: string }[],
 }));
@@ -36,7 +36,7 @@ vi.mock("@/lib/supabase/server", () => ({
   },
 }));
 
-const { requireUser, requireAal2, requireAccountType, requireProjectRole } = await import("@/server/middleware/auth");
+const { requireUser, requireAal2, requireStaff, requireProjectRole } = await import("@/server/middleware/auth");
 const { ServerFnError } = await import("@/server/errors");
 const { parseBearer, userFromClaims } = await import("@/server/auth.server");
 
@@ -68,7 +68,7 @@ beforeEach(() => {
   h.headers = {};
   h.getClaims.mockReset();
   h.cookieSession = null;
-  h.accountType = "manager";
+  h.accountType = "admin";
   h.projectRoles = {};
   h.clients = [];
 });
@@ -164,34 +164,26 @@ describe("requireAal2", () => {
   });
 });
 
-describe("requireAccountType", () => {
+describe("requireStaff", () => {
   beforeEach(() => {
     h.headers.authorization = "Bearer good.access.token";
     h.getClaims.mockResolvedValue({ data: { claims: claims() }, error: null });
   });
 
-  it("403s the wrong account type", async () => {
+  it("403s a client", async () => {
     h.accountType = "client";
-    await expectServerError(runServerMiddleware([requireAccountType("manager")]), 403, "FORBIDDEN", "account_type_manager_required");
+    await expectServerError(runServerMiddleware([requireStaff]), 403, "FORBIDDEN", "staff_required");
   });
 
   it("403s a user without a profile", async () => {
     h.accountType = null;
-    await expectServerError(runServerMiddleware([requireAccountType("manager", "client")]), 403, "FORBIDDEN");
+    await expectServerError(runServerMiddleware([requireStaff]), 403, "FORBIDDEN", "staff_required");
   });
 
-  it("passes the right account type and adds it to the context", async () => {
-    const { handlerCalled, context } = await runServerMiddleware([requireAccountType("manager")]);
-    expect(handlerCalled).toBe(true);
-    expect(context.accountType).toBe("manager");
-  });
-
-  it("accepts admin accounts when admin is allowed, and 403s them otherwise", async () => {
-    h.accountType = "admin";
-    const { handlerCalled, context } = await runServerMiddleware([requireAccountType("manager", "admin")]);
+  it("passes a staff (admin) account and adds the account type to the context", async () => {
+    const { handlerCalled, context } = await runServerMiddleware([requireStaff]);
     expect(handlerCalled).toBe(true);
     expect(context.accountType).toBe("admin");
-    await expectServerError(runServerMiddleware([requireAccountType("manager")]), 403, "FORBIDDEN", "account_type_manager_required");
   });
 });
 
@@ -242,11 +234,11 @@ describe("requireProjectRole", () => {
   it("composes: aal2 + account type + project role run requireUser once", async () => {
     h.getClaims.mockResolvedValue({ data: { claims: claims({ aal: "aal2" }) }, error: null });
     h.projectRoles[`is_project_manager:${PROJECT_ID}`] = true;
-    const { handlerCalled, context } = await runServerMiddleware([requireUser, requireAal2, requireAccountType("manager"), managerOnly], {
+    const { handlerCalled, context } = await runServerMiddleware([requireUser, requireAal2, requireStaff, managerOnly], {
       data: { projectId: PROJECT_ID },
     });
     expect(handlerCalled).toBe(true);
-    expect(context).toMatchObject({ accountType: "manager", projectId: PROJECT_ID });
+    expect(context).toMatchObject({ accountType: "admin", projectId: PROJECT_ID });
     expect(h.getClaims).toHaveBeenCalledTimes(1);
   });
 });
