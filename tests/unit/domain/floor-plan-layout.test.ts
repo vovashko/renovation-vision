@@ -5,57 +5,73 @@ const W = 600;
 const H = 420;
 const area = (r: { w: number; h: number }) => r.w * r.h;
 
+function assertFillsAndNoOverlap(tiles: ReturnType<typeof layoutRooms>, width: number, height: number) {
+  expect(tiles.reduce((sum, r) => sum + area(r), 0)).toBeCloseTo(width * height, 4);
+  for (const r of tiles) {
+    expect(r.x).toBeGreaterThanOrEqual(-1e-9);
+    expect(r.y).toBeGreaterThanOrEqual(-1e-9);
+    expect(r.x + r.w).toBeLessThanOrEqual(width + 1e-9);
+    expect(r.y + r.h).toBeLessThanOrEqual(height + 1e-9);
+  }
+  for (const [i, a] of tiles.entries()) {
+    for (const b of tiles.slice(i + 1)) {
+      const overlapW = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const overlapH = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      expect(overlapW > 1e-6 && overlapH > 1e-6).toBe(false);
+    }
+  }
+}
+
 describe("layoutRooms", () => {
   it("returns nothing for no rooms", () => {
-    expect(layoutRooms([], W, H).size).toBe(0);
+    expect(layoutRooms(0, W, H)).toEqual([]);
   });
 
   it("gives a single room the whole plan", () => {
-    const r = layoutRooms([{ id: "a", w: 4, h: 3 }], W, H).get("a");
-    expect(r).toEqual({ x: 0, y: 0, w: W, h: H });
+    expect(layoutRooms(1, W, H)).toEqual([{ x: 0, y: 0, w: W, h: H }]);
   });
 
-  it("fills the plan exactly and keeps every tile inside it", () => {
-    const rooms = [
-      { id: "living", w: 8, h: 5.5 },
-      { id: "kitchen", w: 6, h: 3.5 },
-      { id: "dining", w: 6, h: 2 },
-      { id: "bath", w: 4, h: 4 },
-      { id: "bed1", w: 5, h: 4 },
-      { id: "bed2", w: 5, h: 4 },
-    ];
-    const layout = layoutRooms(rooms, W, H);
-    expect([...layout.values()].reduce((sum, r) => sum + area(r), 0)).toBeCloseTo(W * H, 4);
-    for (const r of layout.values()) {
-      expect(r.x).toBeGreaterThanOrEqual(-1e-9);
-      expect(r.y).toBeGreaterThanOrEqual(-1e-9);
-      expect(r.x + r.w).toBeLessThanOrEqual(W + 1e-9);
-      expect(r.y + r.h).toBeLessThanOrEqual(H + 1e-9);
-    }
+  for (let count = 1; count <= 12; count++) {
+    it(`fills the plan exactly and has no overlaps for ${count} room(s)`, () => {
+      assertFillsAndNoOverlap(layoutRooms(count, W, H), W, H);
+    });
+
+    it(`is stable for ${count} room(s)`, () => {
+      expect(layoutRooms(count, W, H)).toEqual(layoutRooms(count, W, H));
+    });
+  }
+
+  it("2 rooms split the plan in half", () => {
+    const [a, b] = layoutRooms(2, W, H);
+    expect(a).toEqual({ x: 0, y: 0, w: W / 2, h: H });
+    expect(b).toEqual({ x: W / 2, y: 0, w: W / 2, h: H });
   });
 
-  it("sizes tiles in proportion to real area, so the biggest room takes the most space", () => {
-    const rooms = [
-      { id: "small", w: 2, h: 2 },
-      { id: "big", w: 6, h: 4 },
-      { id: "mid", w: 4, h: 3 },
-    ];
-    const layout = layoutRooms(rooms, W, H);
-    const ratio = (id: string, other: string) => area(layout.get(id)!) / area(layout.get(other)!);
-    expect(ratio("big", "small")).toBeCloseTo(6, 6);
-    expect(ratio("mid", "small")).toBeCloseTo(3, 6);
-    expect(area(layout.get("big")!)).toBeGreaterThan(area(layout.get("mid")!));
+  it("3 rooms sit side by side", () => {
+    const tiles = layoutRooms(3, W, H);
+    expect(tiles).toHaveLength(3);
+    expect(tiles.every((t) => t.h === H)).toBe(true);
   });
 
-  it("does not overlap tiles", () => {
-    const rooms = Array.from({ length: 7 }, (_, i) => ({ id: `r${i}`, w: 2 + i, h: 3 }));
-    const tiles = [...layoutRooms(rooms, W, H).values()];
-    for (const [i, a] of tiles.entries()) {
-      for (const b of tiles.slice(i + 1)) {
-        const overlapW = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-        const overlapH = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-        expect(overlapW > 1e-6 && overlapH > 1e-6).toBe(false);
-      }
-    }
+  it("4 rooms form a 2x2 grid", () => {
+    const tiles = layoutRooms(4, W, H);
+    expect(tiles).toHaveLength(4);
+    expect(new Set(tiles.map((t) => t.w)).size).toBe(1);
+    expect(new Set(tiles.map((t) => t.h)).size).toBe(1);
+  });
+
+  it("the last, shorter row stretches to fill the width", () => {
+    // 7 rooms: two rows of 3 and a final row of 1, which should be as wide as the plan.
+    const tiles = layoutRooms(7, W, H);
+    const last = tiles[6];
+    expect(last.w).toBeCloseTo(W, 6);
+  });
+
+  it("uses a single column of equal tiles on a narrow container", () => {
+    const tiles = layoutRooms(3, 300, 900);
+    expect(tiles).toHaveLength(3);
+    for (const t of tiles) expect(t.w).toBe(300);
+    expect(new Set(tiles.map((t) => t.h)).size).toBe(1);
+    assertFillsAndNoOverlap(tiles, 300, 900);
   });
 });

@@ -14,14 +14,15 @@ export type FloorPlanRoom = {
   name: string;
   status: Status;
   progress: number;
-  /** Real width and length in metres: the plan sizes and places the tile from these. */
+  /** Real width and length in metres: specs only (shown in the room form and room view). The plan's tile
+   * layout ignores them — it's a fixed grid by room count, not a scale drawing. */
   w: number;
   h: number;
   muted?: boolean;
 };
 
-// Plan geometry: rooms are laid out on a 600x420 grid by `layoutRooms`, each tile's area proportional to the
-// room's real area. Each tile is inset by GAP on every side so
+// Plan geometry: rooms are laid out on a 600x420 grid by `layoutRooms`, a fixed grid by room count (a
+// visual aid, not sized from the rooms' real dimensions). Each tile is inset by GAP on every side so
 // neighbouring rooms sit 2*GAP plan-units apart (~6px at a typical rendered width). This grid
 // has no shadcn/spec primitive to compose from — it's a genuinely bespoke, positioned widget —
 // so its tiles are styled here directly, through the shared status-ui.ts token maps only.
@@ -49,7 +50,7 @@ export function FloorPlan({
   const { t } = useTranslation("work");
   const statusLabel = useStatusLabel();
   const active = rooms.find((r) => r.id === activeId) ?? null;
-  const layout = useMemo(() => layoutRooms(rooms, GRID_W, GRID_H), [rooms]);
+  const layout = useMemo(() => layoutRooms(rooms.length, GRID_W, GRID_H), [rooms.length]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
@@ -60,10 +61,10 @@ export function FloorPlan({
           role="group"
           aria-label={t("floorPlan.ariaLabel")}
         >
-          {rooms.map((r) => {
+          {rooms.map((r, i) => {
             const isActive = active?.id === r.id;
             const isPending = r.status === "pending";
-            const box = layout.get(r.id);
+            const box = layout[i];
             if (!box) return null;
             return (
               <button

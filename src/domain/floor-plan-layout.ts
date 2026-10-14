@@ -1,81 +1,49 @@
-// Floor-plan layout. Rooms carry only their real dimensions (width × length); where each one sits on the plan
-// is computed here, so nobody has to place rooms by hand. Pure: no React, no I/O.
+// Floor-plan layout. The plan is a visual aid, not a scale drawing: rooms are arranged in a fixed grid by
+// count, in the order they're given (callers sort by `sort_order`, then `created_at`). Each room's real
+// width and length (metres) stay in the room form and the room view, but the layout ignores them —
+// previous versions sized tiles by real area; that's gone. Pure: no React, no I/O.
 
 export type PlanRect = { x: number; y: number; w: number; h: number };
 
-type Sized = { id: string; w: number; h: number };
-
-/** Worst aspect ratio in `row` if it were laid along a side of length `side` (areas already scaled to the plan). */
-function worstRatio(areas: number[], side: number): number {
-  const sum = areas.reduce((a, b) => a + b, 0);
-  const max = Math.max(...areas);
-  const min = Math.min(...areas);
-  return Math.max((side * side * max) / (sum * sum), (sum * sum) / (side * side * min));
+/** Columns/rows for a tile grid of `count` rooms, on a plan at least as wide as it is tall. */
+function gridShape(count: number): { cols: number; rows: number } {
+  if (count <= 1) return { cols: 1, rows: 1 };
+  if (count === 2) return { cols: 2, rows: 1 };
+  if (count === 3) return { cols: 3, rows: 1 };
+  if (count === 4) return { cols: 2, rows: 2 };
+  if (count <= 6) return { cols: 3, rows: 2 };
+  if (count <= 9) return { cols: 3, rows: 3 };
+  return { cols: 4, rows: Math.ceil(count / 4) };
 }
 
 /**
- * Squarified treemap: every room gets a tile whose area is proportional to its real area (width × length), and
- * the tiles together fill `width × height` exactly. The biggest room takes the most space; ties keep input order.
- * Returns a rect per room id, in plan units.
+ * Fixed layout by room count — a visual aid, not sized from the rooms' real dimensions: 1 room fills the
+ * plan, 2 split it, 3 sit side by side, 4 form a 2×2 grid, 5-6 a 3×2 grid, 7-9 a 3×3 grid, then 4 columns.
+ * The last row stretches to fill the width when it has fewer tiles than the others. On a narrow container
+ * (taller than wide), every room gets an equal-height row in a single column instead.
+ * Returns one rect per room, in the input order, each exactly `width × height` in total.
  */
-export function layoutRooms(rooms: Sized[], width: number, height: number): Map<string, PlanRect> {
-  const out = new Map<string, PlanRect>();
-  if (rooms.length === 0) return out;
+export function layoutRooms(count: number, width: number, height: number): PlanRect[] {
+  if (count <= 0) return [];
 
-  const real = rooms.map((r) => ({ id: r.id, area: Math.max(r.w, 0.01) * Math.max(r.h, 0.01) }));
-  const total = real.reduce((sum, r) => sum + r.area, 0);
-  const scale = (width * height) / total;
-  const items = real.map((r, i) => ({ id: r.id, area: r.area * scale, i })).sort((a, b) => b.area - a.area || a.i - b.i);
-
-  let free: PlanRect = { x: 0, y: 0, w: width, h: height };
-  let row: typeof items = [];
-
-  const flush = () => {
-    if (row.length === 0) return;
-    const sum = row.reduce((a, r) => a + r.area, 0);
-    if (free.w >= free.h) {
-      // Wide space: the row is a column on the left, rooms stacked top to bottom.
-      const colW = sum / free.h;
-      let y = free.y;
-      for (const r of row) {
-        const h = r.area / colW;
-        out.set(r.id, { x: free.x, y, w: colW, h });
-        y += h;
-      }
-      free = { x: free.x + colW, y: free.y, w: free.w - colW, h: free.h };
-    } else {
-      // Tall space: the row runs along the top, rooms left to right.
-      const rowH = sum / free.w;
-      let x = free.x;
-      for (const r of row) {
-        const w = r.area / rowH;
-        out.set(r.id, { x, y: free.y, w, h: rowH });
-        x += w;
-      }
-      free = { x: free.x, y: free.y + rowH, w: free.w, h: free.h - rowH };
-    }
-    row = [];
-  };
-
-  for (const item of items) {
-    const side = Math.min(free.w, free.h);
-    if (
-      row.length === 0 ||
-      worstRatio(
-        [...row, item].map((r) => r.area),
-        side,
-      ) <=
-        worstRatio(
-          row.map((r) => r.area),
-          side,
-        )
-    ) {
-      row.push(item);
-    } else {
-      flush();
-      row.push(item);
-    }
+  if (width < height) {
+    const h = height / count;
+    return Array.from({ length: count }, (_, i) => ({ x: 0, y: i * h, w: width, h }));
   }
-  flush();
+
+  const { cols, rows } = gridShape(count);
+  const rowH = height / rows;
+  const fullRows = Math.floor(count / cols);
+  const lastRowCount = count - fullRows * cols || cols;
+
+  const out: PlanRect[] = [];
+  for (let i = 0; i < count; i++) {
+    const row = Math.floor(i / cols);
+    const isLastRow = row === rows - 1;
+    const itemsInRow = isLastRow ? lastRowCount : cols;
+    const colInRow = i - row * cols;
+    const tileW = width / itemsInRow;
+    out.push({ x: colInRow * tileW, y: row * rowH, w: tileW, h: rowH });
+  }
   return out;
 }
