@@ -72,6 +72,10 @@ export function RoomView({ projectId, roomId, isManager }: { projectId: string; 
             {derived ? t("roomView.progressFromWorks") : t("roomView.progressManual")}
           </p>
         )}
+        <p className="mt-2 text-body-sm text-on-surface-variant">
+          {t("roomView.size")}: {t("roomView.sizeValue", { w: room.w, h: room.h })} · {t("roomView.area")}:{" "}
+          {t("roomView.areaValue", { area: Math.round(room.w * room.h * 100) / 100 })}
+        </p>
         {room.client_note && <p className="mt-4 text-body-md text-on-surface-variant">{room.client_note}</p>}
       </div>
 

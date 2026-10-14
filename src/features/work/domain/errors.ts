@@ -5,6 +5,9 @@
 const ROOM_DONE_TASKS_OPEN = /^(.+) cannot be marked Completed while tasks are open: (.+)$/;
 const ROOM_DONE_REOPEN_TASK = "Room is marked Completed — change its status before adding or re-opening tasks";
 
+// documents.room_id is NO ACTION (T62 removes the column); Postgres names the unnamed FK "documents_room_id_fkey".
+const ROOM_HAS_INSTALLATION_PHOTOS = /foreign key constraint "documents_room_id_fkey"/;
+
 export type KnownWorkError = { key: `work:errors.${string}`; params?: Record<string, string> };
 
 /** Matches a raw Postgres error message against the known stage/room/task trigger errors. */
@@ -12,6 +15,7 @@ export function matchWorkError(message: string): KnownWorkError | null {
   const roomTasksOpen = ROOM_DONE_TASKS_OPEN.exec(message);
   if (roomTasksOpen) return { key: "work:errors.roomDoneTasksOpen", params: { name: roomTasksOpen[1], tasks: roomTasksOpen[2] } };
   if (message === ROOM_DONE_REOPEN_TASK) return { key: "work:errors.roomDoneReopenTask" };
+  if (ROOM_HAS_INSTALLATION_PHOTOS.test(message)) return { key: "work:errors.roomHasInstallationPhotos" };
   return null;
 }
 

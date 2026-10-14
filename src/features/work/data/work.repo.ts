@@ -56,9 +56,7 @@ export const workRepo = {
   },
 
   async listRooms(projectId: string): Promise<Room[]> {
-    return must(
-      supabase.from("rooms").select("*").eq("project_id", projectId).order("sort_order").order("created_at"),
-    ) as Promise<Room[]>;
+    return must(supabase.from("rooms").select("*").eq("project_id", projectId).order("sort_order").order("created_at")) as Promise<Room[]>;
   },
   async saveRoom(projectId: string, { id: roomId, ...input }: RoomInput): Promise<void> {
     if (roomId) await must(supabase.from("rooms").update(input).eq("id", roomId));
