@@ -15,15 +15,13 @@ export const EXPENSE_CATEGORIES = [
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
 
 /**
- * Amount as typed text so a Polish decimal comma ("12,50") works alongside a dot ("12.50").
- * `expenses.amount` has a DB check `amount > 0`, mirrored here so the form catches it first.
+ * Amount as the number `MoneyInput` emits (null while empty or unparseable; it parses "12,50" and
+ * "12.50" itself). `expenses.amount` has a DB check `amount > 0`, mirrored here so the form catches it first.
  */
 const amountInput = z
-  .string()
-  .trim()
-  .min(1, "common:form.required")
-  .transform((value) => value.replace(",", "."))
-  .pipe(z.coerce.number({ message: "common:form.invalid" }).positive("budget:sheet.amountPositive"));
+  .number()
+  .nullable()
+  .pipe(z.number({ message: "common:form.required" }).positive("budget:sheet.amountPositive"));
 
 export const expenseSchema = z.object({
   description: z.string().trim().min(1, "common:form.required"),
@@ -36,7 +34,7 @@ export const expenseSchema = z.object({
   receiptFile: z.instanceof(File).nullable(),
 });
 
-/** What the form fields hold (pre-validation: amount is still text). */
+/** What the form fields hold (pre-validation: amount may be null). */
 export type ExpenseFormInput = z.input<typeof expenseSchema>;
 /** What `form.handleSubmit` hands the submit handler (amount parsed to a number). */
 export type ExpenseFormValues = z.output<typeof expenseSchema>;

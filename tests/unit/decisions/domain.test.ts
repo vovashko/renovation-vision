@@ -116,7 +116,7 @@ describe("the state machine as the UI sees it", () => {
 });
 
 describe("decisionSchema", () => {
-  const base = { title: "Extra socket", description: "Two more", cost_delta: "880", days_delta: "4", files: [] };
+  const base = { title: "Extra socket", description: "Two more", cost_delta: 880, days_delta: "4", files: [] };
 
   it("parses a plain case", () => {
     const result = decisionSchema.safeParse(base);
@@ -125,28 +125,28 @@ describe("decisionSchema", () => {
   });
 
   it("allows negative values: savings and time gained", () => {
-    const result = decisionSchema.safeParse({ ...base, cost_delta: "-1 200,50", days_delta: "-3" });
+    const result = decisionSchema.safeParse({ ...base, cost_delta: -1200.5, days_delta: "-3" });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data).toMatchObject({ cost_delta: -1200.5, days_delta: -3 });
   });
 
-  it("accepts a Polish decimal comma, and treats empty as 0", () => {
-    const result = decisionSchema.safeParse({ ...base, cost_delta: "12,5", days_delta: "" });
+  it("keeps cents, and treats an empty (null) cost as 0", () => {
+    const result = decisionSchema.safeParse({ ...base, cost_delta: 12.5, days_delta: "" });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data).toMatchObject({ cost_delta: 12.5, days_delta: 0 });
-    const empty = decisionSchema.safeParse({ ...base, cost_delta: "", days_delta: "" });
+    const empty = decisionSchema.safeParse({ ...base, cost_delta: null, days_delta: "" });
     expect(empty.success && empty.data.cost_delta).toBe(0);
   });
 
   it("rejects text, fractions of a day, three decimals and out-of-range values", () => {
-    const messages = (patch: Record<string, string>) => {
+    const messages = (patch: Record<string, string | number | null>) => {
       const result = decisionSchema.safeParse({ ...base, ...patch });
       return result.success ? [] : result.error.issues.map((i) => i.message);
     };
-    expect(messages({ cost_delta: "abc" })).toContain("common:form.invalid");
+    expect(messages({ cost_delta: Number.NaN })).toContain("common:form.invalid");
     expect(messages({ days_delta: "1.5" })).toContain("decisions:form.daysWhole");
-    expect(messages({ cost_delta: "10.123" })).toContain("decisions:form.costDecimals");
-    expect(messages({ cost_delta: "2000000000" })).toContain("decisions:form.costTooLarge");
+    expect(messages({ cost_delta: 10.123 })).toContain("decisions:form.costDecimals");
+    expect(messages({ cost_delta: 2000000000 })).toContain("decisions:form.costTooLarge");
     expect(messages({ days_delta: "4000" })).toContain("decisions:form.daysTooLarge");
     expect(messages({ title: "   " })).toContain("common:form.required");
     expect(messages({ title: "x".repeat(161) })).toContain("decisions:form.titleTooLong");
