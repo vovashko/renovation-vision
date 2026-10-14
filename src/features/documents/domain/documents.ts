@@ -1,6 +1,7 @@
 // Pure rules for project documents: the six categories, the "new" marker, upload hardening (mime allow-list,
 // size cap, safe file names) and how versions / installation photos are grouped for display. No React, no
 // Supabase. Mirrors supabase/migrations/20261006000300_documents.sql.
+import { isHeicFile } from "@/features/media/domain/upload";
 import type { DocumentCategory, ProjectDocument } from "@/lib/database.types";
 
 /** The six categories, in tab order. */
@@ -43,13 +44,12 @@ export const MAX_DOCUMENT_BYTES = 25 * 1024 * 1024;
 const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-/** Allowed mime type → the file extensions that may carry it. */
+/** Stored mime type → the file extensions that may carry it. HEIC is not stored: it is converted to JPEG before upload. */
 const MIME_EXTENSIONS: Record<string, readonly string[]> = {
   "application/pdf": ["pdf"],
   "image/jpeg": ["jpg", "jpeg"],
   "image/png": ["png"],
   "image/webp": ["webp"],
-  "image/heic": ["heic", "heif"],
   [DOCX]: ["docx"],
   [XLSX]: ["xlsx"],
 };
@@ -57,7 +57,7 @@ const MIME_EXTENSIONS: Record<string, readonly string[]> = {
 export const ALLOWED_DOCUMENT_MIME_TYPES: readonly string[] = Object.keys(MIME_EXTENSIONS);
 
 /** The `accept` attribute for the file picker. */
-export const DOCUMENT_ACCEPT = ".pdf,.jpg,.jpeg,.png,.webp,.heic,.docx,.xlsx";
+export const DOCUMENT_ACCEPT = ".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.docx,.xlsx";
 
 export type DocumentFileRejection = "type" | "size" | "empty" | "extension";
 
@@ -70,6 +70,7 @@ export function extensionOf(fileName: string): string {
 /** Checks mime type, extension/mime agreement and size. Returns the failing rule, or null when the file is fine. */
 export function validateDocumentFile(file: { name: string; type: string; size: number }): DocumentFileRejection | null {
   if (file.size <= 0) return "empty";
+  if (isHeicFile(file)) return file.size > MAX_DOCUMENT_BYTES ? "size" : null; // converted to JPEG in the browser
   if (!ALLOWED_DOCUMENT_MIME_TYPES.includes(file.type)) return "type";
   if (!MIME_EXTENSIONS[file.type].includes(extensionOf(file.name))) return "extension";
   if (file.size > MAX_DOCUMENT_BYTES) return "size";
@@ -128,7 +129,7 @@ export function fileTypeLabel(mimeType: string, fileName = ""): string {
       return "PNG";
     case "image/webp":
       return "WEBP";
-    case "image/heic":
+    case "image/heic": // legacy rows only; new uploads are converted to JPEG
       return "HEIC";
     case DOCX:
       return "DOCX";

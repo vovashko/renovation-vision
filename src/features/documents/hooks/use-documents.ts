@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { documentsRepo, type DocumentPatch, type NewDocument } from "@/features/documents/data/documents.repo";
-import { reencodeImage } from "@/features/media/domain/strip-exif";
-import { shouldReencode } from "@/features/media/domain/upload";
+import { normalizeImage } from "@/features/media/domain/normalize-image";
+import { isHeicFile, shouldReencode } from "@/features/media/domain/upload";
 import type { ProjectDocument } from "@/lib/database.types";
 
 /** All documents of a project the caller can see, with thumbnail URLs for installation photos. */
@@ -17,10 +17,10 @@ export function useDocuments(projectId: string) {
   });
 }
 
-/** Installation photos lose their EXIF/GPS data like site photos do (jpeg/png/webp are re-encoded; HEIC can't be). */
+/** HEIC becomes JPEG; installation photos also lose their EXIF/GPS data like site photos do. */
 async function prepare(input: NewDocument): Promise<NewDocument> {
-  if (input.category === "installation_photos" && shouldReencode(input.file.type)) {
-    const { file } = await reencodeImage(input.file);
+  if (isHeicFile(input.file) || (input.category === "installation_photos" && shouldReencode(input.file.type))) {
+    const { file } = await normalizeImage(input.file);
     return { ...input, file };
   }
   return input;

@@ -77,9 +77,9 @@
   },
   "upload": {
     "filesRequired": "Choose at least one photo",
-    "fileTypeNotAllowed": "Only JPEG, PNG, WebP or HEIC photos are allowed",
+    "fileTypeNotAllowed": "Only JPEG, PNG or WebP photos are allowed",
     "fileTooLarge": "Each photo must be 15 MB or smaller",
-    "heicNotice": "HEIC photos are uploaded as-is — we can't remove their location data in the browser.",
+    "heicConversionFailed": "Couldn't convert this HEIC photo. Send it as a JPG instead.",
     "publishedToast_one": "Published {{count}} photo",
     "publishedToast_other": "Published {{count}} photos",
     "savedToast_one": "Saved {{count}} draft",

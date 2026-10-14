@@ -65,8 +65,10 @@ export function buildCsp({ supabaseUrl, isDev, nonce, sentryIngestOrigin: sentry
   const connectSrc = ["'self'", supabaseOrigin, wsOrigin(supabaseUrl), ...(isDev ? ["ws:"] : []), ...(sentryOrigin ? [sentryOrigin] : [])];
   // Dev: Vite's HMR/React-refresh preamble injects its own inline scripts with no nonce, so
   // 'unsafe-inline' has to stay (mixing it with a nonce source would make CSP-Level-2+ browsers
-  // ignore 'unsafe-inline' entirely, per spec, and break HMR). Everywhere else: nonce only.
-  const scriptSrc = isDev ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'", `'nonce-${nonce}'`];
+  // ignore 'unsafe-inline' entirely, per spec, and break HMR). Everywhere else: nonce only, plus
+  // 'wasm-unsafe-eval' for the lazily loaded HEIC decoder (heic-to, libheif WASM; T63). It allows
+  // WebAssembly compilation only, not JS eval/new Function.
+  const scriptSrc = isDev ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'", `'nonce-${nonce}'`, "'wasm-unsafe-eval'"];
   const directives: Array<[string, string[]]> = [
     ["default-src", ["'self'"]],
     ["base-uri", ["'self'"]],

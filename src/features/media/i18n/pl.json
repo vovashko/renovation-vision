@@ -81,9 +81,9 @@
   },
   "upload": {
     "filesRequired": "Wybierz co najmniej jedno zdjęcie",
-    "fileTypeNotAllowed": "Dozwolone są tylko zdjęcia JPEG, PNG, WebP lub HEIC",
+    "fileTypeNotAllowed": "Dozwolone są tylko zdjęcia JPEG, PNG lub WebP",
     "fileTooLarge": "Każde zdjęcie musi mieć maksymalnie 15 MB",
-    "heicNotice": "Zdjęcia HEIC są przesyłane bez zmian — nie możemy usunąć z nich danych lokalizacji w przeglądarce.",
+    "heicConversionFailed": "Nie udało się przekonwertować tego zdjęcia HEIC. Prześlij je jako JPG.",
     "publishedToast_one": "Opublikowano {{count}} zdjęcie",
     "publishedToast_few": "Opublikowano {{count}} zdjęcia",
     "publishedToast_many": "Opublikowano {{count}} zdjęć",

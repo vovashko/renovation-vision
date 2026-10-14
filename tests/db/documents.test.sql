@@ -91,8 +91,8 @@ select pg_temp.check(
   = 'contract,estimate,invoices,installation_photos,warranties,manuals', 'exactly the six categories, in order');
 select pg_temp.check((select not public from storage.buckets where id = 'project-documents'), 'the documents bucket is private');
 select pg_temp.check((select file_size_limit from storage.buckets where id = 'project-documents') = 26214400, 'bucket limit is 25 MB');
-select pg_temp.check((select cardinality(allowed_mime_types) from storage.buckets where id = 'project-documents') = 7,
-  'bucket allows pdf, jpeg, png, webp, heic, docx, xlsx');
+select pg_temp.check((select cardinality(allowed_mime_types) from storage.buckets where id = 'project-documents') = 6,
+  'bucket allows pdf, jpeg, png, webp, docx, xlsx (HEIC is converted in the browser)');
 
 -- ===========================================================================
 -- Manager: upload, versions
@@ -162,6 +162,11 @@ select pg_temp.check((select title = 'Renamed' and description = 'Note' from pub
 select pg_temp.rejected($q$insert into public.documents (project_id, category, title, storage_path, file_name, mime_type, size_bytes)
   values ('b0000000-0000-4000-8000-000000000001', 'manuals', 'x', 'b0000000-0000-4000-8000-000000000001/manuals/a.exe', 'a.exe', 'application/x-msdownload', 10)$q$,
   'a disallowed mime type');
+select pg_temp.rejected($q$insert into public.documents (project_id, category, title, storage_path, file_name, mime_type, size_bytes)
+  values ('b0000000-0000-4000-8000-000000000001', 'manuals', 'x', 'b0000000-0000-4000-8000-000000000001/manuals/a.heic', 'a.heic', 'image/heic', 10)$q$,
+  'HEIC (converted to JPEG in the browser)');
+select pg_temp.check((select not ('image/heic' = any (allowed_mime_types)) from storage.buckets where id = 'project-media'),
+  'the project-media bucket no longer allows HEIC');
 select pg_temp.rejected($q$insert into public.documents (project_id, category, title, storage_path, file_name, mime_type, size_bytes)
   values ('b0000000-0000-4000-8000-000000000001', 'manuals', 'x', 'b0000000-0000-4000-8000-000000000001/manuals/b.pdf', 'b.pdf', 'application/pdf', 26214401)$q$,
   'a file over 25 MB');

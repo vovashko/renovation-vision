@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import { reencodeImage } from "@/features/media/domain/strip-exif";
-import { shouldReencode } from "@/features/media/domain/upload";
+import { normalizeImage } from "@/features/media/domain/normalize-image";
+import { shouldNormalize } from "@/features/media/domain/upload";
 import { acceptDecision, createDecision, requestDecisionCode } from "@/server/functions/decisions";
 import type { Decision } from "@/lib/database.types";
 import { decisionsRepo, type DecisionInput } from "../data/decisions.repo";
@@ -34,9 +34,9 @@ function decisionInvalidate(projectId: string, projectChanged = false) {
   ];
 }
 
-/** Strips EXIF/GPS and caps dimensions for a standard image (the media feature's hardening); HEIC is uploaded as-is. */
+/** Strips EXIF/GPS and caps dimensions for a standard image (the media feature's hardening); HEIC becomes JPEG. */
 async function prepareFile(file: File): Promise<File> {
-  return shouldReencode(file.type) ? (await reencodeImage(file)).file : file;
+  return shouldNormalize(file) ? (await normalizeImage(file)).file : file;
 }
 
 export type NewDecision = DecisionInput & { files: File[] };

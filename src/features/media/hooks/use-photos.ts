@@ -3,16 +3,16 @@ import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { mediaRepo, type PhotoMeta, type PhotoPatch, type PhotoUploadItem } from "@/features/media/data/media.repo";
-import { extractTakenAt, reencodeImage } from "@/features/media/domain/strip-exif";
-import { shouldReencode } from "@/features/media/domain/upload";
+import { extractTakenAt } from "@/features/media/domain/strip-exif";
+import { normalizeImage } from "@/features/media/domain/normalize-image";
+import { shouldNormalize } from "@/features/media/domain/upload";
 import { deletePhoto } from "@/server/functions/media";
 import type { Photo } from "@/lib/database.types";
 
-/** Strips EXIF/GPS and caps dimensions for a standard image (jpeg/png/webp); HEIC is uploaded as-is
- * (browsers can't canvas-decode it) but its capture date is still read. */
+/** Strips EXIF/GPS and caps dimensions for a standard image (jpeg/png/webp); HEIC is converted to JPEG first. */
 async function prepareUpload(file: File): Promise<PhotoUploadItem> {
-  if (shouldReencode(file.type)) {
-    const { file: processed, takenAt } = await reencodeImage(file);
+  if (shouldNormalize(file)) {
+    const { file: processed, takenAt } = await normalizeImage(file);
     return { file: processed, takenAt };
   }
   return { file, takenAt: await extractTakenAt(file) };
