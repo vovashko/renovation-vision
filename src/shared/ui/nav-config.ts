@@ -5,6 +5,8 @@ import type { ProjectRole } from "@/lib/database.types";
  * shared `common` namespace (T19), so both the rail and the phone bar only need `useTranslation(["common"])`. */
 export type NavLabelKey = `common:nav.${keyof typeof en.nav}`;
 
+export type NavPlacement = "tab" | "more";
+
 export type NavItem = {
   /** Stable id for React keys and tests. */
   key: string;
@@ -17,7 +19,7 @@ export type NavItem = {
   /** Project roles that see this section (in the rail, the phone bar and the route guard). */
   roles: ProjectRole[];
   /** Phone bottom bar: a tab of its own, or a row in the "More" sheet. The desktop rail shows both. */
-  placement: "tab" | "more";
+  placement: NavPlacement | ((role: ProjectRole) => NavPlacement);
   /** Show a count badge on this item (see `useNavCounts`): clients' pending decisions. */
   counted?: boolean;
 };
@@ -32,16 +34,24 @@ export const projectNav: NavItem[] = [
   { key: "progress", section: "progress", icon: "checklist", labelKey: "common:nav.progress", roles: everyone, placement: "tab" },
   { key: "design", section: "design", icon: "palette", labelKey: "common:nav.design", roles: everyone, placement: "more" },
   { key: "photos", section: "photos", icon: "photo_camera", labelKey: "common:nav.photos", roles: everyone, placement: "tab" },
-  { key: "documents", section: "documents", icon: "folder_open", labelKey: "common:nav.documents", roles: everyone, placement: "more" },
+  // The phone bar's fourth tab: Documents for clients for now (T61 gives clients Budget and swaps it in).
+  {
+    key: "documents",
+    section: "documents",
+    icon: "folder_open",
+    labelKey: "common:nav.documents",
+    roles: everyone,
+    placement: (role) => (role === "client" ? "tab" : "more"),
+  },
+  // The phone bar's fourth tab for managers.
   {
     key: "budget",
     section: "budget",
     icon: "account_balance_wallet",
     labelKey: "common:nav.budget",
     roles: managers,
-    placement: "more",
+    placement: "tab",
   },
-  { key: "chat", section: "chat", icon: "chat_bubble", labelKey: "common:nav.chat", roles: everyone, placement: "tab" },
   // Investor decisions (#55): managers submit and answer, clients decide. Clients get a pending-count badge.
   {
     key: "decisions",
@@ -53,13 +63,17 @@ export const projectNav: NavItem[] = [
     counted: true,
   },
   { key: "updates", section: "updates", icon: "notifications", labelKey: "common:nav.updates", roles: managers, placement: "more" },
-  { key: "knowledge", section: "knowledge", icon: "menu_book", labelKey: "common:nav.knowledge", roles: managers, placement: "more" },
   { key: "team", section: "team", icon: "group", labelKey: "common:nav.team", roles: managers, placement: "more" },
 ];
 
 /** The sections a role sees, in rail order. */
-export function navItemsFor(role: ProjectRole, placement?: NavItem["placement"]): NavItem[] {
-  return projectNav.filter((i) => i.roles.includes(role) && (!placement || i.placement === placement));
+export function navItemsFor(role: ProjectRole, placement?: NavPlacement): NavItem[] {
+  return projectNav.filter((i) => i.roles.includes(role) && (!placement || placementFor(i, role) === placement));
+}
+
+/** Where a section sits on the phone bar for one role. */
+function placementFor(item: NavItem, role: ProjectRole): NavPlacement {
+  return typeof item.placement === "function" ? item.placement(role) : item.placement;
 }
 
 /** Sections a client may not open (the project layout redirects them). */

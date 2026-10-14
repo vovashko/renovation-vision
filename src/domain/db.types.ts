@@ -244,6 +244,12 @@ isOneToOne: false
       foreignKeyName: "documents_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
+      referencedRelation: "project_summary"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "documents_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
       referencedRelation: "projects"
       referencedColumns: ["id"]
     },{
@@ -395,37 +401,6 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"messages": {
-                  Row: {
-                    "attachment_path": string | null,"body": string,"created_at": string,"edited_at": string | null,"id": string,"project_id": string,"sender_id": string | null
-                  }
-                  Insert: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id": string,"sender_id"?: string | null
-                  }
-                  Update: {
-                    "attachment_path"?: string | null,"body"?: string,"created_at"?: string,"edited_at"?: string | null,"id"?: string,"project_id"?: string,"sender_id"?: string | null
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "messages_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "project_summary"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "messages_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "projects"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "messages_sender_id_fkey"
-      columns: ["sender_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"notification_preferences": {
                   Row: {
                     "channel": Database["public"]['Enums']["notification_channel"],"frequency": Database["public"]['Enums']["notification_frequency"],"kind": string,"updated_at": string,"user_id": string
@@ -484,13 +459,13 @@ isOneToOne: false
                   ]
                 },"photos": {
                   Row: {
-                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"task_id": string | null,"taken_at": string,"updated_at": string,"uploaded_by": string | null
+                    "alt": string,"caption": string,"created_at": string,"id": string,"progress_entry_id": string | null,"project_id": string,"published_at": string | null,"room_id": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at": string,"task_id": string | null,"updated_at": string,"uploaded_by": string | null
                   }
                   Insert: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"task_id"?: string | null,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id": string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path": string,"taken_at"?: string,"task_id"?: string | null,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Update: {
-                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"task_id"?: string | null,"taken_at"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "alt"?: string,"caption"?: string,"created_at"?: string,"id"?: string,"progress_entry_id"?: string | null,"project_id"?: string,"published_at"?: string | null,"room_id"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["photo_status"],"storage_path"?: string,"taken_at"?: string,"task_id"?: string | null,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -735,7 +710,7 @@ isOneToOne: false
                     "created_at": string,"material_id": string,"project_id": string,"warning_id": string
                   }
                   Insert: {
-                    "created_at"?: string,"material_id": string,"project_id"?: string,"warning_id": string
+                    "created_at"?: string,"material_id": string,"project_id": string,"warning_id": string
                   }
                   Update: {
                     "created_at"?: string,"material_id"?: string,"project_id"?: string,"warning_id"?: string
@@ -992,9 +967,6 @@ isOneToOne: true
                            },
 "is_project_member":
 { Args: { "p_project": string }; Returns: boolean
-                           },
-"mark_chat_read":
-{ Args: { "p_project": string }; Returns: undefined
                            },
 "mark_notifications_read":
 { Args: { "p_ids"?: (string)[] }; Returns: undefined

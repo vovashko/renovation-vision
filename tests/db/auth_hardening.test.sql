@@ -105,7 +105,6 @@ select pg_temp.check((select count(*) from public.stages) = 7, 'client sees 7 vi
 select pg_temp.check((select count(*) from public.rooms) = 6, 'client sees 6 rooms');
 select pg_temp.check((select count(*) from public.photos) = 8, 'client sees 8 published photos');
 select pg_temp.check((select count(*) from public.renders) = 4, 'client sees 4 renders');
-select pg_temp.check((select count(*) from public.messages) >= 5, 'client reads the chat');
 select pg_temp.check((select count(*) from storage.objects where name like '%p1-living%') = 1, 'client reads a published photo file');
 select pg_temp.check((select count(*) from public.expenses) = 0, 'client cannot read expenses');
 select pg_temp.check((select count(*) from public.project_internal) = 0, 'client cannot read internal notes');

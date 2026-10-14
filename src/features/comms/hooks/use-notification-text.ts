@@ -1,16 +1,7 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import type { ActivityEntry, Notification } from "@/lib/database.types";
-import {
-  isNotificationKind,
-  paramAction,
-  paramEntity,
-  paramFlag,
-  paramName,
-  paramScheduleStatus,
-  paramStatus,
-  paramText,
-} from "../domain/params";
+import { isNotificationKind, paramAction, paramEntity, paramName, paramScheduleStatus, paramStatus, paramText } from "../domain/params";
 
 export type NotificationText = { title: string; body: string };
 
@@ -61,15 +52,6 @@ export function useNotificationText(): (n: Pick<Notification, "kind" | "params" 
           return {
             title: t("notifications.schedule_status.title", { status: t(`common:schedule.${status}`) }),
             body: paramText(p, "note") ?? n.body,
-          };
-        }
-        case "message": {
-          const sender = paramName(p, "sender");
-          const preview = paramText(p, "preview");
-          if (preview === undefined) return legacy;
-          return {
-            title: sender ? t("notifications.message.title", { sender }) : t("notifications.message.titleNoSender"),
-            body: preview || (paramFlag(p, "attachment") ? t("notifications.message.attachment") : ""),
           };
         }
         case "decision_new":

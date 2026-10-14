@@ -17,7 +17,7 @@ export const JPEG_QUALITY = 0.9;
 const STANDARD_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const HEIC_TYPES = ["image/heic", "image/heif"] as const;
 
-/** Mime types accepted for each kind of media upload (the `project-media` bucket also allows `application/pdf`, for chat attachments — out of this feature's scope). */
+/** Mime types accepted for each kind of media upload (the `project-media` bucket also allows `application/pdf`). */
 export function allowedMimeTypes(kind: MediaKind): readonly string[] {
   return kind === "photo" ? [...STANDARD_IMAGE_TYPES, ...HEIC_TYPES] : STANDARD_IMAGE_TYPES; // renders are never HEIC
 }

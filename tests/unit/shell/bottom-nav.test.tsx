@@ -7,7 +7,7 @@ import { useProjectRole } from "@/features/auth/hooks";
 import { useParams, useRouterState } from "@tanstack/react-router";
 
 // BottomNav renders router `<Link>`s and reads route state; stub the router so this stays a unit
-// test of the role-aware nav, not a routing test (same approach as tests/unit/knowledge/ai-answer.test.tsx).
+// test of the role-aware nav, not a routing test (same approach as the other shell tests).
 vi.mock("@tanstack/react-router", () => ({
   Link: ({
     children,
@@ -63,16 +63,18 @@ beforeEach(() => {
 });
 
 describe("BottomNav", () => {
-  it("shows the same four tabs plus More for both roles", () => {
+  it("shows Overview, Progress, Photos and a role-specific fourth tab, plus More", () => {
+    const fourth = { client: "Documents", manager: "Budget" } as const;
+    const other = { client: "Budget", manager: "Documents" } as const;
     for (const role of ["client", "manager"] as const) {
       setUp({ role, path: "/projects/p1", projectId: "p1" });
       const { unmount } = render(<BottomNav />);
-      for (const label of ["Overview", "Progress", "Photos", "Chat"]) {
+      for (const label of ["Overview", "Progress", "Photos", fourth[role]]) {
         expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
       }
+      expect(screen.queryByRole("link", { name: "Chat" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: other[role] })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "More pages" })).toBeInTheDocument();
-      // Manager-only sections never show up as a tab, for either role.
-      expect(screen.queryByRole("link", { name: "Budget" })).not.toBeInTheDocument();
       unmount();
     }
   });
@@ -100,6 +102,7 @@ describe("BottomNav", () => {
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByRole("link", { name: "Design" })).toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: "Decisions" })).toBeInTheDocument();
+    expect(within(dialog).queryByRole("link", { name: "Documents" })).not.toBeInTheDocument(); // a tab for clients
     expect(within(dialog).queryByRole("link", { name: "All projects" })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: "Budget" })).not.toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: "Settings" })).toBeInTheDocument();
@@ -110,9 +113,10 @@ describe("BottomNav", () => {
     render(<BottomNav />);
     fireEvent.click(screen.getByRole("button", { name: "More pages" }));
     const dialog = await screen.findByRole("dialog");
-    for (const label of ["Design", "Budget", "Decisions", "Updates", "AI knowledge", "Team", "All projects", "Settings"]) {
+    for (const label of ["Design", "Documents", "Decisions", "Updates", "Team", "All projects", "Settings"]) {
       expect(within(dialog).getByRole("link", { name: label })).toBeInTheDocument();
     }
+    expect(within(dialog).queryByRole("link", { name: "Budget" })).not.toBeInTheDocument(); // a tab for managers
   });
 
   it("shows the client's pending decisions as a count on the Decisions row, and none for a manager", async () => {

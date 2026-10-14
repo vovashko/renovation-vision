@@ -298,16 +298,6 @@ insert into public.room_warning_materials (warning_id, material_id, project_id) 
   ('21000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000006', 'b0000000-0000-4000-8000-000000000001');
 
 -- ---------------------------------------------------------------------------
--- Chat (same conversation as the client app; "me" = Sarah)
--- ---------------------------------------------------------------------------
-insert into public.messages (project_id, sender_id, body, created_at) values
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Hi! Quick update — drywall is done in the living room. We''re starting flooring tomorrow.', '2026-04-20 09:14:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'Great news! Did the oak planks arrive?', '2026-04-20 09:18:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Yes, delivered this morning. Quality looks excellent.', '2026-04-20 09:20:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Heads up: Bedroom 2 is blocked — waiting on the electrical inspector. Will follow up today.', '2026-04-20 09:21:00'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'Thanks Jonas, keep me posted.', '2026-04-20 09:25:00');
-
--- ---------------------------------------------------------------------------
 -- Notifications (fan-out to both clients). `kind` + `params` are what the app renders (translated);
 -- title/body are the legacy English text the triggers still write.
 -- ---------------------------------------------------------------------------
@@ -323,10 +313,6 @@ from (values
   ('schedule_status', '{"status":"at_risk","note":"Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week."}', 'Schedule: At risk', 'Bedroom 2 is blocked until the electrical inspector signs off the new circuit. The Jun 10 target still holds if sign-off arrives this week.', '/', 'projects', 'b0000000-0000-4000-8000-000000000001', '2026-04-20 11:00:00', false)
 ) as n (kind, params, title, body, link, entity_type, entity_id, created_at, read)
 cross join (values ('a0000000-0000-4000-8000-000000000002'::uuid), ('a0000000-0000-4000-8000-000000000003'::uuid)) as c (id);
-
--- Manager's own inbox: the client's latest message.
-insert into public.notifications (project_id, recipient_id, kind, params, title, body, link, entity_type, created_by, created_at, read_at) values
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'message', '{"sender":"Sarah Bennett","preview":"Thanks Jonas, keep me posted.","attachment":false}', 'New message from Sarah Bennett', 'Thanks Jonas, keep me posted.', '/chat', 'messages', 'a0000000-0000-4000-8000-000000000002', '2026-04-20 09:25:00', '2026-04-20 09:30:00');
 
 -- ---------------------------------------------------------------------------
 -- Activity log (manager-only)
@@ -387,10 +373,6 @@ where project_id = 'b0000000-0000-4000-8000-000000000001';
 
 update public.expenses set
   spent_on = spent_on + (current_date - date '2026-04-20')
-where project_id = 'b0000000-0000-4000-8000-000000000001';
-
-update public.messages set
-  created_at = created_at + (current_date - date '2026-04-20') * interval '1 day'
 where project_id = 'b0000000-0000-4000-8000-000000000001';
 
 update public.notifications set

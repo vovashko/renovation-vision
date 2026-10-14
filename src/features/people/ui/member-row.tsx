@@ -2,15 +2,13 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { ChatAvatar } from "@/components/ui/avatar-initials";
-import { useFormat } from "@/i18n";
 import type { Member } from "@/lib/database.types";
 
-/** One row of the Team member list: avatar, name, last-read status, role, and a remove action. */
+/** One row of the Team member list: avatar, name, role, and a remove action. */
 export function MemberItem({ member, isSelf, onRemove }: { member: Member; isSelf: boolean; onRemove: () => void }) {
   const { t } = useTranslation(["people"]);
-  const format = useFormat();
   return (
     <Item variant="plain">
       <ItemMedia>
@@ -21,9 +19,6 @@ export function MemberItem({ member, isSelf, onRemove }: { member: Member; isSel
           {member.profile.full_name}
           {isSelf && <span className="text-on-surface-variant"> {t("team.you")}</span>}
         </ItemTitle>
-        <ItemDescription>
-          {member.last_read_at ? t("team.lastRead", { when: format.date(member.last_read_at, "dayTime") }) : t("team.neverRead")}
-        </ItemDescription>
       </ItemContent>
       <ItemActions>
         <Badge variant={member.role === "manager" ? "secondary" : "outline"}>
