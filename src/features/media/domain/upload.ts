@@ -19,8 +19,8 @@ const HEIC_TYPES = ["image/heic", "image/heif"] as const;
 
 /**
  * Mime types the storage buckets accept (the `project-media` bucket also allows `application/pdf`). HEIC is not
- * among them: it is converted to JPEG in the browser
- * before upload (see ./normalize-image), so `validateFile` lets a HEIC pick through.
+ * among them: it is converted to JPEG in the browser before upload (see ./normalize-image), so `validateFile` lets
+ * a HEIC pick through.
  */
 export function allowedMimeTypes(_kind: MediaKind): readonly string[] {
   return STANDARD_IMAGE_TYPES;

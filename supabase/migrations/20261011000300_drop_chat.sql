@@ -68,7 +68,7 @@ begin
   if p_channel = 'in_app' then
     return 'instant';
   end if;
-  if exists (select 1 from public.profiles p where p.id = p_user and p.account_type in ('manager', 'admin')) then
+  if private.is_staff(p_user) then
     return 'off';
   end if;
   return 'daily';
