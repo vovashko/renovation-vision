@@ -5,6 +5,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { FileInput } from "@/components/ui/file-input";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Note } from "@/components/ui/note";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/shared/ui/form-field";
@@ -15,11 +16,11 @@ import { decisionSchema, MAX_PHOTOS, type DecisionFormInput } from "../domain/sc
 import { useCreateDecision, useUpdateDecision } from "../hooks";
 
 function defaultsFor(decision: Decision | "new"): DecisionFormInput {
-  if (decision === "new") return { title: "", description: "", cost_delta: "", days_delta: "", files: [] };
+  if (decision === "new") return { title: "", description: "", cost_delta: null, days_delta: "", files: [] };
   return {
     title: decision.title,
     description: decision.description,
-    cost_delta: String(decision.cost_delta),
+    cost_delta: decision.cost_delta,
     days_delta: String(decision.days_delta),
     files: [],
   };
@@ -92,8 +93,8 @@ export function DecisionFormSheet({
               {(field) => <Textarea {...field} rows={5} placeholder={t("decisions:form.descriptionPlaceholder")} />}
             </FormField>
             <div className="grid grid-cols-2 gap-3">
-              <FormField control={form.control} name="cost_delta" label={`${t("decisions:form.cost")} (${currency})`}>
-                {(field) => <Input {...field} inputMode="decimal" placeholder="0" />}
+              <FormField control={form.control} name="cost_delta" label={t("decisions:form.cost")}>
+                {(field) => <MoneyInput {...field} currency={currency} allowNegative placeholder="0" />}
               </FormField>
               <FormField control={form.control} name="days_delta" label={t("decisions:form.days")}>
                 {(field) => <Input {...field} inputMode="numeric" placeholder="0" />}

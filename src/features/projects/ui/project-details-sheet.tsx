@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { scheduleStatuses } from "@/domain/status";
@@ -71,7 +72,7 @@ export function ProjectDetailsSheet({
           </FormField>
         </div>
         <FormField control={form.control} name="budget" label={t("details.budget")} description={t("details.budgetHint")}>
-          {(field) => <Input type="number" min={0} step={100} {...field} className="h-11" />}
+          {(field) => <MoneyInput {...field} currency={project.currency} />}
         </FormField>
         {baselineEditable ? (
           <>
@@ -80,7 +81,7 @@ export function ProjectDetailsSheet({
                 {(field) => <Input type="date" {...field} className="h-11" />}
               </FormField>
               <FormField control={form.control} name="planned_budget" label={t("details.plannedBudget")}>
-                {(field) => <Input type="number" min={0} step={100} {...field} className="h-11" />}
+                {(field) => <MoneyInput {...field} currency={project.currency} />}
               </FormField>
             </div>
             <p className="text-body-sm text-on-surface-variant">{t("details.plannedEditableHint")}</p>

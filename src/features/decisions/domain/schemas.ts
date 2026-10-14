@@ -9,7 +9,7 @@ export const MAX_DAYS = 3650;
 export const CODE_LENGTH = 6;
 
 /**
- * A signed number typed as text so a Polish decimal comma ("-1 200,50") works; empty means 0. The sign is
+ * A signed number typed as text so a Polish decimal comma ("-1 200,50") works; empty means 0. For days; the sign is
  * allowed on purpose: a negative cost is a saving, negative days are time gained.
  */
 const signedNumber = z
@@ -18,7 +18,12 @@ const signedNumber = z
   .transform((value) => (value === "" ? "0" : value.replace(/\s/g, "").replace(",", ".")))
   .pipe(z.coerce.number({ message: "common:form.invalid" }).finite("common:form.invalid"));
 
-const cost = signedNumber
+/** The cost change as `MoneyInput` emits it: a number, null (empty) meaning 0. */
+const cost = z
+  .number({ message: "common:form.invalid" })
+  .nullable()
+  .transform((n) => n ?? 0)
+  .pipe(z.number().finite("common:form.invalid"))
   .refine((n) => Math.abs(n) <= MAX_COST, "decisions:form.costTooLarge")
   .refine((n) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-6, "decisions:form.costDecimals");
 
