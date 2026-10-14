@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, PageLoading } from "@/components/page-header";
 import { InternalBadge } from "@/shared/ui/visibility-badge";
+import { MaterialsImportButton } from "@/features/import/ui/import-button";
 import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
 import { BudgetStats } from "@/features/budget/ui/budget-stats";
 import { ExpenseTable } from "@/features/budget/ui/expense-table";
@@ -45,9 +46,12 @@ function BudgetPage() {
         title={t("budget:page.title")}
         description={t("budget:page.description")}
         actions={
-          <Button onClick={startNewExpense} className="gap-2">
-            <Icon name="add" size={20} /> {t("budget:page.addExpense")}
-          </Button>
+          <>
+            <MaterialsImportButton projectId={projectId} />
+            <Button onClick={startNewExpense} className="gap-2">
+              <Icon name="add" size={20} /> {t("budget:page.addExpense")}
+            </Button>
+          </>
         }
       />
 
