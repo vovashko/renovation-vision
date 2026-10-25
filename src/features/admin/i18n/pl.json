@@ -1,1 +1,28 @@
-{}
+{
+  "staff": {
+    "pageTitle": "Konta",
+    "pageDescription": "Wszyscy, którzy mają konto w RenoVision. Kierownicy tworzą i prowadzą projekty; klienci widzą projekty, w których są klientami.",
+    "profileLink": "Zarządzaj kontami",
+    "manager": "Kierownik",
+    "client": "Klient",
+    "invited": "Zaproszenie oczekuje",
+    "you": "(Ty)",
+    "makeManager": "Ustaw jako kierownika",
+    "makeClient": "Ustaw jako klienta",
+    "makeManagerAria": "Ustaw {{name}} jako kierownika",
+    "makeClientAria": "Ustaw {{name}} jako klienta",
+    "promoteConfirmTitle": "Ustawić {{name}} jako kierownika?",
+    "promoteConfirmDescription": "Ta osoba będzie mogła tworzyć projekty i zarządzać innymi kontami, także na tej stronie.",
+    "demoteConfirmTitle": "Ustawić {{name}} jako klienta?",
+    "demoteConfirmDescription": "Ta osoba nie będzie już mogła tworzyć projektów ani zarządzać kontami.",
+    "demoteSelfConfirmDescription": "Stracisz uprawnienia kierownika, także dostęp do tej strony.",
+    "promoted": "{{name}} jest teraz kierownikiem",
+    "demoted": "{{name}} jest teraz klientem",
+    "empty": "Nie ma jeszcze żadnych kont.",
+    "errors": {
+      "last_staff_account": "To ostatnie konto kierownika, więc nie może zostać kontem klienta. Najpierw ustaw kogoś innego jako kierownika.",
+      "mfa_required": "Najpierw potwierdź tożsamość aplikacją uwierzytelniającą (Ustawienia → Bezpieczeństwo).",
+      "forbidden": "Tylko konta kierowników mogą zmieniać typ konta."
+    }
+  }
+}

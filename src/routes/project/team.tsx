@@ -9,6 +9,7 @@ import { PageHeader, PageLoading } from "@/components/page-header";
 import { AddTeamPersonSheet } from "@/features/people/ui/add-team-person-sheet";
 import { CrewRows } from "@/features/people/ui/crew-row";
 import { CrewSheet } from "@/features/people/ui/crew-sheet";
+import { PendingInvites } from "@/features/people/ui/invite-list";
 import { MemberItem } from "@/features/people/ui/member-row";
 import { useMembers, useProjectContacts, useRemoveMember } from "@/features/people/hooks";
 import { crewOf } from "@/features/people/domain/contacts";
@@ -81,6 +82,8 @@ function TeamPage() {
           <CrewRows crew={crew} onEdit={setPerson} />
         </>
       )}
+
+      <PendingInvites projectId={projectId} />
 
       <AddTeamPersonSheet projectId={projectId} links={links} open={adding} onOpenChange={setAdding} />
       <CrewSheet projectId={projectId} person={person} onClose={() => setPerson(null)} />
