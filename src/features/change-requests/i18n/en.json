@@ -1,0 +1,149 @@
+{
+  "section": {
+    "heading": "Change requests",
+    "descriptionBudget": "Changes to the budget that need the client's approval. Only an approved request changes the budget.",
+    "descriptionProgress": "Changes to the schedule that need the client's approval. Only an approved request moves the end date.",
+    "new": "New change request",
+    "emptyTitle": "No change requests",
+    "emptyManager": "When something costs more or takes longer than planned, ask the client to approve it here.",
+    "emptyClient": "Your manager hasn't asked you to approve any change."
+  },
+  "list": {
+    "awaitingClient": "Awaiting your approval",
+    "awaitingManager": "Waiting for the client",
+    "history": "History",
+    "submitted": "Submitted {{date}}",
+    "stage": "Stage: {{name}}"
+  },
+  "status": {
+    "pending": "Awaiting approval",
+    "accepted": "Approved",
+    "rejected": "Rejected",
+    "question": "Awaiting approval"
+  },
+  "delta": {
+    "none": "No change",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days"
+  },
+  "detail": {
+    "cost": "Cost change",
+    "days": "Day change",
+    "stage": "Stage",
+    "description": "Description",
+    "noDescription": "No description.",
+    "decidedBy": "Decided by {{name}}, {{date}}",
+    "rejectionReason": "Reason for rejecting",
+    "lockedNote": "This request is approved and locked. If something changes, submit a new one.",
+    "notFound": "This change request doesn't exist or you can't see it."
+  },
+  "preview": {
+    "heading": "If it's approved",
+    "budget": "Budget: from {{from}} to {{to}}",
+    "end": "End date: from {{from}} to {{to}}",
+    "endUnknown": "The project has no end date yet, so the {{days}} change won't be applied.",
+    "belowZero": "Approving would take the budget below zero, so this request can't be approved as it is.",
+    "onlyApproved": "Only an approved request changes these."
+  },
+  "history": {
+    "heading": "History",
+    "empty": "Nothing recorded yet.",
+    "former": "Former team member",
+    "system": "System",
+    "role": {
+      "manager": "Manager",
+      "client": "Client"
+    },
+    "kind": {
+      "submitted": "Submitted the request",
+      "question": "Asked a question",
+      "answer": "Answered",
+      "accepted": "Approved the request",
+      "rejected": "Rejected the request",
+      "reopened": "Reopened the request",
+      "edited": "Edited the request"
+    }
+  },
+  "actions": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "reopen": "Reopen",
+    "edit": "Edit",
+    "questions": "Questions? Message your manager"
+  },
+  "approve": {
+    "confirmTitle": "Approve this change?",
+    "budget": "Budget changes from {{from}} to {{to}}.",
+    "end": "The end date changes from {{from}} to {{to}}.",
+    "endUnknown": "The project has no end date yet, so the {{days}} change won't be applied.",
+    "final": "This can't be undone.",
+    "confirmLabel": "Approve"
+  },
+  "reject": {
+    "title": "Reject this change?",
+    "description": "Your manager is notified. A rejected request can be reopened later.",
+    "label": "Reason",
+    "submit": "Reject"
+  },
+  "form": {
+    "newTitle": "New change request",
+    "editTitle": "Edit change request",
+    "description": "The client sees this request and approves or rejects it. You can edit it until they decide.",
+    "kind": "What changes?",
+    "kindCost": "Cost",
+    "kindDays": "Schedule",
+    "kindBoth": "Both",
+    "title": "Title",
+    "titlePlaceholder": "e.g. Two extra sockets in the kitchen",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What changes, why, and what the options are",
+    "cost": "Cost change",
+    "costHint": "In the project's currency. A negative amount is a saving.",
+    "days": "Day change",
+    "daysHint": "Calendar days. A negative number is time gained.",
+    "stage": "Stage (optional)",
+    "stageNone": "No stage",
+    "stageHint": "The stage this change unblocks. Approving doesn't change the stage itself.",
+    "save": "Save changes",
+    "submit": "Send for approval",
+    "submitting": "Saving…",
+    "costTooLarge": "This amount is too large",
+    "costDecimals": "Use at most two decimal places",
+    "costRequired": "Enter the cost change",
+    "daysWhole": "Enter a whole number of days",
+    "daysTooLarge": "That's too many days",
+    "daysRequired": "Enter the day change",
+    "titleTooLong": "The title is too long (up to 160 characters)",
+    "descriptionTooLong": "The description is too long (up to 5000 characters)",
+    "textTooLong": "That's too long (up to 2000 characters)",
+    "reasonRequired": "A reason is required"
+  },
+  "approvals": {
+    "title": "Awaiting your approval",
+    "count_one": "{{count}} change request waits for you.",
+    "count_other": "{{count}} change requests wait for you.",
+    "review": "Review"
+  },
+  "toast": {
+    "created": "Change request sent. The client has been notified.",
+    "updated": "Change request updated",
+    "rejected": "Change request rejected. Your manager has been notified.",
+    "reopened": "Change request reopened",
+    "accept": {
+      "ok": "Change approved. The budget and end date are updated.",
+      "already_accepted": "This change was already approved.",
+      "not_open": "This change request can no longer be approved."
+    }
+  },
+  "errors": {
+    "decision_locked": "This change request is decided and can't be changed any more.",
+    "decision_forbidden": "You don't have permission to do this on this project.",
+    "not_rejected": "Only a rejected request can be reopened.",
+    "reason_required": "A reason is required.",
+    "no_change": "A change request must change the cost or the days.",
+    "stage_other_project": "That stage belongs to another project.",
+    "budget_negative": "Approving would take the budget below zero.",
+    "mfa_required": "Verify with two-factor authentication first.",
+    "rate_limited": "Too many requests. Try again in a moment."
+  }
+}

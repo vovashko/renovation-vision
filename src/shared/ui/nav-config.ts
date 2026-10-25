@@ -20,7 +20,7 @@ export type NavItem = {
   roles: ProjectRole[];
   /** Phone bottom bar: a tab of its own, or a row in the "More" sheet. The desktop rail shows both. */
   placement: NavPlacement | ((role: ProjectRole) => NavPlacement);
-  /** Show a count badge on this item (see `useNavCounts`): clients' pending decisions. */
+  /** Show a count badge on this item (see `useNavCounts`): the change requests waiting for a client. */
   counted?: boolean;
 };
 
@@ -34,32 +34,16 @@ export const projectNav: NavItem[] = [
   { key: "progress", section: "progress", icon: "checklist", labelKey: "common:nav.progress", roles: everyone, placement: "tab" },
   { key: "design", section: "design", icon: "palette", labelKey: "common:nav.design", roles: everyone, placement: "more" },
   { key: "photos", section: "photos", icon: "photo_camera", labelKey: "common:nav.photos", roles: everyone, placement: "tab" },
-  // The phone bar's fourth tab: Documents for clients for now (T61 gives clients Budget and swaps it in).
-  {
-    key: "documents",
-    section: "documents",
-    icon: "folder_open",
-    labelKey: "common:nav.documents",
-    roles: everyone,
-    placement: (role) => (role === "client" ? "tab" : "more"),
-  },
-  // The phone bar's fourth tab for managers.
+  { key: "documents", section: "documents", icon: "folder_open", labelKey: "common:nav.documents", roles: everyone, placement: "more" },
+  // The phone bar's fourth tab for both roles (T61). Clients see the totals and the change requests; their badge
+  // counts the requests waiting for them.
   {
     key: "budget",
     section: "budget",
     icon: "account_balance_wallet",
     labelKey: "common:nav.budget",
-    roles: managers,
-    placement: "tab",
-  },
-  // Investor decisions (#55): managers submit and answer, clients decide. Clients get a pending-count badge.
-  {
-    key: "decisions",
-    section: "decisions",
-    icon: "fact_check",
-    labelKey: "common:nav.decisions",
     roles: everyone,
-    placement: "more",
+    placement: "tab",
     counted: true,
   },
   { key: "updates", section: "updates", icon: "notifications", labelKey: "common:nav.updates", roles: managers, placement: "more" },

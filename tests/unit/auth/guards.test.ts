@@ -99,7 +99,7 @@ describe("project layout guard", () => {
   });
 
   it("a client on a manager-only section → redirect to the project overview", async () => {
-    for (const section of ["budget", "updates", "team"]) {
+    for (const section of ["updates", "team"]) {
       const thrown = await run("client", `/projects/${P}/${section}`);
       expect(isRedirect(thrown)).toBe(true);
       expect((thrown as { options: unknown }).options).toMatchObject({ to: "/projects/$projectId", params: { projectId: P } });
@@ -107,7 +107,8 @@ describe("project layout guard", () => {
   });
 
   it("a client on a shared section → allowed", async () => {
-    for (const section of ["", "progress", "photos", "design"]) {
+    // Budget is shared since T61: clients see the totals and the change requests.
+    for (const section of ["", "progress", "photos", "design", "budget"]) {
       expect(await run("client", `/projects/${P}${section ? `/${section}` : ""}`)).toEqual({ returned: undefined });
     }
   });
@@ -127,7 +128,8 @@ describe("guard helpers", () => {
 
   it("projectGuard covers the matrix", () => {
     expect(projectGuard(null, "")).toBe("not-found");
-    expect(projectGuard("client", "budget")).toBe("overview");
+    expect(projectGuard("client", "team")).toBe("overview");
+    expect(projectGuard("client", "budget")).toBe("allow");
     expect(projectGuard("client", "photos")).toBe("allow");
     expect(projectGuard("manager", "budget")).toBe("allow");
   });

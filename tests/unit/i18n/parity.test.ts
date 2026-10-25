@@ -49,7 +49,8 @@ describe("i18n resources", () => {
 
   it("declares every namespace in i18next.d.ts (typed keys)", () => {
     const dts = fs.readFileSync(path.resolve(__dirname, "../../../src/i18n/i18next.d.ts"), "utf8");
-    for (const ns of namespaces) expect(dts, `add "${ns}: typeof …" to src/i18n/i18next.d.ts`).toMatch(new RegExp(`\\n\\s+${ns}: typeof `));
+    for (const ns of namespaces)
+      expect(dts, `add "${ns}: typeof …" to src/i18n/i18next.d.ts`).toMatch(new RegExp(`\\n\\s+"?${ns}"?: typeof `));
   });
 
   describe.each(namespaces)("namespace %s", (ns) => {

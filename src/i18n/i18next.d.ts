@@ -8,7 +8,7 @@ import type admin from "../features/admin/i18n/en.json";
 import type auth from "../features/auth/i18n/en.json";
 import type budget from "../features/budget/i18n/en.json";
 import type comms from "../features/comms/i18n/en.json";
-import type decisions from "../features/decisions/i18n/en.json";
+import type changeRequests from "../features/change-requests/i18n/en.json";
 import type documents from "../features/documents/i18n/en.json";
 import type importNs from "../features/import/i18n/en.json";
 import type media from "../features/media/i18n/en.json";
@@ -27,7 +27,7 @@ declare module "i18next" {
       auth: typeof auth;
       budget: typeof budget;
       comms: typeof comms;
-      decisions: typeof decisions;
+      "change-requests": typeof changeRequests;
       documents: typeof documents;
       import: typeof importNs;
       media: typeof media;

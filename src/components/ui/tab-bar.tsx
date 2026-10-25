@@ -37,13 +37,15 @@ type TabBarItemProps = Omit<React.ComponentProps<"button">, "children"> & {
   icon: string;
   label: string;
   active?: boolean;
+  /** A count shown on the icon (change requests waiting for the client); hidden at 0. */
+  badge?: number;
   /** Render the given child (a router <Link>) instead of a <button>. */
   asChild?: boolean;
   children?: React.ReactNode;
 };
 
 /** One tab: a pill-backed icon with its label below. Without `asChild` it is a type="button" button. */
-function TabBarItem({ icon, label, active = false, asChild = false, className, children, ...props }: TabBarItemProps) {
+function TabBarItem({ icon, label, active = false, badge = 0, asChild = false, className, children, ...props }: TabBarItemProps) {
   const Comp = asChild ? Slot : "button";
   return (
     <Comp
@@ -53,8 +55,9 @@ function TabBarItem({ icon, label, active = false, asChild = false, className, c
       className={cn(tabBarItemVariants({ active }), className)}
       {...props}
     >
-      <span className={pillVariants({ active })}>
+      <span className={cn(pillVariants({ active }), "relative")}>
         <Icon name={icon} size={24} fill={active} />
+        <CountBadge count={badge} className="absolute -top-1 right-2 h-4 min-w-4 px-1 text-label-sm" />
       </span>
       {label}
       <Slottable>{children}</Slottable>

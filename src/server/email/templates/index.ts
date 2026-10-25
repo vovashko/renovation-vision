@@ -2,7 +2,6 @@
 // text } for a locale. src/server/email/send-email.server.ts renders one of these, then hands the
 // result to a provider.
 import type { Locale } from "@/i18n/locale";
-import { renderConfirmationCodeEmail, type ConfirmationCodeEmailParams } from "./confirmation-code";
 import { renderDigestEmail, type DigestEmailParams } from "./digest";
 import { renderInviteEmail, type InviteEmailParams } from "./invite";
 import { renderNotificationEmail, type NotificationEmailParams } from "./notification";
@@ -10,14 +9,12 @@ import type { EmailContent } from "./types";
 
 export type { EmailContent } from "./types";
 export type { NotificationEmailParams } from "./notification";
-export type { ConfirmationCodeEmailParams } from "./confirmation-code";
 export type { DigestEmailItem, DigestEmailParams } from "./digest";
 export type { InviteEmailParams } from "./invite";
 
 export type EmailTemplateParams = {
   notification: NotificationEmailParams;
   digest: DigestEmailParams;
-  confirmationCode: ConfirmationCodeEmailParams;
   invite: InviteEmailParams;
 };
 
@@ -29,8 +26,6 @@ export function renderEmail<T extends EmailTemplateName>(template: T, params: Em
       return renderNotificationEmail(params as NotificationEmailParams, locale);
     case "digest":
       return renderDigestEmail(params as DigestEmailParams, locale);
-    case "confirmationCode":
-      return renderConfirmationCodeEmail(params as ConfirmationCodeEmailParams, locale);
     case "invite":
       return renderInviteEmail(params as InviteEmailParams, locale);
     default: {

@@ -15,6 +15,10 @@
   "vars": {
     "APP_ENV": "development",
   },
+  // Cron Triggers: the hourly change-request reminders (src/server.ts → scheduled, T61). Each env below states
+  // it too, so a deploy never depends on inheritance. Local check: `wrangler dev --test-scheduled`, then
+  // `curl "http://localhost:8787/__scheduled?cron=0+*+*+*+*"`.
+  "triggers": { "crons": ["0 * * * *"] },
   // Workers Rate Limiting bindings, one per policy in src/server/middleware/rate-limit.ts (RATE_LIMITS
   // holds the same numbers; a unit test fails if they drift). `period` is 10 or 60 seconds.
   // `ratelimits` is not inherited, so each env below repeats it with its own namespace_id
@@ -30,7 +34,10 @@
       "name": "renovision-preview",
       "vars": {
         "APP_ENV": "preview",
+        // The app's public origin for links in emails sent outside a request (the reminder cron).
+        "APP_ORIGIN": "https://renovision-preview.renovision.workers.dev",
       },
+      "triggers": { "crons": ["0 * * * *"] },
       "ratelimits": [
         { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "72201", "simple": { "limit": 120, "period": 60 } },
         { "name": "RATE_LIMIT_INVITE", "namespace_id": "72202", "simple": { "limit": 10, "period": 60 } },
@@ -42,7 +49,10 @@
       "name": "renovision",
       "vars": {
         "APP_ENV": "production",
+        // Add APP_ORIGIN (the live origin) here before the first production deploy: the reminder cron refuses
+        // to run without it (src/server/jobs/change-request-reminders.server.ts).
       },
+      "triggers": { "crons": ["0 * * * *"] },
       "ratelimits": [
         { "name": "RATE_LIMIT_DEFAULT", "namespace_id": "72301", "simple": { "limit": 120, "period": 60 } },
         { "name": "RATE_LIMIT_INVITE", "namespace_id": "72302", "simple": { "limit": 10, "period": 60 } },

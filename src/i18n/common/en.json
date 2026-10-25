@@ -45,7 +45,6 @@
     "documents": "Documents",
     "design": "Design",
     "budget": "Budget",
-    "decisions": "Decisions",
     "withCount": "{{label}}, {{count}} pending",
     "updates": "Updates",
     "team": "Team",
