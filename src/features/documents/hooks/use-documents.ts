@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import { documentsRepo, type DocumentPatch, type NewDocument } from "@/features/documents/data/documents.repo";
+import { documentsRepo, type NewDocument } from "@/features/documents/data/documents.repo";
 import { normalizeImage } from "@/features/media/domain/normalize-image";
-import { isHeicFile, shouldReencode } from "@/features/media/domain/upload";
+import { isHeicFile } from "@/features/media/domain/upload";
+import { deleteDocument } from "@/server/functions/documents";
 import type { ProjectDocument } from "@/lib/database.types";
 
-/** All documents of a project the caller can see, with thumbnail URLs for installation photos. */
+/** All documents of a project the caller can see. */
 export function useDocuments(projectId: string) {
   return useQuery({
     queryKey: keys.documents(projectId),
@@ -17,9 +18,9 @@ export function useDocuments(projectId: string) {
   });
 }
 
-/** HEIC becomes JPEG; installation photos also lose their EXIF/GPS data like site photos do. */
+/** HEIC becomes JPEG before upload; every other file goes up as picked. */
 async function prepare(input: NewDocument): Promise<NewDocument> {
-  if (isHeicFile(input.file) || (input.category === "installation_photos" && shouldReencode(input.file.type))) {
+  if (isHeicFile(input.file)) {
     const { file } = await normalizeImage(input.file);
     return { ...input, file };
   }
@@ -30,24 +31,24 @@ export function useUploadDocument(projectId: string) {
   const { t } = useTranslation(["documents"]);
   return useMutationWithToast(async (input: NewDocument) => documentsRepo.uploadDocument(projectId, await prepare(input)), {
     invalidate: [keys.documents(projectId)],
-    success: (input) => (input.versionOf ? t("toast.versionUploaded") : t("toast.uploaded")),
+    success: t("toast.uploaded"),
   });
 }
 
 export function useUpdateDocument(projectId: string) {
   const { t } = useTranslation(["documents"]);
-  return useMutationWithToast((vars: { id: string; patch: DocumentPatch }) => documentsRepo.updateDocument(vars.id, vars.patch), {
+  return useMutationWithToast((vars: { id: string; description: string }) => documentsRepo.updateDescription(vars.id, vars.description), {
     invalidate: [keys.documents(projectId)],
     success: t("toast.updated"),
   });
 }
 
-/** Archive (or restore) a document. A hard delete is not offered anywhere. */
-export function useArchiveDocument(projectId: string) {
+/** Deletes the row and then the storage object (one server call). There is no archive and no undo. */
+export function useDeleteDocument(projectId: string) {
   const { t } = useTranslation(["documents"]);
-  return useMutationWithToast((vars: { id: string; archived: boolean }) => documentsRepo.setArchived(vars.id, vars.archived), {
+  return useMutationWithToast((doc: ProjectDocument) => deleteDocument({ data: { projectId, documentId: doc.id } }), {
     invalidate: [keys.documents(projectId)],
-    success: (vars) => (vars.archived ? t("toast.archived") : t("toast.restored")),
+    success: t("toast.deleted"),
   });
 }
 

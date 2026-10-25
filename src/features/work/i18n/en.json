@@ -258,7 +258,6 @@
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} can't be marked Completed while tasks are open: {{tasks}}.",
-    "roomDoneReopenTask": "This room is marked Completed — change its status before adding or re-opening tasks.",
-    "roomHasInstallationPhotos": "This room still has installation photos in Documents. Move or remove them before deleting the room."
+    "roomDoneReopenTask": "This room is marked Completed — change its status before adding or re-opening tasks."
   }
 }

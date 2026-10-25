@@ -13,6 +13,8 @@ export const NOTIFICATION_KINDS = [
   "render_published",
   "schedule_status",
   "manual",
+  // A document was added to the shelf (T62): params { name } (the file name).
+  "document_new",
   // Change requests (T61; the bug-bash decisions): params { title, text }. `decision_answer` and
   // `decision_question` are no longer written (the question step is gone); kept so old rows still render.
   "decision_new",

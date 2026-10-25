@@ -1,25 +1,15 @@
-// Pure rules for project documents: the six categories, the "new" marker, upload hardening (mime allow-list,
-// size cap, safe file names) and how versions / installation photos are grouped for display. No React, no
-// Supabase. Mirrors supabase/migrations/20261006000300_documents.sql.
+// Pure rules for project documents: the five categories, the "new" marker and upload hardening (mime allow-list,
+// size cap, safe file names). No React, no Supabase. Mirrors supabase/migrations/20261025000300_documents_v2.sql.
 import { isHeicFile } from "@/features/media/domain/upload";
 import type { DocumentCategory, ProjectDocument } from "@/lib/database.types";
 
-/** The six categories, in tab order. */
-export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
-  "contract",
-  "estimate",
-  "invoices",
-  "installation_photos",
-  "warranties",
-  "manuals",
-] as const;
+/**
+ * The five categories, in tab order. `installation_photos` stays in the database enum but is unused: installation
+ * photos are normal photos now (T62).
+ */
+export type ShelfCategory = Exclude<DocumentCategory, "installation_photos">;
 
-/** Uploading a new version of these never deletes the old one: the old rows stay as history. */
-const VERSIONED: readonly DocumentCategory[] = ["contract", "estimate"];
-
-export function isVersionedCategory(category: DocumentCategory): boolean {
-  return VERSIONED.includes(category);
-}
+export const DOCUMENT_CATEGORIES: readonly ShelfCategory[] = ["contract", "estimate", "invoices", "warranties", "manuals"] as const;
 
 // ---------------------------------------------------------------------------
 // "New" marker
@@ -101,7 +91,7 @@ export function safeFileName(name: string): string {
 }
 
 /** The storage path convention: `<project_id>/<category>/<uuid>.<ext>` (the storage policies key on the first segment). */
-export function documentStoragePath(projectId: string, category: DocumentCategory, uuid: string, fileName: string): string {
+export function documentStoragePath(projectId: string, category: ShelfCategory, uuid: string, fileName: string): string {
   return `${projectId}/${category}/${uuid}.${extensionOf(fileName) || "bin"}`;
 }
 
@@ -140,15 +130,6 @@ export function fileTypeLabel(mimeType: string, fileName = ""): string {
   }
 }
 
-export function isImageMime(mimeType: string): boolean {
-  return mimeType.startsWith("image/");
-}
-
-/** Browsers can't render HEIC in an <img>, so the gallery shows a file tile for it. */
-export function canPreviewImage(mimeType: string): boolean {
-  return isImageMime(mimeType) && mimeType !== "image/heic";
-}
-
 /** "1.2 MB", "340 KB". */
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -161,46 +142,13 @@ export function formatFileSize(bytes: number): string {
 // ---------------------------------------------------------------------------
 const byNewest = (a: ProjectDocument, b: ProjectDocument) => b.created_at.localeCompare(a.created_at);
 
-/** Documents of one category; archived ones only when asked for. Newest first. */
-export function documentsOf(docs: ProjectDocument[], category: DocumentCategory, includeArchived: boolean): ProjectDocument[] {
-  return docs.filter((d) => d.category === category && (includeArchived || !d.archived_at)).sort(byNewest);
+/** Documents of one category, newest first. */
+export function documentsOf(docs: ProjectDocument[], category: ShelfCategory): ProjectDocument[] {
+  return docs.filter((d) => d.category === category).sort(byNewest);
 }
 
-export function countByCategory(docs: ProjectDocument[], includeArchived: boolean): Record<DocumentCategory, number> {
-  const counts = Object.fromEntries(DOCUMENT_CATEGORIES.map((c) => [c, 0])) as Record<DocumentCategory, number>;
-  for (const d of docs) if (includeArchived || !d.archived_at) counts[d.category] += 1;
+export function countByCategory(docs: ProjectDocument[]): Record<ShelfCategory, number> {
+  const counts = Object.fromEntries(DOCUMENT_CATEGORIES.map((c) => [c, 0])) as Record<ShelfCategory, number>;
+  for (const d of docs) if (d.category in counts) counts[d.category as ShelfCategory] += 1;
   return counts;
-}
-
-/** One versioned document: the current version, and the older ones (newest first) as history. */
-export type VersionedDocument = { group: string; current: ProjectDocument; history: ProjectDocument[] };
-
-/**
- * Groups contract/estimate rows by `version_group`. The current version is the row flagged `is_current`; a group
- * with none (every version archived, shown to a manager) falls back to its newest version. Groups are ordered by
- * their current version's date, newest first.
- */
-export function groupVersions(docs: ProjectDocument[]): VersionedDocument[] {
-  const groups = new Map<string, ProjectDocument[]>();
-  for (const d of docs) groups.set(d.version_group, [...(groups.get(d.version_group) ?? []), d]);
-  return [...groups.entries()]
-    .map(([group, rows]) => {
-      const sorted = [...rows].sort((a, b) => b.version - a.version);
-      const current = sorted.find((r) => r.is_current) ?? sorted[0];
-      return { group, current, history: sorted.filter((r) => r.id !== current.id) };
-    })
-    .sort((a, b) => byNewest(a.current, b.current));
-}
-
-/** Installation photos grouped by room, rooms in the given order, "no room" (a deleted room) last. */
-export type RoomGallery = { roomId: string | null; photos: ProjectDocument[] };
-
-export function groupByRoom(docs: ProjectDocument[], roomOrder: string[]): RoomGallery[] {
-  const byRoom = new Map<string | null, ProjectDocument[]>();
-  for (const d of [...docs].sort(byNewest)) byRoom.set(d.room_id, [...(byRoom.get(d.room_id) ?? []), d]);
-  const rank = (id: string | null) => {
-    const i = id ? roomOrder.indexOf(id) : -1;
-    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
-  };
-  return [...byRoom.entries()].map(([roomId, photos]) => ({ roomId, photos })).sort((a, b) => rank(a.roomId) - rank(b.roomId));
 }

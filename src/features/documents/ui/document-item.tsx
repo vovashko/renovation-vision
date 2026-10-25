@@ -19,28 +19,16 @@ export type DocumentActions = {
   isManager: boolean;
   onDownload: (doc: ProjectDocument) => void;
   onEdit: (doc: ProjectDocument) => void;
-  onArchive: (doc: ProjectDocument, archived: boolean) => void;
+  onDelete: (doc: ProjectDocument) => void;
 };
 
 /**
- * One document row: type icon, title with the "new" marker, date added / file type / size, the description when
- * there is one, and the actions (download for everyone; edit and archive/restore for the site manager).
+ * One document row: type icon, the file name with the "new" marker, date added / file type / size, the description
+ * when there is one, and the actions (download for everyone; edit and delete for the site manager).
  */
-export function DocumentItem({
-  doc,
-  actions,
-  versionLabel,
-  now,
-}: {
-  doc: ProjectDocument;
-  actions: DocumentActions;
-  /** "Version 2", shown for contract/estimate rows. */
-  versionLabel?: string;
-  now?: Date;
-}) {
+export function DocumentItem({ doc, actions, now }: { doc: ProjectDocument; actions: DocumentActions; now?: Date }) {
   const { t } = useTranslation(["documents"]);
   const format = useFormat();
-  const archived = !!doc.archived_at;
   const meta = t("item.meta", {
     date: format.date(doc.created_at, "long"),
     type: fileTypeLabel(doc.mime_type, doc.file_name),
@@ -48,24 +36,14 @@ export function DocumentItem({
   });
 
   return (
-    <Item data-testid="document-item" className={archived ? "border-dashed opacity-80" : undefined}>
+    <Item data-testid="document-item">
       <ItemMedia variant="icon" icon={KIND_ICON[fileKind(doc.mime_type)]} />
       <ItemContent>
         <ItemTitle className="flex-wrap">
-          <span className="min-w-0 break-words">{doc.title}</span>
-          {isNewDocument(doc.created_at, now) && !archived && (
+          <span className="min-w-0 break-words">{doc.file_name}</span>
+          {isNewDocument(doc.created_at, now) && (
             <Badge variant="status-progress" size="compact" icon={null}>
               {t("item.new")}
-            </Badge>
-          )}
-          {versionLabel && (
-            <Badge variant="assist" size="compact" icon={null}>
-              {versionLabel}
-            </Badge>
-          )}
-          {archived && (
-            <Badge variant="outline" size="compact" icon="inventory_2">
-              {t("item.archived")}
             </Badge>
           )}
         </ItemTitle>
@@ -76,7 +54,7 @@ export function DocumentItem({
         <Button
           variant="tonal"
           size="icon"
-          aria-label={t("actions.downloadAria", { title: doc.title })}
+          aria-label={t("actions.downloadAria", { title: doc.file_name })}
           onClick={() => actions.onDownload(doc)}
         >
           <Icon name="download" size={22} />
@@ -86,7 +64,7 @@ export function DocumentItem({
             <Button
               variant="ghost"
               size="icon"
-              aria-label={t("actions.editAria", { title: doc.title })}
+              aria-label={t("actions.editAria", { title: doc.file_name })}
               onClick={() => actions.onEdit(doc)}
             >
               <Icon name="edit" size={22} />
@@ -94,10 +72,10 @@ export function DocumentItem({
             <Button
               variant="ghost"
               size="icon"
-              aria-label={archived ? t("actions.restoreAria", { title: doc.title }) : t("actions.archiveAria", { title: doc.title })}
-              onClick={() => actions.onArchive(doc, !archived)}
+              aria-label={t("actions.deleteAria", { title: doc.file_name })}
+              onClick={() => actions.onDelete(doc)}
             >
-              <Icon name={archived ? "unarchive" : "archive"} size={22} />
+              <Icon name="delete" size={22} />
             </Button>
           </>
         )}
