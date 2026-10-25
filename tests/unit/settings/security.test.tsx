@@ -9,7 +9,7 @@ const h = vi.hoisted(() => ({
   listFactors: vi.fn(),
   unenroll: vi.fn(),
   rpc: vi.fn(),
-  auth: { aal: "aal2" as "aal1" | "aal2", accountType: "manager" as "manager" | "client" | "admin" },
+  auth: { aal: "aal2" as "aal1" | "aal2", accountType: "admin" as "client" | "admin" },
 }));
 
 vi.mock("@/lib/supabase", () => ({
@@ -69,7 +69,7 @@ beforeEach(() => {
   h.unenroll.mockReset().mockResolvedValue({ data: {}, error: null });
   h.rpc.mockReset().mockResolvedValue({ data: false, error: null });
   h.auth.aal = "aal2";
-  h.auth.accountType = "manager";
+  h.auth.accountType = "admin";
 });
 
 describe("change password", () => {

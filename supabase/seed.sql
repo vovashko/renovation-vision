@@ -14,7 +14,7 @@
 --      -> Kitchen is In progress at 10%.
 --
 -- Demo logins (password for all: renovision-demo-2026)
---   jonas@renovision.demo  manager (Jonas Weber)       language pl
+--   jonas@renovision.demo  manager (Jonas Weber; account type admin)  language pl
 --   sarah@renovision.demo  client  (Sarah Bennett)     language pl
 --   tom@renovision.demo    client  (Tom Bennett)       language en (so both languages are exercised)
 --   admin@renovision.demo  admin   (Renovision Admin; not on any project, changes account types)  language pl
@@ -63,7 +63,7 @@ where u.email like '%@renovision.demo'
   and not exists (select 1 from auth.identities i where i.user_id = u.id and i.provider = 'email');
 
 insert into public.profiles (id, full_name, account_type, locale) values
-  ('a0000000-0000-4000-8000-000000000001', 'Jonas Weber', 'manager', 'pl'),
+  ('a0000000-0000-4000-8000-000000000001', 'Jonas Weber', 'admin', 'pl'),
   ('a0000000-0000-4000-8000-000000000002', 'Sarah Bennett', 'client', 'pl'),
   ('a0000000-0000-4000-8000-000000000003', 'Tom Bennett', 'client', 'en'),
   ('a0000000-0000-4000-8000-000000000004', 'Renovision Admin', 'admin', 'pl')

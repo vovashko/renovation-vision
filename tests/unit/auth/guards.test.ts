@@ -24,7 +24,7 @@ const { safeRedirectTarget, projectGuard, projectSection } = await import("@/fea
 
 const P = "b0000000-0000-4000-8000-000000000001";
 const USER = { id: "u-1", email: "jonas@renovision.demo", aal: "aal1" as const };
-const SIGNED_IN = { user: USER, profile: { full_name: "Jonas Weber", avatar_url: null, account_type: "manager" as const } };
+const SIGNED_IN = { user: USER, profile: { full_name: "Jonas Weber", avatar_url: null, account_type: "admin" as const } };
 const SIGNED_OUT = { user: null, profile: null };
 
 type Hook = (opts: Record<string, unknown>) => unknown;

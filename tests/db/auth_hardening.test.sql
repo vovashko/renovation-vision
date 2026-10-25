@@ -1,9 +1,9 @@
--- Admin account type and staff 2FA (AAL2) enforcement (T25).
+-- One staff account type (T37: 'admin', shown as "Manager") and staff 2FA (AAL2) enforcement (T25).
 -- Run against a seeded database (everything is rolled back): bun run test:db, or directly with psql.
 -- Prints "auth hardening tests passed" on success; any failed assertion aborts with an error.
 --
---   Jonas  a0…01  manager of Maple Street      Sarah  a0…02  client
---   Tom    a0…03  client                      Admin  a0…04  admin, on no project
+--   Jonas  a0…01  staff, manager of Maple Street   Sarah  a0…02  client
+--   Tom    a0…03  client                           Admin  a0…04  staff, on no project
 
 begin;
 
@@ -125,12 +125,12 @@ select pg_temp.check((select count(*) from storage.objects where bucket_id = 'pr
 
 -- Admin RPC needs an MFA-verified admin while enforcement is on.
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000004', 'aal1');
-select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'manager')$q$,
+select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'admin')$q$,
   'AAL1 admin changed an account type while enforcement is on');
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000004', 'aal2');
-select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'manager');
+select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'admin');
 select pg_temp.as_admin();
-select pg_temp.check((select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000003') = 'manager',
+select pg_temp.check((select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000003') = 'admin',
   'AAL2 admin promotes Tom to manager');
 update public.profiles set account_type = 'client' where id = 'a0000000-0000-4000-8000-000000000003';
 
@@ -149,33 +149,46 @@ select pg_temp.check((select count(*) from storage.objects where bucket_id = 'pr
   'AAL1 manager reads receipts when off');
 
 -- ===========================================================================
--- set_account_type: admins only
+-- set_account_type: staff only
 -- ===========================================================================
-select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'manager')$q$,
-  'manager changed an account type');
-select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000001', 'admin')$q$,
-  'manager made themselves admin');
-
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000002', 'aal1');
 select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000002', 'admin')$q$,
-  'client made themselves admin');
+  'client made themselves staff');
 select pg_temp.denied($q$update public.profiles set account_type = 'admin' where id = auth.uid()$q$,
   'client updated account_type directly');
 
-select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000004', 'aal1');
-select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000004', 'client')$q$,
-  'admin changed their own account type');
-do $$
-begin
-  perform public.set_account_type('a0000000-0000-4000-8000-0000000000aa', 'manager');
-  raise exception 'FAILED: set_account_type accepted an unknown user';
-exception when no_data_found then null;
-end $$;
-select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'manager');
+-- Any staff account can promote a client (here Jonas, who was a "manager" account before T37).
+select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000001', 'aal1');
+select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'admin');
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000003', 'aal1');
 select pg_temp.check(public.create_project('Tom''s Cabin') is not null, 'a promoted manager can create projects');
 
--- Admins can create projects (and become their manager); clients still can't.
+-- ...and demote another one.
+select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000001', 'aal1');
+select public.set_account_type('a0000000-0000-4000-8000-000000000003', 'client');
+select pg_temp.as_admin();
+select pg_temp.check((select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000003') = 'client',
+  'a staff account demotes another one');
+
+select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000001', 'aal1');
+do $$
+begin
+  perform public.set_account_type('a0000000-0000-4000-8000-0000000000aa', 'admin');
+  raise exception 'FAILED: set_account_type accepted an unknown user';
+exception when no_data_found then null;
+end $$;
+
+-- The last staff account can't be demoted, not even by itself.
+select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000004', 'aal1');
+select public.set_account_type('a0000000-0000-4000-8000-000000000001', 'client');
+select pg_temp.denied($q$select public.set_account_type('a0000000-0000-4000-8000-000000000004', 'client')$q$,
+  'the last staff account was demoted');
+select pg_temp.as_admin();
+select pg_temp.check((select account_type from public.profiles where id = 'a0000000-0000-4000-8000-000000000004') = 'admin',
+  'the last staff account is still staff');
+update public.profiles set account_type = 'admin' where id = 'a0000000-0000-4000-8000-000000000001';
+
+-- -- Admins can create projects (and become their manager); clients still can't.
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000004', 'aal1');
 select pg_temp.check((select count(*) from public.projects) = 0, 'admin sees no project they are not on');
 select pg_temp.check(public.create_project('Admin Test House') is not null, 'admin creates a project');
@@ -184,6 +197,15 @@ select pg_temp.check((select count(*) from public.project_internal) = 1, 'admin 
 
 select pg_temp.as_user_aal('a0000000-0000-4000-8000-000000000002', 'aal1');
 select pg_temp.denied($q$select public.create_project('Not mine')$q$, 'client created a project');
+
+-- The type has exactly two values, and staff are recognised through it (is_staff, notification defaults).
+select pg_temp.as_admin();
+select pg_temp.check((select array_agg(e.enumlabel::text order by e.enumsortorder) from pg_enum e
+  where e.enumtypid = 'public.account_type'::regtype) = array['client', 'admin'], 'account_type is (client, admin)');
+select pg_temp.check(private.is_staff('a0000000-0000-4000-8000-000000000001') and not private.is_staff('a0000000-0000-4000-8000-000000000002'),
+  'is_staff(user) follows the admin account type');
+select pg_temp.check(public.notification_pref('a0000000-0000-4000-8000-000000000001', 'stage_status', 'email') = 'off'
+  and public.notification_pref('a0000000-0000-4000-8000-000000000002', 'stage_status', 'email') = 'daily', 'staff default to no email digest');
 
 -- anon
 select pg_temp.as_admin();

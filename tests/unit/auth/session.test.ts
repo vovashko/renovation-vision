@@ -71,10 +71,10 @@ describe("getSession (loadSession)", () => {
       data: { claims: { sub: USER_ID, role: "authenticated", email: "jonas@renovision.demo", aal: "aal1" } },
       error: null,
     });
-    h.profile = { full_name: "Jonas Weber", avatar_url: null, account_type: "manager", locale: "en" };
+    h.profile = { full_name: "Jonas Weber", avatar_url: null, account_type: "admin", locale: "en" };
     await expect(loadSession()).resolves.toEqual({
       user: { id: USER_ID, email: "jonas@renovision.demo", aal: "aal1" },
-      profile: { full_name: "Jonas Weber", avatar_url: null, account_type: "manager", locale: "en" },
+      profile: { full_name: "Jonas Weber", avatar_url: null, account_type: "admin", locale: "en" },
     });
     expect(h.getClaims).toHaveBeenCalledWith("cookie-token");
     expect(h.profileQuery).toEqual(["profiles", "full_name, avatar_url, account_type, locale", "id", USER_ID]);
@@ -83,7 +83,7 @@ describe("getSession (loadSession)", () => {
   it("exposes the saved language (profiles.locale), defaulting an unexpected value to pl", async () => {
     h.cookieSession = { access_token: "cookie-token" };
     h.getClaims.mockResolvedValue({ data: { claims: { sub: USER_ID, role: "authenticated", aal: "aal1" } }, error: null });
-    h.profile = { full_name: "Jonas Weber", avatar_url: null, account_type: "manager", locale: "de" };
+    h.profile = { full_name: "Jonas Weber", avatar_url: null, account_type: "admin", locale: "de" };
     await expect(loadSession()).resolves.toMatchObject({ profile: { locale: "pl" } });
   });
 

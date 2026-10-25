@@ -57,8 +57,8 @@ end $$;
 insert into auth.users (id, email, aud, role) values
   ('a0000000-0000-4000-8000-0000000000ee', 'second@renovision.demo', 'authenticated', 'authenticated'),
   ('a0000000-0000-4000-8000-0000000000ff', 'other@renovision.demo', 'authenticated', 'authenticated');
-update public.profiles set account_type = 'manager', full_name = 'Second Manager' where id = 'a0000000-0000-4000-8000-0000000000ee';
-update public.profiles set account_type = 'manager', full_name = 'Other Manager' where id = 'a0000000-0000-4000-8000-0000000000ff';
+update public.profiles set account_type = 'admin', full_name = 'Second Manager' where id = 'a0000000-0000-4000-8000-0000000000ee';
+update public.profiles set account_type = 'admin', full_name = 'Other Manager' where id = 'a0000000-0000-4000-8000-0000000000ff';
 
 -- ===========================================================================
 -- Locale and phone

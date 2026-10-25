@@ -5,7 +5,7 @@ import { createElement, type ReactNode } from "react";
 import { loadProjectAccess } from "@/server/functions/session.server";
 import type { AuthContext } from "@/server/middleware/auth";
 
-// A manager ACCOUNT (profiles.account_type = "manager") who is only a CLIENT on this project
+// A staff ACCOUNT (profiles.account_type = "admin", shown as Manager) who is only a CLIENT on this project
 // (project_members.role = "client") must get the client role, and with it the client nav.
 const h = vi.hoisted(() => ({ params: {} as { projectId?: string }, getProjectAccess: vi.fn() }));
 vi.mock("@tanstack/react-router", () => ({
@@ -18,7 +18,7 @@ vi.mock("@/lib/auth", () => ({
     status: "signed-in",
     userId: "u-1",
     email: "jonas@renovision.demo",
-    profile: { id: "u-1", full_name: "Jonas Weber", avatar_url: null, account_type: "manager" },
+    profile: { id: "u-1", full_name: "Jonas Weber", avatar_url: null, account_type: "admin" },
   }),
 }));
 
@@ -51,7 +51,7 @@ describe("per-project role", () => {
             if (table === "project_members") return { data: { role: "client" }, error: null };
             if (table === "project_summary")
               return { data: { id: P, name: "Maple Street Apartment", budget: "100", spent: "5" }, error: null };
-            return { data: { account_type: "manager" }, error: null }; // never asked
+            return { data: { account_type: "admin" }, error: null }; // never asked
           },
         };
         return builder;
@@ -82,7 +82,7 @@ describe("per-project role", () => {
 });
 
 describe("nav role", () => {
-  it("a manager account that is a client on this project gets the client nav", async () => {
+  it("a staff account that is a client on this project gets the client nav", async () => {
     h.params = { projectId: P };
     h.getProjectAccess.mockResolvedValue({ role: "client", project: null });
     const { result } = renderHook(() => useNavRole(), { wrapper });
@@ -98,14 +98,16 @@ describe("nav role", () => {
     await waitFor(() => expect(result.current).toBe("manager"));
   });
 
-  it("outside a project, account_type decides (managers see /projects)", () => {
+  it("outside a project, account_type decides (staff see /projects)", () => {
     const { result } = renderHook(() => useNavRole(), { wrapper });
     expect(result.current).toBe("manager");
     expect(h.getProjectAccess).not.toHaveBeenCalled();
     expect(navRoleFor(null, false, "client")).toBe("client");
+    expect(navRoleFor(null, false, "admin")).toBe("manager");
+    expect(navRoleFor(null, false, null)).toBe("client");
   });
 
   it("inside a project, falls back to the least-privileged role while the role loads", () => {
-    expect(navRoleFor(null, true, "manager")).toBe("client");
+    expect(navRoleFor(null, true, "admin")).toBe("client");
   });
 });

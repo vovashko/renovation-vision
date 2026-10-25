@@ -35,4 +35,14 @@ describe("ProfilePanel", () => {
     render(<ProfilePanel open onOpenChange={() => {}} />);
     expect(screen.getByRole("button", { name: /sign out/i })).toBeInTheDocument();
   });
+
+  it("shows the manager badge for a staff (admin) account, not for a client", () => {
+    mockedUseAuth.mockReturnValue(authValue({ profile: { id: "u1", full_name: "Jonas", avatar_url: null, account_type: "admin" } }));
+    const { unmount } = render(<ProfilePanel open onOpenChange={() => {}} />);
+    expect(screen.getByText("Manager")).toBeInTheDocument();
+    unmount();
+    mockedUseAuth.mockReturnValue(authValue());
+    render(<ProfilePanel open onOpenChange={() => {}} />);
+    expect(screen.queryByText("Manager")).not.toBeInTheDocument();
+  });
 });
