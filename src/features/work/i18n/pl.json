@@ -109,14 +109,14 @@
     "descriptionManager": "Wybierz pomieszczenie, aby zaktualizować to, co widzi klient na swoim planie.",
     "descriptionClient": "Wybierz pomieszczenie, aby zobaczyć jego postęp i to, co się w nim dzieje.",
     "addRoom": "Dodaj pomieszczenie",
-    "addRoomDescription": "Wymiary pomieszczenia w metrach, np. z rzutu. Rozmieszczenie na planie liczy się samo: im większe pomieszczenie, tym więcej miejsca zajmuje.",
+    "addRoomDescription": "Wymiary pomieszczenia w metrach: to dane techniczne, widoczne w widoku pomieszczenia. Plan rozmieszcza pomieszczenia według stałego układu, zależnego od ich liczby.",
     "roomsHeading": "Pomieszczenia",
     "stillToDo": "Pozostało do zrobienia",
     "clickPrompt": "Kliknij dowolne pomieszczenie na rzucie, aby zobaczyć jego aktualny status remontu."
   },
   "roomsEmpty": {
     "title": "Brak pomieszczeń",
-    "description": "Dodaj pomieszczenia wraz z wymiarami — plan rozmieści je sam, proporcjonalnie do powierzchni."
+    "description": "Dodaj pomieszczenia wraz z wymiarami — plan rozmieści je według stałego układu, zależnego od ich liczby."
   },
   "roomForm": {
     "name": "Nazwa pomieszczenia",
@@ -134,10 +134,40 @@
     "saving": "Zapisywanie…",
     "delete": "Usuń pomieszczenie",
     "deleteConfirmTitle": "Usunąć pomieszczenie?",
-    "deleteConfirmDescription": "Usunąć {{name}}? Zdjęcia, materiały i zadania etapów pozostaną bez przypisanego pomieszczenia; prace przypisane tylko do tego pomieszczenia oraz jego uwagi zostaną usunięte.",
+    "deleteConfirmDescription": "Usunąć {{name}}?",
     "saved": "{{name}} zapisane — plan klienta zaktualizowany",
     "removed": "Pomieszczenie usunięte",
-    "statusProgressMismatch": "Ukończone i 100% zawsze idą razem"
+    "statusProgressMismatch": "Ukończone i 100% zawsze idą razem",
+    "editRoom": "Edytuj pomieszczenie",
+    "deleteConfirmEdit": "Jeśli jakiś szczegół jest błędny, zamiast usuwać, edytuj pomieszczenie.",
+    "deleteImpact": {
+      "stays": "Bez pomieszczenia pozostaną: {{list}}.",
+      "deletes": "Zostaną usunięte: {{list}}.",
+      "photos_one": "{{count}} zdjęcie",
+      "photos_few": "{{count}} zdjęcia",
+      "photos_many": "{{count}} zdjęć",
+      "photos_other": "{{count}} zdjęcia",
+      "renders_one": "{{count}} wizualizacja",
+      "renders_few": "{{count}} wizualizacje",
+      "renders_many": "{{count}} wizualizacji",
+      "renders_other": "{{count}} wizualizacji",
+      "materials_one": "{{count}} materiał",
+      "materials_few": "{{count}} materiały",
+      "materials_many": "{{count}} materiałów",
+      "materials_other": "{{count}} materiału",
+      "diary_one": "{{count}} wpis dziennika",
+      "diary_few": "{{count}} wpisy dziennika",
+      "diary_many": "{{count}} wpisów dziennika",
+      "diary_other": "{{count}} wpisu dziennika",
+      "works_one": "{{count}} praca tylko w tym pomieszczeniu",
+      "works_few": "{{count}} prace tylko w tym pomieszczeniu",
+      "works_many": "{{count}} prac tylko w tym pomieszczeniu",
+      "works_other": "{{count}} pracy tylko w tym pomieszczeniu",
+      "warnings_one": "{{count}} uwaga",
+      "warnings_few": "{{count}} uwagi",
+      "warnings_many": "{{count}} uwag",
+      "warnings_other": "{{count}} uwagi"
+    }
   },
   "selectedRoom": {
     "label": "Wybrane pomieszczenie",
@@ -164,7 +194,11 @@
     "notFoundTitle": "Pomieszczenie niedostępne",
     "notFoundText": "To pomieszczenie nie istnieje albo nie zostało Ci udostępnione.",
     "progressFromWorks": "Postęp wynika z prac poniżej.",
-    "progressManual": "Postęp i status ustawiasz ręcznie (dodaj prace, aby wyliczać je automatycznie)."
+    "progressManual": "Postęp i status ustawiasz ręcznie (dodaj prace, aby wyliczać je automatycznie).",
+    "size": "Wymiary",
+    "sizeValue": "{{w}} × {{h}} m",
+    "area": "Powierzchnia",
+    "areaValue": "{{area}} m²"
   },
   "roomWorks": {
     "heading": "Prace",
@@ -238,6 +272,7 @@
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} nie może być oznaczone jako ukończone, gdy zadania są otwarte: {{tasks}}.",
-    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań."
+    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań.",
+    "roomHasInstallationPhotos": "To pomieszczenie ma jeszcze zdjęcia montażowe w Dokumentach. Przenieś je lub usuń przed usunięciem pomieszczenia."
   }
 }

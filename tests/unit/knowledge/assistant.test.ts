@@ -38,8 +38,6 @@ const project = (patch: Partial<ProjectSummary> = {}): ProjectSummary => ({
   stages_total: 3,
   current_stage: "Tiling",
   manager_name: "Jonas Weber",
-  plan_image_path: null,
-  plan_image_opts: {},
   ...patch,
 });
 

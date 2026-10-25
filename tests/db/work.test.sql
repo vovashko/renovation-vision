@@ -1,4 +1,4 @@
--- Work schema v2 (T32): task-derived stage progress, the site diary, the floor-plan image and import_stages.
+-- Work schema v2 (T32): task-derived stage progress, the site diary, room deletion and import_stages.
 -- Run against a freshly seeded database with `bun run test:db` (see tests/db/README.md); everything is rolled back.
 -- Prints "work tests passed" on success; any failed assertion aborts with an error.
 
@@ -288,81 +288,46 @@ select pg_temp.check(
   'a photo linked to a task takes the task''s stage');
 
 -- ===========================================================================
--- Floor-plan image
+-- Room deletion (T64)
 -- ===========================================================================
 select pg_temp.as_user('a0000000-0000-4000-8000-000000000001');
-update public.projects set plan_image_path = 'b0000000-0000-4000-8000-000000000001/plans/plan.png',
-  plan_image_opts = '{"opacity": 0.5, "scale": 1.25, "x": 10, "y": -4}'
-where id = 'b0000000-0000-4000-8000-000000000001';
-select pg_temp.check(
-  (select plan_image_path from public.projects where id = 'b0000000-0000-4000-8000-000000000001')
-    = 'b0000000-0000-4000-8000-000000000001/plans/plan.png',
-  'managers set the plan image');
 do $$
-declare p text;
+declare
+  v_project constant uuid := 'b0000000-0000-4000-8000-000000000001';
+  v_room uuid; v_stage uuid; v_stage_task uuid; v_photo uuid; v_material uuid; v_render uuid; v_entry uuid; v_warning uuid;
 begin
-  foreach p in array array[
-    'b0000000-0000-4000-8000-0000000000ff/plans/plan.png', -- another project's folder
-    'b0000000-0000-4000-8000-000000000001/photos/plan.png', -- not under plans/
-    'b0000000-0000-4000-8000-000000000001/plans/' -- no file
-  ] loop
-    begin
-      update public.projects set plan_image_path = p where id = 'b0000000-0000-4000-8000-000000000001';
-      raise exception 'FAILED: plan image path % accepted', p;
-    exception when check_violation then null;
-    end;
-  end loop;
-  foreach p in array array['[]', '{"opacity": 2}', '{"opacity": "half"}', '{"scale": 0}', '{"x": "left"}'] loop
-    begin
-      update public.projects set plan_image_opts = p::jsonb where id = 'b0000000-0000-4000-8000-000000000001';
-      raise exception 'FAILED: plan image opts % accepted', p;
-    exception when check_violation then null;
-    end;
-  end loop;
+  insert into public.rooms (project_id, key, name) values (v_project, 'gone', 'Gone room') returning id into v_room;
+  select id into v_stage from public.stages where project_id = v_project and key = 'floor';
+  insert into public.tasks (project_id, room_id, name) values (v_project, v_room, 'Room-only work A'), (v_project, v_room, 'Room-only work B');
+  insert into public.tasks (project_id, stage_id, room_id, name) values (v_project, v_stage, v_room, 'Stage work in the room') returning id into v_stage_task;
+  insert into public.photos (project_id, room_id, storage_path) values (v_project, v_room, v_project || '/photos/gone.jpg') returning id into v_photo;
+  insert into public.materials (project_id, room_id, name) values (v_project, v_room, 'Gone material') returning id into v_material;
+  insert into public.renders (project_id, room_id, storage_path, alt, title) values (v_project, v_room, v_project || '/renders/gone.jpg', 'a', 'Gone render') returning id into v_render;
+  insert into public.progress_entries (project_id, room_id, note) values (v_project, v_room, 'Gone note') returning id into v_entry;
+  insert into public.room_warnings (project_id, room_id, text) values (v_project, v_room, 'Gone warning') returning id into v_warning;
+
+  delete from public.rooms where id = v_room;
+
+  perform pg_temp.check(not exists (select 1 from public.rooms where id = v_room), 'the room is deleted');
+  perform pg_temp.check(not exists (select 1 from public.tasks where name like 'Room-only work %'), 'its room-only works are deleted with it');
+  perform pg_temp.check((select room_id is null and stage_id = v_stage from public.tasks where id = v_stage_task), 'a stage work keeps its stage and loses the room');
+  perform pg_temp.check((select room_id is null from public.photos where id = v_photo), 'photos lose the room link');
+  perform pg_temp.check((select room_id is null from public.materials where id = v_material), 'materials lose the room link');
+  perform pg_temp.check((select room_id is null from public.renders where id = v_render), 'renders lose the room link');
+  perform pg_temp.check((select room_id is null from public.progress_entries where id = v_entry), 'diary entries lose the room link');
+  perform pg_temp.check(not exists (select 1 from public.room_warnings where id = v_warning), 'warnings go with the room');
 end $$;
 
-insert into storage.objects (bucket_id, name) values ('project-media', 'b0000000-0000-4000-8000-000000000001/plans/plan.png');
-select pg_temp.check(
-  (select count(*) from storage.objects where name like 'b0000000-0000-4000-8000-000000000001/plans/%') = 1,
-  'managers upload and read plan images');
-
-select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
-select pg_temp.check(
-  (select plan_image_path from public.project_summary) = 'b0000000-0000-4000-8000-000000000001/plans/plan.png'
-  and (select (plan_image_opts ->> 'opacity')::numeric from public.project_summary) = 0.5,
-  'project_summary exposes the plan image to the client');
-select pg_temp.check(
-  (select count(*) from storage.objects where name = 'b0000000-0000-4000-8000-000000000001/plans/plan.png') = 1,
-  'clients read the plan image file');
-do $$
-declare n int;
-begin
-  update public.projects set plan_image_path = null;
-  get diagnostics n = row_count;
-  perform pg_temp.check(n = 0, 'clients cannot change the plan image');
-  begin
-    insert into storage.objects (bucket_id, name) values ('project-media', 'b0000000-0000-4000-8000-000000000001/plans/mine.png');
-    raise exception 'FAILED: client uploaded a plan image';
-  exception when insufficient_privilege then null;
-  end;
-end $$;
-
-select pg_temp.as_user('a0000000-0000-4000-8000-0000000000ff');
-select pg_temp.check((select count(*) from storage.objects where name like '%/plans/%') = 0, 'other managers cannot read the plan image');
-
--- What the Storage API does for a delete (storage.protect_delete refuses direct SQL deletes otherwise).
-select set_config('storage.allow_delete_query', 'true', true);
+-- A client cannot delete rooms.
 select pg_temp.as_user('a0000000-0000-4000-8000-000000000002');
 do $$
 declare n int;
 begin
-  delete from storage.objects where name = 'b0000000-0000-4000-8000-000000000001/plans/plan.png';
+  delete from public.rooms where key = 'kitchen';
   get diagnostics n = row_count;
-  perform pg_temp.check(n = 0, 'clients cannot delete plan images');
+  perform pg_temp.check(n = 0, 'a client cannot delete a room');
 end $$;
 select pg_temp.as_user('a0000000-0000-4000-8000-000000000001');
-delete from storage.objects where name = 'b0000000-0000-4000-8000-000000000001/plans/plan.png';
-select pg_temp.check((select count(*) from storage.objects where name like '%/plans/%') = 0, 'managers delete plan images');
 
 -- ===========================================================================
 -- import_stages

@@ -105,8 +105,9 @@ select pg_temp.check(
   'the latest diary entry is dated today'
 );
 select pg_temp.check(
-  (select plan_image_path from public.projects where id = 'b0000000-0000-4000-8000-000000000001') is null,
-  'the demo project has no plan image'
+  not exists (select 1 from information_schema.columns
+    where table_schema = 'public' and table_name in ('projects', 'project_summary') and column_name like 'plan_image%'),
+  'the plan image columns are gone'
 );
 
 -- Client access (T35): the client contact carries Sarah's login and is linked to her; Tom is an extra login.

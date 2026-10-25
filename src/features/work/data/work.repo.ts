@@ -8,6 +8,18 @@ export type StageInput = Partial<Omit<Stage, "tasks" | "project_id">>;
 export type TaskInput = Partial<Omit<Task, "project_id">>;
 export type RoomInput = Partial<Omit<Room, "project_id">>;
 
+/** What deleting a room does to the rest of its data (room-form.tsx's confirm dialog). */
+export type RoomDeleteImpact = {
+  /** Lose the room link (SET NULL) but are not deleted. */
+  staysPhotos: number;
+  staysRenders: number;
+  staysMaterials: number;
+  staysDiaryEntries: number;
+  /** Deleted with the room: room-only works (no stage) and the room's warnings. */
+  deletesTasks: number;
+  deletesWarnings: number;
+};
+
 type Result<T> = { data: T | null; error: { message: string } | null };
 
 async function must<T>(p: PromiseLike<Result<T>>): Promise<T> {
@@ -44,7 +56,7 @@ export const workRepo = {
   },
 
   async listRooms(projectId: string): Promise<Room[]> {
-    return must(supabase.from("rooms").select("*").eq("project_id", projectId).order("sort_order")) as Promise<Room[]>;
+    return must(supabase.from("rooms").select("*").eq("project_id", projectId).order("sort_order").order("created_at")) as Promise<Room[]>;
   },
   async saveRoom(projectId: string, { id: roomId, ...input }: RoomInput): Promise<void> {
     if (roomId) await must(supabase.from("rooms").update(input).eq("id", roomId));
@@ -52,5 +64,31 @@ export const workRepo = {
   },
   async deleteRoom(roomId: string): Promise<void> {
     await must(supabase.from("rooms").delete().eq("id", roomId));
+  },
+
+  /** Counts for the room-delete confirm dialog: what stays unlinked vs. what is deleted with the room. */
+  async roomDeleteImpact(roomId: string): Promise<RoomDeleteImpact> {
+    const headCount = async (table: "photos" | "renders" | "materials" | "progress_entries" | "room_warnings") => {
+      const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true }).eq("room_id", roomId);
+      if (error) throw new Error(error.message);
+      return count ?? 0;
+    };
+    const [staysPhotos, staysRenders, staysMaterials, staysDiaryEntries, deletesTasks, deletesWarnings] = await Promise.all([
+      headCount("photos"),
+      headCount("renders"),
+      headCount("materials"),
+      headCount("progress_entries"),
+      (async () => {
+        const { count, error } = await supabase
+          .from("tasks")
+          .select("*", { count: "exact", head: true })
+          .eq("room_id", roomId)
+          .is("stage_id", null);
+        if (error) throw new Error(error.message);
+        return count ?? 0;
+      })(),
+      headCount("room_warnings"),
+    ]);
+    return { staysPhotos, staysRenders, staysMaterials, staysDiaryEntries, deletesTasks, deletesWarnings };
   },
 };

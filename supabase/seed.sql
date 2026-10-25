@@ -204,7 +204,7 @@ join public.rooms r on r.project_id = 'b0000000-0000-4000-8000-000000000001' and
 
 -- ---------------------------------------------------------------------------
 -- Site diary (T32): visible entries reach the client; the others are the manager's own notes.
--- The living-room drywall photo belongs to the Apr 20 entry. projects.plan_image_path stays null.
+-- The living-room drywall photo belongs to the Apr 20 entry.
 -- ---------------------------------------------------------------------------
 insert into public.progress_entries (id, project_id, stage_id, room_id, entry_date, author_id, note, hours, is_visible, created_at)
 select e.id, 'b0000000-0000-4000-8000-000000000001', s.id, r.id, e.entry_date::date, 'a0000000-0000-4000-8000-000000000001',

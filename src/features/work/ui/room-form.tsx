@@ -17,7 +17,7 @@ import { useConfirm } from "@/shared/ui/use-confirm";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { roomFormSchema, type RoomFormValues } from "../domain/schemas";
 import { useDeleteRoom, useSaveRoom } from "../hooks/mutations";
-import type { RoomInput } from "../data/work.repo";
+import { workRepo, type RoomInput } from "../data/work.repo";
 import type { Room } from "@/lib/database.types";
 
 const SIZE_KEYS = ["w", "h"] as const;
@@ -148,14 +148,41 @@ export function RoomForm({
 
 /** The selected room's inline editor on the plan page: name/header, fields and delete. */
 export function RoomEditor({ projectId, room, openTasks }: { projectId: string; room: Room; openTasks: string[] }) {
-  const { t } = useTranslation(["work", "common"]);
+  const { t, i18n } = useTranslation(["work", "common"]);
   const confirm = useConfirm();
   const remove = useDeleteRoom(projectId);
 
+  // "Edit room" is the non-destructive way out (it just closes the dialog, back to this editor); delete is the red button.
   const onDelete = async () => {
+    const impact = await workRepo.roomDeleteImpact(room.id).catch(() => null);
+    const list = new Intl.ListFormat(i18n.language, { style: "long", type: "conjunction" });
+    const part = (key: string, count: number) => (count > 0 ? t(`work:roomForm.deleteImpact.${key}` as never, { count }) : null);
+    const sentence = (key: "stays" | "deletes", parts: (string | null)[]) => {
+      const present = parts.filter((p): p is string => p !== null);
+      return present.length > 0 ? t(`work:roomForm.deleteImpact.${key}` as never, { list: list.format(present) }) : null;
+    };
+    const stays = impact
+      ? sentence("stays", [
+          part("photos", impact.staysPhotos),
+          part("renders", impact.staysRenders),
+          part("materials", impact.staysMaterials),
+          part("diary", impact.staysDiaryEntries),
+        ])
+      : null;
+    const deletes = impact ? sentence("deletes", [part("works", impact.deletesTasks), part("warnings", impact.deletesWarnings)]) : null;
+    const description = [
+      t("work:roomForm.deleteConfirmDescription", { name: room.name }),
+      stays,
+      deletes,
+      t("work:roomForm.deleteConfirmEdit"),
+    ]
+      .filter(Boolean)
+      .join(" ");
     const ok = await confirm({
       title: t("work:roomForm.deleteConfirmTitle"),
-      description: t("work:roomForm.deleteConfirmDescription", { name: room.name }),
+      description,
+      confirmLabel: t("work:roomForm.delete"),
+      cancelLabel: t("work:roomForm.editRoom"),
       destructive: true,
     });
     if (ok) remove.mutate(room.id);

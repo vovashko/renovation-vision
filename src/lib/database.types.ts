@@ -61,13 +61,7 @@ export type ProjectSummary = Project & {
   manager_name: SummaryView["manager_name"];
   /** The primary client contact's name. Null for clients (they can't read contacts) and when there is none. */
   client_display_name: SummaryView["client_display_name"];
-  /** The floor plan's background image in `project-media` (`<project_id>/plans/<file>`), or null. */
-  plan_image_path: SummaryView["plan_image_path"];
-  plan_image_opts: PlanImageOpts;
 };
-
-/** How the plan background is drawn under the rooms (`projects.plan_image_opts`); every key is optional. */
-export type PlanImageOpts = { opacity?: number; scale?: number; x?: number; y?: number };
 
 export type ProjectInternal = Pick<Tables<"project_internal">, "project_id" | "internal_budget_notes" | "updated_at">;
 
