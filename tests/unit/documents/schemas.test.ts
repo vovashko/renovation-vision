@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 import { editDocumentSchema, uploadDocumentSchema } from "@/features/documents/domain/schemas";
 
 const pdf = new File(["x"], "umowa.pdf", { type: "application/pdf" });
-const jpg = new File(["x"], "wiring.jpg", { type: "image/jpeg" });
 
-const base = { title: "Umowa", category: "contract", description: "", file: pdf, roomId: "", taskId: "", versionOf: "" };
+const base = { category: "contract", description: "", file: pdf };
 const messages = (values: unknown) => {
   const r = uploadDocumentSchema.safeParse(values);
   return r.success ? [] : r.error.issues.map((i) => i.message);
@@ -15,8 +14,7 @@ describe("uploadDocumentSchema", () => {
     expect(uploadDocumentSchema.safeParse(base).success).toBe(true);
   });
 
-  it("requires a title and a file", () => {
-    expect(messages({ ...base, title: "   " })).toContain("common:form.required");
+  it("requires a file (its name is the title, so there is no title field)", () => {
     expect(messages({ ...base, file: null })).toContain("documents:upload.fileRequired");
   });
 
@@ -37,30 +35,23 @@ describe("uploadDocumentSchema", () => {
     expect(uploadDocumentSchema.safeParse({ ...base, category: "payments" }).success).toBe(false);
   });
 
-  it("installation photos need a room and an image; the work stays optional", () => {
-    const photo = { ...base, category: "installation_photos", file: jpg };
-    expect(messages(photo)).toContain("documents:upload.roomRequired");
-    expect(uploadDocumentSchema.safeParse({ ...photo, roomId: "r1" }).success).toBe(true);
-    expect(uploadDocumentSchema.safeParse({ ...photo, roomId: "r1", taskId: "t1" }).success).toBe(true);
-    expect(messages({ ...photo, roomId: "r1", file: pdf })).toContain("documents:upload.photoMustBeImage");
-  });
-
-  it("other categories don't need a room", () => {
+  it("every category is accepted", () => {
     expect(uploadDocumentSchema.safeParse({ ...base, category: "invoices" }).success).toBe(true);
     expect(uploadDocumentSchema.safeParse({ ...base, category: "manuals", description: "Model X, 2 years" }).success).toBe(true);
   });
 
-  it("caps title and description lengths", () => {
-    expect(messages({ ...base, title: "a".repeat(201) })).toContain("documents:upload.titleTooLong");
+  it("rejects the unused installation_photos category", () => {
+    expect(uploadDocumentSchema.safeParse({ ...base, category: "installation_photos" }).success).toBe(false);
+  });
+
+  it("caps the description length", () => {
     expect(messages({ ...base, description: "a".repeat(2001) })).toContain("documents:upload.descriptionTooLong");
   });
 });
 
 describe("editDocumentSchema", () => {
-  it("requires a title, and a room for installation photos only", () => {
-    expect(editDocumentSchema(false).safeParse({ title: "x", description: "", roomId: "", taskId: "" }).success).toBe(true);
-    expect(editDocumentSchema(false).safeParse({ title: " ", description: "", roomId: "", taskId: "" }).success).toBe(false);
-    expect(editDocumentSchema(true).safeParse({ title: "x", description: "", roomId: "", taskId: "" }).success).toBe(false);
-    expect(editDocumentSchema(true).safeParse({ title: "x", description: "", roomId: "r1", taskId: "" }).success).toBe(true);
+  it("only the description can change, up to 2000 characters", () => {
+    expect(editDocumentSchema.safeParse({ description: "" }).success).toBe(true);
+    expect(editDocumentSchema.safeParse({ description: "a".repeat(2001) }).success).toBe(false);
   });
 });

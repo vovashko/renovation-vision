@@ -13,6 +13,8 @@ export const NOTIFICATION_KINDS = [
   "render_published",
   "schedule_status",
   "manual",
+  // A document was added to the shelf (T62): params { name } (the file name).
+  "document_new",
   // Investor decisions (#55): params { title, text }.
   "decision_new",
   "decision_answer",

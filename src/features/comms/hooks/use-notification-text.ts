@@ -64,6 +64,10 @@ export function useNotificationText(): (n: Pick<Notification, "kind" | "params" 
           if (!title) return legacy;
           return { title: t(`notifications.${n.kind}.title`, { title }), body: paramText(p, "text") ?? n.body };
         }
+        case "document_new": {
+          const name = paramName(p, "name");
+          return name ? { title: t("notifications.document_new.title", { name }), body: n.body } : legacy;
+        }
         case "manual": {
           const title = paramName(p, "title");
           return title ? { title, body: paramText(p, "body") ?? "" } : legacy;
