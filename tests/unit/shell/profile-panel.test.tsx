@@ -4,6 +4,14 @@ import { ProfilePanel } from "@/components/profile-panel";
 import { useAuth } from "@/lib/auth";
 
 vi.mock("@/lib/auth", () => ({ useAuth: vi.fn() }));
+// The staff link is a router <Link>; outside a router it renders as a plain anchor here.
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ to, children, ...props }: { to: string; children: React.ReactNode }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 const mockedUseAuth = vi.mocked(useAuth);
 
@@ -44,5 +52,15 @@ describe("ProfilePanel", () => {
     mockedUseAuth.mockReturnValue(authValue());
     render(<ProfilePanel open onOpenChange={() => {}} />);
     expect(screen.queryByText("Manager")).not.toBeInTheDocument();
+  });
+
+  it("links staff (and only staff) to the Staff page", () => {
+    mockedUseAuth.mockReturnValue(authValue({ profile: { id: "u1", full_name: "Jonas", avatar_url: null, account_type: "admin" } }));
+    const { unmount } = render(<ProfilePanel open onOpenChange={() => {}} />);
+    expect(screen.getByRole("link", { name: /manage accounts/i })).toHaveAttribute("href", "/admin/staff");
+    unmount();
+    mockedUseAuth.mockReturnValue(authValue());
+    render(<ProfilePanel open onOpenChange={() => {}} />);
+    expect(screen.queryByRole("link", { name: /manage accounts/i })).not.toBeInTheDocument();
   });
 });

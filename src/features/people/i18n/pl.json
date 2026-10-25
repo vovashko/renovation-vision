@@ -30,8 +30,11 @@
     "access": {
       "access": "Ma dostęp",
       "waiting": "Czeka na konto",
-      "none": "Brak e-maila"
-    }
+      "none": "Brak e-maila",
+      "invited": "Zaproszenie wysłane"
+    },
+    "sendInvite": "Wyślij zaproszenie",
+    "resendInvite": "Wyślij ponownie"
   },
   "clientContact": {
     "title": "Kontakt do klienta",
@@ -104,5 +107,77 @@
     "not_project_manager": "Mogą to zrobić tylko kierownicy projektu.",
     "mfa_required": "Wymagana jest weryfikacja dwuskładnikowa.",
     "account_not_found": "Żadne konto RenoVision nie używa tego e-maila. Poproś tę osobę o założenie konta."
+  },
+  "invite": {
+    "sent": "Wysłano zaproszenie do {{email}}",
+    "resent": "Ponownie wysłano zaproszenie do {{email}}",
+    "revoked": "Wycofano zaproszenie dla {{email}}",
+    "pendingHeading": "Oczekujące zaproszenia",
+    "role": {
+      "client": "Klient",
+      "manager": "Kierownik"
+    },
+    "expiresOn": "Link ważny do {{date}}",
+    "expired": "Link wygasł",
+    "resend": "Wyślij ponownie",
+    "revoke": "Wycofaj",
+    "resendAria": "Wyślij ponownie zaproszenie do {{email}}",
+    "revokeAria": "Wycofaj zaproszenie dla {{email}}",
+    "revokeConfirmTitle": "Wycofać zaproszenie dla {{email}}?",
+    "revokeConfirmDescription": "Link z wiadomości przestanie działać. Możesz zaprosić tę osobę ponownie później.",
+    "managerNoAccount": "Żadne konto RenoVision nie używa jeszcze adresu {{email}}. Wyślij zaproszenie: ta osoba zostanie kierownikiem po jego akceptacji.",
+    "sendManagerInvite": "Wyślij zaproszenie",
+    "accept": {
+      "title": "Zaakceptuj zaproszenie",
+      "descriptionClient": "{{inviter}} zaprasza Cię do śledzenia projektu {{project}} w RenoVision.",
+      "descriptionManager": "{{inviter}} zaprasza Cię do zarządzania projektem {{project}} w RenoVision.",
+      "someone": "Twój kierownik",
+      "checking": "Sprawdzamy zaproszenie…",
+      "email": "E-mail",
+      "fullName": "Imię i nazwisko",
+      "language": "Język",
+      "privacy": "Zgadzam się, aby RenoVision przechowywał moje imię i nazwisko, adres e-mail i dane projektu na potrzeby prowadzenia projektu, zgodnie z polityką prywatności.",
+      "privacyRequired": "Zaakceptuj politykę prywatności, aby kontynuować",
+      "signedInAs": "Jesteś zalogowany jako {{email}}, więc Twoje hasło pozostaje bez zmian.",
+      "submit": "Zaakceptuj i przejdź dalej",
+      "submitting": "Konfigurujemy Twoje konto…",
+      "signIn": "Zaloguj się",
+      "status": {
+        "expired": "To zaproszenie wygasło. Poproś kierownika o nowe.",
+        "used": "To zaproszenie zostało już zaakceptowane. Zaloguj się, aby otworzyć projekt.",
+        "revoked": "To zaproszenie zostało wycofane. Skontaktuj się z kierownikiem, jeśli nadal potrzebujesz dostępu.",
+        "invalid": "Ten link z zaproszeniem jest nieprawidłowy. Otwórz cały link z wiadomości albo poproś kierownika o nowe zaproszenie.",
+        "needsSignIn": "Twoje konto jest już skonfigurowane. Zaloguj się, aby dokończyć akceptację zaproszenia."
+      }
+    },
+    "errors": {
+      "invite_invalid": "Ten link z zaproszeniem jest nieprawidłowy.",
+      "invite_revoked": "To zaproszenie zostało wycofane.",
+      "invite_used": "To zaproszenie zostało już zaakceptowane.",
+      "invite_expired": "To zaproszenie wygasło. Poproś o nowe.",
+      "invite_email_mismatch": "To zaproszenie jest dla innego adresu e-mail.",
+      "invite_name_required": "Podaj imię i nazwisko.",
+      "invite_locale_invalid": "Wybierz język.",
+      "consent_required": "Zaakceptuj politykę prywatności, aby kontynuować.",
+      "account_exists": "Ten adres e-mail ma już konto RenoVision, więc zaproszenie nie jest potrzebne.",
+      "invite_not_project_client": "Klienta zaprasza się z karty klienta, na zapisany tam adres e-mail.",
+      "staff_required": "Tylko konta kierowników mogą zapraszać kierowników.",
+      "manager_is_project_client": "Ta osoba jest klientem projektu, więc nie może nim zarządzać.",
+      "not_signed_in": "Otwórz ponownie link z wiadomości z zaproszeniem."
+    }
+  },
+  "email": {
+    "invite": {
+      "subject": "{{inviter}} zaprasza Cię do projektu {{project}} w RenoVision",
+      "heading": "Zaproszenie do RenoVision",
+      "introClient": "{{inviter}} zaprasza Cię do śledzenia Twojego remontu, {{project}}, w RenoVision: postęp, zdjęcia, budżet i dokumenty w jednym miejscu.",
+      "introManager": "{{inviter}} zaprasza Cię do zarządzania projektem {{project}} w RenoVision.",
+      "cta": "Zaakceptuj zaproszenie",
+      "validity": "Link działa jeden raz, przez {{days}} dni.",
+      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}",
+      "ignore": "Nie spodziewasz się tej wiadomości? Możesz ją zignorować.",
+      "disclaimer": "RenoVision — śledzenie remontu.",
+      "someone": "Twój kierownik"
+    }
   }
 }

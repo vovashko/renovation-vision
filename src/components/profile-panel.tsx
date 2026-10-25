@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ function ProfileIdentity({ name, email, isManager }: { name: string; email: stri
  * "More" sheet).
  */
 export function ProfilePanel({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["common", "admin"]);
   const { profile, email, signOut } = useAuth();
   const isManager = isStaff(profile?.account_type);
   const name = profile?.full_name ?? "";
@@ -41,6 +42,15 @@ export function ProfilePanel({ open, onOpenChange }: { open: boolean; onOpenChan
         </SheetHeader>
 
         <ProfileIdentity name={name} email={email} isManager={isManager} />
+
+        {isManager && (
+          <Button asChild variant="tonal" className="gap-2">
+            <Link to="/admin/staff" onClick={() => onOpenChange(false)}>
+              <Icon name="manage_accounts" size={20} />
+              {t("admin:staff.profileLink")}
+            </Link>
+          </Button>
+        )}
 
         <Button variant="outline" onClick={signOut} className="mt-auto gap-2">
           <Icon name="logout" size={20} />

@@ -10,8 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { clientAccessStatus, type ClientAccessStatus } from "../domain/client-access";
 import { contactLinks } from "../domain/contact-links";
 import { telHref as tel } from "../domain/contacts";
+import { usePendingInvites } from "../hooks/invites";
+import { InviteClientButton } from "./invite-client-button";
 
-const accessIcon: Record<ClientAccessStatus, string> = { access: "check_circle", waiting: "hourglass_top", none: "mail" };
+const accessIcon: Record<ClientAccessStatus, string> = {
+  access: "check_circle",
+  invited: "forward_to_inbox",
+  waiting: "hourglass_top",
+  none: "mail",
+};
 
 // Equal-width CTAs on one row; they only wrap (and then stretch to fill the row) when the card is too narrow.
 const onPanelButton = cn(buttonVariants({ variant: "panel" }), "min-w-0 flex-1 basis-28");
@@ -52,9 +59,11 @@ export function ClientCard({
 }) {
   const { t } = useTranslation(["people"]);
   const name = client?.contact.full_name || appUsers.map((m) => m.profile.full_name).join(" & ") || t("client.fallbackName");
-  const status = clientAccessStatus(client, appUsers);
   const phone = client?.contact.phone;
   const email = client?.contact.email;
+  const { data: invites = [] } = usePendingInvites(client?.project_id ?? "", !!email);
+  const status = clientAccessStatus(client, appUsers, invites);
+  const openInvite = invites.find((i) => i.role === "client" && i.email === email?.toLowerCase());
   const links = contactLinks({ phone, whatsapp: client?.contact.whatsapp, email });
   return (
     <Card variant="tinted" className="flex flex-col gap-4 p-5 md:p-6" aria-labelledby="client-heading">
@@ -70,10 +79,14 @@ export function ClientCard({
         <UserAvatar name={name} className="size-12 text-title-md" />
         <div className="min-w-0">
           <div className="truncate text-title-md">{name}</div>
-          {/* T40 adds "Send invite" next to the "waiting" status. */}
-          <Badge variant="assist" size="compact" icon={accessIcon[status]} className="mt-1">
-            {t(`client.access.${status}`)}
-          </Badge>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <Badge variant="assist" size="compact" icon={accessIcon[status]}>
+              {t(`client.access.${status}`)}
+            </Badge>
+            {client && email && (status === "waiting" || status === "invited") && (
+              <InviteClientButton projectId={client.project_id} email={email} invitation={openInvite} />
+            )}
+          </div>
         </div>
       </div>
       {/* On the tinted panel: a white inner list and white buttons. */}

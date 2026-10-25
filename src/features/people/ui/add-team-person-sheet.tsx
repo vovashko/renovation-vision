@@ -9,14 +9,17 @@ import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { FormField } from "@/shared/ui/form-field";
 import type { ProjectContact } from "@/lib/database.types";
 import { addManagerSchema, crewFormSchema, emptyCrew, type AddManagerValues, type CrewFormValues } from "../domain/schemas";
-import { useAddCrew, useAddMember } from "../hooks";
+import { useAddCrew } from "../hooks";
+import { useAddManager } from "../hooks/invites";
 import { CrewFormFields } from "./crew-sheet";
+import { InviteManagerPrompt } from "./invite-manager-prompt";
 
 type Kind = "manager" | "crew";
 
 /**
- * The one "Add person" sheet (Team page and overview Team card). A manager gets app access, by email; crew is a
- * contact only. Clients aren't added here: they come from the client card.
+ * The one "Add person" sheet (Team page and overview Team card). A manager gets app access, by email (an email with
+ * no account gets an invite instead, T40); crew is a contact only. Clients aren't added here: they come from the
+ * client card.
  */
 export function AddTeamPersonSheet({
   projectId,
@@ -33,7 +36,9 @@ export function AddTeamPersonSheet({
   const { t } = useTranslation(["people", "common"]);
   const labelId = useId();
   const [kind, setKind] = useState<Kind>("manager");
-  const addMember = useAddMember(projectId);
+  const addManager = useAddManager(projectId);
+  // The email "Add manager" found no account for: offer an invite until the email changes.
+  const [noAccount, setNoAccount] = useState<string | null>(null);
   const addCrew = useAddCrew(projectId, links);
   const managerForm = useZodForm(addManagerSchema, { email: "" });
   const crewForm = useZodForm(crewFormSchema, emptyCrew);
@@ -41,6 +46,7 @@ export function AddTeamPersonSheet({
   const close = () => {
     managerForm.reset({ email: "" });
     crewForm.reset(emptyCrew);
+    setNoAccount(null);
     onOpenChange(false);
   };
   const kinds: { key: Kind; label: string }[] = [
@@ -77,7 +83,10 @@ export function AddTeamPersonSheet({
             noValidate
             className="space-y-4"
             onSubmit={managerForm.handleSubmit((values: AddManagerValues) =>
-              addMember.mutate({ email: values.email, role: "manager" }, { onSuccess: close }),
+              addManager.mutate(
+                { email: values.email },
+                { onSuccess: (result) => (result === "added" ? close() : setNoAccount(values.email)) },
+              ),
             )}
           >
             <FormField
@@ -86,11 +95,25 @@ export function AddTeamPersonSheet({
               label={t("addPerson.managerEmail")}
               description={t("addPerson.managerHint")}
             >
-              {(field) => <Input type="email" autoComplete="off" {...field} />}
+              {(field) => (
+                <Input
+                  type="email"
+                  autoComplete="off"
+                  {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    setNoAccount(null);
+                  }}
+                />
+              )}
             </FormField>
-            <Button type="submit" disabled={addMember.isPending} className="w-full">
-              {addMember.isPending ? t("common:state.saving") : t("addPerson.submitManager")}
-            </Button>
+            {noAccount ? (
+              <InviteManagerPrompt projectId={projectId} email={noAccount} onSent={close} />
+            ) : (
+              <Button type="submit" disabled={addManager.isPending} className="w-full">
+                {addManager.isPending ? t("common:state.saving") : t("addPerson.submitManager")}
+              </Button>
+            )}
           </form>
         ) : (
           <form
