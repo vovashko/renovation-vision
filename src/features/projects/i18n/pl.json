@@ -91,7 +91,11 @@
     "roomBlocked": "{{name}} jest wstrzymane",
     "stageLate": "{{name}}: {{late}}",
     "stageLateDetail": "Termin: {{date}} · ukończono {{progress}}%",
-    "overBudgetDetail": "Wydano {{spent}} z {{budget}}"
+    "overBudgetDetail": "Wydano {{spent}} z {{budget}}",
+    "changeRequestsWaiting_one": "{{count}} wniosek o zmianę czeka na klienta",
+    "changeRequestsWaiting_few": "{{count}} wnioski o zmianę czekają na klienta",
+    "changeRequestsWaiting_many": "{{count}} wniosków o zmianę czeka na klienta",
+    "changeRequestsWaiting_other": "{{count}} wniosku o zmianę czeka na klienta"
   },
   "fields": {
     "addressLine": "Ulica i numer",

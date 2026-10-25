@@ -19,18 +19,26 @@ import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { PhotoThumbs } from "@/features/media/ui/photo-thumbs";
 import { StageCardSkeleton } from "@/components/ui/skeleton";
 import { useRooms, useStages, useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks";
+import { ChangeRequestSection } from "@/features/change-requests/ui/change-request-section";
+import type { ChangeRequestPlace } from "@/features/change-requests/domain/status";
+import { useProject } from "@/features/projects/hooks";
 import { daysLate } from "@/domain/attention";
 import { deriveStatus } from "@/domain/progress";
 import { useFormat } from "@/i18n";
 import type { Stage } from "@/lib/database.types";
 
+// Where this page lists change requests (named at module scope so the linter doesn't take it for text).
+const CHANGE_REQUEST_PLACE: ChangeRequestPlace = "progress";
+
 // `view` and `room` stay in the search schema only so old `?view=plan` links keep working (see beforeLoad).
-type ProgressSearch = { view: "timeline" | "plan"; room?: string };
+// `request` opens one change request (links from notifications, emails and the overview card).
+type ProgressSearch = { view: "timeline" | "plan"; room?: string; request?: string };
 
 export const Route = createFileRoute("/_authed/projects/$projectId/progress")({
   validateSearch: (s: Record<string, unknown>): ProgressSearch => ({
     view: s.view === "plan" ? "plan" : "timeline",
     room: typeof s.room === "string" ? s.room : undefined,
+    request: typeof s.request === "string" ? s.request : undefined,
   }),
   // The floor plan lives on the Projekt page now: send old plan links there.
   beforeLoad: ({ params, search }) => {
@@ -53,6 +61,9 @@ function ProgressPage() {
   const { data: stages, isLoading: stagesLoading } = useStages(projectId);
   const { data: rooms, isLoading: roomsLoading } = useRooms(projectId);
   const { data: photos } = usePhotos(projectId);
+  const { data: project } = useProject(projectId);
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [editingStage, setEditingStage] = useState<Stage | "new" | null>(null);
   const [photoTarget, setPhotoTarget] = useState<{ stageId: string; taskId?: string } | null>(null);
 
@@ -204,6 +215,20 @@ function ProgressPage() {
               })}
             </StageRowList>
           </>
+        )}
+
+        {project && (
+          <div className="mt-10">
+            <ChangeRequestSection
+              projectId={projectId}
+              place={CHANGE_REQUEST_PLACE}
+              project={{ budget: project.budget, target_date: project.target_date, currency: project.currency }}
+              isManager={isManager}
+              stages={stages}
+              selectedId={search.request}
+              onSelect={(id) => void navigate({ search: (prev) => ({ ...prev, request: id }) })}
+            />
+          </div>
         )}
 
         {isManager && (

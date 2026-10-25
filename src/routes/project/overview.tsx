@@ -13,6 +13,9 @@ import { roomsQuery, stagesQuery, useRooms, useStages } from "@/features/work/ho
 import { useProject } from "@/features/projects/hooks";
 import { ManagerOverview } from "@/features/projects/ui/manager-overview";
 import { YourContactCard } from "@/features/people/ui/your-contact-card";
+import { ApprovalsCard } from "@/features/change-requests/ui/approvals-card";
+import { useChangeRequests } from "@/features/change-requests/hooks";
+import { approvalsCard } from "@/features/change-requests/domain/status";
 import { PageLoading } from "@/components/page-header";
 import { useNavRole } from "@/shared/ui/nav-role";
 import { daysLate } from "@/domain/attention";
@@ -52,6 +55,7 @@ function ClientOverview({ projectId }: { projectId: string }) {
   const { data: project } = useProject(projectId);
   const { data: stages } = useStages(projectId);
   const { data: rooms } = useRooms(projectId);
+  const { data: requests = [] } = useChangeRequests(projectId);
   const [roomId, setRoomId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -85,11 +89,16 @@ function ClientOverview({ projectId }: { projectId: string }) {
         currentStage={project.current_stage}
         behind={project.schedule_status !== "on_schedule"}
         alerts={
-          project.schedule_note && (
-            <Note>
-              <span className="font-medium text-on-surface">{t("work:overview.scheduleNote")}</span>
-              {project.schedule_note}
-            </Note>
+          (approvalsCard(requests) || project.schedule_note) && (
+            <div className="flex flex-col gap-3">
+              <ApprovalsCard projectId={projectId} currency={project.currency} />
+              {project.schedule_note && (
+                <Note>
+                  <span className="font-medium text-on-surface">{t("work:overview.scheduleNote")}</span>
+                  {project.schedule_note}
+                </Note>
+              )}
+            </div>
           )
         }
       />

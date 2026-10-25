@@ -15,7 +15,11 @@ import { hashUserId } from "./pii-scrub";
 import { scrubBreadcrumb, scrubSentryEvent } from "./sentry-scrub";
 import { SENTRY_RELEASE, SENTRY_TRACES_SAMPLE_RATE } from "./sentry-config";
 
-export type WorkerHandler = { fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response };
+export type WorkerHandler = {
+  fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
+  /** Cron Triggers (wrangler.jsonc → triggers.crons). */
+  scheduled?: (controller: unknown, env: unknown, ctx: unknown) => Promise<void>;
+};
 type RequestContextSnapshot = { requestId?: string; userId?: string } | undefined;
 
 function buildOptions(getContext: () => RequestContextSnapshot): Sentry.CloudflareOptions | undefined {

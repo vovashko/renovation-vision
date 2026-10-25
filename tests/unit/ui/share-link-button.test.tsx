@@ -52,7 +52,7 @@ describe("ShareLinkButton", () => {
   });
 
   it("renders nothing on a manager-only section", () => {
-    const { container } = setUp("manager", "budget", "");
+    const { container } = setUp("manager", "team", "");
     expect(container).toBeEmptyDOMElement();
   });
 });

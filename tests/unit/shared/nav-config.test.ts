@@ -22,20 +22,12 @@ function labelExists(labelKey: string, common: typeof en, work: typeof workEn) {
 describe("nav-config", () => {
   it("keeps the current sections, in rail order", () => {
     // Stages and the floor plan merged into one Progress page with a timeline/plan tab (T13).
-    expect(projectNav.map((i) => i.key)).toEqual([
-      "overview",
-      "progress",
-      "design",
-      "photos",
-      "documents",
-      "budget",
-      "decisions",
-      "updates",
-      "team",
-    ]);
+    expect(projectNav.map((i) => i.key)).toEqual(["overview", "progress", "design", "photos", "documents", "budget", "updates", "team"]);
     // The chat and the AI knowledge page are gone (T66).
     expect(projectNav.map((i) => i.key)).not.toContain("chat");
     expect(projectNav.map((i) => i.key)).not.toContain("knowledge");
+    // Decisions became change requests in Budget (T61).
+    expect(projectNav.map((i) => i.key)).not.toContain("decisions");
   });
 
   it("every label is a common:nav or work:nav key that exists in both en and pl", () => {
@@ -56,26 +48,27 @@ describe("nav-config", () => {
   });
 
   it("a client sees only the client sections; a manager sees everything", () => {
-    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "design", "photos", "documents", "decisions"]);
+    expect(navItemsFor("client").map((i) => i.key)).toEqual(["overview", "progress", "design", "photos", "documents", "budget"]);
     expect(navItemsFor("manager")).toHaveLength(projectNav.length);
-    expect(managerOnlySections).toEqual(["budget", "updates", "team"]);
+    expect(managerOnlySections).toEqual(["updates", "team"]);
   });
 
-  it("puts four client sections in the phone tab bar (Documents is the fourth) and the rest under More", () => {
-    expect(navItemsFor("client", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "documents"]);
-    expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design", "decisions"]);
+  it("puts four client sections in the phone tab bar (Budget is the fourth) and the rest under More", () => {
+    expect(navItemsFor("client", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "budget"]);
+    expect(navItemsFor("client", "more").map((i) => i.section)).toEqual(["design", "documents"]);
   });
 
   it("puts four manager sections in the phone tab bar (Budget is the fourth), with the rest under More", () => {
     expect(navItemsFor("manager", "tab").map((i) => i.section)).toEqual(["", "progress", "photos", "budget"]);
-    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual(["design", "documents", "decisions", "updates", "team"]);
+    expect(navItemsFor("manager", "more").map((i) => i.section)).toEqual(["design", "documents", "updates", "team"]);
   });
 
-  it("shows Decisions to both roles, with a count badge", () => {
-    const item = projectNav.find((i) => i.key === "decisions")!;
+  it("shows Budget to both roles, with the pending change-request badge", () => {
+    const item = projectNav.find((i) => i.key === "budget")!;
     expect(item.roles).toEqual(["manager", "client"]);
     expect(item.counted).toBe(true);
-    expect(managerOnlySections).not.toContain("decisions");
+    expect(managerOnlySections).not.toContain("budget");
+    expect(projectNav.filter((i) => i.counted).map((i) => i.key)).toEqual(["budget"]);
   });
 
   it("builds section URLs and router targets", () => {

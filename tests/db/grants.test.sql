@@ -48,6 +48,49 @@ begin
   end if;
 end $$;
 
+-- Change requests (T61): the app calls the public RPCs; the reminder is the cron's (service role) only; the private
+-- helpers are not reachable; the code and question RPCs are gone.
+do $$
+declare f text;
+begin
+  foreach f in array array[
+    'public.create_decision(uuid, text, text, numeric, integer, uuid)',
+    'public.update_decision(uuid, text, text, numeric, integer, uuid)',
+    'public.reject_decision(uuid, text)',
+    'public.reopen_decision(uuid)',
+    'public.accept_decision(uuid)'
+  ] loop
+    if not has_function_privilege('authenticated', f, 'EXECUTE') then
+      raise exception 'FAILED: authenticated must be able to execute %', f;
+    end if;
+    if has_function_privilege('anon', f, 'EXECUTE') then
+      raise exception 'FAILED: anon must not be able to execute %', f;
+    end if;
+  end loop;
+  if not has_function_privilege('service_role', 'public.remind_decision(uuid)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.remind_decision(uuid)', 'EXECUTE')
+     or has_function_privilege('anon', 'public.remind_decision(uuid)', 'EXECUTE') then
+    raise exception 'FAILED: public.remind_decision(uuid) must be executable by service_role only';
+  end if;
+  foreach f in array array[
+    'private.decision_event(uuid, uuid, public.decision_event_kind, text)',
+    'private.decision_notify(uuid, public.project_role, text, uuid, text, text)',
+    'private.decision_check_input(numeric, integer)',
+    'private.decisions_stage_same_project()'
+  ] loop
+    if has_function_privilege('authenticated', f, 'EXECUTE') or has_function_privilege('anon', f, 'EXECUTE') then
+      raise exception 'FAILED: % must not be executable by the API roles', f;
+    end if;
+  end loop;
+  foreach f in array array[
+    'public.ask_decision_question(uuid, text)', 'public.answer_decision_question(uuid, text)', 'public.accept_decision(uuid, text)'
+  ] loop
+    if to_regprocedure(f) is not null then
+      raise exception 'FAILED: % should be dropped', f;
+    end if;
+  end loop;
+end $$;
+
 -- project_contacts activity entries keep T30's role label and T33's translatable params.
 do $$
 declare v_project uuid; v_contact uuid; v_entity text;

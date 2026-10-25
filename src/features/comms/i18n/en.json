@@ -38,11 +38,13 @@
       "render_published": "Render",
       "schedule_status": "Schedule",
       "manual": "Announcement",
-      "decision_new": "Decision",
+      "decision_new": "Change request",
       "decision_answer": "Answer",
       "decision_question": "Question",
       "decision_rejected": "Rejected",
-      "decision_reopened": "Reopened"
+      "decision_reopened": "Reopened",
+      "decision_accepted": "Approved",
+      "decision_reminder": "Reminder"
     },
     "stage_status": {
       "title": "Stage update: {{stage}}",
@@ -62,7 +64,7 @@
       "title": "Schedule: {{status}}"
     },
     "decision_new": {
-      "title": "Decision needed: {{title}}"
+      "title": "Approval needed: {{title}}"
     },
     "decision_answer": {
       "title": "Answer on: {{title}}"
@@ -75,6 +77,12 @@
     },
     "decision_reopened": {
       "title": "Reopened: {{title}}"
+    },
+    "decision_accepted": {
+      "title": "Approved: {{title}}"
+    },
+    "decision_reminder": {
+      "title": "Still waiting for your approval: {{title}}"
     }
   },
   "activity": {
@@ -127,19 +135,20 @@
       "disclaimer": "You're receiving this email because you have an active project on RenoVision.",
       "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}"
     },
-    "decisionNew": {
-      "title": "A decision needs your attention: {{title}}",
-      "body": "Your site manager submitted \"{{title}}\" for your decision. Open it to see the photos and what it changes in the budget and the schedule.",
-      "cta": "Review the case"
+    "changeRequestNew": {
+      "title": "A change request needs your approval: {{title}}",
+      "body": "Your manager asks you to approve \"{{title}}\". Open it to see what it changes in the budget and the end date, then approve or reject it.",
+      "cta": "Review the request"
     },
-    "confirmationCode": {
-      "subject": "Your confirmation code — RenoVision",
-      "preheader": "Your code to accept \"{{title}}\"",
-      "heading": "Confirm accepting the decision",
-      "intro": "Enter this code in RenoVision to accept \"{{title}}\". Accepting is final and updates the project budget and end date.",
-      "validity": "The code is valid for {{minutes}} minutes and works once.",
-      "ignore": "If you didn't ask for this code, ignore this email and nothing will change.",
-      "disclaimer": "You're receiving this email because you have an active project on RenoVision."
+    "changeRequestAccepted": {
+      "title": "Change request approved: {{title}}",
+      "body": "The client approved \"{{title}}\". The project budget and end date are updated.",
+      "cta": "Open the request"
+    },
+    "changeRequestReminder": {
+      "title": "Still waiting for your approval: {{title}}",
+      "body": "\"{{title}}\" has been waiting for your approval for a day. Open it to approve or reject it. Questions? Message your manager.",
+      "cta": "Review the request"
     }
   }
 }

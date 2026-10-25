@@ -70,6 +70,24 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 }
 
 const innerHandler = {
+  // Cron Triggers (wrangler.jsonc → triggers.crons): the hourly change-request reminders (T61), loaded lazily so
+  // the fetch path doesn't pay for them. An error is logged and reported, then rethrown so the run shows as
+  // failed in the Cloudflare dashboard.
+  async scheduled() {
+    const requestId = resolveRequestId(null);
+    tagRequestId(requestId);
+    await runWithRequestContext({ requestId, route: "cron:change-request-reminders" }, async () => {
+      try {
+        const { sendChangeRequestReminders } = await import("./server/jobs/change-request-reminders.server");
+        await sendChangeRequestReminders();
+      } catch (error) {
+        logger.error(error, { phase: "cron" });
+        captureServerException(error); // no-op without SENTRY_DSN
+        throw error;
+      }
+    });
+  },
+
   fetch(request: Request, env: unknown, ctx: unknown) {
     const url = new URL(request.url);
     // No auth, no PII, no SSR: answered before the request context / TanStack Start even start up.

@@ -172,7 +172,7 @@ Code is split by layer, then by feature:
 ```
 src/domain/            pure entities and rules: status, progress, money, dates, attention, consistency, budget,
                        db.types.ts (generated). No React, no Supabase, no UI imports.
-src/features/<f>/      f ∈ projects | work | media | documents | budget | decisions | comms | people | auth | settings | admin | import
+src/features/<f>/      f ∈ projects | work | media | documents | budget | change-requests | comms | people | auth | settings | admin | import
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js
@@ -435,30 +435,38 @@ message }`, where `message` is a stable code (`required`, `not_a_number`, `must_
 `stage_budgets` and `materials` also carry the restrictive staff-MFA policy. Materials (and planned-cost updates)
 go to the activity log. Tests: `tests/db/costs.test.sql`.
 
-## Investor decisions (#55)
+## Change requests (T61)
 
-Cases the site manager submits and the investor (a `client` of the project) decides; only an **accepted** case moves
-`projects.target_date` (+ `days_delta`) and `projects.budget` (+ `cost_delta`), both of which may be negative. Full design,
-state machine and the code-verification rationale: `src/features/decisions/README.md`.
+The manager asks the client to approve a significant change (extra cost, a schedule change, often to unblock a stage);
+the client approves or rejects it. Only an **approved** request moves `projects.budget` (+ `cost_delta`) and
+`projects.target_date` (+ `days_delta`), both of which may be negative. The tables keep the bug-bash names
+(`decisions`, #55). Full design, states and the reminder: `src/features/change-requests/README.md`.
 
 ```
-decisions ──< decision_photos            1..10 photos, project-media <project>/decisions/…
-    │  ──< decision_events               append-only: submitted | question | answer | accepted | rejected | reopened | edited
-    └──< decision_confirmations          sha256(salt:code), 10 min, 5 attempts, single use; no API access (admin client only)
-status: pending ⇄ question · pending | question → accepted (final) | rejected → reopened → pending
+decisions ──< decision_events            append-only: submitted | accepted | rejected | reopened | edited (+ old question | answer)
+  stage_id → stages (same project, on delete set null) · pending_since · reminded_at
+status: pending → accepted (final) | rejected → reopened → pending
 ```
 
+- **Where.** Budget (both roles) lists the requests with a cost change, Progress those with a day change (both, if
+  both change); the client overview's "Awaiting your approval" card shows the pending ones. The client's fourth phone tab
+  is Budget, with the pending-count badge. Clients see the budget totals only: no expenses, receipts or notes.
 - **Access.** Managers and clients of the project SELECT; all table privileges are revoked and every change is a
-  `SECURITY DEFINER` function that checks the caller's project role and the state (`create_decision`, `update_decision`,
-  `answer_decision_question` for managers; `ask_decision_question`, `reject_decision`, `accept_decision` for clients;
-  `reopen_decision` for either). Anonymous callers have no access.
-- **Accepting needs an emailed code.** The `requestDecisionCode` server function stores a salted hash with the admin client and
-  emails the code; `accept_decision(decision, code)` verifies it in the database (owner, expiry, attempts, single use) and
-  applies the totals in the same transaction, idempotently (row lock). Codes are never logged. Rate limit: the `email` policy.
-- **Notifications.** `notifications` kinds `decision_new | decision_answer | decision_question | decision_rejected |
-decision_reopened` (params `{ title, text }`), plus the `confirmationCode` email and a new-case notice by email.
+  `SECURITY DEFINER` function that checks the caller's project role and the state: `create_decision`, `update_decision`
+  (managers, 2FA), `reject_decision`, `accept_decision` (clients), `reopen_decision` (either; a manager needs 2FA).
+- **Approving** is a confirm dialog that spells out the new budget and end date; `accept_decision(decision)` applies the
+  totals under a row lock, idempotently (`already_accepted`). There is no emailed code.
+- **Notifications.** In-app `decision_new | decision_reopened | decision_reminder` to clients and
+  `decision_accepted | decision_rejected | decision_reopened` to managers (params `{ title, text }`); email for a new
+  request (clients), an approval (managers) and the reminder.
+- **Reminder (Cron Trigger).** `wrangler.jsonc` → `triggers.crons` runs `src/server.ts` → `scheduled` hourly: one
+  reminder per request that has waited 24 hours since it was submitted or reopened (`public.remind_decision`, service
+  role only, claims it under a row lock). Its email links need the `APP_ORIGIN` var (set for preview in `wrangler.jsonc`;
+  add it for production before deploying). Test locally with `wrangler dev --test-scheduled` and
+  `curl "http://localhost:8787/__scheduled?cron=0+*+*+*+*"`.
 
-Tests: `tests/db/investor_decisions.test.sql`, `tests/unit/decisions/*`, `tests/unit/server/decisions.test.ts`.
+Tests: `tests/db/change_requests.test.sql`, `tests/unit/change-requests/*`, `tests/unit/server/decisions.test.ts`,
+`tests/unit/server/change-request-reminders.test.ts`.
 
 ## Work data (T32)
 
@@ -785,7 +793,7 @@ unit-testable):
   original with `exifr` (it parses HEIC's EXIF box). The file is then decoded natively with `createImageBitmap`
   where the browser can (Safari 17+), otherwise by [`heic-to`](https://github.com/hoppergee/heic-to) (libheif
   compiled to WASM), and goes through the same `reencodeImage` canvas step, so the stored file is a JPEG without
-  EXIF/GPS. The same call covers site photos, renders, documents (HEIC, and installation photos), decision photos and
+  EXIF/GPS. The same call covers site photos, renders, documents (HEIC, and installation photos) and
   expense-receipt images. A failed decode shows a translated error (`media:upload.heicConversionFailed`).
   - **Licence note.** `heic-to` is LGPL-3.0. It is shipped unmodified, as a separate lazily imported chunk
     (`import("heic-to/csp")`), fetched only when a HEIC file is picked; replacing it is a package swap.
@@ -1071,11 +1079,10 @@ a Brevo account aren't blocked.
 **Templates** (`src/server/email/templates/*.ts`) are plain functions, `(params, locale) => { subject,
 html, text }`, rendered through the shared design-system components:
 
-| Template           | Params                                                        | Used by (later)                                     |
-| ------------------ | ------------------------------------------------------------- | --------------------------------------------------- |
-| `notification`     | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)                 |
-| `digest`           | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41)            |
-| `confirmationCode` | `{ siteUrl, title, code, ttlMinutes }`                        | Investor decisions (#55); `sensitive`: never logged |
+| Template       | Params                                                        | Used by (later)                          |
+| -------------- | ------------------------------------------------------------- | ---------------------------------------- |
+| `notification` | `{ siteUrl, title, body, linkUrl, linkLabel? }`               | A single notification emailed (T41)      |
+| `digest`       | `{ siteUrl, items: { title, body? }[], linkUrl, linkLabel? }` | A periodic digest of notifications (T41) |
 
 Chrome strings (subject, button label, disclaimer) live in the `comms` i18n namespace
 (`src/features/comms/i18n/{en,pl}.json` → `email.notification`/`email.digest`), so the en/pl parity

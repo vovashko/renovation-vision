@@ -12,7 +12,8 @@ import { useMembers, useProjectContacts } from "@/features/people/hooks";
 import { crewOf, primaryIn } from "@/features/people/domain/contacts";
 import { budgetStatus, daysUntil } from "@/domain/attention";
 import { scheduleDeviationDays } from "@/domain/dates";
-import { projectIssues } from "../domain/project-issues";
+import { usePendingChangeRequestCount } from "@/features/change-requests/hooks";
+import { changeRequestIssues, projectIssues } from "../domain/project-issues";
 import { useProject } from "../hooks";
 import { ProjectDetailsSheet } from "./project-details-sheet";
 import { ShortcutsCard, type Shortcut } from "./shortcuts-card";
@@ -30,6 +31,7 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const { data: rooms } = useRooms(projectId);
   const { data: members = [] } = useMembers(projectId);
   const { data: links = [] } = useProjectContacts(projectId);
+  const { data: pendingRequests = 0 } = usePendingChangeRequestCount(projectId);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [person, setPerson] = useState<ProjectContact | null>(null);
   const sheetProps = (name: Exclude<Sheet, null>) => ({ open: sheet === name, onOpenChange: (v: boolean) => setSheet(v ? name : null) });
@@ -51,7 +53,7 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
   const current = stages.find((s) => s.status === "progress");
   const done = stages.filter((s) => s.status === "done").length;
   const left = project.target_date ? daysUntil(project.target_date) : null;
-  const issues = projectIssues(project, stages, rooms);
+  const issues = [...projectIssues(project, stages, rooms), ...changeRequestIssues(pendingRequests)];
   const crew = crewOf(links);
   const client = primaryIn(links, "client");
   const clientUsers = members.filter((m) => m.role === "client");

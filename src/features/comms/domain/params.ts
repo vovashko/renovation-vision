@@ -13,12 +13,15 @@ export const NOTIFICATION_KINDS = [
   "render_published",
   "schedule_status",
   "manual",
-  // Investor decisions (#55): params { title, text }.
+  // Change requests (T61; the bug-bash decisions): params { title, text }. `decision_answer` and
+  // `decision_question` are no longer written (the question step is gone); kept so old rows still render.
   "decision_new",
   "decision_answer",
   "decision_question",
   "decision_rejected",
   "decision_reopened",
+  "decision_accepted",
+  "decision_reminder",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 

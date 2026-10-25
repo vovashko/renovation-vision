@@ -13,6 +13,7 @@ const toneByKind: Record<ProjectIssue["kind"], Tone> = {
   stage_late: "attention",
   over_budget: "attention",
   inconsistency: "check",
+  change_requests_waiting: "attention",
 };
 
 const issueIcon: Record<Tone, string> = { blocked: "block", attention: "schedule", check: "rule" };
@@ -75,6 +76,8 @@ export function IssuesList({
           }),
           link: { to: "/projects/$projectId/budget", params },
         };
+      case "change_requests_waiting":
+        return { title: t("issues.changeRequestsWaiting", { count: issue.count }), link: { to: "/projects/$projectId/budget", params } };
       case "inconsistency": {
         const w = issue.issue;
         const title = t(`work:consistency.${w.kind}`, w);
