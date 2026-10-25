@@ -16,7 +16,7 @@ describe("investorShareUrl", () => {
     expect(investorShareUrl("https://app.test", `/projects/${id}`, "")).toBe(`https://app.test/projects/${id}`);
   });
   it("returns null on manager-only sections", () => {
-    for (const s of ["budget", "updates", "team"]) {
+    for (const s of ["updates", "team"]) {
       expect(investorShareUrl("https://app.test", `/projects/${id}/${s}`, "")).toBeNull();
     }
   });

@@ -40,11 +40,13 @@
       "render_published": "Wizualizacja",
       "schedule_status": "Harmonogram",
       "manual": "Ogłoszenie",
-      "decision_new": "Decyzja",
+      "decision_new": "Wniosek o zmianę",
       "decision_answer": "Odpowiedź",
       "decision_question": "Pytanie",
       "decision_rejected": "Odrzucono",
-      "decision_reopened": "Wznowiono"
+      "decision_reopened": "Wznowiono",
+      "decision_accepted": "Zaakceptowano",
+      "decision_reminder": "Przypomnienie"
     },
     "stage_status": {
       "title": "Aktualizacja etapu: {{stage}}",
@@ -64,7 +66,7 @@
       "title": "Harmonogram: {{status}}"
     },
     "decision_new": {
-      "title": "Potrzebna decyzja: {{title}}"
+      "title": "Do akceptacji: {{title}}"
     },
     "decision_answer": {
       "title": "Odpowiedź do sprawy: {{title}}"
@@ -77,6 +79,12 @@
     },
     "decision_reopened": {
       "title": "Wznowiono: {{title}}"
+    },
+    "decision_accepted": {
+      "title": "Zaakceptowano: {{title}}"
+    },
+    "decision_reminder": {
+      "title": "Nadal czeka na Twoją akceptację: {{title}}"
     }
   },
   "activity": {
@@ -129,19 +137,20 @@
       "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision.",
       "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}"
     },
-    "decisionNew": {
-      "title": "Sprawa czeka na Twoją decyzję: {{title}}",
-      "body": "Kierownik budowy przesłał do decyzji sprawę „{{title}}”. Otwórz ją, aby zobaczyć zdjęcia i wpływ na budżet oraz termin.",
-      "cta": "Zobacz sprawę"
+    "changeRequestNew": {
+      "title": "Wniosek o zmianę czeka na Twoją akceptację: {{title}}",
+      "body": "Kierownik prosi Cię o akceptację wniosku „{{title}}”. Otwórz go, aby zobaczyć, jak zmienia budżet i termin zakończenia, a potem go zaakceptuj lub odrzuć.",
+      "cta": "Zobacz wniosek"
     },
-    "confirmationCode": {
-      "subject": "Twój kod potwierdzenia — RenoVision",
-      "preheader": "Kod do zaakceptowania sprawy „{{title}}”",
-      "heading": "Potwierdź zaakceptowanie decyzji",
-      "intro": "Wpisz ten kod w RenoVision, aby zaakceptować sprawę „{{title}}”. Akceptacja jest ostateczna i zmienia budżet oraz termin zakończenia projektu.",
-      "validity": "Kod jest ważny {{minutes}} minut i działa tylko raz.",
-      "ignore": "Jeśli to nie Ty prosiłeś o kod, zignoruj tę wiadomość — nic się nie zmieni.",
-      "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision."
+    "changeRequestAccepted": {
+      "title": "Wniosek o zmianę zaakceptowany: {{title}}",
+      "body": "Klient zaakceptował wniosek „{{title}}”. Budżet i termin zakończenia projektu zostały zaktualizowane.",
+      "cta": "Otwórz wniosek"
+    },
+    "changeRequestReminder": {
+      "title": "Nadal czeka na Twoją akceptację: {{title}}",
+      "body": "Wniosek „{{title}}” od doby czeka na Twoją akceptację. Otwórz go, aby go zaakceptować lub odrzucić. Masz pytania? Napisz do kierownika.",
+      "cta": "Zobacz wniosek"
     }
   }
 }

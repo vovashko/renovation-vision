@@ -13,6 +13,11 @@ SUPABASE_SECRET_KEY=
 # Overrides wrangler.jsonc → vars.APP_ENV: development | preview | production | test.
 APP_ENV=development
 
+# The app's public origin, for links in emails sent outside a request (the hourly change-request reminder
+# cron). Preview sets it in wrangler.jsonc; production must too. Locally, the origin `bun run dev` serves
+# (see the terminal). Unset in development: reminders are written in-app only, without the email.
+APP_ORIGIN=
+
 # Transactional email (Brevo) API key for @/server/email (sendEmail). REQUIRED in preview/production
 # (sendEmail throws EMAIL_NOT_CONFIGURED without it there); optional in development/test, where
 # emails are just logged (not delivered) when unset. A free Brevo account's API key works fine for

@@ -87,7 +87,9 @@
     "roomBlocked": "{{name}} is blocked",
     "stageLate": "{{name}} is {{late}}",
     "stageLateDetail": "Was due {{date}} · {{progress}}% done",
-    "overBudgetDetail": "{{spent}} spent of {{budget}}"
+    "overBudgetDetail": "{{spent}} spent of {{budget}}",
+    "changeRequestsWaiting_one": "{{count}} change request waiting for the client",
+    "changeRequestsWaiting_other": "{{count}} change requests waiting for the client"
   },
   "fields": {
     "addressLine": "Street and number",

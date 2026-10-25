@@ -58,8 +58,10 @@ export function useNotificationText(): (n: Pick<Notification, "kind" | "params" 
         case "decision_answer":
         case "decision_question":
         case "decision_rejected":
-        case "decision_reopened": {
-          // params { title, text }: the case's title and the question / answer / reason, shown as written.
+        case "decision_reopened":
+        case "decision_accepted":
+        case "decision_reminder": {
+          // params { title, text }: the change request's title and the rejection reason (or an old question / answer), as written.
           const title = paramName(p, "title");
           if (!title) return legacy;
           return { title: t(`notifications.${n.kind}.title`, { title }), body: paramText(p, "text") ?? n.body };

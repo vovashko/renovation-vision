@@ -93,31 +93,6 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"decision_confirmations": {
-                  Row: {
-                    "attempts": number,"code_hash": string,"consumed_at": string | null,"created_at": string,"decision_id": string,"expires_at": string,"id": string,"salt": string,"user_id": string
-                  }
-                  Insert: {
-                    "attempts"?: number,"code_hash": string,"consumed_at"?: string | null,"created_at"?: string,"decision_id": string,"expires_at": string,"id"?: string,"salt": string,"user_id": string
-                  }
-                  Update: {
-                    "attempts"?: number,"code_hash"?: string,"consumed_at"?: string | null,"created_at"?: string,"decision_id"?: string,"expires_at"?: string,"id"?: string,"salt"?: string,"user_id"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "decision_confirmations_decision_id_fkey"
-      columns: ["decision_id"]
-isOneToOne: false
-      referencedRelation: "decisions"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "decision_confirmations_user_id_fkey"
-      columns: ["user_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"decision_events": {
                   Row: {
                     "actor_id": string | null,"actor_role": Database["public"]['Enums']["project_role"] | null,"created_at": string,"decision_id": string,"id": number,"kind": Database["public"]['Enums']["decision_event_kind"],"project_id": string,"text": string
@@ -155,46 +130,15 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"decision_photos": {
-                  Row: {
-                    "created_at": string,"decision_id": string,"id": string,"project_id": string,"sort_order": number,"storage_path": string
-                  }
-                  Insert: {
-                    "created_at"?: string,"decision_id": string,"id"?: string,"project_id": string,"sort_order"?: number,"storage_path": string
-                  }
-                  Update: {
-                    "created_at"?: string,"decision_id"?: string,"id"?: string,"project_id"?: string,"sort_order"?: number,"storage_path"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "decision_photos_decision_id_fkey"
-      columns: ["decision_id"]
-isOneToOne: false
-      referencedRelation: "decisions"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "decision_photos_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "project_summary"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "decision_photos_project_id_fkey"
-      columns: ["project_id"]
-isOneToOne: false
-      referencedRelation: "projects"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"decisions": {
                   Row: {
-                    "cost_delta": number,"created_at": string,"created_by": string | null,"days_delta": number,"decided_at": string | null,"decided_by": string | null,"decision_reason": string,"description": string,"id": string,"project_id": string,"status": Database["public"]['Enums']["decision_status"],"title": string,"updated_at": string
+                    "cost_delta": number,"created_at": string,"created_by": string | null,"days_delta": number,"decided_at": string | null,"decided_by": string | null,"decision_reason": string,"description": string,"id": string,"pending_since": string | null,"project_id": string,"reminded_at": string | null,"stage_id": string | null,"status": Database["public"]['Enums']["decision_status"],"title": string,"updated_at": string
                   }
                   Insert: {
-                    "cost_delta"?: number,"created_at"?: string,"created_by"?: string | null,"days_delta"?: number,"decided_at"?: string | null,"decided_by"?: string | null,"decision_reason"?: string,"description"?: string,"id"?: string,"project_id": string,"status"?: Database["public"]['Enums']["decision_status"],"title": string,"updated_at"?: string
+                    "cost_delta"?: number,"created_at"?: string,"created_by"?: string | null,"days_delta"?: number,"decided_at"?: string | null,"decided_by"?: string | null,"decision_reason"?: string,"description"?: string,"id"?: string,"pending_since"?: string | null,"project_id": string,"reminded_at"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["decision_status"],"title": string,"updated_at"?: string
                   }
                   Update: {
-                    "cost_delta"?: number,"created_at"?: string,"created_by"?: string | null,"days_delta"?: number,"decided_at"?: string | null,"decided_by"?: string | null,"decision_reason"?: string,"description"?: string,"id"?: string,"project_id"?: string,"status"?: Database["public"]['Enums']["decision_status"],"title"?: string,"updated_at"?: string
+                    "cost_delta"?: number,"created_at"?: string,"created_by"?: string | null,"days_delta"?: number,"decided_at"?: string | null,"decided_by"?: string | null,"decision_reason"?: string,"description"?: string,"id"?: string,"pending_since"?: string | null,"project_id"?: string,"reminded_at"?: string | null,"stage_id"?: string | null,"status"?: Database["public"]['Enums']["decision_status"],"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -220,6 +164,12 @@ isOneToOne: false
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "decisions_stage_id_fkey"
+      columns: ["stage_id"]
+isOneToOne: false
+      referencedRelation: "stages"
       referencedColumns: ["id"]
     }
                   ]
@@ -936,19 +886,13 @@ isOneToOne: true
           }
           Functions: {
             "accept_decision":
-{ Args: { "p_code": string,"p_decision": string }; Returns: string
+{ Args: { "p_decision": string }; Returns: string
                            },
 "add_project_member":
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
                            },
-"answer_decision_question":
-{ Args: { "p_decision": string,"p_text": string }; Returns: undefined
-                           },
-"ask_decision_question":
-{ Args: { "p_decision": string,"p_text": string }; Returns: undefined
-                           },
 "create_decision":
-{ Args: { "p_cost_delta": number,"p_days_delta": number,"p_description": string,"p_photos": (string)[],"p_project": string,"p_title": string }; Returns: string
+{ Args: { "p_cost_delta": number,"p_days_delta": number,"p_description": string,"p_project": string,"p_stage"?: string,"p_title": string }; Returns: string
                            },
 "create_project":
 { Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_email"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
@@ -985,6 +929,9 @@ isOneToOne: true
 "reject_decision":
 { Args: { "p_decision": string,"p_reason": string }; Returns: undefined
                            },
+"remind_decision":
+{ Args: { "p_decision": string }; Returns: boolean
+                           },
 "reopen_decision":
 { Args: { "p_decision": string }; Returns: undefined
                            },
@@ -1009,7 +956,7 @@ isOneToOne: true
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "update_decision":
-{ Args: { "p_add_photos"?: (string)[],"p_cost_delta": number,"p_days_delta": number,"p_decision": string,"p_description": string,"p_remove_photos"?: (string)[],"p_title": string }; Returns: (string)[]
+{ Args: { "p_cost_delta": number,"p_days_delta": number,"p_decision": string,"p_description": string,"p_stage"?: string,"p_title": string }; Returns: undefined
                            }
           }
           Enums: {

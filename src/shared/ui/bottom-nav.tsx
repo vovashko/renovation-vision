@@ -49,8 +49,18 @@ export function BottomNav() {
       <TabBar>
         {tabs.map((tab) => {
           const active = projectPath(projectId, tab.section) === path;
+          const count = tab.counted ? (counts[tab.key] ?? 0) : 0;
+          const label = t(tab.labelKey);
           return (
-            <TabBarItem key={tab.key} asChild icon={tab.icon} label={t(tab.labelKey)} active={active}>
+            <TabBarItem
+              key={tab.key}
+              asChild
+              icon={tab.icon}
+              label={label}
+              active={active}
+              badge={count}
+              aria-label={count > 0 ? t("nav.withCount", { label, count }) : undefined}
+            >
               <Link to={projectRoute(tab.section)} params={{ projectId }} />
             </TabBarItem>
           );

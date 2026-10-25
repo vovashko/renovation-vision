@@ -12,7 +12,8 @@ export type ProjectIssue =
   | { kind: "room_blocked"; id: string; name: string; note: string | null }
   | { kind: "stage_late"; id: string; name: string; daysLate: number; progress: number; endDate: string }
   | { kind: "over_budget"; overPct: number; spent: number; budget: number }
-  | { kind: "inconsistency"; issue: Inconsistency };
+  | { kind: "inconsistency"; issue: Inconsistency }
+  | { kind: "change_requests_waiting"; count: number };
 
 type IssueTaskLike = { name: string; room_id: string | null; done: boolean };
 type IssueStage = {
@@ -27,6 +28,10 @@ type IssueStage = {
 };
 type IssueRoom = { id: string; name: string; status: Status; client_note: string | null; is_visible: boolean };
 type IssueProject = { schedule_status: ScheduleStatus; budget: number; spent: number };
+
+/** "N change requests waiting for the client" (T61), or nothing when none waits. */
+export const changeRequestIssues = (pending: number): ProjectIssue[] =>
+  pending > 0 ? [{ kind: "change_requests_waiting", count: pending }] : [];
 
 /** Everything a manager should look at on a project, in the order the overview shows it. */
 export function projectIssues(project: IssueProject, stages: IssueStage[], rooms: IssueRoom[], today: Date = new Date()): ProjectIssue[] {

@@ -148,16 +148,18 @@ describe("the updates page's items render translated text", () => {
   });
 });
 
-describe("useNotificationText: investor decisions (#55)", () => {
+describe("useNotificationText: change requests (T61)", () => {
   const params = { title: "Extra socket", text: "Is the price final?" };
 
-  it("renders every decision kind in both languages, with the question / answer / reason as written", () => {
+  it("renders every change-request kind in both languages, with the reason (or an old question / answer) as written", () => {
     const cases = [
-      ["decision_new", "Decision needed: Extra socket", "Potrzebna decyzja: Extra socket"],
+      ["decision_new", "Approval needed: Extra socket", "Do akceptacji: Extra socket"],
       ["decision_answer", "Answer on: Extra socket", "Odpowiedź do sprawy: Extra socket"],
       ["decision_question", "Question on: Extra socket", "Pytanie do sprawy: Extra socket"],
       ["decision_rejected", "Rejected: Extra socket", "Odrzucono: Extra socket"],
       ["decision_reopened", "Reopened: Extra socket", "Wznowiono: Extra socket"],
+      ["decision_accepted", "Approved: Extra socket", "Zaakceptowano: Extra socket"],
+      ["decision_reminder", "Still waiting for your approval: Extra socket", "Nadal czeka na Twoją akceptację: Extra socket"],
     ] as const;
     for (const [kind, en, pl] of cases) {
       expect(textIn("en", { kind, params, ...legacy })).toEqual({ title: en, body: "Is the price final?" });
@@ -172,6 +174,7 @@ describe("useNotificationText: investor decisions (#55)", () => {
   it("labels the kinds", () => {
     const { result } = renderHook(() => useNotificationKindLabel(), { wrapper: wrapper("pl") });
     expect(result.current("decision_question")).toBe("Pytanie");
-    expect(result.current("decision_new")).toBe("Decyzja");
+    expect(result.current("decision_new")).toBe("Wniosek o zmianę");
+    expect(result.current("decision_reminder")).toBe("Przypomnienie");
   });
 });

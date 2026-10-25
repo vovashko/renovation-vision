@@ -2,7 +2,9 @@
   "page": {
     "title": "Budżet i wydatki",
     "description": "Klient widzi budżet i sumę wydatków. Pozycje, dostawcy i paragony pozostają wewnętrzne.",
-    "addExpense": "Dodaj wydatek"
+    "addExpense": "Dodaj wydatek",
+    "titleClient": "Budżet",
+    "descriptionClient": "Budżet planowany i prognozowany, dotychczasowe wydatki oraz zmiany czekające na Twoją akceptację."
   },
   "stats": {
     "budget": "Prognozowany budżet",
@@ -14,6 +16,13 @@
     "used": "Wykorzystano",
     "projectComplete": "Projekt ukończony w {{pct}}%",
     "plannedBudget": "Planowany: {{amount}}"
+  },
+  "client": {
+    "planned": "Budżet planowany",
+    "plannedHint": "Uzgodniony na początku",
+    "deviation": "{{amount}} względem planu",
+    "onPlan": "Zgodnie z planem",
+    "spentOf": "{{pct}}% budżetu prognozowanego"
   },
   "expenses": {
     "heading": "Wydatki",

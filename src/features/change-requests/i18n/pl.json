@@ -1,0 +1,153 @@
+{
+  "section": {
+    "heading": "Wnioski o zmianę",
+    "descriptionBudget": "Zmiany budżetu, które wymagają akceptacji klienta. Budżet zmienia tylko zaakceptowany wniosek.",
+    "descriptionProgress": "Zmiany harmonogramu, które wymagają akceptacji klienta. Termin zakończenia przesuwa tylko zaakceptowany wniosek.",
+    "new": "Nowy wniosek o zmianę",
+    "emptyTitle": "Brak wniosków o zmianę",
+    "emptyManager": "Gdy coś kosztuje więcej lub trwa dłużej niż w planie, poproś tutaj klienta o akceptację.",
+    "emptyClient": "Kierownik nie prosił Cię jeszcze o akceptację żadnej zmiany."
+  },
+  "list": {
+    "awaitingClient": "Czeka na Twoją akceptację",
+    "awaitingManager": "Czeka na klienta",
+    "history": "Historia",
+    "submitted": "Zgłoszono {{date}}",
+    "stage": "Etap: {{name}}"
+  },
+  "status": {
+    "pending": "Czeka na akceptację",
+    "accepted": "Zaakceptowano",
+    "rejected": "Odrzucono",
+    "question": "Czeka na akceptację"
+  },
+  "delta": {
+    "none": "Bez zmian",
+    "days_one": "{{count}} dzień",
+    "days_few": "{{count}} dni",
+    "days_many": "{{count}} dni",
+    "days_other": "{{count}} dnia"
+  },
+  "detail": {
+    "cost": "Zmiana kosztu",
+    "days": "Zmiana terminu",
+    "stage": "Etap",
+    "description": "Opis",
+    "noDescription": "Brak opisu.",
+    "decidedBy": "Decyzja: {{name}}, {{date}}",
+    "rejectionReason": "Powód odrzucenia",
+    "lockedNote": "Ten wniosek jest zaakceptowany i zablokowany. Jeśli coś się zmieni, zgłoś nowy.",
+    "notFound": "Ten wniosek o zmianę nie istnieje albo nie masz do niego dostępu."
+  },
+  "preview": {
+    "heading": "Po akceptacji",
+    "budget": "Budżet: z {{from}} na {{to}}",
+    "end": "Termin zakończenia: z {{from}} na {{to}}",
+    "endUnknown": "Projekt nie ma jeszcze terminu zakończenia, więc zmiana o {{days}} nie zostanie zastosowana.",
+    "belowZero": "Akceptacja obniżyłaby budżet poniżej zera, więc w tej postaci nie można zaakceptować wniosku.",
+    "onlyApproved": "Te wartości zmienia tylko zaakceptowany wniosek."
+  },
+  "history": {
+    "heading": "Historia",
+    "empty": "Nic jeszcze nie zapisano.",
+    "former": "Były członek zespołu",
+    "system": "System",
+    "role": {
+      "manager": "Kierownik",
+      "client": "Klient"
+    },
+    "kind": {
+      "submitted": "Zgłosił(a) wniosek",
+      "question": "Zadał(a) pytanie",
+      "answer": "Odpowiedział(a)",
+      "accepted": "Zaakceptował(a) wniosek",
+      "rejected": "Odrzucił(a) wniosek",
+      "reopened": "Wznowił(a) wniosek",
+      "edited": "Zmienił(a) wniosek"
+    }
+  },
+  "actions": {
+    "approve": "Akceptuję",
+    "reject": "Odrzuć",
+    "reopen": "Wznów",
+    "edit": "Edytuj",
+    "questions": "Masz pytania? Napisz do kierownika"
+  },
+  "approve": {
+    "confirmTitle": "Zaakceptować tę zmianę?",
+    "budget": "Budżet zmieni się z {{from}} na {{to}}.",
+    "end": "Termin zakończenia zmieni się z {{from}} na {{to}}.",
+    "endUnknown": "Projekt nie ma jeszcze terminu zakończenia, więc zmiana o {{days}} nie zostanie zastosowana.",
+    "final": "Tego nie można cofnąć.",
+    "confirmLabel": "Akceptuję"
+  },
+  "reject": {
+    "title": "Odrzucić tę zmianę?",
+    "description": "Kierownik dostanie powiadomienie. Odrzucony wniosek można później wznowić.",
+    "label": "Powód",
+    "submit": "Odrzuć"
+  },
+  "form": {
+    "newTitle": "Nowy wniosek o zmianę",
+    "editTitle": "Edytuj wniosek o zmianę",
+    "description": "Klient zobaczy ten wniosek i go zaakceptuje lub odrzuci. Możesz go edytować, dopóki klient nie zdecyduje.",
+    "kind": "Co się zmienia?",
+    "kindCost": "Koszt",
+    "kindDays": "Termin",
+    "kindBoth": "Oba",
+    "title": "Tytuł",
+    "titlePlaceholder": "np. Dwa dodatkowe gniazdka w kuchni",
+    "descriptionLabel": "Opis",
+    "descriptionPlaceholder": "Co się zmienia, dlaczego i jakie są opcje",
+    "cost": "Zmiana kosztu",
+    "costHint": "W walucie projektu. Kwota ujemna oznacza oszczędność.",
+    "days": "Zmiana terminu (dni)",
+    "daysHint": "Dni kalendarzowe. Liczba ujemna oznacza zyskany czas.",
+    "stage": "Etap (opcjonalnie)",
+    "stageNone": "Bez etapu",
+    "stageHint": "Etap, który ta zmiana odblokowuje. Akceptacja nie zmienia samego etapu.",
+    "save": "Zapisz zmiany",
+    "submit": "Wyślij do akceptacji",
+    "submitting": "Zapisywanie…",
+    "costTooLarge": "Ta kwota jest zbyt duża",
+    "costDecimals": "Użyj najwyżej dwóch miejsc po przecinku",
+    "costRequired": "Podaj zmianę kosztu",
+    "daysWhole": "Podaj całkowitą liczbę dni",
+    "daysTooLarge": "To zbyt wiele dni",
+    "daysRequired": "Podaj zmianę terminu",
+    "titleTooLong": "Tytuł jest za długi (do 160 znaków)",
+    "descriptionTooLong": "Opis jest za długi (do 5000 znaków)",
+    "textTooLong": "To zbyt długie (do 2000 znaków)",
+    "reasonRequired": "Powód jest wymagany"
+  },
+  "approvals": {
+    "title": "Czeka na Twoją akceptację",
+    "count_one": "{{count}} wniosek o zmianę czeka na Ciebie.",
+    "count_few": "{{count}} wnioski o zmianę czekają na Ciebie.",
+    "count_many": "{{count}} wniosków o zmianę czeka na Ciebie.",
+    "count_other": "{{count}} wniosku o zmianę czeka na Ciebie.",
+    "review": "Zobacz"
+  },
+  "toast": {
+    "created": "Wniosek o zmianę wysłany. Klient dostał powiadomienie.",
+    "updated": "Wniosek o zmianę zaktualizowany",
+    "rejected": "Wniosek odrzucony. Kierownik dostał powiadomienie.",
+    "reopened": "Wniosek wznowiony",
+    "accept": {
+      "ok": "Zmiana zaakceptowana. Budżet i termin zakończenia zostały zaktualizowane.",
+      "already_accepted": "Ta zmiana została już zaakceptowana.",
+      "not_open": "Tego wniosku nie można już zaakceptować."
+    }
+  },
+  "errors": {
+    "decision_locked": "Ten wniosek jest rozstrzygnięty i nie można go już zmieniać.",
+    "decision_forbidden": "Nie masz uprawnień, aby to zrobić w tym projekcie.",
+    "not_rejected": "Wznowić można tylko odrzucony wniosek.",
+    "reason_required": "Powód jest wymagany.",
+    "no_change": "Wniosek musi zmieniać koszt albo termin.",
+    "stage_other_project": "Ten etap należy do innego projektu.",
+    "budget_negative": "Akceptacja obniżyłaby budżet poniżej zera.",
+    "mfa_required": "Najpierw potwierdź logowanie weryfikacją dwuetapową.",
+    "rate_limited": "Zbyt wiele żądań. Spróbuj za chwilę."
+  }
+}
