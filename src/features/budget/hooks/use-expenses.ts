@@ -4,16 +4,25 @@ import { toast } from "sonner";
 import { keys } from "@/shared/query-keys";
 import type { Expense } from "@/lib/database.types";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
+import { normalizeImage } from "@/features/media/domain/normalize-image";
+import { shouldNormalize } from "@/features/media/domain/upload";
 import { deleteExpense } from "@/server/functions/expenses";
 import { budgetRepo, type ExpenseInput } from "../data/budget.repo";
 
 export const useExpenses = (projectId: string) =>
   useQuery({ queryKey: keys.expenses(projectId), queryFn: () => budgetRepo.listExpenses(projectId) });
 
+/** An image receipt is re-encoded to JPEG (HEIC converted, EXIF/GPS stripped); PDFs are uploaded as they are. */
+async function saveWithNormalizedReceipt(projectId: string, input: ExpenseInput) {
+  const receipt = input.receiptFile;
+  const receiptFile = receipt && shouldNormalize(receipt) ? (await normalizeImage(receipt)).file : receipt;
+  return budgetRepo.saveExpense(projectId, { ...input, receiptFile });
+}
+
 /** `projects.spent` is maintained by a DB trigger, so a save also refreshes the project and projects list. */
 export function useSaveExpense(projectId: string) {
   const { t } = useTranslation(["budget"]);
-  return useMutationWithToast((input: ExpenseInput) => budgetRepo.saveExpense(projectId, input), {
+  return useMutationWithToast((input: ExpenseInput) => saveWithNormalizedReceipt(projectId, input), {
     invalidate: [keys.expenses(projectId), keys.project(projectId), keys.projects],
     success: t("budget:sheet.saved"),
   });

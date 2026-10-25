@@ -90,12 +90,17 @@ describe("validateDocumentFile", () => {
       file("a.JPEG", "image/jpeg"),
       file("a.png", "image/png"),
       file("a.webp", "image/webp"),
-      file("a.heic", "image/heic"),
       file("a.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
       file("a.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
     ];
     for (const f of ok) expect(validateDocumentFile(f), f.name).toBeNull();
-    expect(ALLOWED_DOCUMENT_MIME_TYPES).toHaveLength(7);
+    expect(ALLOWED_DOCUMENT_MIME_TYPES).toHaveLength(6);
+  });
+
+  it("lets a HEIC pick through by mime or by extension (it is converted to JPEG before upload)", () => {
+    expect(validateDocumentFile(file("a.heic", "image/heic"))).toBeNull();
+    expect(validateDocumentFile(file("IMG_1.HEIC", ""))).toBeNull();
+    expect(validateDocumentFile(file("a.heif", "image/heif", MAX_DOCUMENT_BYTES + 1))).toBe("size");
   });
 
   it("rejects other types, scripts and mismatched extensions", () => {

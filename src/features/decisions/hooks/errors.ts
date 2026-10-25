@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { isServerFnError } from "@/server/errors";
+import { translatedErrorKey } from "@/shared/i18n-error";
 import { DecisionRepoError } from "../data/decisions.repo";
 
 /** The machine-readable reason an error carries: a server function's `reason`, or an RPC's hint. */
@@ -35,6 +36,8 @@ export function useDecisionErrorText(): (error: Error) => string {
       const key = decisionErrorKey(error);
       if (key && (KNOWN as readonly string[]).includes(key)) return t(`decisions:errors.${key as (typeof KNOWN)[number]}`);
       if (isServerFnError(error) && error.code === "RATE_LIMITED") return t("decisions:errors.rate_limited");
+      const translatedKey = translatedErrorKey(error);
+      if (translatedKey) return (t as (k: string) => string)(translatedKey);
       return error.message || t("common:errors.generic");
     },
     [t],

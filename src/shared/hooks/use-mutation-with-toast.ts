@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { translatedErrorKey } from "@/shared/i18n-error";
 
 export type MutationWithToastOptions<V, R> = {
   /** Query keys to refetch once the mutation settles (success or error). A function gets the variables. */
   invalidate?: QueryKey[] | ((vars: V) => QueryKey[]);
   /** Success toast, already translated. Omit for no toast. */
   success?: string | ((vars: V, result: R) => string);
-  /** Error toast. Defaults to the error's message, or `common:errors.generic` when it has none. */
+  /** Error toast. Defaults to the translated text of a `TranslatedError`, else the error's message, or `common:errors.generic` when it has none. */
   error?: string | ((error: Error, vars: V) => string);
   /** Runs after the success toast (close a sheet, reset a form). */
   onSuccess?: (result: R, vars: V) => void;
@@ -34,7 +35,9 @@ export function useMutationWithToast<V, R = unknown>(fn: (vars: V) => Promise<R>
     },
     onError: (error, vars) => {
       const message = typeof opts.error === "function" ? opts.error(error, vars) : opts.error;
-      toast.error(message ?? (error.message || t("common:errors.generic")));
+      const key = translatedErrorKey(error);
+      // A TranslatedError names its own key (any bundled namespace); otherwise the message, then the generic text.
+      toast.error(message ?? (key ? (t as (k: string) => string)(key) : error.message || t("common:errors.generic")));
     },
     onSettled: (_result, _error, vars) => {
       const keys = typeof opts.invalidate === "function" ? opts.invalidate(vars) : (opts.invalidate ?? []);
