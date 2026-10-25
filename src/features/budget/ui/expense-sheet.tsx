@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldGroup } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -9,6 +10,7 @@ import { FileInput } from "@/components/ui/file-input";
 import { FormSheet } from "@/shared/ui/form-sheet";
 import { FormField } from "@/shared/ui/form-field";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
+import { useProject } from "@/features/projects/hooks";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { EXPENSE_CATEGORIES, expenseSchema, type ExpenseFormInput } from "../domain/schemas";
 import { useDeleteExpense, useSaveExpense } from "../hooks/use-expenses";
@@ -18,7 +20,7 @@ function defaultsFor(expense: Expense | "new", stages: Stage[]): ExpenseFormInpu
   if (expense === "new") {
     return {
       description: "",
-      amount: "",
+      amount: null,
       spent_on: new Date().toISOString().slice(0, 10),
       category: "materials",
       stage_id: stages.find((s) => s.status === "progress")?.id ?? "",
@@ -29,7 +31,7 @@ function defaultsFor(expense: Expense | "new", stages: Stage[]): ExpenseFormInpu
   }
   return {
     description: expense.description,
-    amount: String(expense.amount),
+    amount: expense.amount,
     spent_on: expense.spent_on,
     category: expense.category,
     stage_id: expense.stage_id ?? "",
@@ -53,6 +55,7 @@ export function ExpenseSheet({
 }) {
   const { t } = useTranslation(["budget", "common"]);
   const confirm = useConfirm();
+  const { data: project } = useProject(projectId);
   const isNew = expense === "new";
   const key = expense === null ? null : isNew ? "new" : expense.id;
   const form = useZodForm(expenseSchema, defaultsFor(expense ?? "new", stages));
@@ -105,7 +108,7 @@ export function ExpenseSheet({
             </FormField>
             <div className="grid grid-cols-2 gap-3">
               <FormField control={form.control} name="amount" label={t("budget:sheet.amount")}>
-                {(field) => <Input {...field} inputMode="decimal" />}
+                {(field) => <MoneyInput {...field} currency={project?.currency} />}
               </FormField>
               <FormField control={form.control} name="spent_on" label={t("budget:sheet.date")}>
                 {(field) => <Input type="date" {...field} />}
