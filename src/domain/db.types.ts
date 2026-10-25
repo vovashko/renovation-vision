@@ -225,22 +225,16 @@ isOneToOne: false
                   ]
                 },"documents": {
                   Row: {
-                    "archived_at": string | null,"archived_by": string | null,"category": Database["public"]['Enums']["document_category"],"created_at": string,"description": string,"file_name": string,"id": string,"is_current": boolean,"mime_type": string,"project_id": string,"room_id": string | null,"size_bytes": number,"storage_path": string,"task_id": string | null,"title": string,"updated_at": string,"uploaded_by": string | null,"version": number,"version_group": string
+"category": Database["public"]['Enums']["document_category"],"created_at": string,"description": string,"file_name": string,"id": string,"mime_type": string,"project_id": string,"size_bytes": number,"storage_path": string,"updated_at": string,"uploaded_by": string | null
                   }
                   Insert: {
-                    "archived_at"?: string | null,"archived_by"?: string | null,"category": Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name": string,"id"?: string,"is_current"?: boolean,"mime_type": string,"project_id": string,"room_id"?: string | null,"size_bytes": number,"storage_path": string,"task_id"?: string | null,"title": string,"updated_at"?: string,"uploaded_by"?: string | null,"version"?: number,"version_group"?: string
+"category": Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name": string,"id"?: string,"mime_type": string,"project_id": string,"size_bytes": number,"storage_path": string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Update: {
-                    "archived_at"?: string | null,"archived_by"?: string | null,"category"?: Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name"?: string,"id"?: string,"is_current"?: boolean,"mime_type"?: string,"project_id"?: string,"room_id"?: string | null,"size_bytes"?: number,"storage_path"?: string,"task_id"?: string | null,"title"?: string,"updated_at"?: string,"uploaded_by"?: string | null,"version"?: number,"version_group"?: string
+"category"?: Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name"?: string,"id"?: string,"mime_type"?: string,"project_id"?: string,"size_bytes"?: number,"storage_path"?: string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Relationships: [
                     {
-      foreignKeyName: "documents_archived_by_fkey"
-      columns: ["archived_by"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    },{
       foreignKeyName: "documents_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
@@ -251,18 +245,6 @@ isOneToOne: false
       columns: ["project_id"]
 isOneToOne: false
       referencedRelation: "projects"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "documents_room_id_fkey"
-      columns: ["room_id"]
-isOneToOne: false
-      referencedRelation: "rooms"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "documents_task_id_fkey"
-      columns: ["task_id"]
-isOneToOne: false
-      referencedRelation: "tasks"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "documents_uploaded_by_fkey"

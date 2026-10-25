@@ -149,24 +149,14 @@ export type ProjectDocument = Pick<
   | "id"
   | "project_id"
   | "category"
-  | "title"
   | "description"
   | "storage_path"
   | "file_name"
   | "mime_type"
   | "size_bytes"
-  | "version_group"
-  | "version"
-  | "is_current"
-  | "room_id"
-  | "task_id"
   | "uploaded_by"
-  | "archived_at"
   | "created_at"
-> & {
-  /** Signed URL, only resolved for installation photos (the gallery thumbnails). */
-  url: string;
-};
+>;
 
 export type Render = Pick<
   Tables<"renders">,

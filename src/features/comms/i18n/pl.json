@@ -40,6 +40,7 @@
       "render_published": "Wizualizacja",
       "schedule_status": "Harmonogram",
       "manual": "Ogłoszenie",
+      "document_new": "Dokument",
       "decision_new": "Decyzja",
       "decision_answer": "Odpowiedź",
       "decision_question": "Pytanie",
@@ -62,6 +63,9 @@
     },
     "schedule_status": {
       "title": "Harmonogram: {{status}}"
+    },
+    "document_new": {
+      "title": "Nowy dokument: {{name}}"
     },
     "decision_new": {
       "title": "Potrzebna decyzja: {{title}}"

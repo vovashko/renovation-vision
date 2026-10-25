@@ -38,6 +38,7 @@
       "render_published": "Render",
       "schedule_status": "Schedule",
       "manual": "Announcement",
+      "document_new": "Document",
       "decision_new": "Decision",
       "decision_answer": "Answer",
       "decision_question": "Question",
@@ -60,6 +61,9 @@
     },
     "schedule_status": {
       "title": "Schedule: {{status}}"
+    },
+    "document_new": {
+      "title": "New document: {{name}}"
     },
     "decision_new": {
       "title": "Decision needed: {{title}}"
