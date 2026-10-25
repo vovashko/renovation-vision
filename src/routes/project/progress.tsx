@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/page-header";
 import { VisibilityBadge } from "@/shared/ui/visibility-badge";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { useNavRole } from "@/shared/ui/nav-role";
+import { StagesImportButton } from "@/features/import/ui/import-button";
 import { StageRow, StageRowList } from "@/features/work/ui/stage-row";
 import { StagesEmpty } from "@/features/work/ui/stages-empty";
 import { TaskAddForm } from "@/features/work/ui/task-add-form";
@@ -86,9 +87,12 @@ function ProgressPage() {
         description={isManager ? t("work:progress.descriptionManager") : t("work:progress.descriptionClient")}
         actions={
           isManager && (
-            <Button onClick={startNewStage} className="min-h-11 gap-2">
-              <Icon name="add" size={20} /> {t("work:progress.addStage")}
-            </Button>
+            <>
+              <StagesImportButton projectId={projectId} />
+              <Button onClick={startNewStage} className="min-h-11 gap-2">
+                <Icon name="add" size={20} /> {t("work:progress.addStage")}
+              </Button>
+            </>
           )
         }
       />

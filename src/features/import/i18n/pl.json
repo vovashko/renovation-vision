@@ -1,1 +1,104 @@
-{}
+{
+  "button": {
+    "stages": "Importuj",
+    "materials": "Importuj"
+  },
+  "title": {
+    "stages": "Import etapów i zadań",
+    "materials": "Import materiałów"
+  },
+  "description": {
+    "stages": "Dodaj etapy wraz z zadaniami z arkusza. Nic nie zostanie zapisane, dopóki wszystkie wiersze nie będą poprawne.",
+    "materials": "Dodaj materiały z arkusza. Pokoje, etapy i dostawcy są dopasowywani po nazwie. Nic nie zostanie zapisane, dopóki wszystkie wiersze nie będą poprawne."
+  },
+  "pick": {
+    "label": "Plik arkusza",
+    "hint": "CSV lub XLSX, do 5 MB. Pierwszy wiersz zawiera nazwy kolumn.",
+    "templates": "Zacznij od wzoru",
+    "templateEn": "Angielski ({{format}})",
+    "templatePl": "Polski ({{format}})",
+    "reading": "Wczytuję plik…"
+  },
+  "stagesHelp": "Jeden wiersz na zadanie. Wiersz z nazwą etapu zaczyna etap. Wiersze z tą samą nazwą lub bez nazwy dodają zadania do tego etapu.",
+  "fileErrors": {
+    "too_large": "Ten plik jest większy niż 5 MB.",
+    "unsupported": "Wybierz plik .csv lub .xlsx.",
+    "empty": "Plik nie zawiera danych.",
+    "unreadable": "Nie udało się odczytać pliku. Sprawdź, czy nie jest uszkodzony ani zabezpieczony hasłem."
+  },
+  "map": {
+    "title": "Dopasuj kolumny",
+    "description": "Dopasowaliśmy plik {{file}} po nazwach kolumn. Sprawdź każde pole i popraw te, które są błędne.",
+    "notMapped": "Brak w pliku",
+    "required": "wymagane",
+    "missing": "Wybierz kolumnę dla: {{fields}}."
+  },
+  "fields": {
+    "name": "Nazwa",
+    "start_date": "Data rozpoczęcia",
+    "end_date": "Data zakończenia",
+    "client_note": "Notatka dla klienta",
+    "task": "Zadanie",
+    "room": "Pokój",
+    "quantity": "Ilość",
+    "unit": "Jednostka",
+    "unit_price": "Cena jednostkowa",
+    "status": "Status",
+    "stage": "Etap",
+    "supplier": "Dostawca",
+    "notes": "Uwagi"
+  },
+  "preview": {
+    "title": "Sprawdź wiersze",
+    "summaryStages": "Gotowe do importu: etapy ({{stages}}) i zadania ({{tasks}}).",
+    "summaryMaterials": "Gotowe do importu: materiały ({{count}}).",
+    "problems_one": "{{count}} problem do poprawienia w pliku przed importem.",
+    "problems_few": "{{count}} problemy do poprawienia w pliku przed importem.",
+    "problems_many": "{{count}} problemów do poprawienia w pliku przed importem.",
+    "problems_other": "{{count}} problemu do poprawienia w pliku przed importem.",
+    "problemsHint": "Popraw je w arkuszu, a potem wybierz plik ponownie.",
+    "row": "Wiersz {{row}}",
+    "rowField": "Wiersz {{row}}, {{field}}",
+    "moreRows": "i jeszcze {{count}} wierszy",
+    "stageColumn": "Etap",
+    "tasksColumn": "Zadania"
+  },
+  "issues": {
+    "required": "jest wymagane",
+    "too_long": "jest za długie",
+    "invalid_date": "nie jest poprawną datą (użyj 2026-03-01 lub 01.03.2026)",
+    "end_before_start": "jest wcześniejsze niż data rozpoczęcia",
+    "dates_differ": "nie zgadza się z datami etapu powyżej",
+    "task_without_stage": "ma zadanie, ale nie ma etapu powyżej",
+    "not_a_number": "nie jest liczbą",
+    "must_be_positive": "musi być większe od zera",
+    "must_not_be_negative": "nie może być ujemne",
+    "too_large": "jest za duże",
+    "invalid_status": "nie jest statusem (planned, ordered, delivered lub installed)",
+    "invalid_unit": "jest za długie jak na jednostkę",
+    "not_found": "nie zostało znalezione w tym projekcie",
+    "ambiguous": "pasuje do więcej niż jednego",
+    "room_not_found": "nie zostało znalezione w tym projekcie",
+    "room_ambiguous": "pasuje do więcej niż jednego pokoju",
+    "too_many_rows": "przekracza limit wierszy",
+    "invalid": "jest niepoprawne"
+  },
+  "actions": {
+    "back": "Wstecz",
+    "next": "Dalej",
+    "import": "Importuj",
+    "importing": "Importuję…",
+    "done": "Gotowe",
+    "another": "Importuj kolejny plik"
+  },
+  "done": {
+    "stages": "Zaimportowano etapy ({{stages}}) i zadania ({{tasks}}).",
+    "materials": "Zaimportowano materiały ({{count}})."
+  },
+  "errors": {
+    "notReady": "Najpierw popraw problemy w pliku.",
+    "rowsRejected": "Projekt odrzucił część wierszy. Nic nie zostało zaimportowane.",
+    "forbidden": "Importować mogą tylko kierownicy projektu.",
+    "rateLimited": "Za dużo żądań. Spróbuj ponownie za minutę."
+  }
+}
