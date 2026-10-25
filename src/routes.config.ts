@@ -27,6 +27,7 @@ export const routes = rootRoute("__root.tsx", [
         route("design", "project/design.tsx"),
         route("documents", "project/documents.tsx"),
         route("budget", "project/budget.tsx"),
+        // Removed pages (T66), kept as redirects to the overview so old links still work.
         route("chat", "project/chat.tsx"),
         route("decisions", "project/decisions.tsx"),
         route("updates", "project/updates.tsx"),

@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; i18n
       { title: "RenoVision" },
       {
         name: "description",
-        content: "Track a home renovation: stages, plan, photos and chat with your site manager. Site managers update it all in one place.",
+        content: "Track a home renovation: stages, plan and photos from your site manager. Site managers update it all in one place.",
       },
     ],
     links: [

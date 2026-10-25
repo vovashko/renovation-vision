@@ -6,8 +6,6 @@
     "clientBadge": "Klient",
     "managerBadge": "Kierownik",
     "you": "(Ty)",
-    "lastRead": "Ostatnio czytał(a) czat {{when}}",
-    "neverRead": "Jeszcze nie otworzył(a) czatu",
     "removeAria": "Usuń {{name}}",
     "removeConfirmTitle": "Usunąć {{name}} z tego projektu?",
     "added": "Dodano {{email}}",
@@ -26,7 +24,7 @@
     "fallbackName": "Klient",
     "noPhone": "Brak numeru telefonu",
     "noEmail": "Brak adresu e-mail",
-    "message": "Wiadomość",
+    "whatsapp": "WhatsApp",
     "call": "Zadzwoń",
     "email": "E-mail",
     "access": {
@@ -72,7 +70,7 @@
     "heading_few": "Twoje kontakty",
     "heading_many": "Twoje kontakty",
     "heading_other": "Twoje kontakty",
-    "message": "Wiadomość",
+    "whatsappAria": "Napisz do {{name}} na WhatsAppie",
     "callAria": "Zadzwoń do {{name}}",
     "emailAria": "Napisz e-mail do {{name}}",
     "role": {

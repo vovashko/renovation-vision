@@ -172,7 +172,7 @@ Code is split by layer, then by feature:
 ```
 src/domain/            pure entities and rules: status, progress, money, dates, attention, consistency, budget,
                        db.types.ts (generated). No React, no Supabase, no UI imports.
-src/features/<f>/      f ∈ projects | work | media | documents | budget | decisions | comms | people | knowledge | auth | settings | admin | import
+src/features/<f>/      f ∈ projects | work | media | documents | budget | decisions | comms | people | auth | settings | admin | import
   README.md            what the feature owns (tables, routes, UI)
   domain/              rules only this feature needs (optional)
   data/                the repository: the ONLY place that imports supabase-js
@@ -195,7 +195,7 @@ src/routes/            route files: they compose feature components and hooks, n
 
 Dependencies point one way: `routes → features/<f>/{ui,hooks} → features/<f>/data → supabase`, and everything may
 use `domain`, `shared` and `i18n`. A feature never imports another feature's `data/`; it goes through the other
-feature's `hooks` (most commonly) or `domain` entry point instead — e.g. `features/knowledge/ui/ai-chat.tsx` reads
+feature's `hooks` (most commonly) or `domain` entry point instead — e.g. the project overview reads
 the project, stages/rooms and photos via `@/features/projects/hooks`, `@/features/work/hooks` and
 `@/features/media/hooks`, never their repositories directly. `src/lib/` only holds cross-cutting non-UI code that
 isn't domain or a feature's: `auth.tsx`, `supabase/` (`@/lib/supabase` is the browser client; `server.ts` and
@@ -333,7 +333,7 @@ path, and only an `admin` may call it (not on their own account; with an `aal2` 
 **Staff 2FA.** Internal data needs an MFA-verified (`aal2`) session while enforcement is on. _Restrictive_ RLS
 policies (`… : staff mfa`, `as restrictive`, ANDed with the existing permissive ones) require `private.staff_mfa_ok()`
 on `expenses`, `project_internal`, `contacts`, `project_contacts`, `stage_budgets`, `materials`, `activity_log` and `storage.objects` in bucket `project-internal`
-(receipts). An `aal1` manager still sees the rest of the project (stages, rooms, photos, chat, the budget/spent
+(receipts). An `aal1` manager still sees the rest of the project (stages, rooms, photos, the budget/spent
 totals), just none of those rows. Clients are unaffected: they have no access to those tables anyway, and the storage
 policy only looks at `project-internal`.
 
@@ -378,6 +378,12 @@ projects ──< project_contacts >── contacts ──(user_id, optional)─�
 - **Contacts** are the company's single address book: every staff account (manager or admin) reads and edits all
   of them; clients read none. `user_id` ties a contact to an app account (one contact per account). A project's
   crew, client and PoC are `project_contacts` rows; removing someone from a project deletes the link only.
+- **WhatsApp, call and email links.** There is no in-app chat or assistant: conversations happen on WhatsApp.
+  `contactLinks(contact)` (`features/people/domain/contact-links.ts`) builds `tel:`, `mailto:` and
+  `https://wa.me/<digits>` links; WhatsApp prefers `contacts.whatsapp` and falls back to `phone`. A 9-digit number gets
+  the Polish `48` prefix; spaces, dashes, parentheses and a leading `+` or `00` are stripped. Each link exists only when
+  the number or address does. The client overview's "Your contact" card and the manager's client card show the buttons
+  (WhatsApp opens in a new tab). Old `/chat` and `/knowledge` URLs redirect to the project overview.
 - **What clients see.** Clients can't select `contacts` or `project_contacts`. `project_visible_contacts(project)`
   (security definer, members only) returns the `visible_to_client` rows of that project, and only their role,
   name, phone and email; the client overview's "Your contact" card reads it. `project_summary.client_display_name`
@@ -570,13 +576,13 @@ prefetch through the normal repositories, e.g. `context.queryClient.prefetchQuer
 after a loading screen) and in the browser on navigation. The decisions are pure functions in
 `src/features/auth/domain/guards.ts`.
 
-| Route                                                    | Signed out            | Client (on this project)            | Manager (on this project) | Not a member                         |
-| -------------------------------------------------------- | --------------------- | ----------------------------------- | ------------------------- | ------------------------------------ |
-| `/login`                                                 | sign-in screen        | → `?redirect=` (same-origin) or `/` | same                      | same                                 |
-| `/`                                                      | → `/login?redirect=/` | → their first project               | → `/projects`             | —                                    |
-| `/projects`, `/settings`                                 | → `/login?redirect=…` | page                                | page                      | —                                    |
-| `/projects/<id>`, `progress`, `photos`, `design`, `chat` | → `/login?redirect=…` | page                                | page                      | "Project not available" (`notFound`) |
-| `/projects/<id>/budget`, `updates`, `knowledge`, `team`  | → `/login?redirect=…` | → `/projects/<id>` (overview)       | page                      | "Project not available"              |
+| Route                                            | Signed out            | Client (on this project)            | Manager (on this project) | Not a member                         |
+| ------------------------------------------------ | --------------------- | ----------------------------------- | ------------------------- | ------------------------------------ |
+| `/login`                                         | sign-in screen        | → `?redirect=` (same-origin) or `/` | same                      | same                                 |
+| `/`                                              | → `/login?redirect=/` | → their first project               | → `/projects`             | —                                    |
+| `/projects`, `/settings`                         | → `/login?redirect=…` | page                                | page                      | —                                    |
+| `/projects/<id>`, `progress`, `photos`, `design` | → `/login?redirect=…` | page                                | page                      | "Project not available" (`notFound`) |
+| `/projects/<id>/budget`, `updates`, `team`       | → `/login?redirect=…` | → `/projects/<id>` (overview)       | page                      | "Project not available"              |
 
 - **`_authed`** (`src/routes/_authed.tsx`, a pathless layout in `routes.config.ts`): every app route sits under
   it; no user → `/login?redirect=<current href>`. It also renders the app shell (rail, bottom bar), so `/login`
@@ -802,22 +808,21 @@ row is gone, which is what the UI and the rest of the app care about. `features/
 
 ## Notifications, activity and comms data (T33)
 
-**Translatable notifications.** Triggers (`private.notify_on_change`, `private.notify_message`) and the
+**Translatable notifications.** Triggers (`private.notify_on_change`) and the
 `notify_project_clients` RPC write one row per recipient with a stable `kind` and `params` (jsonb). The app renders
 them through i18n (`useNotificationText()` in `features/comms/hooks/use-notification-text.ts`, keys
 `comms:notifications.*`); user-written values (names, captions, notes, announcements) are shown as written.
 `title`/`body` are still filled with the English text (legacy, for older readers) and are the fallback for a kind the
 app doesn't know or a row missing a value (rows written before T33 carry the old kinds `stage`, `room`, …).
 
-| `kind`             | `params`                          | Written when                           |
-| ------------------ | --------------------------------- | -------------------------------------- |
-| `stage_status`     | `{ stage, status }`               | a visible stage's status changes       |
-| `room_status`      | `{ room, status, note }`          | a visible room's status changes        |
-| `photo_published`  | `{ caption }`                     | a photo is published                   |
-| `render_published` | `{ title, description }`          | a render becomes visible               |
-| `schedule_status`  | `{ status, note }`                | the project's schedule status changes  |
-| `message`          | `{ sender, preview, attachment }` | a chat message (to every other member) |
-| `manual`           | `{ title, body }`                 | a manager's announcement               |
+| `kind`             | `params`                 | Written when                          |
+| ------------------ | ------------------------ | ------------------------------------- |
+| `stage_status`     | `{ stage, status }`      | a visible stage's status changes      |
+| `room_status`      | `{ room, status, note }` | a visible room's status changes       |
+| `photo_published`  | `{ caption }`            | a photo is published                  |
+| `render_published` | `{ title, description }` | a render becomes visible              |
+| `schedule_status`  | `{ status, note }`       | the project's schedule status changes |
+| `manual`           | `{ title, body }`        | a manager's announcement              |
 
 `status` is a `work_status` (`common:status.*`) or, for `schedule_status`, a `schedule_status` (`common:schedule.*`).
 `notifications.emailed_at` is for T41's email delivery (null until sent).
@@ -831,13 +836,13 @@ has no label for. A new table logged by `log_activity` needs a branch in its `v_
 
 **Preferences, invitations, consents.**
 
-| Table / function                                 | Who can do what (RLS + grants)                                                                                                                                                                                                 |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `notification_preferences` (user, kind, channel) | each user reads/writes only their own rows                                                                                                                                                                                     |
-| `notification_pref(user, kind, channel)`         | the effective frequency: the saved row, else `in_app` instant; `email` instant for `message`, daily for clients, off for staff on other kinds. A user may only ask about themselves; the server (no `auth.uid()`) about anyone |
-| `invitations`                                    | the project's managers read (every column but `token_hash`); nobody inserts/updates/deletes through the API: a server function creates them with the admin client (T40); managers revoke with `revoke_invitation(id)`          |
-| `consents` (user, kind, version)                 | users insert and read their own; no update or delete (an audit trail); `granted_at` is always the server's time                                                                                                                |
-| `profiles.locale`, `profiles.phone`              | users update their own (column grants, like `full_name`); `phone` is visible to project peers like the name                                                                                                                    |
+| Table / function                                 | Who can do what (RLS + grants)                                                                                                                                                                                        |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `notification_preferences` (user, kind, channel) | each user reads/writes only their own rows                                                                                                                                                                            |
+| `notification_pref(user, kind, channel)`         | the effective frequency: the saved row, else `in_app` instant; `email` daily for clients, off for staff. A user may only ask about themselves; the server (no `auth.uid()`) about anyone                              |
+| `invitations`                                    | the project's managers read (every column but `token_hash`); nobody inserts/updates/deletes through the API: a server function creates them with the admin client (T40); managers revoke with `revoke_invitation(id)` |
+| `consents` (user, kind, version)                 | users insert and read their own; no update or delete (an audit trail); `granted_at` is always the server's time                                                                                                       |
+| `profiles.locale`, `profiles.phone`              | users update their own (column grants, like `full_name`); `phone` is visible to project peers like the name                                                                                                           |
 
 ### Data deletion (GDPR)
 
@@ -850,7 +855,6 @@ the author set to null, so a project's history stays readable:
 | `notifications.recipient_id`                          | cascade    | their own inbox                                             |
 | `notification_preferences.user_id`                    | cascade    | their settings                                              |
 | `consents.user_id`                                    | cascade    | their consent records (personal data)                       |
-| `messages.sender_id`                                  | `set null` | the chat stays; the app shows the sender as "Former member" |
 | `photos.uploaded_by`, `expenses.created_by`           | `set null` | project data                                                |
 | `ai_knowledge.created_by`, `notifications.created_by` | `set null` | project data                                                |
 | `invitations.invited_by`, `projects.created_by`       | `set null` | project data                                                |

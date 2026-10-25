@@ -12,7 +12,6 @@ export const NOTIFICATION_KINDS = [
   "photo_published",
   "render_published",
   "schedule_status",
-  "message",
   "manual",
   // Investor decisions (#55): params { title, text }.
   "decision_new",
@@ -60,10 +59,6 @@ export function paramText(params: Params, key: string): string | undefined {
 export function paramName(params: Params, key: string): string | undefined {
   const value = paramText(params, key)?.trim();
   return value ? value : undefined;
-}
-
-export function paramFlag(params: Params, key: string): boolean {
-  return params?.[key] === true;
 }
 
 export function paramStatus(params: Params, key = "status"): Status | undefined {
