@@ -225,13 +225,13 @@ isOneToOne: false
                   ]
                 },"documents": {
                   Row: {
-"category": Database["public"]['Enums']["document_category"],"created_at": string,"description": string,"file_name": string,"id": string,"mime_type": string,"project_id": string,"size_bytes": number,"storage_path": string,"updated_at": string,"uploaded_by": string | null
+                    "category": Database["public"]['Enums']["document_category"],"created_at": string,"description": string,"file_name": string,"id": string,"mime_type": string,"project_id": string,"size_bytes": number,"storage_path": string,"updated_at": string,"uploaded_by": string | null
                   }
                   Insert: {
-"category": Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name": string,"id"?: string,"mime_type": string,"project_id": string,"size_bytes": number,"storage_path": string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "category": Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name": string,"id"?: string,"mime_type": string,"project_id": string,"size_bytes": number,"storage_path": string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Update: {
-"category"?: Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name"?: string,"id"?: string,"mime_type"?: string,"project_id"?: string,"size_bytes"?: number,"storage_path"?: string,"updated_at"?: string,"uploaded_by"?: string | null
+                    "category"?: Database["public"]['Enums']["document_category"],"created_at"?: string,"description"?: string,"file_name"?: string,"id"?: string,"mime_type"?: string,"project_id"?: string,"size_bytes"?: number,"storage_path"?: string,"updated_at"?: string,"uploaded_by"?: string | null
                   }
                   Relationships: [
                     {
