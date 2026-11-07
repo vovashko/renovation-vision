@@ -273,5 +273,47 @@
   "errors": {
     "roomDoneTasksOpen": "{{name}} nie może być oznaczone jako ukończone, gdy zadania są otwarte: {{tasks}}.",
     "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań."
+  },
+  "diary": {
+    "title": "Dziennik",
+    "add": "Dodaj wpis do dziennika",
+    "edit": "Edytuj wpis w dzienniku",
+    "remove": "Usuń wpis z dziennika",
+    "removeConfirmTitle": "Usunąć ten wpis z dziennika?",
+    "saved": "Wpis w dzienniku zapisany",
+    "removed": "Wpis w dzienniku usunięty",
+    "hours": "{{hours}} godz.",
+    "materialsUsed": "Użyte materiały:",
+    "filterByStage": "Filtruj według etapu",
+    "allStages": "Wszystkie etapy",
+    "empty": {
+      "title": "Brak wpisów w dzienniku",
+      "descriptionManager": "Zapisz, co działo się dziś na budowie: dodaj godziny, zdjęcia i użyte materiały.",
+      "descriptionClient": "Tutaj pojawią się wieści z budowy."
+    },
+    "sheet": {
+      "newTitle": "Wpis w dzienniku",
+      "editTitle": "Edytuj wpis w dzienniku",
+      "description": "Co działo się na budowie, ile to trwało i co zużyto."
+    },
+    "form": {
+      "note": "Co się wydarzyło",
+      "notePlaceholder": "Zagruntowano ściany w salonie, druga warstwa jutro.",
+      "date": "Data",
+      "hours": "Godziny",
+      "stage": "Etap",
+      "room": "Pomieszczenie",
+      "photos": "Zdjęcia",
+      "photosChosen_one": "Wybrano {{count}} zdjęcie",
+      "photosChosen_few": "Wybrano {{count}} zdjęcia",
+      "photosChosen_many": "Wybrano {{count}} zdjęć",
+      "photosChosen_other": "Wybrano {{count}} zdjęcia",
+      "materials": "Użyte materiały",
+      "visible": "Widoczny dla klienta"
+    },
+    "siteCard": {
+      "title": "Z budowy",
+      "all": "Otwórz dziennik"
+    }
   }
 }

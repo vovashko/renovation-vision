@@ -15,6 +15,8 @@ export const keys = {
   /** Everything the room view loads (tasks, materials, warnings of every room): invalidate with a project id. */
   roomView: (id: string) => ["roomView", id] as const,
   photos: (id: string) => ["photos", id] as const,
+  /** The site diary (entries, and the materials linked to them): invalidate with a project id. */
+  diary: (id: string) => ["diary", id] as const,
   renders: (id: string) => ["renders", id] as const,
   documents: (id: string) => ["documents", id] as const,
   expenses: (id: string) => ["expenses", id] as const,

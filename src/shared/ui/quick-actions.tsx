@@ -7,13 +7,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { TabBarRow } from "@/components/ui/tab-bar";
 import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
+import { DiaryEntrySheet } from "@/features/work/ui/diary-entry-sheet";
 import { useRooms, useStages } from "@/features/work/hooks";
 import { useNavRole } from "@/shared/ui/nav-role";
 
 /**
  * Manager-only phone FAB, sitting above the bottom bar (`bottom-nav.tsx`). Actions are a plain list
- * so a later "Diary entry" action just slots in; today it's "Upload photo" (camera-first) and
- * "Add expense", each opening the same sheet the Photos/Budget pages use.
+ * so a new action just slots in: "Upload photo" (camera-first), "Add expense" and "Diary entry", each opening the same sheet the Photos/Budget pages use.
  */
 export function QuickActions() {
   const role = useNavRole();
@@ -32,6 +32,7 @@ function QuickActionsPanel({ projectId }: { projectId: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [expenseOpen, setExpenseOpen] = useState(false);
+  const [diaryOpen, setDiaryOpen] = useState(false);
 
   const openMenu = () => setMenuOpen(true);
   const openUpload = () => {
@@ -42,10 +43,16 @@ function QuickActionsPanel({ projectId }: { projectId: string }) {
     setMenuOpen(false);
     setExpenseOpen(true);
   };
+  const openDiary = () => {
+    setMenuOpen(false);
+    setDiaryOpen(true);
+  };
   const closeExpense = () => setExpenseOpen(false);
+  const closeDiary = () => setDiaryOpen(false);
   // ExpenseSheet's `expense` prop doubles as its open flag ("new" | an Expense to edit | closed);
   // computed here, outside JSX, alongside the rest of this panel's plain state.
   const expenseValue = expenseOpen ? "new" : null;
+  const diaryValue = diaryOpen ? "new" : null;
 
   return (
     <>
@@ -64,10 +71,14 @@ function QuickActionsPanel({ projectId }: { projectId: string }) {
             <TabBarRow icon="receipt_long" onClick={openExpense}>
               {t("quickActions.addExpense")}
             </TabBarRow>
+            <TabBarRow icon="edit_note" onClick={openDiary}>
+              {t("quickActions.addDiaryEntry")}
+            </TabBarRow>
           </div>
         </SheetContent>
       </Sheet>
       <UploadSheet projectId={projectId} open={uploadOpen} onOpenChange={setUploadOpen} stages={stages} rooms={rooms} capture />
+      <DiaryEntrySheet projectId={projectId} entry={diaryValue} stages={stages} rooms={rooms} onClose={closeDiary} />
       <ExpenseSheet projectId={projectId} expense={expenseValue} stages={stages} onClose={closeExpense} />
     </>
   );

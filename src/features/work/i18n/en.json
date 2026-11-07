@@ -259,5 +259,45 @@
   "errors": {
     "roomDoneTasksOpen": "{{name}} can't be marked Completed while tasks are open: {{tasks}}.",
     "roomDoneReopenTask": "This room is marked Completed — change its status before adding or re-opening tasks."
+  },
+  "diary": {
+    "title": "Diary",
+    "add": "Add diary entry",
+    "edit": "Edit diary entry",
+    "remove": "Delete diary entry",
+    "removeConfirmTitle": "Delete this diary entry?",
+    "saved": "Diary entry saved",
+    "removed": "Diary entry deleted",
+    "hours": "{{hours}} h",
+    "materialsUsed": "Materials used:",
+    "filterByStage": "Filter by stage",
+    "allStages": "All stages",
+    "empty": {
+      "title": "No diary entries yet",
+      "descriptionManager": "Note what happened on site today: add hours, photos and the materials you used.",
+      "descriptionClient": "Updates from the site will appear here."
+    },
+    "sheet": {
+      "newTitle": "Diary entry",
+      "editTitle": "Edit diary entry",
+      "description": "What happened on site, how long it took and what was used."
+    },
+    "form": {
+      "note": "What happened",
+      "notePlaceholder": "Walls primed in the living room, second coat tomorrow.",
+      "date": "Date",
+      "hours": "Hours",
+      "stage": "Stage",
+      "room": "Room",
+      "photos": "Photos",
+      "photosChosen_one": "{{count}} photo selected",
+      "photosChosen_other": "{{count}} photos selected",
+      "materials": "Materials used",
+      "visible": "Visible to the client"
+    },
+    "siteCard": {
+      "title": "From the site",
+      "all": "Open diary"
+    }
   }
 }

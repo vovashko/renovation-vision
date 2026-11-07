@@ -60,7 +60,8 @@
   "quickActions": {
     "label": "Quick actions",
     "uploadPhoto": "Upload photo",
-    "addExpense": "Add expense"
+    "addExpense": "Add expense",
+    "addDiaryEntry": "Diary entry"
   },
   "confirm": {
     "title": "Are you sure?",
