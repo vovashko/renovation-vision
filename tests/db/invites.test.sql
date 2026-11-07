@@ -1,4 +1,5 @@
--- Invites (T40): accept_invitation, the one-open-invitation index, invite_account_state and their grants.
+-- Invites (T40, T70): accept_invitation (bound to the invited address), the one-open-invitation-per-email index,
+-- invite_account_state and their grants, and a client's login email change carrying over to their contact.
 -- Run against a seeded database (everything is rolled back): bun run test:db, or directly with psql.
 -- Prints "invites tests passed" on success; any failed assertion aborts with an error.
 --
@@ -112,14 +113,55 @@ insert into public.invitations (email, role, project_id, invited_by, token_hash,
   ('max@test.demo', 'client', pg_temp.project(), 'a0000000-0000-4000-8000-000000000001', pg_temp.h('tok-expired'), now() - interval '1 minute');
 
 -- ===========================================================================
--- One open invitation per project and email
+-- One open invitation per email, across projects (T70)
 -- ===========================================================================
+select pg_temp.check(exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'invitations_open_email_idx'),
+  'the one-open-invitation-per-email index exists');
+select pg_temp.check(not exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'invitations_open_idx'),
+  'T40''s per-project index is gone');
 select pg_temp.fails($$insert into public.invitations (email, role, project_id, token_hash, expires_at)
   values ('ivy@test.demo', 'client', pg_temp.project(), pg_temp.h('dup'), now() + interval '1 day')$$,
   'a second open invitation for the same project and email');
+select pg_temp.fails($$insert into public.invitations (email, role, project_id, token_hash, expires_at)
+  values ('ivy@test.demo', 'manager', 'b0000000-0000-4000-8000-000000000001', pg_temp.h('dup-other'), now() + interval '1 day')$$,
+  'a second open invitation for the same email from another project');
+select pg_temp.fails($$insert into public.invitations (email, role, project_id, token_hash, expires_at)
+  values ('ivy@test.demo', 'manager', null, pg_temp.h('dup-staff'), now() + interval '1 day')$$,
+  'a second open invitation for the same email without a project');
+select pg_temp.fails($$insert into public.invitations (email, role, project_id, token_hash, expires_at)
+  values ('max@test.demo', 'client', 'b0000000-0000-4000-8000-000000000001', pg_temp.h('dup-expired'), now() + interval '1 day')$$,
+  'an expired but open invitation still holds the email (the server withdraws it first)');
 insert into public.invitations (email, role, project_id, token_hash, expires_at, revoked_at)
   values ('ivy@test.demo', 'client', pg_temp.project(), pg_temp.h('tok-old'), now() + interval '1 day', now());
 select pg_temp.check(true, 'a withdrawn invitation doesn''t block the open one');
+
+-- ===========================================================================
+-- Bound to the invited address (T70)
+-- ===========================================================================
+-- Max is signed in with his own (confirmed) account and holds Ivy's link: nothing happens.
+select pg_temp.as_user('c0000000-0000-4000-8000-000000000003');
+select pg_temp.raises($$select public.accept_invitation('tok-ivy', 'Max', 'en', '2026-10-25')$$, 'invite_email_mismatch',
+  'an account with another email can''t accept the invitation');
+select pg_temp.as_admin();
+select pg_temp.check(
+  (select accepted_at is null and revoked_at is null from public.invitations where token_hash = pg_temp.h('tok-ivy')),
+  'the refused accept leaves the invitation open');
+select pg_temp.check(
+  not exists (select 1 from public.project_members where project_id = pg_temp.project() and user_id = 'c0000000-0000-4000-8000-000000000003')
+  and not exists (select 1 from public.consents where user_id = 'c0000000-0000-4000-8000-000000000003'),
+  'and gives the other account no access and records no consent');
+select pg_temp.check((select full_name is distinct from 'Max' from public.profiles where id = 'c0000000-0000-4000-8000-000000000003'),
+  'and doesn''t touch the other account''s profile');
+
+-- The invited account itself, once its login email no longer matches, can't accept either.
+update auth.users set email = 'pam.elsewhere@test.demo' where id = 'c0000000-0000-4000-8000-000000000002';
+select pg_temp.as_user('c0000000-0000-4000-8000-000000000002');
+select pg_temp.raises($$select public.accept_invitation('tok-pam', 'Pam', 'en', '2026-10-25')$$, 'invite_email_mismatch',
+  'the invited account under a different email');
+select pg_temp.as_admin();
+select pg_temp.check((select account_type = 'client' from public.profiles where id = 'c0000000-0000-4000-8000-000000000002'),
+  'the refused manager invite made nobody staff');
+update auth.users set email = 'pam@test.demo' where id = 'c0000000-0000-4000-8000-000000000002';
 
 -- ===========================================================================
 -- Dead ends
@@ -161,6 +203,20 @@ select pg_temp.check(
 
 select pg_temp.as_user('c0000000-0000-4000-8000-000000000001');
 select pg_temp.raises($$select public.accept_invitation('tok-ivy', 'Ivy', 'en', '2026-10-25')$$, 'invite_used', 'accepting twice');
+
+-- Later Ivy changes her login email in Settings (gotrue updates auth.users once both addresses confirmed):
+-- T35's trigger carries it over to her client contact, and she keeps the project.
+select pg_temp.as_admin();
+update auth.users set email = 'ivy.new@test.demo' where id = 'c0000000-0000-4000-8000-000000000001';
+select pg_temp.check(
+  (select c.email = 'ivy.new@test.demo' and c.user_id = 'c0000000-0000-4000-8000-000000000001'
+     from public.project_contacts pc join public.contacts c on c.id = pc.contact_id
+     where pc.project_id = pg_temp.project() and pc.role = 'client'),
+  'the client contact follows the new login email');
+select pg_temp.check(
+  exists (select 1 from public.project_members where project_id = pg_temp.project()
+          and user_id = 'c0000000-0000-4000-8000-000000000001' and role = 'client'),
+  'and the client keeps access to the project');
 
 -- ===========================================================================
 -- A manager accepts: a staff account and a manager of the project

@@ -123,26 +123,28 @@ export type AcceptInput = {
 };
 
 export type AcceptOutcome =
-  { status: "accepted"; projectId: string | null } | { status: Exclude<InviteStatus, "pending"> | "needs_sign_in" };
+  | { status: "accepted"; projectId: string | null }
+  /** The link's token had expired: a fresh link went to the invited address (`email` is masked). */
+  | { status: "link_sent"; email: string }
+  | { status: Exclude<InviteStatus, "pending"> | "needs_sign_in" };
 
 /** gotrue's answer for a token it no longer accepts (expired, or already spent). */
 const linkRejected = (error: unknown) => ["otp_expired", "flow_state_expired", "flow_state_not_found"].includes(authErrorCode(error) ?? "");
 
 /**
- * The accept sequence: sign in with the link's token (a fresh one if only gotrue's shorter-lived token expired), set
- * the password and user_metadata, then `accept_invitation`. A dead-end answer at any step becomes its status.
+ * The accept sequence: sign in with the link's token, set the password and user_metadata, then `accept_invitation`.
+ * If only gotrue's shorter-lived token expired, the server emails a fresh link to the invited address and the
+ * invitee continues from that email. A dead-end answer at any step becomes its status.
  */
 export async function acceptInvite(input: AcceptInput): Promise<AcceptOutcome> {
-  let token = input.tokenHash;
+  const token = input.tokenHash;
   if (!input.signedIn) {
     try {
       await invitesRepo.verifyLink(token);
     } catch (error) {
       if (!linkRejected(error)) throw error;
-      const renewed = await renewInviteToken({ data: { tokenHash: token } });
-      if (renewed.status !== "renewed") return { status: renewed.status };
-      token = renewed.tokenHash;
-      await invitesRepo.verifyLink(token);
+      const renewed = await renewInviteToken({ data: { tokenHash: token, locale: input.locale } });
+      return renewed.status === "sent" ? { status: "link_sent", email: renewed.email } : { status: renewed.status };
     }
   }
   await invitesRepo.saveAccount({ password: input.signedIn ? undefined : input.password, fullName: input.fullName, locale: input.locale });

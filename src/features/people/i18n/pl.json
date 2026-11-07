@@ -148,7 +148,8 @@
         "revoked": "To zaproszenie zostało wycofane. Skontaktuj się z kierownikiem, jeśli nadal potrzebujesz dostępu.",
         "invalid": "Ten link z zaproszeniem jest nieprawidłowy. Otwórz cały link z wiadomości albo poproś kierownika o nowe zaproszenie.",
         "needsSignIn": "Twoje konto jest już skonfigurowane. Zaloguj się, aby dokończyć akceptację zaproszenia."
-      }
+      },
+      "linkSent": "Ten link wygasł, więc wysłaliśmy nowy na adres {{email}}. Otwórz go z tej wiadomości, aby dokończyć."
     },
     "errors": {
       "invite_invalid": "Ten link z zaproszeniem jest nieprawidłowy.",
@@ -163,7 +164,9 @@
       "invite_not_project_client": "Klienta zaprasza się z karty klienta, na zapisany tam adres e-mail.",
       "staff_required": "Tylko konta kierowników mogą zapraszać kierowników.",
       "manager_is_project_client": "Ta osoba jest klientem projektu, więc nie może nim zarządzać.",
-      "not_signed_in": "Otwórz ponownie link z wiadomości z zaproszeniem."
+      "not_signed_in": "Otwórz ponownie link z wiadomości z zaproszeniem.",
+      "invite_pending_elsewhere": "Ta osoba ma już oczekujące zaproszenie; dodaj ją jako kierownika, gdy dołączy.",
+      "invite_pending_manager": "Ta osoba ma już oczekujące zaproszenie dla kierownika. Gdy dołączy, zobaczy również ten projekt."
     }
   },
   "email": {

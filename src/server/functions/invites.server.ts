@@ -10,8 +10,13 @@
 // grants a client access by email right away; accepting only sets the name, password, language and consent.
 //
 // gotrue's own token lives for the Auth "Email OTP expiration" (1 h by default), ours for INVITE_TTL_DAYS. When the
-// link's token has expired at gotrue but the invitation hasn't, the accept page asks `renewInviteToken` for a fresh
-// one (same link holder, same invitation), so an invite works for the whole week.
+// link's token has expired at gotrue but the invitation hasn't, the accept page asks `renewInviteToken`, which emails
+// a fresh link to the invited address (T70): a token is only ever handed to that inbox, never to whoever opened the
+// page, so a forwarded or leaked link can't be turned into a working one.
+//
+// One open invitation per email, across projects (T70, `invitations_open_email_idx`): gotrue keeps one invite token
+// per account, so a second link for the same email would silently break the first. `inviteDecision` says what a new
+// invite does to the email's open one.
 //
 // The token is a credential: it is never stored (only its sha256), never logged, and the email is `sensitive`.
 import { getRequestUrl } from "@tanstack/react-start/server";
@@ -20,7 +25,16 @@ import { logger } from "@/lib/logger";
 import { getAdminSupabase, type AdminSupabase } from "@/lib/supabase/admin";
 import en from "@/features/people/i18n/en.json";
 import pl from "@/features/people/i18n/pl.json";
-import { inviteExpiry, inviteStatus, INVITE_TTL_DAYS, type InviteRole, type InviteStatus } from "@/features/people/domain/invites";
+import {
+  inviteDecision,
+  inviteExpiry,
+  inviteStatus,
+  INVITE_TTL_DAYS,
+  maskEmail,
+  RENEW_COOLDOWN_MINUTES,
+  type InviteRole,
+  type InviteStatus,
+} from "@/features/people/domain/invites";
 import type { Locale } from "@/i18n/locale";
 import { loadAccountType } from "../auth.server";
 import { ServerFnError } from "../errors";
@@ -88,43 +102,115 @@ async function invitationByToken(admin: AdminSupabase, token: string): Promise<I
   return (data as InvitationRow | null) ?? null;
 }
 
-/** Creates the project's open invitation for the email, or renews the one there is (new token hash, role and expiry). */
+type OpenRow = { id: string; project_id: string | null; role: InviteRole; expires_at: string };
+
+/** The email's open invitation, from any project (at most one: `invitations_open_email_idx`). */
+async function openInvitation(admin: AdminSupabase, email: string): Promise<OpenRow | null> {
+  const { data, error } = await admin
+    .from("invitations")
+    .select("id, project_id, role, expires_at")
+    .eq("email", email)
+    .is("accepted_at", null)
+    .is("revoked_at", null)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as OpenRow | null) ?? null;
+}
+
+type InviteRequest = { projectId: string; email: string; role: InviteRole };
+
+/** How this invite treats the email's open invitation (see `inviteDecision`). A refusal throws, before any token is issued. */
+async function planInvitation(admin: AdminSupabase, request: InviteRequest) {
+  const open = await openInvitation(admin, request.email);
+  const decision = inviteDecision(
+    open && {
+      projectId: open.project_id,
+      role: open.role,
+      expired: inviteStatus({ ...open, accepted_at: null, revoked_at: null }) === "expired",
+    },
+    request,
+  );
+  if (decision.action === "refuse") {
+    const message =
+      decision.reason === "invite_pending_elsewhere" || decision.reason === "invite_pending_manager"
+        ? "They already have a pending invite"
+        : "This person can't be invited with this role";
+    throw bad(decision.reason, message);
+  }
+  return { action: decision.action, open };
+}
+
+/**
+ * Saves the invitation the plan decided on: a new row, or the open one with the new token hash, expiry, inviter and
+ * (for a client invite taken over from another project) project. Returns its id.
+ */
 async function saveInvitation(
   admin: AdminSupabase,
-  row: { projectId: string; email: string; role: InviteRole; invitedBy: string; tokenHash: string; expiresAt: string },
+  plan: Awaited<ReturnType<typeof planInvitation>>,
+  row: InviteRequest & { invitedBy: string; tokenHash: string; expiresAt: string },
 ): Promise<string> {
-  const values = { role: row.role, invited_by: row.invitedBy, token_hash: row.tokenHash, expires_at: row.expiresAt };
-  const open = () =>
-    admin
-      .from("invitations")
-      .select("id")
-      .eq("project_id", row.projectId)
-      .eq("email", row.email)
-      .is("accepted_at", null)
-      .is("revoked_at", null)
-      .maybeSingle();
+  const values = {
+    role: row.role,
+    project_id: row.projectId,
+    invited_by: row.invitedBy,
+    token_hash: row.tokenHash,
+    expires_at: row.expiresAt,
+  };
   const update = async (id: string) => {
-    const { error } = await admin.from("invitations").update(values).eq("id", id);
+    const { error } = await admin.from("invitations").update(values).eq("id", id).is("accepted_at", null).is("revoked_at", null);
     if (error) throw new Error(error.message);
     return id;
   };
 
-  const existing = await open();
-  if (existing.error) throw new Error(existing.error.message);
-  if (existing.data) return update(existing.data.id);
+  if (plan.action === "resend" && plan.open) return update(plan.open.id);
+  if (plan.action === "replace" && plan.open) {
+    const { error } = await admin
+      .from("invitations")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("id", plan.open.id)
+      .is("accepted_at", null)
+      .is("revoked_at", null);
+    if (error) throw new Error(error.message);
+  }
 
   const inserted = await admin
     .from("invitations")
-    .insert({ ...values, project_id: row.projectId, email: row.email })
+    .insert({ ...values, email: row.email })
     .select("id")
     .single();
   if (!inserted.error) return inserted.data.id;
-  // Two invites at once: the other one won the one-open-invitation index; renew it instead.
+  // Two invites at once: the other one won the one-open-invitation index. Renew it if the rules allow, else refuse.
   if (inserted.error.code === "23505") {
-    const again = await open();
-    if (again.data) return update(again.data.id);
+    const again = await planInvitation(admin, row);
+    if (again.action === "resend" && again.open) return update(again.open.id);
   }
   throw new Error(inserted.error.message);
+}
+
+/** The `invite` email with a link for `token`. */
+async function sendInviteEmail(input: {
+  to: string;
+  token: string;
+  locale: Locale;
+  role: InviteRole;
+  projectName: string;
+  inviterName: string | null | undefined;
+}) {
+  const origin = requestOrigin();
+  const s = (input.locale === "en" ? en : pl).email.invite;
+  await sendEmail({
+    to: input.to,
+    template: "invite",
+    locale: input.locale,
+    params: {
+      siteUrl: origin,
+      inviteUrl: inviteUrl(origin, input.token),
+      inviterName: input.inviterName || s.someone,
+      projectName: input.projectName,
+      role: input.role,
+      expiresInDays: INVITE_TTL_DAYS,
+    },
+  });
 }
 
 export type InviteMemberData = { projectId: string; email: string; role: InviteRole; locale: Locale };
@@ -157,12 +243,13 @@ export async function inviteMemberHandler(data: InviteMemberData, context: AuthC
   const admin = getAdminSupabase();
   if ((await accountState(admin, email))?.confirmed) throw bad("account_exists", "This email already has an account");
 
+  const request = { projectId: data.projectId, email, role: data.role };
+  // Before the token: a new token would break the link of the open invitation it refuses to touch.
+  const plan = await planInvitation(admin, request);
   const token = await issueToken(admin, email, data.locale);
   const expiresAt = inviteExpiry().toISOString();
-  const id = await saveInvitation(admin, {
-    projectId: data.projectId,
-    email,
-    role: data.role,
+  const id = await saveInvitation(admin, plan, {
+    ...request,
     invitedBy: context.user.id,
     tokenHash: await hashInviteToken(token),
     expiresAt,
@@ -172,20 +259,13 @@ export async function inviteMemberHandler(data: InviteMemberData, context: AuthC
     context.supabase.from("projects").select("name").eq("id", data.projectId).maybeSingle(),
     context.supabase.from("profiles").select("full_name").eq("id", context.user.id).maybeSingle(),
   ]);
-  const origin = requestOrigin();
-  const s = (data.locale === "en" ? en : pl).email.invite;
-  await sendEmail({
+  await sendInviteEmail({
     to: email,
-    template: "invite",
+    token,
     locale: data.locale,
-    params: {
-      siteUrl: origin,
-      inviteUrl: inviteUrl(origin, token),
-      inviterName: inviter?.full_name || s.someone,
-      projectName: project?.name ?? "",
-      role: data.role,
-      expiresInDays: INVITE_TTL_DAYS,
-    },
+    role: data.role,
+    projectName: project?.name ?? "",
+    inviterName: inviter?.full_name,
   });
   return { id, email, role: data.role, expiresAt };
 }
@@ -260,33 +340,50 @@ export async function lookupInviteHandler(data: { tokenHash: string }): Promise<
   const row = await invitationByToken(admin, data.tokenHash);
   const status = inviteStatus(row);
   if (status !== "pending" || !row) return { status: status === "pending" ? "invalid" : status };
+  const names = await invitationNames(admin, row);
+  return { status: "pending", email: row.email, role: row.role, ...names };
+}
+
+/** The project and inviter names an invitation shows (admin reads: the caller only holds the link). */
+async function invitationNames(admin: AdminSupabase, row: InvitationRow) {
   const [{ data: project }, { data: inviter }] = await Promise.all([
     row.project_id ? admin.from("projects").select("name").eq("id", row.project_id).maybeSingle() : Promise.resolve({ data: null }),
     row.invited_by ? admin.from("profiles").select("full_name").eq("id", row.invited_by).maybeSingle() : Promise.resolve({ data: null }),
   ]);
-  return {
-    status: "pending",
-    email: row.email,
-    role: row.role,
-    projectName: project?.name ?? "",
-    inviterName: inviter?.full_name ?? "",
-  };
+  return { projectName: project?.name ?? "", inviterName: inviter?.full_name ?? "" };
 }
 
-export type RenewResult =
-  { status: "renewed"; tokenHash: string } | { status: "needs_sign_in" } | { status: Exclude<InviteStatus, "pending"> };
+/** When the email's current gotrue invite token was issued (gotrue stamps `invited_at` on every invite link). */
+async function lastLinkSentAt(admin: AdminSupabase, userId: string): Promise<number | null> {
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+  if (error) throw new Error(`getUserById failed: ${error.message}`);
+  const sentAt = data.user?.invited_at ?? data.user?.confirmation_sent_at;
+  return sentAt ? new Date(sentAt).getTime() : null;
+}
+
+/** `email` is where the new link went, masked (j•••@example.com). There is never a token in it. */
+export type RenewResult = { status: "sent"; email: string } | { status: "needs_sign_in" } | { status: Exclude<InviteStatus, "pending"> };
 
 /**
- * A fresh gotrue token for a link whose invitation is still pending (gotrue's own token expired first). The old
- * token stops working. `needs_sign_in`: the account was already set up through this link (only the last step failed),
- * so the invitee signs in and comes back.
+ * For a link whose invitation is still pending but whose gotrue token expired: emails a fresh link **to the invited
+ * address** and says where it went (masked). The token never comes back to the caller, who only proved they hold
+ * the old link. Within RENEW_COOLDOWN_MINUTES of the last link nothing is sent again (the newest email is still
+ * good), so the endpoint can't flood the invitee. `needs_sign_in`: the account was already set up through this link
+ * (only the last step failed), so the invitee signs in and comes back.
  */
-export async function renewInviteTokenHandler(data: { tokenHash: string }): Promise<RenewResult> {
+export async function renewInviteTokenHandler(data: { tokenHash: string; locale: Locale }): Promise<RenewResult> {
   const admin = getAdminSupabase();
   const row = await invitationByToken(admin, data.tokenHash);
   const status = inviteStatus(row);
   if (status !== "pending" || !row) return { status: status === "pending" ? "invalid" : status };
-  if ((await accountState(admin, row.email))?.confirmed) return { status: "needs_sign_in" };
+  const account = await accountState(admin, row.email);
+  if (account?.confirmed) return { status: "needs_sign_in" };
+  const sent = { status: "sent", email: maskEmail(row.email) } as const;
+
+  if (account) {
+    const lastSent = await lastLinkSentAt(admin, account.user_id);
+    if (lastSent !== null && Date.now() - lastSent < RENEW_COOLDOWN_MINUTES * 60_000) return sent;
+  }
 
   let token: string;
   try {
@@ -300,5 +397,7 @@ export async function renewInviteTokenHandler(data: { tokenHash: string }): Prom
     .update({ token_hash: await hashInviteToken(token) })
     .eq("id", row.id);
   if (error) throw new Error(error.message);
-  return { status: "renewed", tokenHash: token };
+
+  await sendInviteEmail({ to: row.email, token, locale: data.locale, role: row.role, ...(await invitationNames(admin, row)) });
+  return sent;
 }

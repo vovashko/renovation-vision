@@ -28,7 +28,19 @@
   },
   "security": {
     "title": "Security",
-    "summary": "Password and two-factor authentication"
+    "summary": "Email, password and two-factor authentication"
+  },
+  "email": {
+    "title": "Email address",
+    "description": "You sign in with this address, and RenoVision emails you there.",
+    "current": "Current address",
+    "new": "New email address",
+    "submit": "Change email",
+    "submitting": "Sending…",
+    "same": "That's already your email address",
+    "inUse": "This email already has a RenoVision account.",
+    "pending": "Check both inboxes: we've sent a confirmation link to {{current}} and to {{next}}. Your email changes once you've opened both.",
+    "partial": "One address is confirmed. Open the link in the other inbox to change your email to {{email}}."
   },
   "password": {
     "title": "Password",

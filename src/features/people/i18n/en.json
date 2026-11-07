@@ -146,7 +146,8 @@
         "revoked": "This invitation was withdrawn. Ask your manager if you still need access.",
         "invalid": "This invitation link isn't valid. Open the whole link from the email, or ask your manager to send a new one.",
         "needsSignIn": "Your account is already set up. Sign in to finish accepting the invitation."
-      }
+      },
+      "linkSent": "This link has expired, so we've sent a new one to {{email}}. Open it from that email to finish."
     },
     "errors": {
       "invite_invalid": "This invitation link isn't valid.",
@@ -161,7 +162,9 @@
       "invite_not_project_client": "Invite the client from the client card, with the email saved there.",
       "staff_required": "Only manager accounts can invite managers.",
       "manager_is_project_client": "This person is the project's client, so they can't manage it.",
-      "not_signed_in": "Open the link from your invitation email again."
+      "not_signed_in": "Open the link from your invitation email again.",
+      "invite_pending_elsewhere": "They already have a pending invite; add them as manager once they've joined.",
+      "invite_pending_manager": "They already have a pending manager invite. Once they've joined, they'll see this project too."
     }
   },
   "email": {
