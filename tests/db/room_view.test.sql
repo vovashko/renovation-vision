@@ -1,5 +1,5 @@
 -- Room view (issue #56): room-only tasks and derived room progress, material dates, the client-safe
--- room_materials() read, and investor warnings (visibility, RLS). Run against a freshly seeded database with
+-- room_materials() read, and client warnings (visibility, RLS). Run against a freshly seeded database with
 -- `bun run test:db` (see tests/db/README.md); everything is rolled back.
 -- Prints "room view tests passed" on success; any failed assertion aborts with an error.
 

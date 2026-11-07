@@ -67,7 +67,7 @@ function WarningCard({
 }
 
 /**
- * "Uwaga do inwestora": risk notes about a room. Clients get only the open ones (the database filters them);
+ * "Uwaga dla klienta": risk notes about a room. Clients get only the open ones (the database filters them);
  * managers get every warning, the resolved ones marked, and can write, edit and remove them. A warning is
  * informational: it never changes a date.
  */

@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_authed/projects/$projectId/rooms/$roomId
   head: () => ({
     meta: [
       { title: "Room — RenoVision" },
-      { name: "description", content: "A room's works, materials with delivery status and warnings for the investor." },
+      { name: "description", content: "A room's works, materials with delivery status and warnings for the client." },
     ],
   }),
   component: RoomPage,

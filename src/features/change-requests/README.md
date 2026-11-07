@@ -15,7 +15,7 @@ project's totals. This replaced the bug-bash "decisions" (#55): the tables keep 
     Old `/decisions?case=<id>` links redirect to Budget.
   - The client's phone tab bar has Budget as its fourth tab, with the pending-count badge (`shared/ui/nav-counts.ts`).
 - **Tables:** `decisions` (+ `stage_id`, `pending_since`, `reminded_at`), `decision_events` (append-only history).
-  Migrations `20261006000100_investor_decisions.sql` and `20261025000200_change_requests.sql`, tests
+  Migrations `20261006000100_client_decisions.sql` and `20261025000200_change_requests.sql`, tests
   `tests/db/change_requests.test.sql`.
 - **UI:** `ChangeRequestSection` (list, sheet and form for one place), `ChangeRequestList`, `ChangeRequestSheet`
   (`ImpactPreview`, `ClientActions` + `RejectDialog` + `ManagerContactLink`, `ManagerActions`, `ReopenButton`,
