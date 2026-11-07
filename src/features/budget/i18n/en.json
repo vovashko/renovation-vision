@@ -2,7 +2,9 @@
   "page": {
     "title": "Budget & expenses",
     "description": "The client sees the budget and the spent total. Line items, vendors and receipts stay internal.",
-    "addExpense": "Add expense"
+    "addExpense": "Add expense",
+    "titleClient": "Budget",
+    "descriptionClient": "The planned and projected budget, what has been spent so far, and the changes waiting for your approval."
   },
   "stats": {
     "budget": "Projected budget",
@@ -14,6 +16,13 @@
     "used": "Used",
     "projectComplete": "Project {{pct}}% complete",
     "plannedBudget": "Planned: {{amount}}"
+  },
+  "client": {
+    "planned": "Planned budget",
+    "plannedHint": "Agreed at the start",
+    "deviation": "{{amount}} vs the plan",
+    "onPlan": "On plan",
+    "spentOf": "{{pct}}% of the projected budget"
   },
   "expenses": {
     "heading": "Expenses",

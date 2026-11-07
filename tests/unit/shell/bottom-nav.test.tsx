@@ -31,9 +31,9 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/lib/auth", () => ({ useAuth: vi.fn() }));
 // Inside a project the nav follows the per-project role (project_members), not account_type.
 vi.mock("@/features/auth/hooks", () => ({ useProjectRole: vi.fn() }));
-// The Decisions row carries the client's pending count (a query); stub it, the badge has its own test below.
-const pendingDecisions = vi.hoisted(() => ({ count: 0 }));
-vi.mock("@/features/decisions/hooks", () => ({ usePendingDecisionCount: () => ({ data: pendingDecisions.count }) }));
+// The Budget tab carries the client's pending change-request count (a query); stub it.
+const pendingRequests = vi.hoisted(() => ({ count: 0 }));
+vi.mock("@/features/change-requests/hooks", () => ({ usePendingChangeRequestCount: () => ({ data: pendingRequests.count }) }));
 
 const mockedUseAuth = vi.mocked(useAuth);
 const mockedUseParams = vi.mocked(useParams);
@@ -56,24 +56,22 @@ function setUp({ role, path, projectId }: { role: "manager" | "client"; path: st
 
 beforeEach(() => {
   window.sessionStorage.clear();
-  pendingDecisions.count = 0;
+  pendingRequests.count = 0;
   mockedUseAuth.mockReset();
   mockedUseParams.mockReset();
   mockedUseRouterState.mockReset();
 });
 
 describe("BottomNav", () => {
-  it("shows Overview, Progress, Photos and a role-specific fourth tab, plus More", () => {
-    const fourth = { client: "Documents", manager: "Budget" } as const;
-    const other = { client: "Budget", manager: "Documents" } as const;
+  it("shows Overview, Progress, Photos and Budget for both roles, plus More", () => {
     for (const role of ["client", "manager"] as const) {
       setUp({ role, path: "/projects/p1", projectId: "p1" });
       const { unmount } = render(<BottomNav />);
-      for (const label of ["Overview", "Progress", "Photos", fourth[role]]) {
+      for (const label of ["Overview", "Progress", "Photos", "Budget"]) {
         expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
       }
       expect(screen.queryByRole("link", { name: "Chat" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("link", { name: other[role] })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Documents" })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "More pages" })).toBeInTheDocument();
       unmount();
     }
@@ -95,14 +93,14 @@ describe("BottomNav", () => {
     expect(screen.getByRole("link", { name: "Progress" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("opens the More sheet with the client's sections (no All projects, no Budget)", async () => {
+  it("opens the More sheet with the client's sections (no All projects; Budget is a tab)", async () => {
     setUp({ role: "client", path: "/projects/p1", projectId: "p1" });
     render(<BottomNav />);
     fireEvent.click(screen.getByRole("button", { name: "More pages" }));
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByRole("link", { name: "Design" })).toBeInTheDocument();
-    expect(within(dialog).getByRole("link", { name: "Decisions" })).toBeInTheDocument();
-    expect(within(dialog).queryByRole("link", { name: "Documents" })).not.toBeInTheDocument(); // a tab for clients
+    expect(within(dialog).getByRole("link", { name: "Documents" })).toBeInTheDocument();
+    expect(within(dialog).queryByRole("link", { name: /Decisions/ })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: "All projects" })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("link", { name: "Budget" })).not.toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: "Settings" })).toBeInTheDocument();
@@ -113,26 +111,24 @@ describe("BottomNav", () => {
     render(<BottomNav />);
     fireEvent.click(screen.getByRole("button", { name: "More pages" }));
     const dialog = await screen.findByRole("dialog");
-    for (const label of ["Design", "Documents", "Decisions", "Updates", "Team", "All projects", "Settings"]) {
+    for (const label of ["Design", "Documents", "Updates", "Team", "All projects", "Settings"]) {
       expect(within(dialog).getByRole("link", { name: label })).toBeInTheDocument();
     }
     expect(within(dialog).queryByRole("link", { name: "Budget" })).not.toBeInTheDocument(); // a tab for managers
   });
 
-  it("shows the client's pending decisions as a count on the Decisions row, and none for a manager", async () => {
-    pendingDecisions.count = 3;
+  it("shows the client's pending change requests as a count on the Budget tab, and none for a manager", () => {
+    pendingRequests.count = 3;
     setUp({ role: "client", path: "/projects/p1", projectId: "p1" });
     const { unmount } = render(<BottomNav />);
-    fireEvent.click(screen.getByRole("button", { name: "More pages" }));
-    const clientDialog = await screen.findByRole("dialog");
-    expect(within(clientDialog).getByRole("link", { name: /Decisions/ })).toHaveTextContent("3");
+    const clientTab = screen.getByRole("link", { name: "Budget, 3 pending" });
+    expect(clientTab).toHaveTextContent("3");
+    expect(clientTab).toHaveAttribute("href", "/projects/p1/budget");
     unmount();
 
     setUp({ role: "manager", path: "/projects/p1", projectId: "p1" });
     render(<BottomNav />);
-    fireEvent.click(screen.getByRole("button", { name: "More pages" }));
-    const managerDialog = await screen.findByRole("dialog");
-    expect(within(managerDialog).getByRole("link", { name: "Decisions" })).not.toHaveTextContent("3");
+    expect(screen.getByRole("link", { name: "Budget" })).not.toHaveTextContent("3");
   });
 
   it("falls back to a single back link outside a project", () => {

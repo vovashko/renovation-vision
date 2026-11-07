@@ -88,7 +88,7 @@ describe("nav role", () => {
     const { result } = renderHook(() => useNavRole(), { wrapper });
     await waitFor(() => expect(h.getProjectAccess).toHaveBeenCalledWith({ data: { projectId: P } }));
     await waitFor(() => expect(result.current).toBe("client"));
-    expect(navItemsFor(result.current).map((i) => i.key)).not.toContain("budget");
+    expect(navItemsFor(result.current).map((i) => i.key)).not.toContain("team");
   });
 
   it("the same account managing the project gets the manager nav", async () => {
