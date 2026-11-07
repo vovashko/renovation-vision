@@ -1,1 +1,28 @@
-{}
+{
+  "staff": {
+    "pageTitle": "Accounts",
+    "pageDescription": "Everyone with a RenoVision account. Managers create and run projects; clients see the projects they're the client of.",
+    "profileLink": "Manage accounts",
+    "manager": "Manager",
+    "client": "Client",
+    "invited": "Invite pending",
+    "you": "(you)",
+    "makeManager": "Make manager",
+    "makeClient": "Make client",
+    "makeManagerAria": "Make {{name}} a manager",
+    "makeClientAria": "Make {{name}} a client",
+    "promoteConfirmTitle": "Make {{name}} a manager?",
+    "promoteConfirmDescription": "They can create projects and manage other accounts, including on this page.",
+    "demoteConfirmTitle": "Make {{name}} a client?",
+    "demoteConfirmDescription": "They can no longer create projects or manage accounts.",
+    "demoteSelfConfirmDescription": "You lose manager access, including to this page.",
+    "promoted": "{{name}} is now a manager",
+    "demoted": "{{name}} is now a client",
+    "empty": "No accounts yet.",
+    "errors": {
+      "last_staff_account": "This is the last manager account, so it can't become a client. Make someone else a manager first.",
+      "mfa_required": "Verify with your authenticator app first (Settings → Security).",
+      "forbidden": "Only manager accounts can change account types."
+    }
+  }
+}

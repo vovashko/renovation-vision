@@ -30,8 +30,11 @@
     "access": {
       "access": "Has access",
       "waiting": "Waiting for an account",
-      "none": "No email"
-    }
+      "none": "No email",
+      "invited": "Invite sent"
+    },
+    "sendInvite": "Send invite",
+    "resendInvite": "Send again"
   },
   "clientContact": {
     "title": "Client contact",
@@ -102,5 +105,77 @@
     "not_project_manager": "Only project managers can do this.",
     "mfa_required": "Two-factor verification is required.",
     "account_not_found": "No RenoVision account uses this email yet. Ask them to sign up first."
+  },
+  "invite": {
+    "sent": "Invite sent to {{email}}",
+    "resent": "Invite sent again to {{email}}",
+    "revoked": "Invite to {{email}} withdrawn",
+    "pendingHeading": "Pending invites",
+    "role": {
+      "client": "Client",
+      "manager": "Manager"
+    },
+    "expiresOn": "Link valid until {{date}}",
+    "expired": "Link expired",
+    "resend": "Send again",
+    "revoke": "Withdraw",
+    "resendAria": "Send the invite to {{email}} again",
+    "revokeAria": "Withdraw the invite to {{email}}",
+    "revokeConfirmTitle": "Withdraw the invite to {{email}}?",
+    "revokeConfirmDescription": "The link in their email stops working. You can invite them again later.",
+    "managerNoAccount": "No RenoVision account uses {{email}} yet. Send them an invite: they become a manager when they accept it.",
+    "sendManagerInvite": "Send invite",
+    "accept": {
+      "title": "Accept your invitation",
+      "descriptionClient": "{{inviter}} invited you to follow {{project}} in RenoVision.",
+      "descriptionManager": "{{inviter}} invited you to manage {{project}} in RenoVision.",
+      "someone": "Your manager",
+      "checking": "Checking your invitation…",
+      "email": "Email",
+      "fullName": "Your name",
+      "language": "Language",
+      "privacy": "I agree that RenoVision stores my name, email and project data to run this project, as set out in the privacy policy.",
+      "privacyRequired": "Accept the privacy policy to continue",
+      "signedInAs": "You're signed in as {{email}}, so your password stays as it is.",
+      "submit": "Accept and continue",
+      "submitting": "Setting up your account…",
+      "signIn": "Sign in",
+      "status": {
+        "expired": "This invitation has expired. Ask your manager to send a new one.",
+        "used": "This invitation was already accepted. Sign in to open your project.",
+        "revoked": "This invitation was withdrawn. Ask your manager if you still need access.",
+        "invalid": "This invitation link isn't valid. Open the whole link from the email, or ask your manager to send a new one.",
+        "needsSignIn": "Your account is already set up. Sign in to finish accepting the invitation."
+      }
+    },
+    "errors": {
+      "invite_invalid": "This invitation link isn't valid.",
+      "invite_revoked": "This invitation was withdrawn.",
+      "invite_used": "This invitation was already accepted.",
+      "invite_expired": "This invitation has expired. Ask for a new one.",
+      "invite_email_mismatch": "This invitation is for a different email address.",
+      "invite_name_required": "Enter your name.",
+      "invite_locale_invalid": "Pick a language.",
+      "consent_required": "Accept the privacy policy to continue.",
+      "account_exists": "This email already has a RenoVision account, so no invite is needed.",
+      "invite_not_project_client": "Invite the client from the client card, with the email saved there.",
+      "staff_required": "Only manager accounts can invite managers.",
+      "manager_is_project_client": "This person is the project's client, so they can't manage it.",
+      "not_signed_in": "Open the link from your invitation email again."
+    }
+  },
+  "email": {
+    "invite": {
+      "subject": "{{inviter}} invited you to {{project}} on RenoVision",
+      "heading": "You're invited to RenoVision",
+      "introClient": "{{inviter}} invited you to follow your renovation, {{project}}, in RenoVision: progress, photos, budget and documents in one place.",
+      "introManager": "{{inviter}} invited you to manage {{project}} in RenoVision.",
+      "cta": "Accept invitation",
+      "validity": "The link works once, for {{days}} days.",
+      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}",
+      "ignore": "Not expecting this? You can ignore this email.",
+      "disclaimer": "RenoVision — renovation tracking.",
+      "someone": "Your manager"
+    }
   }
 }

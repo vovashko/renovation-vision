@@ -10,9 +10,11 @@ export const routes = rootRoute("__root.tsx", [
   route("/login", "login.tsx"),
   route("/forgot-password", "forgot-password.tsx"),
   route("/reset-password", "reset-password.tsx"),
+  route("/accept-invite", "accept-invite.tsx"),
   route("/mfa", "mfa/layout.tsx", [index("mfa/challenge.tsx"), route("enroll", "mfa/enroll.tsx")]),
   layout("_authed", "_authed.tsx", [
     index("index.tsx"),
+    route("/admin", [route("staff", "admin/staff.tsx")]),
     route("/settings", [index("settings/index.tsx"), route("profile", "settings/profile.tsx"), route("security", "settings/security.tsx")]),
     route("/projects", [
       index("projects.tsx"),

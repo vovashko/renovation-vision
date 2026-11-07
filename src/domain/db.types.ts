@@ -938,6 +938,9 @@ isOneToOne: true
             "accept_decision":
 { Args: { "p_code": string,"p_decision": string }; Returns: string
                            },
+"accept_invitation":
+{ Args: { "p_full_name": string,"p_locale": string,"p_privacy_version": string,"p_token": string }; Returns: string
+                           },
 "add_project_member":
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
                            },
@@ -958,6 +961,11 @@ isOneToOne: true
                            },
 "import_stages":
 { Args: { "p_project": string,"p_rows": Json }; Returns: Json
+                           },
+"invite_account_state":
+{ Args: { "p_email": string }; Returns: {
+              "confirmed": boolean,"invited": boolean,"signed_in": boolean,"user_id": string
+            }[]
                            },
 "is_project_client":
 { Args: { "p_project": string }; Returns: boolean

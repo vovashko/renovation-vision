@@ -86,6 +86,14 @@ const TEMPLATE_PARAMS: Record<EmailTemplateName, unknown> = {
     linkUrl: `${SITE_URL}/projects`,
   },
   confirmationCode: { siteUrl: SITE_URL, title: "Sandbox test case", code: "123456", ttlMinutes: 10 },
+  invite: {
+    siteUrl: SITE_URL,
+    inviteUrl: `${SITE_URL}/accept-invite?token_hash=sandbox&type=invite`,
+    inviterName: "RenoVision email:check",
+    projectName: "Sandbox project",
+    role: "client",
+    expiresInDays: 7,
+  },
 };
 
 type CheckResult = { template: EmailTemplateName; locale: Locale; ok: boolean; detail: string };

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as authedRouteImport } from './routes/_authed'
+import { Route as acceptInviteRouteImport } from './routes/accept-invite'
 import { Route as forgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as loginRouteImport } from './routes/login'
 import { Route as mfaLayoutRouteImport } from './routes/mfa/layout'
@@ -17,6 +18,7 @@ import { Route as resetPasswordRouteImport } from './routes/reset-password'
 import { Route as indexRouteImport } from './routes/index'
 import { Route as mfaChallengeRouteImport } from './routes/mfa/challenge'
 import { Route as mfaEnrollRouteImport } from './routes/mfa/enroll'
+import { Route as adminStaffRouteImport } from './routes/admin/staff'
 import { Route as projectsRouteImport } from './routes/projects'
 import { Route as projectLayoutRouteImport } from './routes/project/layout'
 import { Route as settingsIndexRouteImport } from './routes/settings/index'
@@ -39,6 +41,11 @@ import { Route as projectRoomRouteImport } from './routes/project/room'
 
 const authedRoute = authedRouteImport.update({
   id: '/_authed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const acceptInviteRoute = acceptInviteRouteImport.update({
+  id: '/accept-invite',
+  path: '/accept-invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const forgotPasswordRoute = forgotPasswordRouteImport.update({
@@ -75,6 +82,11 @@ const mfaEnrollRoute = mfaEnrollRouteImport.update({
   id: '/enroll',
   path: '/enroll',
   getParentRoute: () => mfaLayoutRoute,
+} as any)
+const adminStaffRoute = adminStaffRouteImport.update({
+  id: '/admin/staff',
+  path: '/admin/staff',
+  getParentRoute: () => authedRoute,
 } as any)
 const projectsRoute = projectsRouteImport.update({
   id: '/projects/',
@@ -174,6 +186,7 @@ const projectRoomRoute = projectRoomRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof indexRoute
+  '/accept-invite': typeof acceptInviteRoute
   '/forgot-password': typeof forgotPasswordRoute
   '/login': typeof loginRoute
   '/mfa': typeof mfaLayoutRouteWithChildren
@@ -181,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/mfa/': typeof mfaChallengeRoute
   '/mfa/enroll': typeof mfaEnrollRoute
   '/projects/': typeof projectsRoute
+  '/admin/staff': typeof adminStaffRoute
   '/projects/$projectId': typeof projectLayoutRouteWithChildren
   '/settings/profile': typeof settingsProfileRoute
   '/settings/security': typeof settingsSecurityRoute
@@ -201,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/rooms/$roomId': typeof projectRoomRoute
 }
 export interface FileRoutesByTo {
+  '/accept-invite': typeof acceptInviteRoute
   '/forgot-password': typeof forgotPasswordRoute
   '/login': typeof loginRoute
   '/reset-password': typeof resetPasswordRoute
@@ -208,6 +223,7 @@ export interface FileRoutesByTo {
   '/mfa': typeof mfaChallengeRoute
   '/mfa/enroll': typeof mfaEnrollRoute
   '/projects': typeof projectsRoute
+  '/admin/staff': typeof adminStaffRoute
   '/settings/profile': typeof settingsProfileRoute
   '/settings/security': typeof settingsSecurityRoute
   '/settings': typeof settingsIndexRoute
@@ -229,6 +245,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof authedRouteWithChildren
+  '/accept-invite': typeof acceptInviteRoute
   '/forgot-password': typeof forgotPasswordRoute
   '/login': typeof loginRoute
   '/mfa': typeof mfaLayoutRouteWithChildren
@@ -237,6 +254,7 @@ export interface FileRoutesById {
   '/mfa/': typeof mfaChallengeRoute
   '/mfa/enroll': typeof mfaEnrollRoute
   '/_authed/projects/': typeof projectsRoute
+  '/_authed/admin/staff': typeof adminStaffRoute
   '/_authed/projects/$projectId': typeof projectLayoutRouteWithChildren
   '/_authed/settings/profile': typeof settingsProfileRoute
   '/_authed/settings/security': typeof settingsSecurityRoute
@@ -260,6 +278,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accept-invite'
     | '/forgot-password'
     | '/login'
     | '/mfa'
@@ -267,6 +286,7 @@ export interface FileRouteTypes {
     | '/mfa/'
     | '/mfa/enroll'
     | '/projects/'
+    | '/admin/staff'
     | '/projects/$projectId'
     | '/settings/profile'
     | '/settings/security'
@@ -287,6 +307,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/accept-invite'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -294,6 +315,7 @@ export interface FileRouteTypes {
     | '/mfa'
     | '/mfa/enroll'
     | '/projects'
+    | '/admin/staff'
     | '/settings/profile'
     | '/settings/security'
     | '/settings'
@@ -314,6 +336,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authed'
+    | '/accept-invite'
     | '/forgot-password'
     | '/login'
     | '/mfa'
@@ -322,6 +345,7 @@ export interface FileRouteTypes {
     | '/mfa/'
     | '/mfa/enroll'
     | '/_authed/projects/'
+    | '/_authed/admin/staff'
     | '/_authed/projects/$projectId'
     | '/_authed/settings/profile'
     | '/_authed/settings/security'
@@ -344,6 +368,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   authedRoute: typeof authedRouteWithChildren
+  acceptInviteRoute: typeof acceptInviteRoute
   forgotPasswordRoute: typeof forgotPasswordRoute
   loginRoute: typeof loginRoute
   mfaLayoutRoute: typeof mfaLayoutRouteWithChildren
@@ -357,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof authedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accept-invite': {
+      id: '/accept-invite'
+      path: '/accept-invite'
+      fullPath: '/accept-invite'
+      preLoaderRoute: typeof acceptInviteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -407,6 +439,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/mfa/enroll'
       preLoaderRoute: typeof mfaEnrollRouteImport
       parentRoute: typeof mfaLayoutRoute
+    }
+    '/_authed/admin/staff': {
+      id: '/_authed/admin/staff'
+      path: '/admin/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof adminStaffRouteImport
+      parentRoute: typeof authedRoute
     }
     '/_authed/projects/': {
       id: '/_authed/projects/'
@@ -585,6 +624,7 @@ const projectLayoutRouteWithChildren = projectLayoutRoute._addFileChildren(
 interface authedRouteChildren {
   indexRoute: typeof indexRoute
   projectsRoute: typeof projectsRoute
+  adminStaffRoute: typeof adminStaffRoute
   projectLayoutRoute: typeof projectLayoutRouteWithChildren
   settingsProfileRoute: typeof settingsProfileRoute
   settingsSecurityRoute: typeof settingsSecurityRoute
@@ -594,6 +634,7 @@ interface authedRouteChildren {
 const authedRouteChildren: authedRouteChildren = {
   indexRoute: indexRoute,
   projectsRoute: projectsRoute,
+  adminStaffRoute: adminStaffRoute,
   projectLayoutRoute: projectLayoutRouteWithChildren,
   settingsProfileRoute: settingsProfileRoute,
   settingsSecurityRoute: settingsSecurityRoute,
@@ -619,6 +660,7 @@ const mfaLayoutRouteWithChildren = mfaLayoutRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   authedRoute: authedRouteWithChildren,
+  acceptInviteRoute: acceptInviteRoute,
   forgotPasswordRoute: forgotPasswordRoute,
   loginRoute: loginRoute,
   mfaLayoutRoute: mfaLayoutRouteWithChildren,

@@ -52,4 +52,15 @@ describe("clientAccessStatus", () => {
   it("isn't fooled by another project's client membership", () => {
     expect(clientAccessStatus(client("sarah@example.com", "u1"), [member("u2")])).toBe("waiting");
   });
+
+  it("is invited while a client invitation for that email is open, even though the invite already made the account", () => {
+    const open = [{ email: "sarah@example.com", role: "client" }];
+    expect(clientAccessStatus(client("Sarah@Example.com", "u1"), [member("u1")], open)).toBe("invited");
+    expect(clientAccessStatus(client("sarah@example.com", null), [], open)).toBe("invited");
+    // A manager invite, or one for another email, doesn't count.
+    expect(clientAccessStatus(client("sarah@example.com", null), [], [{ email: "sarah@example.com", role: "manager" }])).toBe("waiting");
+    expect(clientAccessStatus(client("sarah@example.com", "u1"), [member("u1")], [{ email: "tom@example.com", role: "client" }])).toBe(
+      "access",
+    );
+  });
 });
