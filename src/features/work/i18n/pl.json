@@ -272,7 +272,6 @@
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} nie może być oznaczone jako ukończone, gdy zadania są otwarte: {{tasks}}.",
-    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań.",
-    "roomHasInstallationPhotos": "To pomieszczenie ma jeszcze zdjęcia montażowe w Dokumentach. Przenieś je lub usuń przed usunięciem pomieszczenia."
+    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań."
   }
 }

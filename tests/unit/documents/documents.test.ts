@@ -3,17 +3,13 @@ import {
   ALLOWED_DOCUMENT_MIME_TYPES,
   DOCUMENT_CATEGORIES,
   MAX_DOCUMENT_BYTES,
-  canPreviewImage,
   countByCategory,
   documentStoragePath,
   documentsOf,
   fileKind,
   fileTypeLabel,
   formatFileSize,
-  groupByRoom,
-  groupVersions,
   isNewDocument,
-  isVersionedCategory,
   safeFileName,
   validateDocumentFile,
 } from "@/features/documents/domain/documents";
@@ -27,32 +23,20 @@ function doc(patch: Partial<ProjectDocument> = {}): ProjectDocument {
     id: "d1",
     project_id: "p1",
     category: "invoices",
-    title: "Doc",
     description: "",
     storage_path: "p1/invoices/d1.pdf",
     file_name: "doc.pdf",
     mime_type: "application/pdf",
     size_bytes: 1000,
-    version_group: "g1",
-    version: 1,
-    is_current: true,
-    room_id: null,
-    task_id: null,
     uploaded_by: null,
-    archived_at: null,
     created_at: daysAgo(1),
-    url: "",
     ...patch,
   };
 }
 
 describe("categories", () => {
-  it("are exactly the six, in tab order", () => {
-    expect([...DOCUMENT_CATEGORIES]).toEqual(["contract", "estimate", "invoices", "installation_photos", "warranties", "manuals"]);
-  });
-
-  it("only contract and estimate are versioned", () => {
-    expect(DOCUMENT_CATEGORIES.filter(isVersionedCategory)).toEqual(["contract", "estimate"]);
+  it("are exactly the five, in tab order (installation photos are normal photos now)", () => {
+    expect([...DOCUMENT_CATEGORIES]).toEqual(["contract", "estimate", "invoices", "warranties", "manuals"]);
   });
 });
 
@@ -149,7 +133,7 @@ describe("safeFileName", () => {
 describe("documentStoragePath", () => {
   it("builds <project>/<category>/<uuid>.<ext>", () => {
     expect(documentStoragePath("p1", "contract", "u-1", "Umowa.PDF")).toBe("p1/contract/u-1.pdf");
-    expect(documentStoragePath("p1", "installation_photos", "u-2", "x.jpeg")).toBe("p1/installation_photos/u-2.jpeg");
+    expect(documentStoragePath("p1", "manuals", "u-2", "x.jpeg")).toBe("p1/manuals/u-2.jpeg");
   });
 });
 
@@ -165,12 +149,6 @@ describe("file kind", () => {
     expect(fileTypeLabel("application/octet-stream", "x.dwg")).toBe("DWG");
   });
 
-  it("previews images except HEIC", () => {
-    expect(canPreviewImage("image/jpeg")).toBe(true);
-    expect(canPreviewImage("image/heic")).toBe(false);
-    expect(canPreviewImage("application/pdf")).toBe(false);
-  });
-
   it("formats sizes", () => {
     expect(formatFileSize(512)).toBe("512 B");
     expect(formatFileSize(340 * 1024)).toBe("340 KB");
@@ -182,57 +160,14 @@ describe("listing helpers", () => {
   const docs = [
     doc({ id: "a", category: "invoices", created_at: daysAgo(5) }),
     doc({ id: "b", category: "invoices", created_at: daysAgo(1) }),
-    doc({ id: "c", category: "invoices", archived_at: daysAgo(1), created_at: daysAgo(2) }),
     doc({ id: "d", category: "manuals" }),
   ];
 
-  it("lists a category newest first and hides archived unless asked", () => {
-    expect(documentsOf(docs, "invoices", false).map((d) => d.id)).toEqual(["b", "a"]);
-    expect(documentsOf(docs, "invoices", true).map((d) => d.id)).toEqual(["b", "c", "a"]);
+  it("lists a category newest first", () => {
+    expect(documentsOf(docs, "invoices").map((d) => d.id)).toEqual(["b", "a"]);
   });
 
   it("counts per category", () => {
-    expect(countByCategory(docs, false)).toMatchObject({ invoices: 2, manuals: 1, contract: 0 });
-    expect(countByCategory(docs, true).invoices).toBe(3);
-  });
-});
-
-describe("groupVersions", () => {
-  const v = (id: string, version: number, current: boolean, group = "g1", extra: Partial<ProjectDocument> = {}) =>
-    doc({ id, category: "contract", version_group: group, version, is_current: current, created_at: daysAgo(10 - version), ...extra });
-
-  it("shows the current version and the older ones as history, newest first", () => {
-    const [g] = groupVersions([v("v1", 1, false), v("v3", 3, true), v("v2", 2, false)]);
-    expect(g.current.id).toBe("v3");
-    expect(g.history.map((d) => d.id)).toEqual(["v2", "v1"]);
-  });
-
-  it("keeps separate documents apart, newest current first", () => {
-    const groups = groupVersions([v("a1", 1, true, "ga", { created_at: daysAgo(9) }), v("b1", 1, true, "gb", { created_at: daysAgo(2) })]);
-    expect(groups.map((g) => g.group)).toEqual(["gb", "ga"]);
-  });
-
-  it("falls back to the newest version when none is current (all archived)", () => {
-    const [g] = groupVersions([v("v1", 1, false, "g1", { archived_at: daysAgo(1) }), v("v2", 2, false, "g1", { archived_at: daysAgo(1) })]);
-    expect(g.current.id).toBe("v2");
-    expect(g.history.map((d) => d.id)).toEqual(["v1"]);
-  });
-
-  it("a one-version document has no history", () => {
-    expect(groupVersions([v("only", 1, true)])[0].history).toEqual([]);
-  });
-});
-
-describe("groupByRoom", () => {
-  it("groups by room in the given room order, rooms without a match last", () => {
-    const photos = [
-      doc({ id: "k", room_id: "kitchen", created_at: daysAgo(1) }),
-      doc({ id: "l1", room_id: "living", created_at: daysAgo(3) }),
-      doc({ id: "l2", room_id: "living", created_at: daysAgo(2) }),
-      doc({ id: "x", room_id: null }),
-    ];
-    const groups = groupByRoom(photos, ["living", "kitchen"]);
-    expect(groups.map((g) => g.roomId)).toEqual(["living", "kitchen", null]);
-    expect(groups[0].photos.map((p) => p.id)).toEqual(["l2", "l1"]);
+    expect(countByCategory(docs)).toMatchObject({ invoices: 2, manuals: 1, contract: 0 });
   });
 });
