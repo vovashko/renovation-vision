@@ -16,9 +16,9 @@ export function projectToday(): Date {
 const DAY = 86_400_000;
 const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-/** Whole days past the end date ('YYYY-MM-DD'), or 0 when on time or done. */
-export function daysLate(item: { end_date: string; status: Status }, today: Date = projectToday()): number {
-  if (item.status === "done") return 0;
+/** Days an item is past its end date; 0 once it is done or at 100% (a finished stage is never late). */
+export function daysLate(item: { end_date: string; status: Status; progress?: number }, today: Date = projectToday()): number {
+  if (item.status === "done" || (item.progress ?? 0) >= 100) return 0;
   const diff = Math.floor((dayStart(today) - dayStart(parseDate(item.end_date))) / DAY);
   return diff > 0 ? diff : 0;
 }
