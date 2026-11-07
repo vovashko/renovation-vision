@@ -23,7 +23,6 @@ export type ProjectPatch = Partial<
     | "budget"
     | "planned_target_date"
     | "planned_budget"
-    | "schedule_status"
     | "schedule_note"
   >
 >;

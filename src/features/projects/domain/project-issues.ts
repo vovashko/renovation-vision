@@ -1,6 +1,6 @@
 import { budgetStatus, daysLate } from "@/domain/attention";
 import { findInconsistencies, type Inconsistency } from "@/domain/consistency";
-import type { ScheduleStatus, Status } from "@/domain/status";
+import type { Status } from "@/domain/status";
 
 /**
  * A manager overview issue, as data (no language, no colors, no routes — the UI maps `kind` to an
@@ -27,7 +27,7 @@ type IssueStage = {
   tasks: IssueTaskLike[];
 };
 type IssueRoom = { id: string; name: string; status: Status; client_note: string | null; is_visible: boolean };
-type IssueProject = { schedule_status: ScheduleStatus; budget: number; spent: number };
+type IssueProject = { budget: number; spent: number };
 
 /** "N change requests waiting for the client" (T61), or nothing when none waits. */
 export const changeRequestIssues = (pending: number): ProjectIssue[] =>
@@ -56,6 +56,6 @@ export function projectIssues(project: IssueProject, stages: IssueStage[], rooms
     ...(budget.over
       ? [{ kind: "over_budget", overPct: budget.overPct, spent: project.spent, budget: project.budget } satisfies ProjectIssue]
       : []),
-    ...findInconsistencies(project, stages, rooms).map((issue): ProjectIssue => ({ kind: "inconsistency", issue })),
+    ...findInconsistencies(stages, rooms).map((issue): ProjectIssue => ({ kind: "inconsistency", issue })),
   ];
 }

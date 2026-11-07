@@ -120,9 +120,9 @@ select pg_temp.check(
 
 update public.projects set schedule_status = 'delayed', schedule_note = 'Waiting on parts.';
 select pg_temp.check(
-  (select count(*) from public.notifications
-   where kind = 'schedule_status' and params = '{"status":"delayed","note":"Waiting on parts."}'::jsonb) = 2,
-  'a schedule change: kind schedule_status');
+  (select count(*) from public.notifications where kind = 'schedule_status' and params ->> 'status' = 'delayed') = 0
+    and not exists (select 1 from pg_trigger where tgname = 'notify_schedule' and not tgisinternal),
+  'T60: the schedule status is derived, so changing it notifies nobody and notify_schedule is gone');
 
 update public.photos set status = 'published', published_at = now() where id = 'e0000000-0000-4000-8000-000000000009';
 select pg_temp.check(

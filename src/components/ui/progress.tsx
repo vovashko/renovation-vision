@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export type ProgressTone = "primary" | "done" | "progress" | "pending" | "blocked";
+export type ProgressTone = "primary" | "done" | "progress" | "pending" | "blocked" | "attention";
 
 // Native <progress>, styled through its pseudo-elements, so the width comes from `value`
 // with no inline styles. Track is the element itself; the indicator is the value bar.
@@ -17,6 +17,8 @@ const toneClass: Record<ProgressTone, string> = {
   pending:
     "border border-dashed border-outline bg-surface-container-lowest [&::-webkit-progress-value]:bg-transparent [&::-moz-progress-bar]:bg-transparent",
   blocked: "bg-status-blocked-container [&::-webkit-progress-value]:bg-status-blocked [&::-moz-progress-bar]:bg-status-blocked",
+  // Overdue: orange, never red (red means blocked).
+  attention: "bg-attention-container [&::-webkit-progress-value]:bg-attention [&::-moz-progress-bar]:bg-attention",
 };
 
 export interface ProgressProps extends Omit<React.ProgressHTMLAttributes<HTMLProgressElement>, "value" | "max"> {

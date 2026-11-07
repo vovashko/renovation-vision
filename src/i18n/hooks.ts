@@ -2,7 +2,8 @@ import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDate, formatDayLabel, type DateInput, type DateStyle } from "@/domain/dates";
 import { formatMoney, type Currency, type MoneyOptions } from "@/domain/money";
-import type { ScheduleStatus, Status } from "@/domain/status";
+import type { HealthState } from "@/domain/schedule";
+import type { Status } from "@/domain/status";
 import { DEFAULT_LOCALE, isLocale, localeCookie, type Locale } from "./locale";
 
 /** The current UI locale ("pl" | "en"). Re-renders when the language changes. */
@@ -62,8 +63,8 @@ export function useStatusLabel(): (status: Status) => string {
   return useCallback((status: Status) => t(`status.${status}`), [t]);
 }
 
-/** `scheduleLabel("at_risk")` → "Zagrożony" / "At risk" (`common:schedule.*`). */
-export function useScheduleLabel(): (status: ScheduleStatus) => string {
+/** `scheduleLabel("at_risk")` → "Zagrożony" / "At risk" (`common:schedule.*`, the derived project health). */
+export function useScheduleLabel(): (status: HealthState) => string {
   const { t } = useTranslation("common");
-  return useCallback((status: ScheduleStatus) => t(`schedule.${status}`), [t]);
+  return useCallback((status: HealthState) => t(`schedule.${status}`), [t]);
 }

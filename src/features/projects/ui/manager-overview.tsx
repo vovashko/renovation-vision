@@ -12,6 +12,7 @@ import { useMembers, useProjectContacts } from "@/features/people/hooks";
 import { crewOf, primaryIn } from "@/features/people/domain/contacts";
 import { budgetStatus, daysUntil } from "@/domain/attention";
 import { scheduleDeviationDays } from "@/domain/dates";
+import { projectHealth } from "@/domain/schedule";
 import { usePendingChangeRequestCount } from "@/features/change-requests/hooks";
 import { changeRequestIssues, projectIssues } from "../domain/project-issues";
 import { useProject } from "../hooks";
@@ -77,7 +78,7 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
         <div className="min-w-0 lg:col-span-2">
           <StatusCard
             projectId={projectId}
-            scheduleStatus={project.schedule_status}
+            health={projectHealth(project, stages, rooms)}
             scheduleNote={project.schedule_note}
             progress={project.overall_progress}
             currentStage={current?.name ?? null}
@@ -90,7 +91,6 @@ export function ManagerOverview({ projectId }: { projectId: string }) {
             budgetOver={budget.over}
             currency={project.currency}
             issues={issues}
-            onOpenDetails={openDetails}
           />
         </div>
         <ShortcutsCard shortcuts={shortcuts} />

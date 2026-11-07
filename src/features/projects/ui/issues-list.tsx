@@ -33,13 +33,11 @@ export function IssuesList({
   issues,
   projectId,
   currency,
-  onOpenDetails,
 }: {
   issues: ProjectIssue[];
   projectId: string;
   /** The project's currency, for the over-budget amounts. */
   currency: string;
-  onOpenDetails: () => void;
 }) {
   const { t } = useTranslation(["projects", "work", "common"]);
   const format = useFormat();
@@ -81,7 +79,6 @@ export function IssuesList({
       case "inconsistency": {
         const w = issue.issue;
         const title = t(`work:consistency.${w.kind}`, w);
-        if (w.to === "overview") return { title, onClick: onOpenDetails };
         return { title, link: { to: w.to === "stages" ? "/projects/$projectId/stages" : "/projects/$projectId/plan", params } };
       }
     }

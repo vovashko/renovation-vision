@@ -1,8 +1,6 @@
 import { z } from "zod";
-import { scheduleStatuses, type ScheduleStatus } from "@/domain/status";
 import { isPolishPostalCode, projectStatuses, type ProjectStatus } from "./project-fields";
 
-const scheduleStatusEnum = z.enum(scheduleStatuses as [ScheduleStatus, ...ScheduleStatus[]], { message: "common:form.invalid" });
 const projectStatusEnum = z.enum(projectStatuses as [ProjectStatus, ...ProjectStatus[]], { message: "common:form.invalid" });
 
 /**
@@ -47,7 +45,6 @@ export const projectEditSchema = z
     // The baseline: only editable while the project is in planning (the database locks it afterwards).
     planned_target_date: z.string(),
     planned_budget: z.coerce.number().min(0, "common:form.invalid"),
-    schedule_status: scheduleStatusEnum,
     schedule_note: z.string().trim(),
   })
   .superRefine(checkPostalCode);

@@ -2,11 +2,9 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoneyInput } from "@/components/ui/money-input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import { scheduleStatuses } from "@/domain/status";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import { useFormat, useScheduleLabel } from "@/i18n";
+import { useFormat } from "@/i18n";
 import { FormSheet } from "@/shared/ui/form-sheet";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
 import { FormField } from "@/shared/ui/form-field";
@@ -26,7 +24,6 @@ export function ProjectDetailsSheet({
   onOpenChange: (v: boolean) => void;
 }) {
   const { t } = useTranslation(["projects", "common"]);
-  const scheduleLabel = useScheduleLabel();
   const format = useFormat();
   // The database locks the baseline once the project leaves planning, so it is only editable then.
   const baselineEditable = project.status === "planning";
@@ -97,22 +94,6 @@ export function ProjectDetailsSheet({
             <FieldDescription>{t("details.plannedLockedHint")}</FieldDescription>
           </Field>
         )}
-        <FormField
-          control={form.control}
-          name="schedule_status"
-          label={t("details.scheduleStatus")}
-          description={t("details.scheduleStatusHint")}
-        >
-          {(field) => (
-            <NativeSelect {...field}>
-              {scheduleStatuses.map((s) => (
-                <NativeSelectOption key={s} value={s}>
-                  {scheduleLabel(s)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          )}
-        </FormField>
         <FormField control={form.control} name="schedule_note" label={t("details.scheduleNote")}>
           {(field) => <Textarea {...field} placeholder={t("details.scheduleNotePlaceholder")} />}
         </FormField>
@@ -138,7 +119,6 @@ function projectToForm(project: ProjectSummary): ProjectEditValues {
     budget: project.budget,
     planned_target_date: project.planned_target_date ?? "",
     planned_budget: project.planned_budget,
-    schedule_status: project.schedule_status,
     schedule_note: project.schedule_note ?? "",
   };
 }

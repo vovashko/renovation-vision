@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { buttonVariants } from "@/components/ui/button";
+import { Banner } from "@/components/ui/banner";
 import { Note } from "@/components/ui/note";
 import { ProjectHeader } from "@/features/work/ui/project-header";
 import { OverviewStats } from "@/features/work/ui/overview-stats";
@@ -19,6 +20,7 @@ import { approvalsCard } from "@/features/change-requests/domain/status";
 import { PageLoading } from "@/components/page-header";
 import { useNavRole } from "@/shared/ui/nav-role";
 import { daysLate } from "@/domain/attention";
+import { projectHealth } from "@/domain/schedule";
 import { useFormat } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +67,8 @@ function ClientOverview({ projectId }: { projectId: string }) {
   if (!project || !stages || !rooms) return <PageLoading />;
 
   const activeRoom = rooms.find((r) => r.id === roomId);
+  const health = projectHealth(project, stages, rooms);
+  const atRisk = health.state === "at_risk";
   const params = { projectId };
   const timelineSearch = { view: "timeline" as const };
   const planSearch = { view: "plan" as const };
@@ -87,10 +91,16 @@ function ClientOverview({ projectId }: { projectId: string }) {
         managerName={project.manager_name}
         progress={project.overall_progress}
         currentStage={project.current_stage}
-        behind={project.schedule_status !== "on_schedule"}
+        blocked={health.state === "blocked"}
+        overdueDays={health.overdueDays}
         alerts={
-          (approvalsCard(requests) || project.schedule_note) && (
+          (approvalsCard(requests) || project.schedule_note || atRisk) && (
             <div className="flex flex-col gap-3">
+              {atRisk && (
+                <Banner variant="attention" icon="block">
+                  {t("common:attention.atRisk", { items: health.blockedItems.map((b) => b.name).join(", ") })}
+                </Banner>
+              )}
               <ApprovalsCard projectId={projectId} currency={project.currency} />
               {project.schedule_note && (
                 <Note>

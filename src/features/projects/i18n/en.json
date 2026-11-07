@@ -43,8 +43,6 @@
     "target": "Current end date",
     "budget": "Projected budget",
     "budgetHint": "Spent is calculated from the expenses on the Budget page. The planned budget stays as the baseline.",
-    "scheduleStatus": "Schedule status",
-    "scheduleStatusHint": "Shown on the client's overview. Changing it notifies the client.",
     "scheduleNote": "Schedule note for the client",
     "scheduleNotePlaceholder": "Why the schedule is what it is, in plain words.",
     "submit": "Save details",
@@ -79,7 +77,8 @@
     "daysLeft": "Days left",
     "daysLeftValue_one": "{{count}} day",
     "daysLeftValue_other": "{{count}} days",
-    "budgetUsed": "Budget used"
+    "budgetUsed": "Budget used",
+    "pastDue": "Past due"
   },
   "issues": {
     "heading": "Needs attention",
