@@ -235,13 +235,13 @@
     }
   },
   "warnings": {
-    "title": "Note to the investor",
+    "title": "Note to the client",
     "heading": "Warnings",
     "empty": "No warnings for this room.",
     "add": "Add warning",
     "addTitle": "Add warning",
     "editTitle": "Edit warning",
-    "formDescription": "A risk the investor should know about. It does not change any date.",
+    "formDescription": "A risk the client should know about. It does not change any date.",
     "edit": "Edit warning",
     "remove": "Remove warning",
     "removeConfirmTitle": "Remove this warning?",
@@ -252,7 +252,7 @@
       "text": "Warning",
       "textHint": "What could go wrong, and why.",
       "materials": "Related materials",
-      "materialsHint": "The investor sees the warning until all of these are delivered. With none selected it stays until you remove it.",
+      "materialsHint": "The client sees the warning until all of these are delivered. With none selected it stays until you remove it.",
       "noMaterials": "Add materials to this room first to link them."
     }
   },

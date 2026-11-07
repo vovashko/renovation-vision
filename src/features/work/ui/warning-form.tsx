@@ -10,7 +10,7 @@ import { useSaveWarning } from "../hooks/room-view";
 import { MaterialStatusChip } from "./material-row";
 import type { RoomMaterial, RoomWarning } from "@/lib/database.types";
 
-/** Write or edit an investor warning and pick the materials it is about. */
+/** Write or edit a client warning and pick the materials it is about. */
 export function WarningForm({
   projectId,
   roomId,

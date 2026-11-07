@@ -199,7 +199,7 @@ export type RoomMaterial = {
   [K in keyof RoomMaterialRow]: K extends "order_by_date" | "delivery_date" ? string | null : NonNullable<RoomMaterialRow[K]>;
 };
 
-/** An investor warning on a room, with the ids of the materials it is linked to. Never changes a date. */
+/** A client warning on a room, with the ids of the materials it is linked to. Never changes a date. */
 export type RoomWarning = Pick<Tables<"room_warnings">, "id" | "project_id" | "room_id" | "text" | "created_by" | "created_at"> & {
   material_ids: string[];
 };

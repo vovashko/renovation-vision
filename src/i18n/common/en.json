@@ -107,8 +107,8 @@
   },
   "overallProgress": "Overall progress",
   "shareLink": {
-    "label": "Copy link for investor",
-    "copied": "Link copied. The investor will need to sign in with their client account.",
+    "label": "Copy link for client",
+    "copied": "Link copied. The client needs to sign in to open it.",
     "failed": "Couldn't copy the link. Copy it from the address bar instead."
   },
   "deviation": {

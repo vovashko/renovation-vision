@@ -503,7 +503,7 @@ Tests: `tests/db/work.test.sql`.
 ## Room view (#56)
 
 `/projects/<id>/rooms/<room>` (opened from the plan's selected-room panel): a room's works, materials with their
-delivery status, and warnings for the investor. Everything is entered by hand by the site manager; clients read it.
+delivery status, and warnings for the client. Everything is entered by hand by the site manager; clients read it.
 
 ```
 rooms ──< tasks (stage_id and/or room_id, state: todo | in_progress | done)    ONE source of progress
@@ -530,7 +530,7 @@ rooms ──< room_warnings (text) ──< room_warning_materials >── materi
   enforced) and for clients of the project (visible rooms only). A `security_invoker` view could not do this: it would
   return nothing to clients, and column privileges can't tell two `authenticated` users apart. Same pattern as
   `project_visible_contacts`. The room view's material form has no price field.
-- **Warnings ("Uwaga do inwestora")** are risks, never a date change. A warning is **open while any linked material is
+- **Warnings ("Uwaga dla klienta")** are risks, never a date change. A warning is **open while any linked material is
   `planned` or `ordered`; a warning with no linked material stays open until a manager removes it**
   (`private.warning_is_open` in the database, `isWarningOpen` in `@/domain/room-warnings`). Clients only read open
   warnings of visible rooms (RLS: `private.client_can_see_warning`); managers read all of them and see the resolved ones
@@ -611,11 +611,11 @@ after a loading screen) and in the browser on navigation. The decisions are pure
 These guards decide what to render and where to send people. **RLS is still the enforcement**: a guard that
 let someone through could not show them data Postgres refuses to return.
 
-### Sharing a page with the investor
+### Sharing a page with the client
 
-There is no anonymous or token access. "Copy link for investor" (managers only, in the project top bar, not on
-manager-only sections) copies the URL of the current project page, query string included (`investorShareUrl` in
-`features/auth/domain/guards.ts`). The investor opens it, is sent to `/login?redirect=<that page>`, signs in with
+There is no anonymous or token access. "Copy link for client" (managers only, in the project top bar, not on
+manager-only sections) copies the URL of the current project page, query string included (`clientShareUrl` in
+`features/auth/domain/guards.ts`). The client opens it, is sent to `/login?redirect=<that page>`, signs in with
 their client account and lands on the page; nobody signed out sees anything. An account that isn't a member of the
 project gets "Project not available". To revoke access, remove or change the project's client: the link then stops
 working for that account (RLS and the guards decide, the URL carries no permission).

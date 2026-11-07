@@ -33,7 +33,7 @@ beforeEach(() => {
 describe("ShareLinkButton", () => {
   it("lets a manager copy the current page URL, query included", async () => {
     setUp("manager");
-    fireEvent.click(screen.getByRole("button", { name: "Copy link for investor" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy link for client" }));
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
     expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/projects/${ID}/progress?view=plan`);
   });
@@ -41,7 +41,7 @@ describe("ShareLinkButton", () => {
   it("shows an error toast when the clipboard is unavailable", async () => {
     writeText.mockRejectedValue(new Error("denied"));
     setUp("manager");
-    fireEvent.click(screen.getByRole("button", { name: "Copy link for investor" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy link for client" }));
     await waitFor(() => expect(toast.error).toHaveBeenCalled());
     expect(toast.success).not.toHaveBeenCalled();
   });

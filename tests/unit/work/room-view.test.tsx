@@ -137,7 +137,7 @@ describe("RoomWarnings", () => {
   const worktop = material({ id: "m1", name: "Quartz worktop", status: "planned", order_by_date: "2026-05-12" });
   const cabinets = material({ id: "m2", name: "Kitchen cabinets", status: "delivered", delivery_date: "2026-05-06" });
 
-  it("shows an open warning to the investor with its linked materials", () => {
+  it("shows an open warning to the client with its linked materials", () => {
     wrap(
       <RoomWarnings
         projectId="p1"
@@ -147,14 +147,14 @@ describe("RoomWarnings", () => {
         isManager={false}
       />,
     );
-    expect(screen.getByText("Note to the investor")).toBeInTheDocument();
+    expect(screen.getByText("Note to the client")).toBeInTheDocument();
     expect(screen.getByText("The worktop is not ordered yet.")).toBeInTheDocument();
     expect(screen.getByText("Quartz worktop")).toBeInTheDocument();
     expect(screen.getByText("Kitchen cabinets")).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("hides a warning from the investor once its linked materials are delivered, and the whole section with it", () => {
+  it("hides a warning from the client once its linked materials are delivered, and the whole section with it", () => {
     const { container } = wrap(
       <RoomWarnings projectId="p1" roomId="r1" warnings={[warning({ material_ids: ["m2"] })]} materials={[cabinets]} isManager={false} />,
     );

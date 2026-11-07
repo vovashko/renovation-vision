@@ -109,8 +109,8 @@
   },
   "overallProgress": "Ogólny postęp",
   "shareLink": {
-    "label": "Kopiuj link dla inwestora",
-    "copied": "Link skopiowany. Inwestor musi zalogować się swoim kontem klienta.",
+    "label": "Kopiuj link dla klienta",
+    "copied": "Link skopiowany. Klient musi się zalogować, aby go otworzyć.",
     "failed": "Nie udało się skopiować linku. Skopiuj go z paska adresu."
   },
   "deviation": {

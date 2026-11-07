@@ -1,4 +1,4 @@
-// The room view's data (issue #56): a room's works (tasks), materials and investor warnings. Part of the work
+// The room view's data (issue #56): a room's works (tasks), materials and client warnings. Part of the work
 // feature's data layer, so it is the only code here that imports supabase-js (README → Architecture).
 //
 // Materials are read through `room_materials(room)`, a security-definer function that returns no prices,

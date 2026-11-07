@@ -27,7 +27,7 @@ function BackToPlan({ projectId, roomId }: { projectId: string; roomId?: string 
 }
 
 /**
- * One room: its progress (derived from its works), investor warnings, works and materials with their delivery
+ * One room: its progress (derived from its works), client warnings, works and materials with their delivery
  * status. Managers edit everything; clients read it (no prices: materials come from `room_materials()`).
  */
 export function RoomView({ projectId, roomId, isManager }: { projectId: string; roomId: string; isManager: boolean }) {

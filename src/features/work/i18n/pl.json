@@ -249,13 +249,13 @@
     }
   },
   "warnings": {
-    "title": "Uwaga do inwestora",
+    "title": "Uwaga dla klienta",
     "heading": "Uwagi",
     "empty": "Brak uwag dla tego pomieszczenia.",
     "add": "Dodaj uwagę",
     "addTitle": "Dodaj uwagę",
     "editTitle": "Edytuj uwagę",
-    "formDescription": "Ryzyko, o którym inwestor powinien wiedzieć. Nie zmienia żadnego terminu.",
+    "formDescription": "Ryzyko, o którym klient powinien wiedzieć. Nie zmienia żadnego terminu.",
     "edit": "Edytuj uwagę",
     "remove": "Usuń uwagę",
     "removeConfirmTitle": "Usunąć tę uwagę?",
@@ -266,7 +266,7 @@
       "text": "Uwaga",
       "textHint": "Co może pójść nie tak i dlaczego.",
       "materials": "Powiązane materiały",
-      "materialsHint": "Inwestor widzi uwagę, dopóki wszystkie te materiały nie zostaną dostarczone. Bez wybranych materiałów uwaga zostaje, aż ją usuniesz.",
+      "materialsHint": "Klient widzi uwagę, dopóki wszystkie te materiały nie zostaną dostarczone. Bez wybranych materiałów uwaga zostaje, aż ją usuniesz.",
       "noMaterials": "Najpierw dodaj materiały do tego pomieszczenia, aby je powiązać."
     }
   },

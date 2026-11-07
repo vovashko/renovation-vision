@@ -23,12 +23,12 @@ export function projectSection(pathname: string): string {
 }
 
 /**
- * The absolute URL of the current project page for a manager to send to the investor, or null on a
+ * The absolute URL of the current project page for a manager to send to the client, or null on a
  * manager-only section (a client would just be bounced to the overview). Keeps the query string
- * (`?view=plan`). It is only a deep link: the investor still signs in with their client account
+ * (`?view=plan`). It is only a deep link: the client still signs in with their client account
  * (`/login?redirect=`) and the project guards decide what they see.
  */
-export function investorShareUrl(origin: string, pathname: string, search: string): string | null {
+export function clientShareUrl(origin: string, pathname: string, search: string): string | null {
   if (managerOnlySections.includes(projectSection(pathname))) return null;
   return `${origin}${pathname}${search}`;
 }

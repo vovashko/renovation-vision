@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { investorShareUrl } from "@/features/auth/domain/guards";
+import { clientShareUrl } from "@/features/auth/domain/guards";
 import { useNavRole } from "./nav-role";
 
 /**
- * Managers only: copies the current project page's URL so they can send it to the investor, who
+ * Managers only: copies the current project page's URL so they can send it to the client, who
  * signs in with their client account and lands there. Renders nothing for clients or on a
  * manager-only section (the link would just bounce a client to the overview).
  */
@@ -20,7 +20,7 @@ export function ShareLinkButton() {
   const label = t("common:shareLink.label");
 
   const copy = async () => {
-    const url = investorShareUrl(window.location.origin, pathname, searchStr);
+    const url = clientShareUrl(window.location.origin, pathname, searchStr);
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
@@ -30,7 +30,7 @@ export function ShareLinkButton() {
     }
   };
 
-  if (investorShareUrl("", pathname, searchStr) === null) return null;
+  if (clientShareUrl("", pathname, searchStr) === null) return null;
   return (
     <Tooltip>
       <TooltipTrigger asChild>

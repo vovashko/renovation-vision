@@ -61,7 +61,7 @@ export const taskAddFormSchema = z.object({
 
 export type TaskAddFormValues = z.infer<typeof taskAddFormSchema>;
 
-// --- Room view (issue #56): the room's works, materials and investor warnings ---------------------
+// --- Room view (issue #56): the room's works, materials and client warnings ---------------------
 
 const TASK_STATES = ["todo", "in_progress", "done"] as const satisfies readonly TaskState[];
 
