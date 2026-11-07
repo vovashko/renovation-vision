@@ -7,7 +7,9 @@ import { PageHeader, PageLoading } from "@/components/page-header";
 import { InternalBadge } from "@/shared/ui/visibility-badge";
 import { ActivityLog } from "@/features/comms/ui/activity-log";
 import { AnnouncementForm, type AnnouncementLink } from "@/features/comms/ui/announcement-form";
-import { InboxNotificationItem, SentNotificationItem } from "@/features/comms/ui/notification-item";
+import { SentNotificationItem } from "@/features/comms/ui/notification-item";
+import { InboxList } from "@/features/comms/ui/inbox";
+import { useOpenNotification } from "@/features/comms/hooks/use-inbox";
 import { useAuth } from "@/lib/auth";
 import { useMembers } from "@/features/people/hooks";
 import { useActivity } from "@/features/comms/hooks/use-activity";
@@ -32,6 +34,7 @@ function UpdatesPage() {
   const { data: activity = [] } = useActivity(projectId);
   const { data: members = [] } = useMembers(projectId);
   const send = useNotifyClients(projectId, { success: t("updates.announcement.sentToast") });
+  const openNotification = useOpenNotification();
 
   const links: AnnouncementLink[] = [
     { value: "", label: t("updates.announcement.noLink") },
@@ -99,11 +102,7 @@ function UpdatesPage() {
           {inbox.length > 0 && (
             <>
               <h2 className="mt-8 mb-3 text-title-lg">{t("updates.inbox.heading")}</h2>
-              <ItemGroup>
-                {inbox.slice(0, 10).map((n) => (
-                  <InboxNotificationItem key={n.id} notification={n} />
-                ))}
-              </ItemGroup>
+              <InboxList notifications={inbox.slice(0, 10)} onOpen={openNotification} />
             </>
           )}
         </section>

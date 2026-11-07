@@ -110,6 +110,8 @@ describe("the updates page's items render translated text", () => {
     title: "Stage update: Flooring",
     body: "Flooring is now in progress.",
     link: "/stages",
+    entity_type: "stages",
+    entity_id: null,
     created_at: "2026-04-18T08:00:00Z",
     read_at: null,
   };

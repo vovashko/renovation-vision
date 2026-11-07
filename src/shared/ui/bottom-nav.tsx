@@ -10,11 +10,15 @@ import { useNavRole } from "@/shared/ui/nav-role";
 import { useNavProjectId } from "@/shared/ui/nav-project";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
 import { useNavCounts } from "@/shared/ui/nav-counts";
+import { useUnreadCount } from "@/features/comms/hooks/use-inbox";
+import { InboxSheet, NotificationBellRow, NotificationBellTabItem } from "@/features/comms/ui/bell";
 
 /**
  * Phone bottom navigation (below md; `ui/tab-bar`'s `TabBar` is `md:hidden`, so this renders
  * unconditionally and CSS alone decides whether it shows). Both roles get it now: managers work on
  * site from their phones too. The desktop rail (`app-rail.tsx`) shows every section above md.
+ * The notification bell is a row of the "More" sheet (whose tab carries the unread count), or a tab of its own
+ * outside a project.
  */
 export function BottomNav() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -28,6 +32,8 @@ export function BottomNav() {
   const { t } = useTranslation(["common"]);
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const { data: unread = 0 } = useUnreadCount();
 
   // Outside a project (/projects for a manager, or /settings with no project opened yet): a single row back.
   if (!projectId) {
@@ -36,6 +42,7 @@ export function BottomNav() {
         <TabBarItem asChild icon="arrow_back" label={t("actions.back")}>
           <Link to="/" />
         </TabBarItem>
+        <NotificationBellTabItem />
       </TabBar>
     );
   }
@@ -69,6 +76,7 @@ export function BottomNav() {
           icon="more_horiz"
           label={t("nav.more")}
           active={moreActive}
+          badge={unread}
           aria-label={t("nav.morePages")}
           aria-haspopup="dialog"
           onClick={() => setOpen(true)}
@@ -103,6 +111,12 @@ export function BottomNav() {
             )}
           </div>
           <div className="mx-1 mt-2 border-t border-outline-variant pt-2">
+            <NotificationBellRow
+              onOpen={() => {
+                setOpen(false);
+                setInboxOpen(true);
+              }}
+            />
             <TabBarRow asChild icon="settings" active={path.startsWith("/settings")}>
               <Link to="/settings" onClick={() => setOpen(false)}>
                 {t("nav.settings")}
@@ -123,6 +137,7 @@ export function BottomNav() {
         </SheetContent>
       </Sheet>
       <ProfilePanel open={profileOpen} onOpenChange={setProfileOpen} />
+      <InboxSheet open={inboxOpen} onOpenChange={setInboxOpen} />
     </>
   );
 }

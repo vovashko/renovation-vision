@@ -34,6 +34,14 @@ vi.mock("@/features/auth/hooks", () => ({ useProjectRole: vi.fn() }));
 // The Budget tab carries the client's pending change-request count (a query); stub it.
 const pendingRequests = vi.hoisted(() => ({ count: 0 }));
 vi.mock("@/features/change-requests/hooks", () => ({ usePendingChangeRequestCount: () => ({ data: pendingRequests.count }) }));
+// The notification bell (T41): its unread count is a query; stub the inbox hooks.
+const inbox = vi.hoisted(() => ({ unread: 0 }));
+vi.mock("@/features/comms/hooks/use-inbox", () => ({
+  useUnreadCount: () => ({ data: inbox.unread }),
+  useInbox: () => ({ data: [], isLoading: false }),
+  useMarkNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
+  useOpenNotification: () => vi.fn(),
+}));
 
 const mockedUseAuth = vi.mocked(useAuth);
 const mockedUseParams = vi.mocked(useParams);
@@ -57,6 +65,7 @@ function setUp({ role, path, projectId }: { role: "manager" | "client"; path: st
 beforeEach(() => {
   window.sessionStorage.clear();
   pendingRequests.count = 0;
+  inbox.unread = 0;
   mockedUseAuth.mockReset();
   mockedUseParams.mockReset();
   mockedUseRouterState.mockReset();
@@ -131,11 +140,28 @@ describe("BottomNav", () => {
     expect(screen.getByRole("link", { name: "Budget" })).not.toHaveTextContent("3");
   });
 
-  it("falls back to a single back link outside a project", () => {
+  it("falls back to a back link and the bell outside a project", () => {
+    inbox.unread = 2;
     setUp({ role: "manager", path: "/projects", projectId: undefined });
     render(<BottomNav />);
     expect(screen.getByRole("link", { name: "Back" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Notifications, 2 unread" })).toHaveTextContent("2");
     expect(screen.queryByRole("button", { name: "More pages" })).not.toBeInTheDocument();
+  });
+
+  it("puts the bell in the More sheet, with the unread count on the More tab, for both roles", async () => {
+    inbox.unread = 4;
+    for (const role of ["client", "manager"] as const) {
+      setUp({ role, path: "/projects/p1", projectId: "p1" });
+      const { unmount } = render(<BottomNav />);
+      const more = screen.getByRole("button", { name: "More pages" });
+      expect(more).toHaveTextContent("4");
+      fireEvent.click(more);
+      const dialog = await screen.findByRole("dialog");
+      fireEvent.click(within(dialog).getByRole("button", { name: "Notifications, 4 unread" }));
+      expect(await screen.findByRole("dialog", { name: "Notifications" })).toBeInTheDocument();
+      unmount();
+    }
   });
 
   it("keeps the project's tabs on Settings, using the last project opened", () => {

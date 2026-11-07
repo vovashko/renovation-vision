@@ -22,6 +22,7 @@ import { Route as adminStaffRouteImport } from './routes/admin/staff'
 import { Route as projectsRouteImport } from './routes/projects'
 import { Route as projectLayoutRouteImport } from './routes/project/layout'
 import { Route as settingsIndexRouteImport } from './routes/settings/index'
+import { Route as settingsNotificationsRouteImport } from './routes/settings/notifications'
 import { Route as settingsProfileRouteImport } from './routes/settings/profile'
 import { Route as settingsSecurityRouteImport } from './routes/settings/security'
 import { Route as projectOverviewRouteImport } from './routes/project/overview'
@@ -101,6 +102,11 @@ const projectLayoutRoute = projectLayoutRouteImport.update({
 const settingsIndexRoute = settingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
+  getParentRoute: () => authedRoute,
+} as any)
+const settingsNotificationsRoute = settingsNotificationsRouteImport.update({
+  id: '/settings/notifications',
+  path: '/settings/notifications',
   getParentRoute: () => authedRoute,
 } as any)
 const settingsProfileRoute = settingsProfileRouteImport.update({
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof projectsRoute
   '/admin/staff': typeof adminStaffRoute
   '/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/settings/notifications': typeof settingsNotificationsRoute
   '/settings/profile': typeof settingsProfileRoute
   '/settings/security': typeof settingsSecurityRoute
   '/settings/': typeof settingsIndexRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/mfa/enroll': typeof mfaEnrollRoute
   '/projects': typeof projectsRoute
   '/admin/staff': typeof adminStaffRoute
+  '/settings/notifications': typeof settingsNotificationsRoute
   '/settings/profile': typeof settingsProfileRoute
   '/settings/security': typeof settingsSecurityRoute
   '/settings': typeof settingsIndexRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/_authed/projects/': typeof projectsRoute
   '/_authed/admin/staff': typeof adminStaffRoute
   '/_authed/projects/$projectId': typeof projectLayoutRouteWithChildren
+  '/_authed/settings/notifications': typeof settingsNotificationsRoute
   '/_authed/settings/profile': typeof settingsProfileRoute
   '/_authed/settings/security': typeof settingsSecurityRoute
   '/_authed/settings/': typeof settingsIndexRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/admin/staff'
     | '/projects/$projectId'
+    | '/settings/notifications'
     | '/settings/profile'
     | '/settings/security'
     | '/settings/'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/mfa/enroll'
     | '/projects'
     | '/admin/staff'
+    | '/settings/notifications'
     | '/settings/profile'
     | '/settings/security'
     | '/settings'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authed/projects/'
     | '/_authed/admin/staff'
     | '/_authed/projects/$projectId'
+    | '/_authed/settings/notifications'
     | '/_authed/settings/profile'
     | '/_authed/settings/security'
     | '/_authed/settings/'
@@ -466,6 +478,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings/'
       preLoaderRoute: typeof settingsIndexRouteImport
+      parentRoute: typeof authedRoute
+    }
+    '/_authed/settings/notifications': {
+      id: '/_authed/settings/notifications'
+      path: '/settings/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof settingsNotificationsRouteImport
       parentRoute: typeof authedRoute
     }
     '/_authed/settings/profile': {
@@ -626,6 +645,7 @@ interface authedRouteChildren {
   projectsRoute: typeof projectsRoute
   adminStaffRoute: typeof adminStaffRoute
   projectLayoutRoute: typeof projectLayoutRouteWithChildren
+  settingsNotificationsRoute: typeof settingsNotificationsRoute
   settingsProfileRoute: typeof settingsProfileRoute
   settingsSecurityRoute: typeof settingsSecurityRoute
   settingsIndexRoute: typeof settingsIndexRoute
@@ -636,6 +656,7 @@ const authedRouteChildren: authedRouteChildren = {
   projectsRoute: projectsRoute,
   adminStaffRoute: adminStaffRoute,
   projectLayoutRoute: projectLayoutRouteWithChildren,
+  settingsNotificationsRoute: settingsNotificationsRoute,
   settingsProfileRoute: settingsProfileRoute,
   settingsSecurityRoute: settingsSecurityRoute,
   settingsIndexRoute: settingsIndexRoute,

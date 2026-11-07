@@ -130,7 +130,8 @@
       "preheader": "{{title}}",
       "cta": "Otwórz w RenoVision",
       "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision.",
-      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}"
+      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}",
+      "manage": "Wybierz, co RenoVision wysyła Ci e-mailem: {{url}}"
     },
     "digest": {
       "subject": "Twoje podsumowanie RenoVision",
@@ -139,7 +140,9 @@
       "empty": "Brak nowej aktywności od ostatniego podsumowania.",
       "cta": "Otwórz w RenoVision",
       "disclaimer": "Otrzymujesz tę wiadomość, ponieważ masz aktywny projekt w RenoVision.",
-      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}"
+      "linkFallback": "Jeśli przycisk nie działa, wklej ten link w przeglądarce: {{linkUrl}}",
+      "more": "I jeszcze {{count}} w aplikacji.",
+      "manage": "Wybierz, co RenoVision wysyła Ci e-mailem: {{url}}"
     },
     "changeRequestNew": {
       "title": "Wniosek o zmianę czeka na Twoją akceptację: {{title}}",
@@ -155,6 +158,61 @@
       "title": "Nadal czeka na Twoją akceptację: {{title}}",
       "body": "Wniosek „{{title}}” od doby czeka na Twoją akceptację. Otwórz go, aby go zaakceptować lub odrzucić. Masz pytania? Napisz do kierownika.",
       "cta": "Zobacz wniosek"
+    },
+    "batch": {
+      "subject": "Nowe aktualizacje: {{count}} — RenoVision",
+      "heading": "Nowości w Twoich projektach",
+      "preheader": "Nowe aktualizacje w Twoich projektach: {{count}}"
+    }
+  },
+  "bell": {
+    "label": "Powiadomienia",
+    "labelWithCount": "Powiadomienia, nieprzeczytane: {{count}}"
+  },
+  "inbox": {
+    "title": "Powiadomienia",
+    "description": "Nowości z Twoich projektów. Otwarcie powiadomienia oznacza je jako przeczytane.",
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "markRead": "Oznacz jako przeczytane",
+    "unread": "Nieprzeczytane",
+    "empty": "Wszystko przeczytane",
+    "emptyText": "Tu pojawią się nowości z Twoich projektów.",
+    "emailSettings": "Ustawienia e-maili"
+  },
+  "preferences": {
+    "title": "Powiadomienia",
+    "description": "Każde powiadomienie pojawia się w aplikacji, pod dzwonkiem. Wybierz, które mają też trafiać do Ciebie e-mailem.",
+    "inApp": "W aplikacji: zawsze",
+    "emailLabel": "E-mail: {{group}}",
+    "default": "Domyślne",
+    "saved": "Zapisano ustawienia e-maili",
+    "frequency": {
+      "instant": "Od razu",
+      "daily": "Codzienne podsumowanie o 7:00",
+      "off": "Wyłączone"
+    },
+    "groups": {
+      "progress": {
+        "title": "Postęp prac",
+        "description": "Zmiany statusu etapów i pomieszczeń"
+      },
+      "media": {
+        "title": "Zdjęcia i projekty",
+        "description": "Nowe zdjęcia z budowy i wizualizacje"
+      },
+      "documents": {
+        "title": "Dokumenty",
+        "description": "Nowe pliki w dokumentach projektu"
+      },
+      "announcements": {
+        "title": "Ogłoszenia",
+        "description": "Wiadomości od kierownika projektu"
+      },
+      "changeRequests": {
+        "title": "Wnioski o zmianę",
+        "description": "Nowe wnioski, akceptacje, odrzucenia i przypomnienia",
+        "always": "Zawsze wysyłane od razu"
+      }
     }
   }
 }

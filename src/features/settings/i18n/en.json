@@ -84,5 +84,9 @@
       "client": "Client",
       "admin": "Manager"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "summary": "What RenoVision emails you, and how often"
   }
 }

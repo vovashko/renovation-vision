@@ -49,19 +49,50 @@ export function SentNotificationItem({
   );
 }
 
-/** A notification in the manager's own inbox (e.g. a client's reply). */
-export function InboxNotificationItem({ notification }: { notification: Notification }) {
+/**
+ * A notification in the user's own inbox (the bell, and the manager's Updates page), tinted until read. With
+ * `onOpen` the row is a button that opens what it is about; `projectName` names the project in a cross-project list.
+ */
+export function InboxNotificationItem({
+  notification,
+  projectName,
+  onOpen,
+}: {
+  notification: Notification;
+  projectName?: string;
+  onOpen?: () => void;
+}) {
+  const { t } = useTranslation("comms");
   const format = useFormat();
   const { title, body } = useNotificationText()(notification);
-  return (
-    <Item size="lg">
+  const unread = !notification.read_at;
+  const content = (
+    <>
       <ItemContent>
-        <ItemTitle>{title}</ItemTitle>
-        <ItemDescription className="line-clamp-none">{body}</ItemDescription>
+        <ItemTitle>
+          {title}
+          {unread && <span className="sr-only">{t("inbox.unread")}</span>}
+        </ItemTitle>
+        {body && <ItemDescription className="line-clamp-3">{body}</ItemDescription>}
+        {projectName && <ItemDescription>{projectName}</ItemDescription>}
       </ItemContent>
       <ItemActions>
         <span className="shrink-0 text-body-sm text-on-surface-variant">{format.date(notification.created_at, DAY_TIME_STYLE)}</span>
       </ItemActions>
+    </>
+  );
+  if (!onOpen) {
+    return (
+      <Item size="lg" unread={unread}>
+        {content}
+      </Item>
+    );
+  }
+  return (
+    <Item asChild size="lg" unread={unread}>
+      <button type="button" onClick={onOpen}>
+        {content}
+      </button>
     </Item>
   );
 }

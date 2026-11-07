@@ -459,11 +459,12 @@ status: pending → accepted (final) | rejected → reopened → pending
 - **Notifications.** In-app `decision_new | decision_reopened | decision_reminder` to clients and
   `decision_accepted | decision_rejected | decision_reopened` to managers (params `{ title, text }`); email for a new
   request (clients), an approval (managers) and the reminder.
-- **Reminder (Cron Trigger).** `wrangler.jsonc` → `triggers.crons` runs `src/server.ts` → `scheduled` hourly: one
+- **Reminder (Cron Trigger).** `wrangler.jsonc` → `triggers.crons` runs `src/server.ts` → `scheduled` hourly (the
+  `0 * * * *` cron; the 5-minute one sends the notification emails, see Notification delivery): one
   reminder per request that has waited 24 hours since it was submitted or reopened (`public.remind_decision`, service
   role only, claims it under a row lock). Its email links need the `APP_ORIGIN` var (set for preview in `wrangler.jsonc`;
   add it for production before deploying). Test locally with `wrangler dev --test-scheduled` and
-  `curl "http://localhost:8787/__scheduled?cron=0+*+*+*+*"`.
+  `curl "http://localhost:8787/cdn-cgi/handler/scheduled?cron=0+*+*+*+*"`.
 
 Tests: `tests/db/change_requests.test.sql`, `tests/unit/change-requests/*`, `tests/unit/server/decisions.test.ts`,
 `tests/unit/server/change-request-reminders.test.ts`.
@@ -833,7 +834,44 @@ app doesn't know or a row missing a value (rows written before T33 carry the old
 | `manual`           | `{ title, body }`        | a manager's announcement              |
 
 `status` is a `work_status` (`common:status.*`) or, for `schedule_status`, a `schedule_status` (`common:schedule.*`).
-`notifications.emailed_at` is for T41's email delivery (null until sent).
+`notifications.emailed_at` is set when the email jobs below claim a row (null until then).
+
+### Notification delivery (T41)
+
+- **In the app, always.** Both roles get a bell: in the desktop rail above Settings, and on phones as a row of the
+  "More" sheet (the More tab carries the unread count; outside a project the bell is a tab of its own). It opens the
+  inbox (`features/comms/ui/inbox.tsx`): the user's own notifications across their projects, rendered from `kind` +
+  `params` (`domain/notification-text.ts`, shared with the emails). Opening one marks it read
+  (`mark_notifications_read`) and goes to its section (and `?request=` for a change request); "Mark all read" clears
+  them. `useInboxRealtime()` (mounted in the `_authed` shell) refetches the count and the list on any change to the
+  user's rows (Supabase Realtime, RLS-filtered). The manager's Updates page lists the same inbox component.
+- **By email, per preference.** Settings → Notifications (`/settings/notifications`) sets an email frequency per group
+  (progress, photos and designs, documents, announcements): right away, the daily digest, or off. Each choice saves a
+  `notification_preferences` row per kind; until then the page shows `notification_pref`'s default (clients daily,
+  managers off) with a "Default" badge. **Change requests are always emailed right away**, whatever the preferences.
+- **The jobs** (`src/server/notifications/{instant,digest}.server.ts`) run on the `*/5 * * * *` Cron Trigger
+  (`src/server/jobs/scheduled.server.ts` routes each cron). Both claim their rows with
+  `public.claim_notification_emails` (service role only): it picks the unemailed rows whose effective email frequency
+  matches, for up to 20 recipients (all of a recipient's rows together), and sets `emailed_at` under
+  `for update skip locked` **before** sending, so overlapping runs or a crash never send twice (at most once; a failed
+  send is logged, not retried).
+  - **Instant:** the last 24 hours. One row → a `notification` email; several for one person → one batch email.
+  - **Daily digest:** rows created in the 48 hours before the latest 07:00 Europe/Warsaw (DST-safe), so the first run
+    after 07:00 sends the day's digests and later runs find nothing (or the overflow beyond the recipient cap).
+  - **No double emails:** `decision_new`, `decision_accepted` and `decision_reminder` are emailed by the change-request
+    server functions and the reminder cron themselves (T61): the jobs never claim them. `decision_rejected` and
+    `decision_reopened` are claimed as instant whatever the preference. The lists live in
+    `features/comms/domain/delivery.ts`.
+  - Links use `APP_ORIGIN` (as the reminder does); without it, preview and production fail loudly and development
+    claims nothing. Each email ends with a link to Settings → Notifications.
+
+Tests: `tests/db/notifications_delivery.test.sql`, `tests/unit/comms/{instant,digest}.test.ts`,
+`tests/unit/comms/inbox.test.tsx`, `tests/unit/settings/notification-preferences.test.tsx`,
+`tests/unit/server/{scheduled,worker-scheduled}.test.ts`. Locally: `bun run build`, put `APP_ENV=development`,
+`APP_ORIGIN=http://localhost:8787` and the local `SUPABASE_SECRET_KEY` in `dist/server/.dev.vars`, run
+`wrangler dev -c dist/server/wrangler.json --test-scheduled`, then
+`curl "http://localhost:8787/cdn-cgi/handler/scheduled?cron=*/5+*+*+*+*"` (this wrangler answers 404 on the older
+`/__scheduled`). Without `BREVO_API_KEY` the emails are written to the log.
 
 **Activity log.** `private.log_activity` writes `params: { entity, action, label }` next to the English `summary`
 (`entity`: `stage`, `room`, `task`, `photo`, `render`, `expense`, `project`, `internal_notes`, `member`,

@@ -11,6 +11,7 @@ import { useNavRole } from "@/shared/ui/nav-role";
 import { useNavProjectId } from "@/shared/ui/nav-project";
 import { navItemsFor, projectPath, projectRoute } from "@/shared/ui/nav-config";
 import { useNavCounts } from "@/shared/ui/nav-counts";
+import { NotificationBellRailItem } from "@/features/comms/ui/bell";
 
 /** Avatar row pinned at the very bottom of the rail; opens the profile panel instead of navigating. */
 function ProfileRailItem() {
@@ -36,7 +37,7 @@ function ProfileRailItem() {
  * Desktop navigation rail (md and up; phones use `bottom-nav.tsx`'s bottom bar; `ui/rail` itself is
  * `hidden md:block`, so this component renders unconditionally and CSS alone decides whether it
  * shows). Keeps the existing role logic: managers see "All projects" plus every section; clients
- * never see a manager-only one (`shared/ui/nav-config.ts`).
+ * never see a manager-only one (`shared/ui/nav-config.ts`). Both roles get the notification bell above Settings.
  */
 export function AppRail() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -80,6 +81,7 @@ export function AppRail() {
             );
           })}
         <RailGroup position="end">
+          <NotificationBellRailItem />
           <RailItem asChild icon="settings" label={t("nav.settings")} active={path.startsWith("/settings")}>
             <Link to="/settings" />
           </RailItem>
