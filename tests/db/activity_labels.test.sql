@@ -1,4 +1,4 @@
--- Activity log labels for the W4 tables, and the materials -> progress_entries link.
+-- Activity log labels for the W4 tables, room warnings and documents, and the materials -> progress_entries link.
 begin;
 
 do $$
@@ -33,6 +33,22 @@ begin
   end if;
   if v_entity_id is distinct from v_stage then
     raise exception 'FAILED: stage budget entity_id = %, expected the stage %', v_entity_id, v_stage;
+  end if;
+
+  -- Room warning: entity room_warning, labelled by the start of its text.
+  insert into public.room_warnings (project_id, room_id, text)
+  select v_project, r.id, 'Label test warning' from public.rooms r where r.project_id = v_project order by r.sort_order limit 1;
+  select params into v_params from public.activity_log where entity_type = 'room_warnings' order by id desc limit 1;
+  if v_params ->> 'entity' is distinct from 'room_warning' or v_params ->> 'label' is distinct from 'Label test warning' then
+    raise exception 'FAILED: room warning params = %', v_params;
+  end if;
+
+  -- Document: entity document, labelled by its file name.
+  insert into public.documents (project_id, category, storage_path, file_name, mime_type, size_bytes)
+  values (v_project, 'contract', v_project || '/contract/label-test.pdf', 'Umowa label test.pdf', 'application/pdf', 1000);
+  select params into v_params from public.activity_log where entity_type = 'documents' order by id desc limit 1;
+  if v_params ->> 'entity' is distinct from 'document' or v_params ->> 'label' is distinct from 'Umowa label test.pdf' then
+    raise exception 'FAILED: document params = %', v_params;
   end if;
 
   -- FK: a material can't point at a missing entry, and deleting the entry clears the link.
