@@ -21,9 +21,17 @@ import { useAcceptInvite, useInviteLookup, useSessionEmail, type AcceptOutcome }
 import { usePeopleErrorText } from "../hooks/errors";
 
 type PendingInvite = Extract<InviteLookup, { status: "pending" }>;
-type DeadEnd = Exclude<AcceptOutcome["status"], "accepted"> | Exclude<InviteLookup["status"], "pending">;
+/** How a submit ended when it didn't accept: a dead end, or a fresh link emailed to the invitee. */
+type Ending = Exclude<AcceptOutcome, { status: "accepted" }>;
+type DeadEnd = Exclude<Ending["status"], "link_sent"> | Exclude<InviteLookup["status"], "pending">;
 
 const statusKey = (status: DeadEnd) => (status === "needs_sign_in" ? "needsSignIn" : status);
+
+/** The link's token had expired, so a new link went to the invited address (masked). */
+function InviteLinkSent({ email }: { email: string }) {
+  const { t } = useTranslation(["people"]);
+  return <Note tone="success">{t("invite.accept.linkSent", { email })}</Note>;
+}
 
 /** Expired, used, withdrawn or broken link: say which, and offer to sign in where that helps. */
 function InviteDeadEnd({ status, acceptHref }: { status: DeadEnd; acceptHref: string }) {
@@ -59,7 +67,7 @@ function InviteAcceptForm({
   invite: PendingInvite;
   tokenHash: string;
   signedIn: boolean;
-  onDeadEnd: (status: DeadEnd) => void;
+  onDeadEnd: (ending: Ending) => void;
 }) {
   const { t } = useTranslation(["people", "common"]);
   const locale = useLocale();
@@ -85,7 +93,7 @@ function InviteAcceptForm({
       password: values.password,
     });
     if (!outcome) return;
-    if (outcome.status !== "accepted") return onDeadEnd(outcome.status);
+    if (outcome.status !== "accepted") return onDeadEnd(outcome);
     // Fresh router context first, so the guards see the new account (a manager may be sent to set up 2FA).
     await refresh();
     if (outcome.projectId) await navigate({ to: "/projects/$projectId", params: { projectId: outcome.projectId }, replace: true });
@@ -142,7 +150,7 @@ export function InviteAcceptScreen({ tokenHash }: { tokenHash: string | null }) 
   // Kept once seen, with whether this browser was already signed in as the invitee: signing in through the link
   // clears and refetches every query (AuthSync), and accepting turns the lookup into "used".
   const [ready, setReady] = useState<{ invite: PendingInvite; signedIn: boolean } | null>(null);
-  const [deadEnd, setDeadEnd] = useState<DeadEnd | null>(null);
+  const [ending, setEnding] = useState<Ending | null>(null);
   const data = lookup.data;
   const sessionEmail = session.isLoading ? undefined : (session.data ?? null);
   useEffect(() => {
@@ -153,11 +161,12 @@ export function InviteAcceptScreen({ tokenHash }: { tokenHash: string | null }) 
   const invite = ready?.invite ?? null;
 
   const lookupDeadEnd: DeadEnd | null = lookup.isError ? "invalid" : data && data.status !== "pending" && !invite ? data.status : null;
-  const shown = deadEnd ?? lookupDeadEnd;
+  const linkSentTo = ending?.status === "link_sent" ? ending.email : null;
+  const shown = (ending && ending.status !== "link_sent" ? ending.status : null) ?? lookupDeadEnd;
   const acceptHref = `/accept-invite?token_hash=${encodeURIComponent(tokenHash ?? "")}&type=invite`;
   const inviter = invite?.inviterName || t("invite.accept.someone");
   const description =
-    invite && !shown
+    invite && !shown && !linkSentTo
       ? t(invite.role === "manager" ? "invite.accept.descriptionManager" : "invite.accept.descriptionClient", {
           inviter,
           project: invite.projectName,
@@ -168,10 +177,12 @@ export function InviteAcceptScreen({ tokenHash }: { tokenHash: string | null }) 
     <AuthScreen>
       <AuthCard>
         <AuthCardHeader title={t("invite.accept.title")} description={description} />
-        {shown ? (
+        {linkSentTo ? (
+          <InviteLinkSent email={linkSentTo} />
+        ) : shown ? (
           <InviteDeadEnd status={shown} acceptHref={acceptHref} />
         ) : ready && tokenHash ? (
-          <InviteAcceptForm invite={ready.invite} tokenHash={tokenHash} signedIn={ready.signedIn} onDeadEnd={setDeadEnd} />
+          <InviteAcceptForm invite={ready.invite} tokenHash={tokenHash} signedIn={ready.signedIn} onDeadEnd={setEnding} />
         ) : (
           <Note tone="success">{t("invite.accept.checking")}</Note>
         )}

@@ -1,16 +1,20 @@
 // Invites (T40): the schemas and status rules, and the invite server handlers against a mocked admin client:
 // the manager-invite staff gate, the client-email check, token handling (only sha256 of the link token is stored,
 // never logged), expired / used / revoked / invalid lookups, renewing gotrue's token, and revoke's cleanup.
+// T70: one open invite per email (client re-send, manager refusal, mixed roles), and renewal emailing the invited
+// address instead of returning a token.
 import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ServerFnError } from "@/server/errors";
 import type { AuthContext } from "@/server/middleware/auth";
 import {
   acceptInviteSchema,
+  inviteDecision,
   inviteMemberInput,
   inviteStatus,
   INVITE_TTL_DAYS,
   isTokenHash,
+  maskEmail,
   statusForError,
 } from "@/features/people/domain/invites";
 
@@ -86,8 +90,10 @@ type AdminOpts = {
   account?: { user_id: string; confirmed: boolean; invited: boolean; signed_in: boolean } | null;
   linkError?: { message: string; code?: string };
   invitation?: Record<string, unknown> | null;
-  openInvitation?: { id: string } | null;
+  openInvitation?: { id: string; project_id: string | null; role: string; expires_at: string } | null;
   otherOpen?: number;
+  /** gotrue's `invited_at` on the invitee's account (the last invite link). */
+  invitedAt?: string | null;
 };
 
 function fakeAdmin(opts: AdminOpts = {}) {
@@ -100,6 +106,7 @@ function fakeAdmin(opts: AdminOpts = {}) {
         },
   );
   const deleteUser = vi.fn(async (_id: string) => ({ data: {}, error: null }));
+  const getUserById = vi.fn(async (id: string) => ({ data: { user: { id, invited_at: opts.invitedAt ?? undefined } }, error: null }));
   const client = fakeClient(
     (table, ops) => {
       if (table === "invitations") {
@@ -116,7 +123,7 @@ function fakeAdmin(opts: AdminOpts = {}) {
     },
     (fn) => (fn === "invite_account_state" ? { data: opts.account ? [opts.account] : [] } : {}),
   );
-  return Object.assign(client, { auth: { admin: { generateLink, deleteUser } } });
+  return Object.assign(client, { auth: { admin: { generateLink, deleteUser, getUserById } } });
 }
 
 /** The manager's own (RLS) client: their account type, the project's client contact, its name, and the invitation. */
@@ -271,13 +278,125 @@ describe("inviteMemberHandler", () => {
   });
 
   it("renews the open invitation for the same email instead of adding a second one", async () => {
-    h.admin = fakeAdmin({ openInvitation: { id: INVITATION_ID } });
+    h.admin = fakeAdmin({ openInvitation: { id: INVITATION_ID, project_id: PROJECT_ID, role: "client", expires_at: future() } });
     await inviteMemberHandler({ projectId: PROJECT_ID, email: "new.client@example.com", role: "client", locale: "pl" }, ctx(fakeUser()));
     const admin = h.admin as ReturnType<typeof fakeAdmin>;
     expect(admin.queries.some((q) => q.table === "invitations" && has(q.ops, "insert"))).toBe(false);
     const update = admin.queries.find((q) => q.table === "invitations" && has(q.ops, "update"))!;
     expect(update.ops.find((op) => op.method === "update")!.args[0]).toMatchObject({ token_hash: sha256(TOKEN) });
     expect(has(update.ops, "eq", "id", INVITATION_ID)).toBe(true);
+  });
+
+  it("looks for the email's open invitation in every project, not just this one", async () => {
+    await inviteMemberHandler({ projectId: PROJECT_ID, email: "new.client@example.com", role: "client", locale: "pl" }, ctx(fakeUser()));
+    const lookup = (h.admin as ReturnType<typeof fakeAdmin>).queries.find(
+      (q) => q.table === "invitations" && has(q.ops, "eq", "email", "new.client@example.com"),
+    )!;
+    expect(lookup.ops.some((op) => op.method === "eq" && op.args[0] === "project_id")).toBe(false);
+    expect(has(lookup.ops, "is", "accepted_at", null) && has(lookup.ops, "is", "revoked_at", null)).toBe(true);
+  });
+
+  describe("one open invite per email", () => {
+    const OTHER_PROJECT = "b0000000-0000-4000-8000-000000000002";
+    const openIn = (project_id: string | null, role: "client" | "manager", expires_at = future()) => ({
+      id: INVITATION_ID,
+      project_id,
+      role,
+      expires_at,
+    });
+    const admin = () => h.admin as ReturnType<typeof fakeAdmin>;
+    const updates = () =>
+      admin()
+        .queries.filter((q) => q.table === "invitations" && has(q.ops, "update"))
+        .map((q) => q.ops.find((op) => op.method === "update")!.args[0] as Record<string, unknown>);
+    const inserted = () => admin().queries.some((q) => q.table === "invitations" && has(q.ops, "insert"));
+
+    it("decides: create, re-send, replace an expired one, or refuse", () => {
+      const req = (role: "client" | "manager") => ({ projectId: PROJECT_ID, role });
+      const open = (projectId: string | null, role: "client" | "manager", expired = false) => ({ projectId, role, expired });
+      expect(inviteDecision(null, req("client"))).toEqual({ action: "create" });
+      expect(inviteDecision(open(PROJECT_ID, "client"), req("client"))).toEqual({ action: "resend" });
+      expect(inviteDecision(open(PROJECT_ID, "manager"), req("manager"))).toEqual({ action: "resend" });
+      expect(inviteDecision(open(OTHER_PROJECT, "client"), req("client"))).toEqual({ action: "resend" });
+      expect(inviteDecision(open(OTHER_PROJECT, "client", true), req("client"))).toEqual({ action: "resend" });
+      expect(inviteDecision(open(OTHER_PROJECT, "manager"), req("manager"))).toEqual({
+        action: "refuse",
+        reason: "invite_pending_elsewhere",
+      });
+      expect(inviteDecision(open(null, "manager"), req("manager"))).toEqual({ action: "refuse", reason: "invite_pending_elsewhere" });
+      expect(inviteDecision(open(OTHER_PROJECT, "client"), req("manager"))).toEqual({
+        action: "refuse",
+        reason: "invite_pending_elsewhere",
+      });
+      expect(inviteDecision(open(OTHER_PROJECT, "manager"), req("client"))).toEqual({ action: "refuse", reason: "invite_pending_manager" });
+      expect(inviteDecision(open(PROJECT_ID, "client"), req("manager"))).toEqual({ action: "refuse", reason: "manager_is_project_client" });
+      expect(inviteDecision(open(PROJECT_ID, "manager"), req("client"))).toEqual({ action: "refuse", reason: "client_is_project_manager" });
+      expect(inviteDecision(open(PROJECT_ID, "client", true), req("manager"))).toEqual({
+        action: "refuse",
+        reason: "manager_is_project_client",
+      });
+      expect(inviteDecision(open(OTHER_PROJECT, "manager", true), req("manager"))).toEqual({ action: "replace" });
+      expect(inviteDecision(open(OTHER_PROJECT, "manager", true), req("client"))).toEqual({ action: "replace" });
+    });
+
+    it("a client invite re-sends the email's open client invite from another project, which moves here", async () => {
+      h.admin = fakeAdmin({ openInvitation: openIn(OTHER_PROJECT, "client") });
+      const result = await inviteMemberHandler(
+        { projectId: PROJECT_ID, email: "new.client@example.com", role: "client", locale: "en" },
+        ctx(fakeUser()),
+      );
+      expect(inserted()).toBe(false);
+      expect(updates()).toEqual([
+        expect.objectContaining({ project_id: PROJECT_ID, role: "client", invited_by: USER_ID, token_hash: sha256(TOKEN) }),
+      ]);
+      expect(result.id).toBe(INVITATION_ID);
+      expect(h.sent).toHaveLength(1);
+      expect(h.sent[0].to).toBe("new.client@example.com");
+    });
+
+    it("refuses a manager invite while another project's invite is pending, without touching that invite's link", async () => {
+      for (const open of [openIn(OTHER_PROJECT, "manager"), openIn(OTHER_PROJECT, "client"), openIn(null, "manager")]) {
+        h.admin = fakeAdmin({ openInvitation: open });
+        const error = await rejection(
+          inviteMemberHandler({ projectId: PROJECT_ID, email: "pm@example.com", role: "manager", locale: "en" }, ctx(fakeUser())),
+        );
+        expect(error.reason).toBe("invite_pending_elsewhere");
+        expect(admin().auth.admin.generateLink).not.toHaveBeenCalled();
+        expect(updates()).toEqual([]);
+        expect(inserted()).toBe(false);
+      }
+      expect(h.sent).toEqual([]);
+    });
+
+    it("never turns a pending client into a manager or the reverse", async () => {
+      h.admin = fakeAdmin({ openInvitation: openIn(PROJECT_ID, "client") });
+      const asManager = await rejection(
+        inviteMemberHandler({ projectId: PROJECT_ID, email: "new.client@example.com", role: "manager", locale: "en" }, ctx(fakeUser())),
+      );
+      expect(asManager.reason).toBe("manager_is_project_client");
+
+      h.admin = fakeAdmin({ openInvitation: openIn(OTHER_PROJECT, "manager") });
+      const asClient = await rejection(
+        inviteMemberHandler({ projectId: PROJECT_ID, email: "new.client@example.com", role: "client", locale: "en" }, ctx(fakeUser())),
+      );
+      expect(asClient.reason).toBe("invite_pending_manager");
+
+      h.admin = fakeAdmin({ openInvitation: openIn(PROJECT_ID, "manager") });
+      const sameProject = await rejection(
+        inviteMemberHandler({ projectId: PROJECT_ID, email: "new.client@example.com", role: "client", locale: "en" }, ctx(fakeUser())),
+      );
+      expect(sameProject.reason).toBe("client_is_project_manager");
+      expect(admin().auth.admin.generateLink).not.toHaveBeenCalled();
+      expect(h.sent).toEqual([]);
+    });
+
+    it("withdraws another project's expired invite, which nobody can accept, and creates a new one", async () => {
+      h.admin = fakeAdmin({ openInvitation: openIn(OTHER_PROJECT, "manager", past()) });
+      await inviteMemberHandler({ projectId: PROJECT_ID, email: "pm@example.com", role: "manager", locale: "en" }, ctx(fakeUser()));
+      expect(updates()).toEqual([{ revoked_at: expect.any(String) }]);
+      expect(inserted()).toBe(true);
+      expect(h.sent).toHaveLength(1);
+    });
   });
 
   it("only invites the project's client contact email as a client", async () => {
@@ -404,23 +523,70 @@ describe("renewInviteTokenHandler", () => {
     revoked_at: null,
   };
 
-  it("issues a fresh gotrue token for a pending invitation and points the row at it", async () => {
-    h.admin = fakeAdmin({ invitation: pending, account: { user_id: "u-new", confirmed: false, invited: true, signed_in: false } });
+  const unconfirmed = { user_id: "u-new", confirmed: false, invited: true, signed_in: false };
+  const hourAgo = () => new Date(Date.now() - 3_600_000).toISOString();
+
+  it("emails a fresh link to the invited address, points the row at it, and never returns the token", async () => {
+    h.admin = fakeAdmin({
+      invitation: { ...pending, project_id: PROJECT_ID, invited_by: USER_ID },
+      account: unconfirmed,
+      invitedAt: hourAgo(),
+    });
     const admin = h.admin as ReturnType<typeof fakeAdmin>;
     admin.auth.admin.generateLink.mockResolvedValueOnce({
       data: { properties: { hashed_token: NEW_TOKEN }, user: { id: "u-new" } },
       error: null,
     } as never);
-    expect(await renewInviteTokenHandler({ tokenHash: TOKEN })).toEqual({ status: "renewed", tokenHash: NEW_TOKEN });
+    const result = await renewInviteTokenHandler({ tokenHash: TOKEN, locale: "en" });
+    expect(result).toEqual({ status: "sent", email: "n•••@example.com" });
+    expect(JSON.stringify(result)).not.toContain(NEW_TOKEN);
+    expect(JSON.stringify(result)).not.toContain("new.client@");
+
+    expect(admin.auth.admin.generateLink).toHaveBeenCalledWith({ type: "invite", email: "new.client@example.com", options: undefined });
     const update = admin.queries.find((q) => q.table === "invitations" && has(q.ops, "update"))!;
     expect(update.ops.find((op) => op.method === "update")!.args[0]).toEqual({ token_hash: sha256(NEW_TOKEN) });
+
+    expect(h.sent).toHaveLength(1);
+    expect(h.sent[0]).toMatchObject({ to: "new.client@example.com", template: "invite", locale: "en" });
+    expect(h.sent[0].params).toMatchObject({
+      inviteUrl: `https://app.renovision.test/accept-invite?token_hash=${NEW_TOKEN}&type=invite`,
+      projectName: "Maple Street",
+      inviterName: "Jonas Weber",
+      role: "client",
+    });
+  });
+
+  it("sends nothing again within the cooldown of the last link, and says the same", async () => {
+    h.admin = fakeAdmin({ invitation: pending, account: unconfirmed, invitedAt: new Date(Date.now() - 60_000).toISOString() });
+    expect(await renewInviteTokenHandler({ tokenHash: TOKEN, locale: "pl" })).toEqual({ status: "sent", email: "n•••@example.com" });
+    expect((h.admin as ReturnType<typeof fakeAdmin>).auth.admin.generateLink).not.toHaveBeenCalled();
+    expect(h.sent).toEqual([]);
   });
 
   it("sends a confirmed invitee to sign in, and never renews a dead invitation", async () => {
     h.admin = fakeAdmin({ invitation: pending, account: { user_id: "u-new", confirmed: true, invited: true, signed_in: true } });
-    expect(await renewInviteTokenHandler({ tokenHash: TOKEN })).toEqual({ status: "needs_sign_in" });
-    h.admin = fakeAdmin({ invitation: { ...pending, expires_at: past() } });
-    expect(await renewInviteTokenHandler({ tokenHash: TOKEN })).toEqual({ status: "expired" });
-    expect((h.admin as ReturnType<typeof fakeAdmin>).auth.admin.generateLink).not.toHaveBeenCalled();
+    expect(await renewInviteTokenHandler({ tokenHash: TOKEN, locale: "en" })).toEqual({ status: "needs_sign_in" });
+    for (const [over, status] of [
+      [{ expires_at: past() }, "expired"],
+      [{ accepted_at: past() }, "used"],
+      [{ revoked_at: past() }, "revoked"],
+    ] as const) {
+      h.admin = fakeAdmin({ invitation: { ...pending, ...over }, account: unconfirmed });
+      expect(await renewInviteTokenHandler({ tokenHash: TOKEN, locale: "en" })).toEqual({ status });
+      expect((h.admin as ReturnType<typeof fakeAdmin>).auth.admin.generateLink).not.toHaveBeenCalled();
+    }
+    h.admin = fakeAdmin({ invitation: null });
+    expect(await renewInviteTokenHandler({ tokenHash: TOKEN, locale: "en" })).toEqual({ status: "invalid" });
+    expect(h.sent).toEqual([]);
+  });
+});
+
+describe("maskEmail", () => {
+  it("keeps the first letter and the domain", () => {
+    expect(maskEmail("jane.doe@example.com")).toBe("j•••@example.com");
+    expect(maskEmail("j@example.com")).toBe("j•••@example.com");
+    expect(maskEmail("not-an-email")).toBe("•••");
+    expect(maskEmail("@example.com")).toBe("•••");
+    expect(maskEmail("jane@")).toBe("•••");
   });
 });

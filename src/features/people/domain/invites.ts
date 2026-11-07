@@ -25,6 +25,47 @@ export function inviteStatus(row: InviteState | null | undefined, now: Date = ne
   return "pending";
 }
 
+/**
+ * How long after an invite email the accept page may have another one sent (renewing an expired link). Anyone holding
+ * a link can ask for a renewal, so this keeps it from being used to flood the invitee's inbox.
+ */
+export const RENEW_COOLDOWN_MINUTES = 10;
+
+/** "jane@example.com" → "j•••@example.com": enough for the invitee to recognise their address, not to learn it. */
+export function maskEmail(email: string): string {
+  const at = email.lastIndexOf("@");
+  if (at < 1 || at === email.length - 1) return "•••";
+  return `${email[0]}•••${email.slice(at)}`;
+}
+
+/** The email's open (not accepted, not withdrawn) invitation: there is at most one per email, across projects. */
+export type OpenInvitation = { projectId: string | null; role: InviteRole; expired: boolean };
+
+export type InviteRefusal =
+  "invite_pending_elsewhere" | "invite_pending_manager" | "manager_is_project_client" | "client_is_project_manager";
+
+export type InviteDecision = { action: "create" | "resend" | "replace" } | { action: "refuse"; reason: InviteRefusal };
+
+/**
+ * What inviting an email to a project does, given the email's open invitation:
+ * - `create`: there is none;
+ * - `resend`: the same invitation gets a new link and expiry. A client invite takes over the email's open client
+ *   invitation from any project (client access follows the email, T35, so the invitee sees every project they're the
+ *   client of either way); the invitation moves to the project that sent it last;
+ * - `replace`: an expired invitation from another project, which nobody can accept any more, is withdrawn first;
+ * - `refuse`: anything that would turn a pending client into a manager or the reverse, or take over another project's
+ *   manager invite. The invitee joins with the invite they have; a manager adds them afterwards.
+ */
+export function inviteDecision(open: OpenInvitation | null, request: { projectId: string; role: InviteRole }): InviteDecision {
+  if (!open) return { action: "create" };
+  if (open.role === request.role && (open.projectId === request.projectId || request.role === "client")) return { action: "resend" };
+  if (open.projectId === request.projectId) {
+    return { action: "refuse", reason: request.role === "manager" ? "manager_is_project_client" : "client_is_project_manager" };
+  }
+  if (open.expired) return { action: "replace" };
+  return { action: "refuse", reason: request.role === "manager" ? "invite_pending_elsewhere" : "invite_pending_manager" };
+}
+
 /** The expiry of an invite sent at `now`. */
 export const inviteExpiry = (now: Date = new Date()) => new Date(now.getTime() + INVITE_TTL_DAYS * 86_400_000);
 
@@ -89,6 +130,8 @@ export const INVITE_ERRORS = [
   "staff_required",
   "manager_is_project_client",
   "not_signed_in",
+  "invite_pending_elsewhere",
+  "invite_pending_manager",
 ] as const;
 
 export type InviteError = (typeof INVITE_ERRORS)[number];

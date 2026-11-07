@@ -28,7 +28,19 @@
   },
   "security": {
     "title": "Bezpieczeństwo",
-    "summary": "Hasło i uwierzytelnianie dwuskładnikowe"
+    "summary": "E-mail, hasło i uwierzytelnianie dwuskładnikowe"
+  },
+  "email": {
+    "title": "Adres e-mail",
+    "description": "Logujesz się tym adresem i na niego wysyłamy wiadomości z RenoVision.",
+    "current": "Obecny adres",
+    "new": "Nowy adres e-mail",
+    "submit": "Zmień adres e-mail",
+    "submitting": "Wysyłamy…",
+    "same": "To już jest Twój adres e-mail",
+    "inUse": "Ten adres e-mail ma już konto RenoVision.",
+    "pending": "Sprawdź obie skrzynki: wysłaliśmy link potwierdzający na {{current}} i na {{next}}. Adres zmieni się, gdy otworzysz oba linki.",
+    "partial": "Jeden adres jest potwierdzony. Otwórz link w drugiej skrzynce, aby zmienić adres na {{email}}."
   },
   "password": {
     "title": "Hasło",

@@ -5,7 +5,8 @@
 //   resendInvite      project manager: a new link for a pending invitation
 //   revokeInvite      project manager: withdraws a pending invitation
 //   lookupInvite      anyone with the link: what the accept page shows (pending / expired / used / revoked / invalid)
-//   renewInviteToken  anyone with the link: a fresh gotrue token when only gotrue's (shorter-lived) one expired
+//   renewInviteToken  anyone with the link: when only gotrue's (shorter-lived) token expired, emails a fresh link to
+//                     the invited address (never returns it)
 //
 // Accepting is the `accept_invitation` RPC, called by the invitee from the browser once the link signed them in.
 // Sending functions carry the `invite` and `email` rate limits; the public ones are limited per IP.
@@ -50,6 +51,6 @@ export const lookupInvite = publicFn({ method: "POST" })
   .handler(async ({ data }) => lookupInviteHandler(data));
 
 export const renewInviteToken = publicFn({ method: "POST" })
-  .middleware([rateLimit({ key: "invite" })])
-  .validator(tokenInput)
+  .middleware([rateLimit({ key: "invite" }), rateLimit({ key: "email" })])
+  .validator(tokenInput.extend({ locale: z.enum(LOCALES) }))
   .handler(async ({ data }) => renewInviteTokenHandler(data));

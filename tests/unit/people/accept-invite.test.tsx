@@ -1,19 +1,19 @@
-// The accept-invite flow (T40): verify the link's token (renewing gotrue's token when only that expired), set the
-// password and metadata, accept through the RPC; dead ends become translated statuses on /accept-invite.
+// The accept-invite flow (T40): verify the link's token, set the password and metadata, accept through the RPC; dead
+// ends become translated statuses on /accept-invite. T70: when only gotrue's token expired, the server emails a new
+// link to the invited address; the page says so (masked) and never signs in with a token it was handed.
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 const TOKEN = "a".repeat(56);
-const NEW_TOKEN = "b".repeat(56);
 
 const h = vi.hoisted(() => ({
   verifyLink: vi.fn(async (_token: string) => {}),
   saveAccount: vi.fn(async (_input: unknown) => {}),
   accept: vi.fn(async (_input: { tokenHash: string }) => "b0000000-0000-4000-8000-000000000001" as string | null),
   sessionEmail: vi.fn(async () => null as string | null),
-  renewInviteToken: vi.fn(async (_args: unknown) => ({ status: "renewed", tokenHash: "b".repeat(56) }) as Record<string, unknown>),
+  renewInviteToken: vi.fn(async (_args: unknown) => ({ status: "sent", email: "s•••@example.com" }) as Record<string, unknown>),
   lookupInvite: vi.fn(async (_args: unknown) => ({ status: "expired" }) as Record<string, unknown>),
 }));
 
@@ -79,14 +79,15 @@ describe("acceptInvite", () => {
     expect(h.renewInviteToken).not.toHaveBeenCalled();
   });
 
-  it("renews gotrue's expired token while the invitation is still pending, and accepts with the new one", async () => {
+  it("has a new link emailed to the invitee when gotrue's token expired, and stops there", async () => {
     h.verifyLink.mockImplementationOnce(async () => {
       throw authError("otp_expired");
     });
-    expect(await acceptInvite(input)).toMatchObject({ status: "accepted" });
-    expect(h.renewInviteToken).toHaveBeenCalledWith({ data: { tokenHash: TOKEN } });
-    expect(h.verifyLink).toHaveBeenLastCalledWith(NEW_TOKEN);
-    expect(h.accept).toHaveBeenCalledWith(expect.objectContaining({ tokenHash: NEW_TOKEN }));
+    expect(await acceptInvite(input)).toEqual({ status: "link_sent", email: "s•••@example.com" });
+    expect(h.renewInviteToken).toHaveBeenCalledWith({ data: { tokenHash: TOKEN, locale: "en" } });
+    expect(h.verifyLink).toHaveBeenCalledTimes(1);
+    expect(h.saveAccount).not.toHaveBeenCalled();
+    expect(h.accept).not.toHaveBeenCalled();
   });
 
   it("stops at the renewal's answer: needs sign-in, expired, used", async () => {
@@ -172,5 +173,29 @@ describe("InviteAcceptScreen", () => {
     expect(screen.getByLabelText("New password")).toBeInTheDocument();
     expect(screen.getByRole("checkbox")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Accept and continue" })).toBeInTheDocument();
+  });
+
+  it("says where the new link went when the link's token had expired", async () => {
+    h.lookupInvite.mockResolvedValueOnce({
+      status: "pending",
+      email: "sarah@example.com",
+      role: "client",
+      projectName: "Maple Street",
+      inviterName: "Jonas Weber",
+    });
+    h.verifyLink.mockImplementationOnce(async () => {
+      throw authError("otp_expired");
+    });
+    renderScreen(TOKEN);
+    fireEvent.change(await screen.findByLabelText("Your name"), { target: { value: "Sarah Bennett" } });
+    fireEvent.change(screen.getByLabelText("New password"), { target: { value: "renovation2026" } });
+    fireEvent.change(screen.getByLabelText("Repeat the new password"), { target: { value: "renovation2026" } });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Accept and continue" }));
+    expect(
+      await screen.findByText("This link has expired, so we've sent a new one to s•••@example.com. Open it from that email to finish."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Accept and continue" })).not.toBeInTheDocument();
+    expect(h.accept).not.toHaveBeenCalled();
   });
 });

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/page-header";
 import { AccountCard } from "@/features/settings/ui/account-card";
+import { ChangeEmailCard } from "@/features/settings/ui/change-email-card";
 import { ChangePasswordCard } from "@/features/settings/ui/change-password-card";
 import { SettingsBackLink } from "@/features/settings/ui/settings-nav";
 import { TwoFactorCard } from "@/features/settings/ui/two-factor-card";
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_authed/settings/security")({
   component: SecurityPage,
 });
 
-/** /settings/security: 2FA, the password, and the session as the server sees it. */
+/** /settings/security: 2FA, the login email, the password, and the session as the server sees it. */
 function SecurityPage() {
   const { t } = useTranslation("settings");
   return (
@@ -20,6 +21,7 @@ function SecurityPage() {
       <PageHeader title={t("security.title")} />
       <div className="mt-6 flex max-w-md flex-col gap-4">
         <TwoFactorCard />
+        <ChangeEmailCard />
         <ChangePasswordCard />
         <AccountCard />
       </div>

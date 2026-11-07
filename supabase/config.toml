@@ -45,6 +45,11 @@ email_sent = 30
 enable_confirmations = true
 # Changing the password needs a recent sign-in (reauthentication nonce otherwise).
 secure_password_change = true
+# Secure email change (T70, Settings → Security): the current and the new address both get a confirmation link, and
+# the login email changes once both are opened. Hosted projects: Authentication → Providers → Email → "Secure email
+# change" (on by default; `bun run auth:push` doesn't set it). The links land on /settings/security, which the
+# `<origin>/**` redirect allow-list already covers.
+double_confirm_changes = true
 
 # Localized (pl default, en via user_metadata.locale) HTML templates for every auth email Supabase
 # Auth sends itself (no send-email hook — see README -> Email). `content_path` is relative to the repo
