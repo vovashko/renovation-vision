@@ -62,7 +62,8 @@
   "quickActions": {
     "label": "Szybkie akcje",
     "uploadPhoto": "Dodaj zdjęcie",
-    "addExpense": "Dodaj wydatek"
+    "addExpense": "Dodaj wydatek",
+    "addDiaryEntry": "Wpis w dzienniku"
   },
   "confirm": {
     "title": "Czy na pewno?",

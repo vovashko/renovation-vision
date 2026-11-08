@@ -32,6 +32,15 @@ vi.mock("@/features/budget/ui/expense-sheet", () => ({
     ) : null,
 }));
 
+vi.mock("@/features/work/ui/diary-entry-sheet", () => ({
+  DiaryEntrySheet: ({ entry, onClose }: { entry: "new" | null; onClose: () => void }) =>
+    entry ? (
+      <div role="dialog" aria-label="diary-sheet-stub">
+        <button onClick={onClose}>close diary</button>
+      </div>
+    ) : null,
+}));
+
 const mockedUseNavRole = vi.mocked(useNavRole);
 const mockedUseParams = vi.mocked(useParams);
 const mockedUseRouterState = vi.mocked(useRouterState);
@@ -82,5 +91,13 @@ describe("QuickActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Quick actions" }));
     fireEvent.click(await screen.findByRole("button", { name: "Add expense" }));
     expect(await screen.findByLabelText("expense-sheet-stub")).toBeInTheDocument();
+  });
+
+  it("opens the diary entry form from the menu", async () => {
+    setUp({ role: "manager", path: "/projects/p1", projectId: "p1" });
+    render(<QuickActions />);
+    fireEvent.click(screen.getByRole("button", { name: "Quick actions" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Diary entry" }));
+    expect(await screen.findByLabelText("diary-sheet-stub")).toBeInTheDocument();
   });
 });

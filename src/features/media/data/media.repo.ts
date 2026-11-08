@@ -6,7 +6,13 @@ import { supabase, MEDIA_BUCKET } from "@/lib/supabase";
 import { fileExt } from "@/domain/text";
 import type { Photo, Render } from "@/lib/database.types";
 
-export type PhotoMeta = { stage_id: string | null; task_id: string | null; room_id: string | null; caption: string };
+export type PhotoMeta = {
+  stage_id: string | null;
+  task_id: string | null;
+  room_id: string | null;
+  caption: string;
+  /** Links the photo to a site diary entry (T43). */ progress_entry_id?: string | null;
+};
 /** A file ready to upload, plus its EXIF capture date (null when it has none — the caller then uses "now"). */
 export type PhotoUploadItem = { file: File; takenAt: string | null };
 export type PhotoPatch = Partial<Pick<Photo, "caption" | "alt" | "stage_id" | "task_id" | "room_id" | "status">>;
@@ -69,6 +75,7 @@ async function uploadPhotos(projectId: string, items: PhotoUploadItem[], meta: P
         stage_id: meta.stage_id,
         task_id: meta.task_id,
         room_id: meta.room_id,
+        progress_entry_id: meta.progress_entry_id ?? null,
         caption: meta.caption,
         alt: meta.caption || file.name,
         uploaded_by: uid,

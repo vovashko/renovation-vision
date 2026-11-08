@@ -19,6 +19,7 @@ import { UploadSheet } from "@/features/media/ui/photo-upload-sheet";
 import { PhotoThumbs } from "@/features/media/ui/photo-thumbs";
 import { StageCardSkeleton } from "@/components/ui/skeleton";
 import { useRooms, useStages, useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks";
+import { DiarySection } from "@/features/work/ui/diary-section";
 import { ChangeRequestSection } from "@/features/change-requests/ui/change-request-section";
 import type { ChangeRequestPlace } from "@/features/change-requests/domain/status";
 import { useProject } from "@/features/projects/hooks";
@@ -216,6 +217,10 @@ function ProgressPage() {
             </StageRowList>
           </>
         )}
+
+        <div className="mt-10">
+          <DiarySection projectId={projectId} stages={stages} rooms={rooms} isManager={isManager} />
+        </div>
 
         {project && (
           <div className="mt-10">

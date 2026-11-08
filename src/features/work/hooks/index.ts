@@ -12,3 +12,4 @@ export {
   useDeleteWarning,
 } from "./room-view";
 export { useSaveStage, useDeleteStage, useSaveTask, useDeleteTask, useSaveRoom, useDeleteRoom } from "./mutations";
+export { diaryQuery, useDiaryEntries, useDiaryMaterials, useSaveDiaryEntry, useDeleteDiaryEntry } from "./diary";

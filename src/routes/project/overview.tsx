@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Note } from "@/components/ui/note";
 import { ProjectHeader } from "@/features/work/ui/project-header";
 import { OverviewStats } from "@/features/work/ui/overview-stats";
+import { DiarySiteCard } from "@/features/work/ui/diary-site-card";
 import { StageTimeline } from "@/features/work/ui/stage-timeline";
 import { FloorPlan } from "@/features/work/ui/floor-plan";
 import { SelectedRoomPanel } from "@/features/work/ui/selected-room-panel";
@@ -106,6 +107,8 @@ function ClientOverview({ projectId }: { projectId: string }) {
       <OverviewStats project={project} stages={stages} />
 
       <YourContactCard projectId={projectId} />
+
+      <DiarySiteCard projectId={projectId} />
 
       <section aria-labelledby="stage-timeline">
         <div className="mb-3 flex items-end justify-between gap-3">
