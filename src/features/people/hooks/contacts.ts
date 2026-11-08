@@ -19,6 +19,14 @@ export const useContacts = () => useQuery({ queryKey: keys.contacts, queryFn: ()
 export const useContactLinks = (contactId: string | undefined) =>
   useQuery({ queryKey: keys.contactLinks(contactId ?? ""), queryFn: () => peopleRepo.listContactLinks(contactId!), enabled: !!contactId });
 
+/** Every project a contact is on (also the ones the caller can't see) and the ones they manage: the delete guard. */
+export const useContactLinkSummary = (contactId: string | undefined) =>
+  useQuery({
+    queryKey: keys.contactLinkSummary(contactId ?? ""),
+    queryFn: () => peopleRepo.contactLinkSummary(contactId!),
+    enabled: !!contactId,
+  });
+
 /** Search text, kind and trade filters over the loaded book, with the matching contacts and the trade options. */
 export function useContactFilters(contacts: Contact[]) {
   const [filters, setFilters] = useState<ContactFilters>(NO_FILTERS);
@@ -72,6 +80,7 @@ export function useAssignContact(contactId: string) {
     {
       invalidate: (vars) => [
         keys.contactLinks(contactId),
+        keys.contactLinkSummary(contactId),
         keys.projectContacts(vars.projectId),
         keys.visibleContacts(vars.projectId),
         keys.activity(vars.projectId),
@@ -88,6 +97,7 @@ export function useUnassignContact(contactId: string) {
   return useMutationWithToast((link: ContactLink) => peopleRepo.unlinkProjectContact(link.id), {
     invalidate: (link) => [
       keys.contactLinks(contactId),
+      keys.contactLinkSummary(contactId),
       keys.projectContacts(link.project_id),
       keys.visibleContacts(link.project_id),
       keys.activity(link.project_id),
@@ -99,6 +109,11 @@ export function useUnassignContact(contactId: string) {
 /** Shows or hides a project contact on the client's "Your contact" card. */
 export function useSetLinkVisible(contactId: string) {
   return useMutationWithToast((vars: { link: ContactLink; visible: boolean }) => peopleRepo.setLinkVisible(vars.link.id, vars.visible), {
-    invalidate: ({ link }) => [keys.contactLinks(contactId), keys.projectContacts(link.project_id), keys.visibleContacts(link.project_id)],
+    invalidate: ({ link }) => [
+      keys.contactLinks(contactId),
+      keys.contactLinkSummary(contactId),
+      keys.projectContacts(link.project_id),
+      keys.visibleContacts(link.project_id),
+    ],
   });
 }

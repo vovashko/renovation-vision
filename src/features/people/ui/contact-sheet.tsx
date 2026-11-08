@@ -12,7 +12,7 @@ import { useZodForm } from "@/shared/hooks/use-zod-form";
 import type { Contact } from "@/lib/database.types";
 import { CONTACT_KINDS, deleteBlockedBy } from "../domain/contact-book";
 import { contactFormSchema, emptyContact, type ContactFormValues } from "../domain/schemas";
-import { useContactLinks, useDeleteContact, useSaveContact } from "../hooks/contacts";
+import { useContactLinkSummary, useDeleteContact, useSaveContact } from "../hooks/contacts";
 import { ContactProjects } from "./contact-projects";
 
 function contactToForm(c: Contact): ContactFormValues {
@@ -75,14 +75,16 @@ export function DeleteContact({ contact, onDeleted }: { contact: Contact; onDele
   const { t } = useTranslation(["people"]);
   const confirm = useConfirm();
   const remove = useDeleteContact();
-  const { data: links, isLoading } = useContactLinks(contact.id);
-  const guard = deleteBlockedBy(links ?? []);
-  const projects = [...new Set(guard.links.map((l) => l.project?.name ?? t("contacts.unknownProject")))].join(", ");
+  const { data: summary, isLoading } = useContactLinkSummary(contact.id);
+  const guard = deleteBlockedBy(summary ?? { total: 0, managed: [] });
   return (
     <div className="space-y-2">
       {guard.blocked && (
         <Note size="sm" role="status">
-          {t("contacts.deleteBlocked", { projects })}
+          <p>{t("contacts.deleteBlocked", { count: guard.total, managed: guard.managed.length })}</p>
+          {guard.managed.length > 0 && (
+            <p className="mt-1">{t("contacts.deleteBlockedProjects", { projects: guard.managed.join(", ") })}</p>
+          )}
         </Note>
       )}
       <Button

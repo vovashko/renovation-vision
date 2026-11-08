@@ -18,6 +18,7 @@ const contact = (over: Partial<Contact> & { id: string; full_name: string }): Co
 const h = vi.hoisted(() => ({
   contacts: [] as Contact[],
   links: {} as Record<string, unknown[]>,
+  summaries: {} as Record<string, { total: number; managed: { project_id: string; name: string; role: string }[] }>,
   assignContact: vi.fn(async (..._args: unknown[]) => {}),
   deleteContact: vi.fn(async (..._args: unknown[]) => {}),
 }));
@@ -26,6 +27,7 @@ vi.mock("@/features/people/data/people.repo", () => ({
   peopleRepo: {
     listContacts: async () => h.contacts,
     listContactLinks: async (id: string) => h.links[id] ?? [],
+    contactLinkSummary: async (id: string) => h.summaries[id] ?? { total: 0, managed: [] },
     assignContact: h.assignContact,
     deleteContact: h.deleteContact,
     createContact: vi.fn(),
@@ -76,6 +78,7 @@ beforeEach(() => {
     contact({ id: "c4", full_name: "Sarah Bennett", kind: "client", email: "sarah@renovision.demo" }),
   ];
   h.links = {};
+  h.summaries = {};
   h.assignContact.mockClear();
   h.deleteContact.mockClear();
 });
@@ -142,7 +145,7 @@ describe("ContactsPage: list, search and filters", () => {
 });
 
 describe("ContactsPage: delete guard", () => {
-  it("refuses to delete a contact that is on a project and names the project", async () => {
+  it("refuses to delete a contact that is on a project and counts every project, even ones the manager can't see", async () => {
     h.links = {
       c1: [
         {
@@ -155,9 +158,13 @@ describe("ContactsPage: delete guard", () => {
         },
       ],
     };
+    h.summaries = { c1: { total: 3, managed: [{ project_id: "p1", name: "Maple Street", role: "crew" }] } };
     renderPage();
     fireEvent.click(await screen.findByRole("button", { name: "Edit Marek Nowak" }));
-    expect(await screen.findByText(/Maple Street: remove this contact from these projects/)).toBeInTheDocument();
+    expect(
+      await screen.findByText("Linked to 3 projects (1 you manage). Remove this contact from them before deleting."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Your projects: Maple Street.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Delete contact" })).toBeDisabled();
     expect(h.deleteContact).not.toHaveBeenCalled();
   });

@@ -1,6 +1,7 @@
 // The only file in `features/people` that talks to Supabase: project members, and the project's
 // contacts (`project_contacts` links to the company-wide `contacts` book).
 import { supabase } from "@/lib/supabase";
+import type { ContactLinkSummary } from "../domain/contact-book";
 import type { Contact, ContactKind, Member, ProjectContact, ProjectContactRole, ProjectRole, VisibleContact } from "@/lib/database.types";
 
 /** The editable fields of an address-book entry (null clears one). */
@@ -147,6 +148,11 @@ export const peopleRepo = {
         .eq("contact_id", contactId)
         .order("created_at"),
     ) as unknown as Promise<ContactLink[]>;
+  },
+
+  /** How many projects a contact is on (all of them) and which of those the caller manages. Staff only. */
+  async contactLinkSummary(contactId: string): Promise<ContactLinkSummary> {
+    return must(sb().rpc("contact_project_links", { p_contact: contactId })) as Promise<ContactLinkSummary>;
   },
 
   /** Adds a contact to the book (not to any project). */

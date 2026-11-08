@@ -41,6 +41,8 @@ export const keys = {
   contacts: ["contacts"] as const,
   /** The projects one contact is linked to, with their roles. */
   contactLinks: (contactId: string) => ["contacts", contactId, "links"] as const,
+  /** How many projects a contact is on, and which of them the caller manages (the delete guard). */
+  contactLinkSummary: (contactId: string) => ["contacts", contactId, "linkSummary"] as const,
   /** The signed-in user as the server sees them (`getMe`), per user id. */
   me: (userId: string) => ["me", userId] as const,
 };

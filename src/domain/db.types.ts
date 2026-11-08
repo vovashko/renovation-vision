@@ -899,6 +899,9 @@ isOneToOne: true
         isOneToOne: false
         isSetofReturn: true
       } },
+"contact_project_links":
+{ Args: { "p_contact": string }; Returns: Json
+                           },
 "create_decision":
 { Args: { "p_cost_delta": number,"p_days_delta": number,"p_description": string,"p_project": string,"p_stage"?: string,"p_title": string }; Returns: string
                            },

@@ -107,7 +107,8 @@
     "not_project_manager": "Mogą to zrobić tylko kierownicy projektu.",
     "mfa_required": "Wymagana jest weryfikacja dwuskładnikowa.",
     "account_not_found": "Żadne konto RenoVision nie używa tego e-maila. Poproś tę osobę o założenie konta.",
-    "already_assigned": "Ten kontakt ma już tę rolę w projekcie."
+    "already_assigned": "Ten kontakt ma już tę rolę w projekcie.",
+    "contact_linked": "Ten kontakt jest nadal w projekcie. Najpierw usuń go ze wszystkich projektów."
   },
   "invite": {
     "sent": "Wysłano zaproszenie do {{email}}",
@@ -234,7 +235,6 @@
     "saved": "Zapisano: {{name}}",
     "deleted": "Usunięto: {{name}}",
     "delete": "Usuń kontakt",
-    "deleteBlocked": "{{projects}}: usuń ten kontakt z tych projektów, zanim go skasujesz.",
     "deleteConfirmTitle": "Usunąć kontakt: {{name}}?",
     "deleteConfirmDescription": "Zostanie na stałe usunięty z książki kontaktów.",
     "unknownProject": "Inny projekt",
@@ -253,6 +253,12 @@
     "clientRoleNote": "Aby ustawić klienta projektu, użyj karty klienta na przeglądzie projektu.",
     "errors": {
       "whatsapp": "Użyj formatu międzynarodowego, np. +48600100200"
-    }
+    },
+    "deleteBlocked_one": "Powiązany z {{count}} projektem (Twoich: {{managed}}). Usuń go z projektu przed skasowaniem.",
+    "deleteBlocked_few": "Powiązany z {{count}} projektami (Twoich: {{managed}}). Usuń go z projektów przed skasowaniem.",
+    "deleteBlocked_many": "Powiązany z {{count}} projektami (Twoich: {{managed}}). Usuń go z projektów przed skasowaniem.",
+    "deleteBlocked_other": "Powiązany z {{count}} projektu (Twoich: {{managed}}). Usuń go z projektów przed skasowaniem.",
+    "deleteBlockedProjects": "Twoje projekty: {{projects}}.",
+    "_err": "Ten kontakt jest nadal w projekcie. Najpierw usuń go ze wszystkich projektów."
   }
 }

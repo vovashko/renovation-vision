@@ -15,6 +15,7 @@ const KNOWN = [
   "not_project_manager",
   "mfa_required",
   "account_not_found",
+  "contact_linked",
 ] as const;
 
 /** The machine-readable code of an error: an RPC's `hint`, or a server function's `reason`. */

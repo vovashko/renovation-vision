@@ -94,12 +94,21 @@ describe("filterContacts: kind and trade", () => {
 
 describe("the delete guard", () => {
   it("allows deleting a contact with no projects", () => {
-    expect(deleteBlockedBy([])).toEqual({ blocked: false, links: [] });
+    expect(deleteBlockedBy({ total: 0, managed: [] })).toEqual({ blocked: false, total: 0, managed: [], hidden: 0 });
   });
 
-  it("blocks a contact that is on a project and returns the links to name", () => {
-    const links = [{ project_id: "p1" }, { project_id: "p2" }];
-    expect(deleteBlockedBy(links)).toEqual({ blocked: true, links });
+  it("blocks a contact that is on a project and names the ones the caller manages", () => {
+    const managed = [
+      { project_id: "p1", name: "Maple Street", role: "crew" as const },
+      { project_id: "p1", name: "Maple Street", role: "poc" as const },
+    ];
+    expect(deleteBlockedBy({ total: 2, managed })).toEqual({ blocked: true, total: 2, managed: ["Maple Street"], hidden: 0 });
+  });
+
+  it("blocks on links the caller can't see, and counts them", () => {
+    const managed = [{ project_id: "p1", name: "Maple Street", role: "crew" as const }];
+    expect(deleteBlockedBy({ total: 3, managed })).toMatchObject({ blocked: true, total: 3, hidden: 2 });
+    expect(deleteBlockedBy({ total: 1, managed: [] })).toMatchObject({ blocked: true, managed: [], hidden: 1 });
   });
 });
 

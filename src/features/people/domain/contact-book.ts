@@ -70,12 +70,17 @@ export function tradesOf(contacts: Contact[]): string[] {
 
 export const hasFilters = (f: ContactFilters) => f.query.trim() !== "" || f.kind !== "" || f.trade !== "";
 
+/** What `contact_project_links` returns: every link on every project, and the projects the caller manages. */
+export type ContactLinkSummary = { total: number; managed: { project_id: string; name: string; role: ProjectContactRole }[] };
+
 /**
- * Deleting a contact removes it from every project it is on (and, for a client, that project's access), so the
- * page refuses while it is linked and tells the manager which projects to remove it from first.
+ * Deleting a contact would remove it from every project it is on (and, for a client, that project's access), so the
+ * page refuses while it is linked anywhere. `hidden` counts links on projects the caller doesn't manage: they can't
+ * be named, and the database refuses the delete for them too (`contact_linked`).
  */
-export function deleteBlockedBy<T extends { project_id: string }>(links: T[]): { blocked: boolean; links: T[] } {
-  return { blocked: links.length > 0, links };
+export function deleteBlockedBy(summary: ContactLinkSummary): { blocked: boolean; total: number; managed: string[]; hidden: number } {
+  const managed = [...new Set(summary.managed.map((l) => l.name))];
+  return { blocked: summary.total > 0, total: summary.total, managed, hidden: Math.max(0, summary.total - summary.managed.length) };
 }
 
 /** Roles still free for a contact on a project: the ones it doesn't already hold there. */
