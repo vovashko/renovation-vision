@@ -79,6 +79,8 @@
     "editTitle": "Edytuj etap",
     "description": "Daty, status i postęp pojawiają się na osi czasu klienta.",
     "name": "Nazwa etapu",
+    "plannedCost": "Koszt planowany",
+    "plannedCostHint": "Klient widzi na stronie Budżet koszt planowany i wydany dla widocznych etapów.",
     "start": "Początek",
     "end": "Koniec",
     "status": "Status",
@@ -221,7 +223,30 @@
     "add": "Dodaj materiał",
     "addTitle": "Dodaj materiał",
     "editTitle": "Edytuj materiał",
-    "formDescription": "Ilość, status i terminy. Ceny zostają w Budżecie i nigdy nie są widoczne dla klienta.",
+    "formDescription": "Ilość, cena, status i terminy. Cena jest wewnętrzna i nigdy nie jest widoczna dla klienta.",
+    "delivered": {
+      "action": "Oznacz „{{name}}” jako dostarczone i dodaj wydatek",
+      "title": "Dostarczono: {{name}}",
+      "description": "Oznacza {{quantity}} {{unit}} jako dostarczone i dodaje wydatek w kategorii Materiały. Zmień kwotę, jeśli faktura jest inna.",
+      "amount": "Kwota wydatku",
+      "date": "Data wydatku",
+      "confirm": "Oznacz jako dostarczone i dodaj wydatek",
+      "saved": "Oznaczono jako dostarczone, wydatek dodany"
+    },
+    "project": {
+      "heading": "Materiały we wszystkich pomieszczeniach",
+      "empty": "Brak materiałów. Dodaj je w pomieszczeniu.",
+      "material": "Materiał",
+      "room": "Pomieszczenie",
+      "noRoom": "Bez pomieszczenia",
+      "quantity": "Ilość",
+      "unitPrice": "Cena jedn.",
+      "total": "Razem",
+      "status": "Status",
+      "expense": "Wydatek",
+      "paid": "Opłacony",
+      "markDelivered": "Oznacz jako dostarczone"
+    },
     "edit": "Edytuj: {{name}}",
     "remove": "Usuń: {{name}}",
     "removeConfirmTitle": "Usunąć „{{name}}”?",
@@ -242,6 +267,8 @@
       "name": "Materiał",
       "quantity": "Ilość",
       "unit": "Jednostka",
+      "unitPrice": "Cena za {{unit}} (wewnętrzna)",
+      "unitPriceHint": "Nigdy nie jest pokazywana klientowi. Zamówione i dostarczone materiały liczą się jako zobowiązania, dopóki nie mają wydatku.",
       "status": "Status",
       "orderBy": "Najpóźniej zamówić do",
       "orderByHint": "Na czerwono, dopóki materiał nie zostanie zamówiony.",
@@ -272,7 +299,8 @@
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} nie może być oznaczone jako ukończone, gdy zadania są otwarte: {{tasks}}.",
-    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań."
+    "roomDoneReopenTask": "To pomieszczenie jest oznaczone jako ukończone — zmień jego status przed dodaniem lub ponownym otwarciem zadań.",
+    "materialHasExpense": "Ten materiał ma już wydatek."
   },
   "diary": {
     "title": "Dziennik",

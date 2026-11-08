@@ -11,13 +11,15 @@ import { MaterialsImportButton } from "@/features/import/ui/import-button";
 import { ExpenseSheet } from "@/features/budget/ui/expense-sheet";
 import { BudgetStats } from "@/features/budget/ui/budget-stats";
 import { ClientBudgetView } from "@/features/budget/ui/client-budget-view";
+import { CostBreakdownSection } from "@/features/budget/ui/cost-breakdown";
 import { ExpenseTable } from "@/features/budget/ui/expense-table";
 import { InternalNotes } from "@/features/budget/ui/internal-notes";
 import { useExpenses, useOpenReceipt } from "@/features/budget/hooks/use-expenses";
 import { ChangeRequestSection } from "@/features/change-requests/ui/change-request-section";
 import type { ChangeRequestPlace } from "@/features/change-requests/domain/status";
 import { useProject } from "@/features/projects/hooks";
-import { useStages } from "@/features/work/hooks";
+import { useRooms, useStages } from "@/features/work/hooks";
+import { ProjectMaterials } from "@/features/work/ui/project-materials";
 import { budgetSummary } from "@/domain/budget";
 import type { Expense, ProjectSummary, Stage } from "@/lib/database.types";
 
@@ -64,6 +66,7 @@ function ClientBudget({ project, stages }: { project: ProjectSummary; stages: St
   const requestSearch = useRequestSearch();
   return (
     <ClientBudgetView project={project}>
+      <CostBreakdownSection projectId={project.id} currency={project.currency} isManager={false} />
       <ChangeRequestSection
         projectId={project.id}
         place={PLACE}
@@ -79,6 +82,7 @@ function ClientBudget({ project, stages }: { project: ProjectSummary; stages: St
 function ManagerBudget({ projectId, project, stages }: { projectId: string; project: ProjectSummary; stages: Stage[] }) {
   const { t } = useTranslation(["budget"]);
   const { data: expenses, isLoading } = useExpenses(projectId);
+  const { data: rooms = [] } = useRooms(projectId);
   const [editing, setEditing] = useState<Expense | "new" | null>(null);
   const openReceipt = useOpenReceipt();
   const requestSearch = useRequestSearch();
@@ -104,6 +108,10 @@ function ManagerBudget({ projectId, project, stages }: { projectId: string; proj
 
       <BudgetStats project={project} budget={budget} />
       <Progress value={budget.usedPct} tone={budget.over ? "blocked" : "progress"} className="h-3" />
+
+      <CostBreakdownSection projectId={projectId} currency={project.currency} isManager />
+
+      <ProjectMaterials projectId={projectId} rooms={rooms} currency={project.currency} />
 
       <ChangeRequestSection projectId={projectId} place={PLACE} project={impactOf(project)} isManager stages={stages} {...requestSearch} />
 

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
 import { translateWorkError } from "../domain/errors";
-import { roomViewRepo, type RoomMaterialInput, type RoomWarningInput } from "../data/room-view.repo";
+import { roomViewRepo, type MarkDeliveredInput, type RoomMaterialInput, type RoomWarningInput } from "../data/room-view.repo";
 
 // The room view's queries and mutations (issue #56). Every key starts with `keys.roomView(projectId)`, so one
 // invalidation refreshes a room's works, materials and warnings together (a material's status decides whether a
@@ -15,6 +15,14 @@ export const roomMaterialsQuery = (projectId: string, roomId: string) =>
   queryOptions({ queryKey: [...keys.roomView(projectId), roomId, "materials"], queryFn: () => roomViewRepo.listRoomMaterials(roomId) });
 export const roomWarningsQuery = (projectId: string, roomId: string) =>
   queryOptions({ queryKey: [...keys.roomView(projectId), roomId, "warnings"], queryFn: () => roomViewRepo.listRoomWarnings(roomId) });
+
+/** Every material with its price and expense link (managers only; clients can't read the table). */
+export const projectMaterialsQuery = (projectId: string) =>
+  queryOptions({
+    queryKey: [...keys.roomView(projectId), "projectMaterials"],
+    queryFn: () => roomViewRepo.listProjectMaterials(projectId),
+  });
+export const useProjectMaterials = (projectId: string, enabled = true) => useQuery({ ...projectMaterialsQuery(projectId), enabled });
 
 export const useRoomTasks = (projectId: string, roomId: string) => useQuery(roomTasksQuery(projectId, roomId));
 export const useRoomMaterials = (projectId: string, roomId: string) => useQuery(roomMaterialsQuery(projectId, roomId));
@@ -29,6 +37,8 @@ const invalidation = (projectId: string) => [
   keys.projects,
   keys.activity(projectId),
   keys.notifications(projectId),
+  // Materials move "committed" in the cost breakdown, and a delivered material adds an expense.
+  keys.expenses(projectId),
 ];
 
 export function useSaveMaterial(projectId: string, roomId: string) {
@@ -36,6 +46,16 @@ export function useSaveMaterial(projectId: string, roomId: string) {
   return useMutationWithToast((input: RoomMaterialInput) => roomViewRepo.saveMaterial(projectId, roomId, input), {
     invalidate: invalidation(projectId),
     success: t("work:materials.saved"),
+    error: (error) => translateWorkError((key, params) => t(key as never, params), error),
+  });
+}
+
+/** "Mark delivered": sets the status and creates the linked materials expense (the database refuses a second one). */
+export function useMarkMaterialDelivered(projectId: string) {
+  const { t } = useTranslation(["work"]);
+  return useMutationWithToast((input: MarkDeliveredInput) => roomViewRepo.markMaterialDelivered(input), {
+    invalidate: invalidation(projectId),
+    success: t("work:materials.delivered.saved"),
     error: (error) => translateWorkError((key, params) => t(key as never, params), error),
   });
 }

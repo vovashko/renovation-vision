@@ -4,6 +4,7 @@
 // (supabase/migrations/20260924000400_storage.sql), so it's kept exactly.
 import { supabase, INTERNAL_BUCKET } from "@/lib/supabase";
 import { fileExt } from "@/domain/text";
+import { parseCostBreakdown, type CostBreakdown } from "../domain/stage-costs";
 import type { Expense, ProjectInternal } from "@/lib/database.types";
 
 export type ExpenseInput = Partial<Omit<Expense, "project_id" | "receipt_path">> & { receiptFile?: File | null };
@@ -39,6 +40,11 @@ export const budgetRepo = {
       supabase.from("expenses").select("*").eq("project_id", projectId).order("spent_on", { ascending: false }),
     )) as Expense[];
     return rows.map(toAmountNumber);
+  },
+
+  /** Planned/spent per stage and spent per category: aggregates for any member (clients: visible stages, no committed). */
+  async costBreakdown(projectId: string): Promise<CostBreakdown> {
+    return parseCostBreakdown(await must(supabase.rpc("project_cost_breakdown", { p_project: projectId })));
   },
 
   async saveExpense(projectId: string, input: ExpenseInput): Promise<void> {

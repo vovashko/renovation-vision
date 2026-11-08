@@ -11,6 +11,11 @@ export const stagesQuery = (projectId: string) =>
 export const roomsQuery = (projectId: string) =>
   queryOptions({ queryKey: keys.rooms(projectId), queryFn: () => workRepo.listRooms(projectId) });
 
+/** Planned cost per stage id (managers). Nests under `keys.stages`, so saving a stage refreshes it. */
+export const stageBudgetsQuery = (projectId: string) =>
+  queryOptions({ queryKey: [...keys.stages(projectId), "budgets"], queryFn: () => workRepo.listStageBudgets(projectId) });
+export const useStageBudgets = (projectId: string, enabled = true) => useQuery({ ...stageBudgetsQuery(projectId), enabled });
+
 export const useStages = (projectId: string) => useQuery(stagesQuery(projectId));
 
 export const useRooms = (projectId: string) => useQuery(roomsQuery(projectId));

@@ -77,6 +77,8 @@
     "editTitle": "Edit stage",
     "description": "Dates, status and progress appear on the client's timeline.",
     "name": "Stage name",
+    "plannedCost": "Planned cost",
+    "plannedCostHint": "The client sees planned versus spent for visible stages on the Budget page.",
     "start": "Start",
     "end": "End",
     "status": "Status",
@@ -207,7 +209,30 @@
     "add": "Add material",
     "addTitle": "Add material",
     "editTitle": "Edit material",
-    "formDescription": "Quantity, status and dates. Prices stay in Budget and are never shown to the client.",
+    "formDescription": "Quantity, price, status and dates. The price stays internal and is never shown to the client.",
+    "delivered": {
+      "action": "Mark {{name}} delivered and create its expense",
+      "title": "Delivered: {{name}}",
+      "description": "Marks {{quantity}} {{unit}} as delivered and adds a Materials expense for it. Change the amount if the invoice differs.",
+      "amount": "Expense amount",
+      "date": "Expense date",
+      "confirm": "Mark delivered and add expense",
+      "saved": "Marked delivered, expense added"
+    },
+    "project": {
+      "heading": "Materials across rooms",
+      "empty": "No materials yet. Add them in a room.",
+      "material": "Material",
+      "room": "Room",
+      "noRoom": "No room",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "total": "Total",
+      "status": "Status",
+      "expense": "Expense",
+      "paid": "Paid",
+      "markDelivered": "Mark delivered"
+    },
     "edit": "Edit {{name}}",
     "remove": "Remove {{name}}",
     "removeConfirmTitle": "Remove \"{{name}}\"?",
@@ -228,6 +253,8 @@
       "name": "Material",
       "quantity": "Quantity",
       "unit": "Unit",
+      "unitPrice": "Price per {{unit}} (internal)",
+      "unitPriceHint": "Never shown to the client. Ordered and delivered materials count as committed cost until they have an expense.",
       "status": "Status",
       "orderBy": "Order by (latest)",
       "orderByHint": "Shown in red until the material is ordered.",
@@ -258,7 +285,8 @@
   },
   "errors": {
     "roomDoneTasksOpen": "{{name}} can't be marked Completed while tasks are open: {{tasks}}.",
-    "roomDoneReopenTask": "This room is marked Completed — change its status before adding or re-opening tasks."
+    "roomDoneReopenTask": "This room is marked Completed — change its status before adding or re-opening tasks.",
+    "materialHasExpense": "This material already has an expense."
   },
   "diary": {
     "title": "Diary",
