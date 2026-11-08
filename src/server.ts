@@ -70,21 +70,24 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 }
 
 const innerHandler = {
-  // Cron Triggers (wrangler.jsonc → triggers.crons): the hourly change-request reminders (T61), loaded lazily so
-  // the fetch path doesn't pay for them. An error is logged and reported, then rethrown so the run shows as
-  // failed in the Cloudflare dashboard.
-  async scheduled() {
+  // Cron Triggers (wrangler.jsonc → triggers.crons): each cron's jobs (src/server/jobs/scheduled.server.ts: the
+  // hourly change-request reminders, the 5-minute notification emails), loaded lazily so the fetch path doesn't pay
+  // for them. A failed job is logged and reported there, then rethrown so the run shows as failed in the Cloudflare
+  // dashboard.
+  async scheduled(controller: unknown) {
+    const { cron = "", scheduledTime = Date.now() } = (controller ?? {}) as { cron?: string; scheduledTime?: number };
     const requestId = resolveRequestId(null);
     tagRequestId(requestId);
-    await runWithRequestContext({ requestId, route: "cron:change-request-reminders" }, async () => {
+    await runWithRequestContext({ requestId, route: `cron:${cron}` }, async () => {
+      let runScheduledJobs: typeof import("./server/jobs/scheduled.server").runScheduledJobs;
       try {
-        const { sendChangeRequestReminders } = await import("./server/jobs/change-request-reminders.server");
-        await sendChangeRequestReminders();
+        ({ runScheduledJobs } = await import("./server/jobs/scheduled.server"));
       } catch (error) {
         logger.error(error, { phase: "cron" });
         captureServerException(error); // no-op without SENTRY_DSN
         throw error;
       }
+      await runScheduledJobs(cron, new Date(scheduledTime));
     });
   },
 

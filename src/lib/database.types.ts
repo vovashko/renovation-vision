@@ -219,10 +219,24 @@ export type JsonParams = Record<string, unknown>;
 export type Notification = Omit<
   Pick<
     Tables<"notifications">,
-    "id" | "project_id" | "recipient_id" | "kind" | "params" | "title" | "body" | "link" | "created_at" | "read_at"
+    | "id"
+    | "project_id"
+    | "recipient_id"
+    | "kind"
+    | "params"
+    | "title"
+    | "body"
+    | "link"
+    | "entity_type"
+    | "entity_id"
+    | "created_at"
+    | "read_at"
   >,
   "params"
 > & { params: JsonParams };
+
+/** A notification in the signed-in user's inbox (the bell), with its project's name. */
+export type InboxNotification = Notification & { project: { name: string } | null };
 
 /** Rendered from `params` ({ entity, action, label }) through i18n; `summary` (English) is the fallback. */
 export type ActivityEntry = Omit<

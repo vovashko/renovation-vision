@@ -876,6 +876,29 @@ isOneToOne: true
 "add_project_member":
 { Args: { "p_email": string,"p_project": string,"p_role": Database["public"]['Enums']["project_role"] }; Returns: string
                            },
+"claim_notification_emails":
+{ Args: { "p_frequency": Database["public"]['Enums']["notification_frequency"],"p_instant_kinds"?: (string)[],"p_recipients": number,"p_since": string,"p_skip_kinds"?: (string)[],"p_until": string }; Returns: {
+              "body": string,
+"created_at": string,
+"created_by": string | null,
+"emailed_at": string | null,
+"entity_id": string | null,
+"entity_type": string | null,
+"id": string,
+"kind": string,
+"link": string | null,
+"params": NonNullable<Json>,
+"project_id": string,
+"read_at": string | null,
+"recipient_id": string,
+"title": string
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "notifications"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "create_decision":
 { Args: { "p_cost_delta": number,"p_days_delta": number,"p_description": string,"p_project": string,"p_stage"?: string,"p_title": string }; Returns: string
                            },

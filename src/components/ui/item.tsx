@@ -44,6 +44,8 @@ const itemVariants = cva(
       selected: { true: "", false: "" },
       // Over budget / late: orange outline plus an 8px dot at the top right (the spec's attention card).
       attention: { true: "relative border-attention-outline", false: "" },
+      // Not read yet (the notification inbox): a tinted row plus an 8px primary dot at the top right.
+      unread: { true: "bg-secondary-container/40", false: "" },
     },
     compoundVariants: [
       { selected: true, tone: "neutral", className: "outline-2 -outline-offset-2 outline-outline" },
@@ -52,7 +54,7 @@ const itemVariants = cva(
       { selected: true, tone: "pending", className: "outline-2 -outline-offset-2 outline-outline" },
       { selected: true, tone: "blocked", className: "outline-2 -outline-offset-2 outline-status-blocked" },
     ],
-    defaultVariants: { variant: "default", size: "default", tone: "neutral", selected: false, attention: false },
+    defaultVariants: { variant: "default", size: "default", tone: "neutral", selected: false, attention: false, unread: false },
   },
 );
 
@@ -65,6 +67,7 @@ function Item({
   tone = "neutral",
   selected = false,
   attention = false,
+  unread = false,
   asChild = false,
   children,
   ...props
@@ -75,10 +78,11 @@ function Item({
       data-slot="item"
       data-variant={variant}
       data-size={size}
-      className={cn(itemVariants({ variant, size, tone, selected, attention }), className)}
+      className={cn(itemVariants({ variant, size, tone, selected, attention, unread }), className)}
       {...props}
     >
       {attention && <span aria-hidden className="absolute top-3 right-3 size-2 rounded-full bg-attention" />}
+      {unread && !attention && <span aria-hidden className="absolute top-3 right-3 size-2 rounded-full bg-primary" />}
       <Slottable>{children}</Slottable>
     </Comp>
   );

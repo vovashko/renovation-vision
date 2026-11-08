@@ -15,7 +15,12 @@ export const routes = rootRoute("__root.tsx", [
   layout("_authed", "_authed.tsx", [
     index("index.tsx"),
     route("/admin", [route("staff", "admin/staff.tsx")]),
-    route("/settings", [index("settings/index.tsx"), route("profile", "settings/profile.tsx"), route("security", "settings/security.tsx")]),
+    route("/settings", [
+      index("settings/index.tsx"),
+      route("profile", "settings/profile.tsx"),
+      route("security", "settings/security.tsx"),
+      route("notifications", "settings/notifications.tsx"),
+    ]),
     route("/projects", [
       index("projects.tsx"),
       route("$projectId", "project/layout.tsx", [

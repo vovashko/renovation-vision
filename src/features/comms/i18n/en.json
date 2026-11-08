@@ -128,7 +128,8 @@
       "preheader": "{{title}}",
       "cta": "Open in RenoVision",
       "disclaimer": "You're receiving this email because you have an active project on RenoVision.",
-      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}"
+      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}",
+      "manage": "Choose what RenoVision emails you: {{url}}"
     },
     "digest": {
       "subject": "Your RenoVision digest",
@@ -137,7 +138,9 @@
       "empty": "No new activity since your last digest.",
       "cta": "Open in RenoVision",
       "disclaimer": "You're receiving this email because you have an active project on RenoVision.",
-      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}"
+      "linkFallback": "If the button doesn't work, paste this link into your browser: {{linkUrl}}",
+      "more": "And {{count}} more in the app.",
+      "manage": "Choose what RenoVision emails you: {{url}}"
     },
     "changeRequestNew": {
       "title": "A change request needs your approval: {{title}}",
@@ -153,6 +156,61 @@
       "title": "Still waiting for your approval: {{title}}",
       "body": "\"{{title}}\" has been waiting for your approval for a day. Open it to approve or reject it. Questions? Message your manager.",
       "cta": "Review the request"
+    },
+    "batch": {
+      "subject": "{{count}} new updates — RenoVision",
+      "heading": "New on your projects",
+      "preheader": "{{count}} new updates on your projects"
+    }
+  },
+  "bell": {
+    "label": "Notifications",
+    "labelWithCount": "Notifications, {{count}} unread"
+  },
+  "inbox": {
+    "title": "Notifications",
+    "description": "Updates on your projects. Opening one marks it read.",
+    "markAllRead": "Mark all read",
+    "markRead": "Mark read",
+    "unread": "Unread",
+    "empty": "You're all caught up",
+    "emptyText": "New updates on your projects will appear here.",
+    "emailSettings": "Email settings"
+  },
+  "preferences": {
+    "title": "Notifications",
+    "description": "Every notification appears in the app, under the bell. Choose which ones also reach you by email.",
+    "inApp": "In the app: always",
+    "emailLabel": "Email for {{group}}",
+    "default": "Default",
+    "saved": "Email settings saved",
+    "frequency": {
+      "instant": "Right away",
+      "daily": "Daily digest at 7:00",
+      "off": "Off"
+    },
+    "groups": {
+      "progress": {
+        "title": "Progress",
+        "description": "Stage and room status changes"
+      },
+      "media": {
+        "title": "Photos and designs",
+        "description": "New site photos and design renders"
+      },
+      "documents": {
+        "title": "Documents",
+        "description": "New files on the document shelf"
+      },
+      "announcements": {
+        "title": "Announcements",
+        "description": "Messages from the project's manager"
+      },
+      "changeRequests": {
+        "title": "Change requests",
+        "description": "New requests, approvals, rejections and reminders",
+        "always": "Always emailed right away"
+      }
     }
   }
 }

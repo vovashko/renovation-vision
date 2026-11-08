@@ -22,6 +22,11 @@ export const keys = {
   expenses: (id: string) => ["expenses", id] as const,
   notifications: (id: string) => ["notifications", id] as const,
   activity: (id: string) => ["activity", id] as const,
+  /** The signed-in user's own notifications (the bell); the unread count nests under it. */
+  inbox: (userId: string) => ["inbox", userId] as const,
+  inboxUnread: (userId: string) => ["inbox", userId, "unread"] as const,
+  /** The user's email frequency per notification group (Settings → Notifications). */
+  notificationPreferences: (userId: string) => ["notificationPreferences", userId] as const,
   /** A project's change requests; the keys below nest under it, so invalidating this refreshes all of them. */
   changeRequests: (id: string) => ["changeRequests", id] as const,
   /** How many of the project's change requests wait for the client (the navigation badge). */

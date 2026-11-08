@@ -8,6 +8,7 @@ import { ShareLinkButton } from "@/shared/ui/share-link-button";
 import { QuickActions } from "@/shared/ui/quick-actions";
 import { useProject } from "@/features/projects/hooks";
 import { mfaHref, resolveStaffMfaStep } from "@/features/auth/hooks";
+import { useInboxRealtime } from "@/features/comms/hooks/use-inbox";
 import { cn } from "@/lib/utils";
 import type { ProjectSummary } from "@/lib/database.types";
 
@@ -58,6 +59,8 @@ function Shell() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const { data: project } = useProject(projectId);
+  // The bell's unread count and inbox stay live on every page (Supabase Realtime on the user's notifications).
+  useInboxRealtime();
   // The Overview has no top bar: its project card already shows the same information.
   const isOverview = !!projectId && path.replace(/\/$/, "") === `/projects/${projectId}`;
   // Top bar only inside a project, past the Overview. Projects list, Settings and Overview start at the top.

@@ -10,7 +10,7 @@ function SettingsLink({
   title,
   description,
 }: {
-  to: "/settings/profile" | "/settings/security";
+  to: "/settings/profile" | "/settings/security" | "/settings/notifications";
   icon: string;
   title: string;
   description: string;
@@ -31,13 +31,19 @@ function SettingsLink({
   );
 }
 
-/** /settings: the two settings pages. */
+/** /settings: the settings pages. */
 export function SettingsNav({ className }: { className?: string }) {
   const { t } = useTranslation(["settings"]);
   return (
     <ItemGroup className={className}>
       <SettingsLink to="/settings/profile" icon="person" title={t("profile.title")} description={t("profile.summary")} />
       <SettingsLink to="/settings/security" icon="shield_lock" title={t("security.title")} description={t("security.summary")} />
+      <SettingsLink
+        to="/settings/notifications"
+        icon="notifications"
+        title={t("notifications.title")}
+        description={t("notifications.summary")}
+      />
     </ItemGroup>
   );
 }
