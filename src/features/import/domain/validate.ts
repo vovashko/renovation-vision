@@ -4,11 +4,13 @@
 // Stages file: one line per task. A line with a stage name starts a stage (dates required); a line with
 // the same name as the stage above, or with no name, adds a task to it. This is the shape of
 // public.import_stages (T32): [{ name, start_date, end_date, client_note?, tasks?: [{ name, room? }] }].
+// Contacts: public.import_contacts (T46): [{ full_name, kind?, company?, trade?, phone?, whatsapp?, email?, notes? }], phones as E.164.
 // Materials: public.import_materials (T31): [{ name, quantity?, unit?, unit_price?, status?, stage?, room?, supplier?, notes? }].
 import { z } from "zod";
 import type { MappedRow } from "./map";
 import { normalizeHeader } from "./map";
 import { parseDateCell, parseDecimal } from "./numbers";
+import { toE164 } from "./phone";
 import { MAX_ROWS, type ImportIssue, type ImportKind } from "./types";
 
 export type StagePayloadRow = {
@@ -27,6 +29,17 @@ export type MaterialPayloadRow = {
   stage: string;
   room: string;
   supplier: string;
+  notes: string;
+};
+
+export type ContactPayloadRow = {
+  full_name: string;
+  kind: string;
+  company: string;
+  trade: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
   notes: string;
 };
 
@@ -79,6 +92,56 @@ const statusCell = z.string().transform((v, ctx) => {
   const status = STATUS_ALIASES[normalizeHeader(v)];
   if (!status) ctx.addIssue({ code: "custom", message: "invalid_status" });
   return status ?? "";
+});
+
+const KIND_ALIASES: Record<string, string> = {
+  client: "client",
+  klient: "client",
+  crew: "crew",
+  ekipa: "crew",
+  pracownik: "crew",
+  wykonawca: "crew",
+  supplier: "supplier",
+  dostawca: "supplier",
+  architect: "architect",
+  architekt: "architect",
+  other: "other",
+  inne: "other",
+  inny: "other",
+};
+
+const kindCell = z.string().transform((v, ctx) => {
+  if (v === "") return "";
+  const kind = KIND_ALIASES[normalizeHeader(v)];
+  if (!kind) ctx.addIssue({ code: "custom", message: "invalid_kind" });
+  return kind ?? "";
+});
+
+/** An empty cell stays empty; anything else must be a valid number and comes out as E.164. */
+const phoneCell = (code: string) =>
+  z.string().transform((v, ctx) => {
+    if (v === "") return "";
+    const phone = toE164(v);
+    if (!phone) ctx.addIssue({ code: "custom", message: code });
+    return phone ?? "";
+  });
+
+const emailCell = z.string().transform((v, ctx) => {
+  const email = v.toLowerCase();
+  if (email === "") return "";
+  if (email.length > 254 || !z.string().email().safeParse(email).success) ctx.addIssue({ code: "custom", message: "invalid_email" });
+  return email;
+});
+
+const contactRowSchema = z.object({
+  full_name: requiredText(160),
+  kind: kindCell,
+  company: text(160),
+  trade: text(120),
+  phone: phoneCell("invalid_phone"),
+  whatsapp: phoneCell("invalid_whatsapp"),
+  email: emailCell,
+  notes: text(2000),
 });
 
 const stageRowSchema = z
@@ -179,9 +242,40 @@ export function validateMaterials(rows: MappedRow[]): ValidationResult<MaterialP
   return { rows: out, sources, issues };
 }
 
+// --- contacts ------------------------------------------------------------------------------------------------
+
+/** Contacts file: one line per person. The same email twice is an error (the database refuses it too). */
+export function validateContacts(rows: MappedRow[]): ValidationResult<ContactPayloadRow> {
+  const issues: ImportIssue[] = [];
+  const out: ContactPayloadRow[] = [];
+  const sources: RowSource[] = [];
+  const seen = new Set<string>();
+  for (const { row, values } of rows) {
+    const parsed = contactRowSchema.safeParse(values);
+    if (!parsed.success) {
+      issues.push(...toIssues(row, parsed.error));
+      continue;
+    }
+    const { email } = parsed.data;
+    if (email && seen.has(email)) {
+      issues.push({ row, field: "email", code: "duplicate_in_file" });
+      continue;
+    }
+    if (email) seen.add(email);
+    out.push(parsed.data);
+    sources.push({ row, taskRows: [] });
+  }
+  if (out.length > MAX_ROWS.contacts) issues.push({ row: sources[MAX_ROWS.contacts].row, field: null, code: "too_many_rows" });
+  return { rows: out, sources, issues };
+}
+
 export type AnyValidation =
-  ({ kind: "stages" } & ValidationResult<StagePayloadRow>) | ({ kind: "materials" } & ValidationResult<MaterialPayloadRow>);
+  | ({ kind: "stages" } & ValidationResult<StagePayloadRow>)
+  | ({ kind: "materials" } & ValidationResult<MaterialPayloadRow>)
+  | ({ kind: "contacts" } & ValidationResult<ContactPayloadRow>);
 
 export function validateRows(kind: ImportKind, rows: MappedRow[]): AnyValidation {
-  return kind === "stages" ? { kind, ...validateStages(rows) } : { kind, ...validateMaterials(rows) };
+  if (kind === "stages") return { kind, ...validateStages(rows) };
+  if (kind === "materials") return { kind, ...validateMaterials(rows) };
+  return { kind, ...validateContacts(rows) };
 }

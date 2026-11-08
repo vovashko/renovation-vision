@@ -5,12 +5,20 @@ and the project's contacts from the company address book (`contacts` + `project_
 primary client contact and the point of contact (PoC). Clients read only the client-visible contacts, through the
 `project_visible_contacts(project)` RPC.
 
-- **Routes:** `/team` (managers and crew; clients are set on the client card); cards on the project overview
+- **Routes:** `/contacts` (T46, staff only: the address book; linked from the profile panel next to Staff);
+  `/team` (managers and crew; clients are set on the client card); cards on the project overview
   (manager: client card + team card; client: "Your contact")
 - **UI:** `MemberItem`, `AddTeamPersonSheet` (manager by email, or crew: a contact only), `TeamCard`/`CrewRow`/`CrewSheet`
   (crew: edit, remove = unlink, the contact stays in the book), `ClientCard`/`ClientContactSheet` (saves through
   `set_project_client`; access status from `domain/client-access.ts`),
   `YourContactCard` (client overview)
+- **Address book (T46):** `ContactsPage` (search + kind and trade filters in `domain/contact-book.ts`, add/edit in
+  `ContactSheet`, WhatsApp/Call/Email buttons through `contactLinks`, import button). A contact's sheet lists its
+  projects and assigns it to another with a role: `poc`, `crew`, `supplier` or `architect` (`ASSIGNABLE_ROLES`, never
+  `client`: the client card, `set_project_client`, is the only path) and a "visible to the client" switch that feeds
+  the client's "Your contact" card (`project_visible_contacts`; the PoC is visible by default). Delete is refused
+  while the contact is on a project (the sheet names the projects; links of projects the signed-in manager doesn't
+  manage are invisible to RLS, so the database cascade is the last word there). Import: `features/import`.
 - **Invites (T40):** "Send invite" on the client card (status "Waiting for an account"), a manager invite from the
   Add person sheet when the email has no account (staff only), and the Team page's pending invites (send again,
   withdraw). Server functions in `src/server/functions/invites.ts`: `generateLink({ type: "invite" })` plus our own

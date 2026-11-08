@@ -294,6 +294,16 @@ select pg_temp.check(pg_temp.role_of(current_setting('t.p1')::uuid, 'a0000000-00
   'unlinking the client removes the access');
 select pg_temp.check(pg_temp.role_of(current_setting('t.p1')::uuid, 'a0000000-0000-4000-8000-000000000001') = 'manager',
   'unlinking leaves the manager alone');
+-- Deleting a contact that is still linked is refused (contacts_delete_guard); once unlinked it can go.
+do $$
+begin
+  begin
+    delete from public.contacts where id = '10000000-0000-4000-8000-000000000002';
+    raise exception 'FAILED: a linked contact was deleted';
+  exception when foreign_key_violation then null;
+  end;
+end $$;
+delete from public.project_contacts where contact_id = '10000000-0000-4000-8000-000000000002';
 delete from public.contacts where id = '10000000-0000-4000-8000-000000000002';
 select pg_temp.check(pg_temp.role_of('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002') is null
   and pg_temp.role_of('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003') = 'client',

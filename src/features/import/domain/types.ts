@@ -1,4 +1,4 @@
-export type ImportKind = "stages" | "materials";
+export type ImportKind = "stages" | "materials" | "contacts";
 
 /** A sheet as read from a file: the header row and the data rows, every cell a trimmed string. */
 export type Sheet = { headers: string[]; rows: string[][] };
@@ -10,4 +10,4 @@ export type ColumnMapping = Record<string, number | null>;
 export type ImportIssue = { row: number; field: string | null; code: string };
 
 export const MAX_FILE_BYTES = 5 * 1024 * 1024;
-export const MAX_ROWS = { stages: 500, materials: 2000 } as const;
+export const MAX_ROWS = { stages: 500, materials: 2000, contacts: 1000 } as const;

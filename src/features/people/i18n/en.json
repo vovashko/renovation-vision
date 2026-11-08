@@ -104,7 +104,9 @@
     "client_name_required": "The client needs a name.",
     "not_project_manager": "Only project managers can do this.",
     "mfa_required": "Two-factor verification is required.",
-    "account_not_found": "No RenoVision account uses this email yet. Ask them to sign up first."
+    "account_not_found": "No RenoVision account uses this email yet. Ask them to sign up first.",
+    "already_assigned": "This contact already has that role on the project.",
+    "contact_linked": "This contact is still on a project. Remove it from every project first."
   },
   "invite": {
     "sent": "Invite sent to {{email}}",
@@ -180,5 +182,77 @@
       "disclaimer": "RenoVision — renovation tracking.",
       "someone": "Your manager"
     }
+  },
+  "contacts": {
+    "profileLink": "Contacts",
+    "pageTitle": "Contacts",
+    "pageDescription": "Everyone you work with: clients, crew, suppliers and architects. Only managers see this list.",
+    "add": "Add contact",
+    "addTitle": "Add a contact",
+    "editTitle": "Edit contact",
+    "sheetDescription": "Kept in your address book. Add them to projects below.",
+    "search": "Search contacts",
+    "searchPlaceholder": "Name, company, trade, phone or email",
+    "kindFilter": "Kind",
+    "allKinds": "All kinds",
+    "tradeFilter": "Trade",
+    "allTrades": "All trades",
+    "count_one": "{{shown}} of {{count}} contact",
+    "count_other": "{{shown}} of {{count}} contacts",
+    "empty": "No contacts yet. Add one, or import a spreadsheet.",
+    "noMatches": "No contacts match these filters.",
+    "clearFilters": "Clear filters",
+    "loadError": "Contacts couldn't be loaded. Try again in a moment.",
+    "editAria": "Edit {{name}}",
+    "kind": {
+      "client": "Client",
+      "crew": "Crew",
+      "supplier": "Supplier",
+      "architect": "Architect",
+      "other": "Other"
+    },
+    "role": {
+      "poc": "Point of contact",
+      "crew": "Site crew",
+      "supplier": "Supplier",
+      "architect": "Architect"
+    },
+    "clientLink": "Client",
+    "name": "Name",
+    "kindLabel": "Kind",
+    "company": "Company",
+    "trade": "Trade",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "whatsappHint": "Only if it differs from the phone. International format, e.g. +48600100200.",
+    "email": "Email",
+    "notes": "Notes",
+    "save": "Save changes",
+    "saved": "Saved {{name}}",
+    "deleted": "Deleted {{name}}",
+    "delete": "Delete contact",
+    "deleteConfirmTitle": "Delete {{name}}?",
+    "deleteConfirmDescription": "They're removed from your address book for good.",
+    "unknownProject": "Another project",
+    "projectsHeading": "On projects",
+    "noProjects": "Not on any project yet.",
+    "project": "Project",
+    "chooseProject": "Choose a project",
+    "roleLabel": "Role on the project",
+    "visibleToClient": "Visible to the client",
+    "visibleAria": "Visible to the client on {{project}}",
+    "unassignAria": "Remove from {{project}}",
+    "assign": "Add to project",
+    "assigned": "Added to the project",
+    "unassigned": "Removed from the project",
+    "allRolesTaken": "This contact already holds every role on that project.",
+    "clientRoleNote": "To make someone a project's client, use the client card on the project overview.",
+    "errors": {
+      "whatsapp": "Use international format, e.g. +48600100200"
+    },
+    "deleteBlocked_one": "Linked to {{count}} project ({{managed}} you manage). Remove this contact from it before deleting.",
+    "deleteBlocked_other": "Linked to {{count}} projects ({{managed}} you manage). Remove this contact from them before deleting.",
+    "deleteBlockedProjects": "Your projects: {{projects}}.",
+    "_err": "This contact is still on a project. Remove it from every project first."
   }
 }

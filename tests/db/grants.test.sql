@@ -22,6 +22,8 @@ declare f text;
 begin
   foreach f in array array[
     'public.set_project_client(uuid, text, text, text)',
+    'public.import_contacts(jsonb)',
+    'public.contact_project_links(uuid)',
     'public.create_project(text, text, text, text, text, text, public.project_status, text, date, date, numeric, text)',
     'public.add_project_member(uuid, text, public.project_role)'
   ] loop
@@ -33,7 +35,7 @@ begin
     end if;
   end loop;
   foreach f in array array[
-    'private.is_staff(uuid)', 'private.account_for_email(text)', 'private.client_account(uuid)',
+    'private.guard_contact_delete()', 'private.is_staff(uuid)','private.account_for_email(text)', 'private.client_account(uuid)',
     'private.assert_not_project_manager(uuid, uuid)', 'private.drop_client_membership(uuid, uuid)',
     'private.sync_client_access(uuid)', 'private.normalize_contact_email()', 'private.contacts_client_access()',
     'private.contacts_drop_client_access()', 'private.guard_project_client()',
