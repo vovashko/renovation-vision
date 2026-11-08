@@ -43,8 +43,6 @@
     "target": "Aktualny koniec",
     "budget": "Prognozowany budżet",
     "budgetHint": "Kwota wydana jest liczona na podstawie wydatków na stronie Budżet. Planowany budżet pozostaje punktem odniesienia.",
-    "scheduleStatus": "Status harmonogramu",
-    "scheduleStatusHint": "Widoczny w przeglądzie klienta. Zmiana powiadamia klienta.",
     "scheduleNote": "Notatka o harmonogramie dla klienta",
     "scheduleNotePlaceholder": "Dlaczego harmonogram wygląda tak, jak wygląda — prostymi słowami.",
     "submit": "Zapisz szczegóły",
@@ -83,7 +81,8 @@
     "daysLeftValue_few": "{{count}} dni",
     "daysLeftValue_many": "{{count}} dni",
     "daysLeftValue_other": "{{count}} dnia",
-    "budgetUsed": "Wykorzystany budżet"
+    "budgetUsed": "Wykorzystany budżet",
+    "pastDue": "Po terminie"
   },
   "issues": {
     "heading": "Wymaga uwagi",

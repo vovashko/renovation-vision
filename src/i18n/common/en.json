@@ -29,12 +29,16 @@
   "schedule": {
     "on_schedule": "On schedule",
     "at_risk": "At risk",
-    "delayed": "Delayed"
+    "delayed": "Delayed",
+    "blocked": "Blocked"
   },
   "attention": {
     "daysLate_one": "{{count}} day late",
     "daysLate_other": "{{count}} days late",
-    "overBudget": "{{pct}}% over budget"
+    "overBudget": "{{pct}}% over budget",
+    "pastDue_one": "Past due · {{count}} day",
+    "pastDue_other": "Past due · {{count}} days",
+    "atRisk": "Blocked: {{items}}. Other work continues."
   },
   "nav": {
     "overview": "Overview",

@@ -1,18 +1,19 @@
 import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Note } from "@/components/ui/note";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { useDaysDeviation, useFormat, useScheduleLabel } from "@/i18n";
 import { cn } from "@/lib/utils";
-import type { ScheduleStatus } from "@/lib/database.types";
+import type { ProjectHealth } from "@/domain/schedule";
 import type { ProjectIssue } from "../domain/project-issues";
 import { IssuesList } from "./issues-list";
 
 /** The manager overview's status card: on-track headline, progress, key facts, note and issues. */
 export function StatusCard({
   projectId,
-  scheduleStatus,
+  health,
   scheduleNote,
   progress,
   currentStage,
@@ -25,10 +26,10 @@ export function StatusCard({
   budgetOver,
   currency,
   issues,
-  onOpenDetails,
 }: {
   projectId: string;
-  scheduleStatus: ScheduleStatus;
+  /** Derived from the stages and rooms (never set by hand). */
+  health: ProjectHealth;
   scheduleNote?: string | null;
   progress: number;
   currentStage: string | null;
@@ -43,13 +44,12 @@ export function StatusCard({
   /** The project's currency (over-budget amounts in the issues list). */
   currency: string;
   issues: ProjectIssue[];
-  onOpenDetails: () => void;
 }) {
   const { t } = useTranslation(["projects", "common"]);
   const format = useFormat();
   const scheduleLabel = useScheduleLabel();
   const daysDeviation = useDaysDeviation();
-  const onTrack = scheduleStatus === "on_schedule";
+  const onTrack = health.state === "on_schedule" && !health.overdueDays;
   const pastTarget = daysLeft !== null && daysLeft < 0;
 
   const facts = [
@@ -89,7 +89,7 @@ export function StatusCard({
         <div className="min-w-0">
           <p className="text-body-md text-on-surface-variant">{t("status.label")}</p>
           <h2 id="status-heading" className="text-headline-md">
-            {onTrack ? t("status.onTrack") : scheduleLabel(scheduleStatus)}
+            {onTrack ? t("status.onTrack") : health.state === "on_schedule" ? t("status.pastDue") : scheduleLabel(health.state)}
           </h2>
           <p className="text-body-md text-on-surface-variant">
             {issues.length ? t("status.needsAttention", { count: issues.length }) : t("status.allClear")}
@@ -110,7 +110,16 @@ export function StatusCard({
           </span>
           <span className="text-title-lg tabular-nums">{progress}%</span>
         </div>
-        <ProgressBar value={progress} tone={onTrack ? "primary" : "blocked"} className="mt-2" />
+        {!!health.overdueDays && (
+          <Badge variant="attention" size="compact" icon="schedule" className="mt-2">
+            {t("common:attention.pastDue", { count: health.overdueDays })}
+          </Badge>
+        )}
+        <ProgressBar
+          value={progress}
+          tone={health.state === "blocked" ? "blocked" : health.overdueDays ? "attention" : "primary"}
+          className="mt-2"
+        />
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
           {facts.map((f) => (
             <div key={f.label} className="min-w-0">
@@ -128,7 +137,7 @@ export function StatusCard({
         </Note>
       )}
 
-      <IssuesList issues={issues} projectId={projectId} currency={currency} onOpenDetails={onOpenDetails} />
+      <IssuesList issues={issues} projectId={projectId} currency={currency} />
     </Card>
   );
 }

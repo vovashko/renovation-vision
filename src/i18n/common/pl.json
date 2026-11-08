@@ -29,14 +29,20 @@
   "schedule": {
     "on_schedule": "Zgodnie z planem",
     "at_risk": "Zagrożony",
-    "delayed": "Opóźniony"
+    "delayed": "Opóźniony",
+    "blocked": "Zablokowany"
   },
   "attention": {
     "daysLate_one": "{{count}} dzień opóźnienia",
     "daysLate_few": "{{count}} dni opóźnienia",
     "daysLate_many": "{{count}} dni opóźnienia",
     "daysLate_other": "{{count}} dnia opóźnienia",
-    "overBudget": "{{pct}}% ponad budżet"
+    "overBudget": "{{pct}}% ponad budżet",
+    "pastDue_one": "Po terminie · {{count}} dzień",
+    "pastDue_few": "Po terminie · {{count}} dni",
+    "pastDue_many": "Po terminie · {{count}} dni",
+    "pastDue_other": "Po terminie · {{count}} dnia",
+    "atRisk": "Zablokowane: {{items}}. Pozostałe prace trwają."
   },
   "nav": {
     "overview": "Przegląd",

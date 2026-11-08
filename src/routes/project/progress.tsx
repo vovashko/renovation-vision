@@ -21,6 +21,7 @@ import { StageCardSkeleton } from "@/components/ui/skeleton";
 import { useRooms, useStages, useSaveStage, useSaveTask, useDeleteTask } from "@/features/work/hooks";
 import { DiarySection } from "@/features/work/ui/diary-section";
 import { ChangeRequestSection } from "@/features/change-requests/ui/change-request-section";
+import { usePendingRequestsByStage } from "@/features/change-requests/hooks";
 import type { ChangeRequestPlace } from "@/features/change-requests/domain/status";
 import { useProject } from "@/features/projects/hooks";
 import { daysLate } from "@/domain/attention";
@@ -71,6 +72,7 @@ function ProgressPage() {
   const saveTask = useSaveTask(projectId);
   const removeTask = useDeleteTask(projectId);
   const saveStage = useSaveStage(projectId);
+  const pendingByStage = usePendingRequestsByStage(projectId);
 
   useEffect(() => {
     const hash = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
@@ -134,6 +136,7 @@ function ProgressPage() {
                       status={s.status}
                       progress={s.progress}
                       lateDays={daysLate(s)}
+                      waitingApproval={!!pendingByStage[s.id]}
                       rooms={stageRooms}
                       photoCount={photoCount}
                       dimmed={isManager && !s.is_visible}

@@ -60,7 +60,8 @@
     "removeTaskConfirmTitle": "Usunąć „{{name}}”?",
     "noteForClient": "Uwaga dla klienta: ",
     "checklistMismatch": "Lista zadań: {{done}}/{{total}} ukończone ({{pct}}%). Postęp pokazuje {{progress}}%.",
-    "useChecklistPct": "Użyj {{pct}}%"
+    "useChecklistPct": "Użyj {{pct}}%",
+    "waitingApproval": "Czeka na zatwierdzenie klienta"
   },
   "stagesEmpty": {
     "title": "Brak etapów",
@@ -181,7 +182,6 @@
     "tileLabel": "{{name}}: {{status}}, {{progress}}%"
   },
   "consistency": {
-    "blockedOnSchedule": "{{names}} zablokowane, a projekt nadal ma status „zgodnie z planem”.",
     "roomDoneTaskOpen": "{{room}} jest ukończone, ale „{{task}}” jest wciąż otwarte.",
     "stageDoneTasksOpen_one": "{{stage}} jest ukończony, ale {{count}} zadanie jest wciąż otwarte.",
     "stageDoneTasksOpen_few": "{{stage}} jest ukończony, ale {{count}} zadania są wciąż otwarte.",

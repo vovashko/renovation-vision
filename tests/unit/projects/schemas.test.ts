@@ -72,7 +72,6 @@ describe("projectEditSchema", () => {
     budget: 5000,
     planned_target_date: "2026-05-01",
     planned_budget: 4500,
-    schedule_status: "on_schedule",
     schedule_note: "",
   };
 
@@ -91,15 +90,9 @@ describe("projectEditSchema", () => {
     expect(result.success && "client_name" in result.data).toBe(false);
   });
 
-  it("rejects an unknown schedule status", () => {
-    const result = projectEditSchema.safeParse({ ...base, schedule_status: "ahead" });
-    expect(result.success).toBe(false);
-  });
-
-  it("accepts every real schedule status", () => {
-    for (const status of ["on_schedule", "at_risk", "delayed"]) {
-      expect(projectEditSchema.safeParse({ ...base, schedule_status: status }).success).toBe(true);
-    }
+  it("has no manual schedule status any more", () => {
+    const result = projectEditSchema.safeParse({ ...base, schedule_status: "delayed" });
+    expect(result.success && "schedule_status" in result.data).toBe(false);
   });
 
   it("applies the same postal code and currency rules", () => {

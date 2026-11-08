@@ -58,7 +58,8 @@
     "removeTaskConfirmTitle": "Remove \"{{name}}\"?",
     "noteForClient": "Note for client: ",
     "checklistMismatch": "Checklist is {{done}}/{{total}} done ({{pct}}%). Progress shows {{progress}}%.",
-    "useChecklistPct": "Use {{pct}}%"
+    "useChecklistPct": "Use {{pct}}%",
+    "waitingApproval": "Waiting for client approval"
   },
   "stagesEmpty": {
     "title": "No stages yet",
@@ -167,7 +168,6 @@
     "tileLabel": "{{name}}: {{status}}, {{progress}}%"
   },
   "consistency": {
-    "blockedOnSchedule": "{{names}} blocked, but the project still says on schedule.",
     "roomDoneTaskOpen": "{{room}} is Completed, but \"{{task}}\" is still open.",
     "stageDoneTasksOpen_one": "{{stage}} is Completed, but {{count}} task is still open.",
     "stageDoneTasksOpen_few": "{{stage}} is Completed, but {{count}} tasks are still open.",

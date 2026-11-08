@@ -53,6 +53,7 @@ export function StageRow({
   onAddTaskPhotos,
   headerExtra,
   lateDays,
+  waitingApproval,
   rooms,
   photoCount,
   children,
@@ -73,6 +74,8 @@ export function StageRow({
   headerExtra?: ReactNode;
   /** Days past the end date, shown as an attention badge and the card's attention outline. */
   lateDays?: number;
+  /** A change request linked to this stage waits for the client (T61). */
+  waitingApproval?: boolean;
   /** Names of the rooms this stage's tasks are in. */
   rooms?: string[];
   /** Photos uploaded for this stage; leave undefined while they load or when the viewer can't see any. */
@@ -110,10 +113,19 @@ export function StageRow({
                 )}
               </div>
             )}
-            {!!lateDays && (
-              <Badge variant="attention" size="compact" icon="schedule" className="mt-2">
-                {t("common:attention.daysLate", { count: lateDays })}
-              </Badge>
+            {(!!lateDays || waitingApproval) && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {!!lateDays && (
+                  <Badge variant="attention" size="compact" icon="schedule">
+                    {t("common:attention.daysLate", { count: lateDays })}
+                  </Badge>
+                )}
+                {waitingApproval && (
+                  <Badge variant="attention" size="compact" icon="pending_actions">
+                    {t("work:stageRow.waitingApproval")}
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2 pr-4">
@@ -128,7 +140,7 @@ export function StageRow({
           </div>
           <ProgressBar
             value={progress}
-            tone={lateDays ? "blocked" : statusTone[status]}
+            tone={status === "blocked" ? "blocked" : lateDays ? "attention" : statusTone[status]}
             className="mt-2"
             aria-label={t("work:stageRow.progressAriaLabel", { name })}
           />

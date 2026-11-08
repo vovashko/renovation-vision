@@ -7,14 +7,22 @@ afterEach(cleanup);
 const props = { name: "Elm Road", address: "Elm Road 1", progress: 40 };
 
 describe("ProjectHeader progress bar", () => {
-  it("is red when the project is behind schedule", () => {
-    render(<ProjectHeader {...props} behind />);
+  it("is red only when the project is blocked", () => {
+    render(<ProjectHeader {...props} blocked />);
     expect(screen.getByRole("progressbar").className).toMatch(/bg-status-blocked/);
+  });
+
+  it("is orange, never red, when the project is past due", () => {
+    render(<ProjectHeader {...props} overdueDays={4} />);
+    const cls = screen.getByRole("progressbar").className;
+    expect(cls).toMatch(/bg-attention/);
+    expect(cls).not.toMatch(/bg-status-blocked/);
+    expect(screen.getByText(/past due/i)).toBeTruthy();
   });
 
   it("keeps the default colour when on schedule", () => {
     render(<ProjectHeader {...props} />);
-    expect(screen.getByRole("progressbar").className).not.toMatch(/bg-status-blocked/);
+    expect(screen.getByRole("progressbar").className).not.toMatch(/bg-status-blocked|bg-attention/);
   });
 });
 

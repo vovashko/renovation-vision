@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -11,7 +12,8 @@ export function ProjectHeader({
   managerName,
   progress,
   currentStage,
-  behind,
+  blocked,
+  overdueDays,
   alerts,
   actions,
 }: {
@@ -20,13 +22,15 @@ export function ProjectHeader({
   managerName?: string | null;
   progress: number;
   currentStage?: string | null;
-  /** Behind schedule: the overall progress bar turns red. */
-  behind?: boolean;
+  /** Blocked with nothing else moving: the overall progress bar turns red. */
+  blocked?: boolean;
+  /** Days past the planned end date: the bar turns orange and a "Past due" badge shows. */
+  overdueDays?: number;
   /** Warnings and alerts (e.g. the schedule note), shown at the bottom of the card. */
   alerts?: ReactNode;
   actions?: ReactNode;
 }) {
-  const { t } = useTranslation("work");
+  const { t } = useTranslation(["work", "common"]);
   return (
     <Card className="flex flex-wrap items-start justify-between gap-x-12 gap-y-6 px-5 py-5 md:px-7 md:py-6">
       <div className="min-w-0">
@@ -48,7 +52,17 @@ export function ProjectHeader({
           <span className="text-body-md text-on-surface-variant">{t("overview.overallProgress")}</span>
           <span className="text-headline-md">{progress}%</span>
         </div>
-        <ProgressBar value={progress} tone={behind ? "blocked" : "primary"} className="mt-2" aria-label={t("overview.overallProgress")} />
+        <ProgressBar
+          value={progress}
+          tone={blocked ? "blocked" : overdueDays ? "attention" : "primary"}
+          className="mt-2"
+          aria-label={t("overview.overallProgress")}
+        />
+        {!!overdueDays && (
+          <Badge variant="attention" size="compact" icon="schedule" className="mt-3">
+            {t("common:attention.pastDue", { count: overdueDays })}
+          </Badge>
+        )}
         {currentStage && (
           <div className="mt-3 text-body-md text-on-surface-variant">
             {t("overview.currentlyWorkingOnPrefix")} <span className="font-medium text-on-surface">{currentStage}</span>

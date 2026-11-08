@@ -24,8 +24,7 @@ const room = (over: Partial<Parameters<typeof projectIssues>[2][number]> = {}) =
   ...over,
 });
 
-const project = (over: Partial<{ schedule_status: "on_schedule" | "at_risk" | "delayed"; budget: number; spent: number }> = {}) => ({
-  schedule_status: "on_schedule" as const,
+const project = (over: Partial<{ budget: number; spent: number }> = {}) => ({
   budget: 10000,
   spent: 4000,
   ...over,
@@ -37,18 +36,15 @@ describe("projectIssues", () => {
   });
 
   it("flags a blocked stage", () => {
-    // schedule_status: "at_risk" keeps this isolated from the blockedOnSchedule data-consistency check below.
     const s = stage({ id: "s1", name: "Plumbing", status: "blocked", client_note: "Waiting on parts" });
-    expect(projectIssues(project({ schedule_status: "at_risk" }), [s], [], today)).toEqual([
+    expect(projectIssues(project(), [s], [], today)).toEqual([
       { kind: "stage_blocked", id: "s1", name: "Plumbing", note: "Waiting on parts" },
     ]);
   });
 
   it("flags a blocked room", () => {
     const r = room({ id: "r1", name: "Bathroom", status: "blocked", client_note: null });
-    expect(projectIssues(project({ schedule_status: "at_risk" }), [], [r], today)).toEqual([
-      { kind: "room_blocked", id: "r1", name: "Bathroom", note: null },
-    ]);
+    expect(projectIssues(project(), [], [r], today)).toEqual([{ kind: "room_blocked", id: "r1", name: "Bathroom", note: null }]);
   });
 
   it("flags a late stage that isn't blocked", () => {
@@ -60,7 +56,7 @@ describe("projectIssues", () => {
 
   it("does not flag a blocked stage as also late", () => {
     const s = stage({ status: "blocked", end_date: "2026-01-01" });
-    const result = projectIssues(project({ schedule_status: "at_risk" }), [s], [], today);
+    const result = projectIssues(project(), [s], [], today);
     expect(result).toEqual([{ kind: "stage_blocked", id: s.id, name: s.name, note: null }]);
   });
 
@@ -94,14 +90,7 @@ describe("projectIssues", () => {
       today,
     );
 
-    // Two data-consistency checks fire here (blockedOnSchedule, then stagePendingTasksDone) — both after the budget issue.
-    expect(result.map((i) => i.kind)).toEqual([
-      "stage_blocked",
-      "room_blocked",
-      "stage_late",
-      "over_budget",
-      "inconsistency",
-      "inconsistency",
-    ]);
+    // The data-consistency check (stagePendingTasksDone) comes after the budget issue.
+    expect(result.map((i) => i.kind)).toEqual(["stage_blocked", "room_blocked", "stage_late", "over_budget", "inconsistency"]);
   });
 });
