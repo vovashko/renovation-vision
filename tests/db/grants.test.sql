@@ -22,6 +22,7 @@ declare f text;
 begin
   foreach f in array array[
     'public.set_project_client(uuid, text, text, text)',
+    'public.import_contacts(jsonb)',
     'public.create_project(text, text, text, text, text, text, public.project_status, text, date, date, numeric, text)',
     'public.add_project_member(uuid, text, public.project_role)'
   ] loop

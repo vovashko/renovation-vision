@@ -905,6 +905,9 @@ isOneToOne: true
 "create_project":
 { Args: { "p_address_line"?: string,"p_budget"?: number,"p_city"?: string,"p_client_email"?: string,"p_client_name"?: string,"p_country"?: string,"p_currency"?: string,"p_name": string,"p_postal_code"?: string,"p_start_date"?: string,"p_status"?: Database["public"]['Enums']["project_status"],"p_target_date"?: string }; Returns: string
                            },
+"import_contacts":
+{ Args: { "p_rows": Json }; Returns: Json
+                           },
 "import_materials":
 { Args: { "p_project": string,"p_rows": Json }; Returns: Json
                            },

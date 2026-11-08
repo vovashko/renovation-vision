@@ -33,6 +33,8 @@ export function usePeopleErrorText(): (error: Error) => string {
   return useCallback(
     (error) => {
       const code = peopleErrorCode(error);
+      // The same contact in the same role on the same project twice (unique project_contacts key).
+      if (error instanceof PeopleRepoError && error.code === "23505" && !error.hint) return t("people:errors.already_assigned");
       if (code && (KNOWN as readonly string[]).includes(code)) return t(`people:errors.${code as (typeof KNOWN)[number]}`);
       if (isInviteError(code)) return t(`people:invite.errors.${code}`);
       if (isServerFnError(error)) return error.code === "RATE_LIMITED" ? t("auth:errors.rateLimited") : t("common:errors.generic");

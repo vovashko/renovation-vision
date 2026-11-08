@@ -1,15 +1,18 @@
 {
   "button": {
     "stages": "Importuj",
-    "materials": "Importuj"
+    "materials": "Importuj",
+    "contacts": "Importuj kontakty"
   },
   "title": {
     "stages": "Import etapów i zadań",
-    "materials": "Import materiałów"
+    "materials": "Import materiałów",
+    "contacts": "Import kontaktów"
   },
   "description": {
     "stages": "Dodaj etapy wraz z zadaniami z arkusza. Nic nie zostanie zapisane, dopóki wszystkie wiersze nie będą poprawne.",
-    "materials": "Dodaj materiały z arkusza. Pokoje, etapy i dostawcy są dopasowywani po nazwie. Nic nie zostanie zapisane, dopóki wszystkie wiersze nie będą poprawne."
+    "materials": "Dodaj materiały z arkusza. Pokoje, etapy i dostawcy są dopasowywani po nazwie. Nic nie zostanie zapisane, dopóki wszystkie wiersze nie będą poprawne.",
+    "contacts": "Dodaj osoby do książki kontaktów z arkusza. Nic nie zostanie zapisane, dopóki wszystkie wiersze nie będą poprawne."
   },
   "pick": {
     "label": "Plik arkusza",
@@ -46,7 +49,14 @@
     "status": "Status",
     "stage": "Etap",
     "supplier": "Dostawca",
-    "notes": "Uwagi"
+    "notes": "Uwagi",
+    "full_name": "Imię i nazwisko",
+    "kind": "Rodzaj",
+    "company": "Firma",
+    "trade": "Branża",
+    "phone": "Telefon",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail"
   },
   "preview": {
     "title": "Sprawdź wiersze",
@@ -61,7 +71,11 @@
     "rowField": "Wiersz {{row}}, {{field}}",
     "moreRows": "i jeszcze {{count}} wierszy",
     "stageColumn": "Etap",
-    "tasksColumn": "Zadania"
+    "tasksColumn": "Zadania",
+    "summaryContacts_one": "{{count}} kontakt jest gotowy do importu. Kontakty już będące w książce (ten sam e-mail) są dopasowywane, nie duplikowane.",
+    "summaryContacts_few": "{{count}} kontakty są gotowe do importu. Kontakty już będące w książce (ten sam e-mail) są dopasowywane, nie duplikowane.",
+    "summaryContacts_many": "{{count}} kontaktów jest gotowych do importu. Kontakty już będące w książce (ten sam e-mail) są dopasowywane, nie duplikowane.",
+    "summaryContacts_other": "{{count}} kontaktu jest gotowe do importu. Kontakty już będące w książce (ten sam e-mail) są dopasowywane, nie duplikowane."
   },
   "issues": {
     "required": "jest wymagane",
@@ -81,7 +95,13 @@
     "room_not_found": "nie zostało znalezione w tym projekcie",
     "room_ambiguous": "pasuje do więcej niż jednego pokoju",
     "too_many_rows": "przekracza limit wierszy",
-    "invalid": "jest niepoprawne"
+    "invalid": "jest niepoprawne",
+    "invalid_kind": "nie jest rodzajem (klient, ekipa, dostawca, architekt lub inne)",
+    "invalid_phone": "nie jest poprawnym numerem telefonu (użyj +48 600 100 200)",
+    "invalid_whatsapp": "nie jest poprawnym numerem WhatsApp (użyj +48 600 100 200)",
+    "invalid_email": "nie jest poprawnym adresem e-mail",
+    "duplicate_in_file": "występuje w pliku więcej niż raz",
+    "not_an_object": "nie jest poprawnym wierszem"
   },
   "actions": {
     "back": "Wstecz",
@@ -93,12 +113,17 @@
   },
   "done": {
     "stages": "Zaimportowano etapy ({{stages}}) i zadania ({{tasks}}).",
-    "materials": "Zaimportowano materiały ({{count}})."
+    "materials": "Zaimportowano materiały ({{count}}).",
+    "contacts": "Dodano {{inserted}}, zaktualizowano {{updated}}, pominięto {{skipped}}.",
+    "contactsHint": "Zaktualizowano: istniejący kontakt z tym samym e-mailem miał uzupełnione puste pola. Pominięto: nie było nic nowego do dodania."
   },
   "errors": {
     "notReady": "Najpierw popraw problemy w pliku.",
     "rowsRejected": "Projekt odrzucił część wierszy. Nic nie zostało zaimportowane.",
     "forbidden": "Importować mogą tylko kierownicy projektu.",
-    "rateLimited": "Za dużo żądań. Spróbuj ponownie za minutę."
-  }
+    "rateLimited": "Za dużo żądań. Spróbuj ponownie za minutę.",
+    "rowsRejectedContacts": "Książka kontaktów odrzuciła część wierszy. Nic nie zostało zaimportowane.",
+    "forbiddenContacts": "Tylko kierownicy mogą importować kontakty."
+  },
+  "contactsHelp": "Numery telefonów potrzebują numeru kierunkowego (+48 600 100 200); sam 9-cyfrowy numer jest traktowany jako polski. Kontakt, którego e-mail już jest w książce, nie jest duplikowany: uzupełniamy tylko jego puste pola, nic nie jest nadpisywane. Wiersz bez e-maila jest pomijany, jeśli takie samo imię i nazwisko oraz telefon już istnieją."
 }

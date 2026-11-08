@@ -106,7 +106,8 @@
     "client_name_required": "Klient musi mieć nazwę.",
     "not_project_manager": "Mogą to zrobić tylko kierownicy projektu.",
     "mfa_required": "Wymagana jest weryfikacja dwuskładnikowa.",
-    "account_not_found": "Żadne konto RenoVision nie używa tego e-maila. Poproś tę osobę o założenie konta."
+    "account_not_found": "Żadne konto RenoVision nie używa tego e-maila. Poproś tę osobę o założenie konta.",
+    "already_assigned": "Ten kontakt ma już tę rolę w projekcie."
   },
   "invite": {
     "sent": "Wysłano zaproszenie do {{email}}",
@@ -181,6 +182,77 @@
       "ignore": "Nie spodziewasz się tej wiadomości? Możesz ją zignorować.",
       "disclaimer": "RenoVision — śledzenie remontu.",
       "someone": "Twój kierownik"
+    }
+  },
+  "contacts": {
+    "profileLink": "Kontakty",
+    "pageTitle": "Kontakty",
+    "pageDescription": "Wszyscy, z którymi pracujesz: klienci, ekipa, dostawcy i architekci. Tę listę widzą tylko kierownicy.",
+    "add": "Dodaj kontakt",
+    "addTitle": "Dodaj kontakt",
+    "editTitle": "Edytuj kontakt",
+    "sheetDescription": "Zapisany w książce kontaktów. Poniżej dodasz go do projektów.",
+    "search": "Szukaj kontaktów",
+    "searchPlaceholder": "Imię, firma, branża, telefon lub e-mail",
+    "kindFilter": "Rodzaj",
+    "allKinds": "Wszystkie rodzaje",
+    "tradeFilter": "Branża",
+    "allTrades": "Wszystkie branże",
+    "count_one": "{{shown}} z {{count}} kontaktu",
+    "count_few": "{{shown}} z {{count}} kontaktów",
+    "count_many": "{{shown}} z {{count}} kontaktów",
+    "count_other": "{{shown}} z {{count}} kontaktów",
+    "empty": "Nie ma jeszcze kontaktów. Dodaj pierwszy lub zaimportuj arkusz.",
+    "noMatches": "Żaden kontakt nie pasuje do filtrów.",
+    "clearFilters": "Wyczyść filtry",
+    "loadError": "Nie udało się wczytać kontaktów. Spróbuj za chwilę.",
+    "editAria": "Edytuj: {{name}}",
+    "kind": {
+      "client": "Klient",
+      "crew": "Ekipa",
+      "supplier": "Dostawca",
+      "architect": "Architekt",
+      "other": "Inne"
+    },
+    "role": {
+      "poc": "Osoba kontaktowa",
+      "crew": "Ekipa na budowie",
+      "supplier": "Dostawca",
+      "architect": "Architekt"
+    },
+    "clientLink": "Klient",
+    "name": "Imię i nazwisko",
+    "kindLabel": "Rodzaj",
+    "company": "Firma",
+    "trade": "Branża",
+    "phone": "Telefon",
+    "whatsapp": "WhatsApp",
+    "whatsappHint": "Tylko jeśli inny niż telefon. Format międzynarodowy, np. +48600100200.",
+    "email": "E-mail",
+    "notes": "Uwagi",
+    "save": "Zapisz zmiany",
+    "saved": "Zapisano: {{name}}",
+    "deleted": "Usunięto: {{name}}",
+    "delete": "Usuń kontakt",
+    "deleteBlocked": "{{projects}}: usuń ten kontakt z tych projektów, zanim go skasujesz.",
+    "deleteConfirmTitle": "Usunąć kontakt: {{name}}?",
+    "deleteConfirmDescription": "Zostanie na stałe usunięty z książki kontaktów.",
+    "unknownProject": "Inny projekt",
+    "projectsHeading": "W projektach",
+    "noProjects": "Nie jest jeszcze w żadnym projekcie.",
+    "project": "Projekt",
+    "chooseProject": "Wybierz projekt",
+    "roleLabel": "Rola w projekcie",
+    "visibleToClient": "Widoczny dla klienta",
+    "visibleAria": "Widoczny dla klienta w projekcie {{project}}",
+    "unassignAria": "Usuń z projektu {{project}}",
+    "assign": "Dodaj do projektu",
+    "assigned": "Dodano do projektu",
+    "unassigned": "Usunięto z projektu",
+    "allRolesTaken": "Ten kontakt ma już wszystkie role w tym projekcie.",
+    "clientRoleNote": "Aby ustawić klienta projektu, użyj karty klienta na przeglądzie projektu.",
+    "errors": {
+      "whatsapp": "Użyj formatu międzynarodowego, np. +48600100200"
     }
   }
 }
