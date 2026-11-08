@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { FormSheet } from "@/shared/ui/form-sheet";
 import { useConfirm } from "@/shared/ui/use-confirm";
-import { useDeleteMaterial } from "../hooks/room-view";
+import { canCreateExpense } from "@/domain/materials";
+import { useDeleteMaterial, useProjectMaterials } from "../hooks/room-view";
+import type { ProjectMaterial } from "../data/room-view.repo";
+import { MarkDeliveredSheet } from "./mark-delivered-sheet";
 import { MaterialForm } from "./material-form";
 import { MaterialRow } from "./material-row";
 import type { RoomMaterial } from "@/lib/database.types";
@@ -24,8 +27,12 @@ export function RoomMaterials({
   const { t } = useTranslation(["work", "common"]);
   const confirm = useConfirm();
   const remove = useDeleteMaterial(projectId);
+  // Prices and expense links: managers only (clients can't read the table, so the query stays off for them).
+  const { data: finance = [] } = useProjectMaterials(projectId, isManager);
+  const financeOf = (id: string) => finance.find((m) => m.id === id);
   // null: the sheet is closed; `{}`: adding a material; `{ material }`: editing one.
   const [editing, setEditing] = useState<{ material?: RoomMaterial } | null>(null);
+  const [delivering, setDelivering] = useState<ProjectMaterial | null>(null);
 
   const onRemove = async (m: RoomMaterial) => {
     const ok = await confirm({ title: t("work:materials.removeConfirmTitle", { name: m.name }), destructive: true });
@@ -55,6 +62,16 @@ export function RoomMaterials({
               actions={
                 isManager && (
                   <>
+                    {financeOf(m.id) && canCreateExpense(financeOf(m.id)!) && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDelivering(financeOf(m.id)!)}
+                        aria-label={t("work:materials.delivered.action", { name: m.name })}
+                      >
+                        <Icon name="inventory_2" size={20} />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -91,11 +108,13 @@ export function RoomMaterials({
               projectId={projectId}
               roomId={roomId}
               material={editing.material}
+              unitPrice={editing.material ? financeOf(editing.material.id)?.unit_price : undefined}
               onSaved={() => setEditing(null)}
             />
           )}
         </FormSheet>
       )}
+      {isManager && <MarkDeliveredSheet projectId={projectId} material={delivering} onClose={() => setDelivering(null)} />}
     </section>
   );
 }

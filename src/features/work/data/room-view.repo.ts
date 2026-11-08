@@ -20,10 +20,29 @@ export type RoomMaterialInput = {
   quantity: number;
   unit: string;
   status: MaterialStatus;
+  /** Left out when the price field is empty, so a save never wipes a price it didn't load. */
+  unit_price?: number;
   /** `YYYY-MM-DD`, or null for "not set". */
   order_by_date: string | null;
   delivery_date: string | null;
 };
+
+/** A material with its money, as managers read the `materials` table (clients can't). */
+export type ProjectMaterial = {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  unit_price: number;
+  status: MaterialStatus;
+  order_by_date: string | null;
+  delivery_date: string | null;
+  room_id: string | null;
+  stage_id: string | null;
+  expense_id: string | null;
+};
+
+export type MarkDeliveredInput = { materialId: string; amount: number; spentOn: string };
 
 export type RoomWarningInput = { id?: string; text: string; material_ids: string[] };
 
@@ -35,6 +54,21 @@ export const roomViewRepo = {
 
   async listRoomMaterials(roomId: string): Promise<RoomMaterial[]> {
     return must(supabase.rpc("room_materials", { p_room: roomId })) as Promise<RoomMaterial[]>;
+  },
+  /** Every material of the project with prices and its expense link (managers only), by room and creation. */
+  async listProjectMaterials(projectId: string): Promise<ProjectMaterial[]> {
+    const rows = (await must(
+      supabase
+        .from("materials")
+        .select("id, name, quantity, unit, unit_price, status, order_by_date, delivery_date, room_id, stage_id, expense_id")
+        .eq("project_id", projectId)
+        .order("created_at"),
+    )) as ProjectMaterial[];
+    return rows.map((m) => ({ ...m, quantity: Number(m.quantity), unit_price: Number(m.unit_price) }));
+  },
+  /** Sets the material delivered and creates its (editable) materials expense in one transaction; refused if it has one. */
+  async markMaterialDelivered({ materialId, amount, spentOn }: MarkDeliveredInput): Promise<void> {
+    await must(supabase.rpc("mark_material_delivered", { p_material: materialId, p_amount: amount, p_spent_on: spentOn }));
   },
   async saveMaterial(projectId: string, roomId: string, { id: materialId, ...input }: RoomMaterialInput): Promise<void> {
     if (materialId) await must(supabase.from("materials").update(input).eq("id", materialId));

@@ -3,7 +3,10 @@
 import { supabase } from "@/lib/supabase";
 import type { Room, Stage, Task } from "@/lib/database.types";
 
-export type StageInput = Partial<Omit<Stage, "tasks" | "project_id">>;
+export type StageInput = Partial<Omit<Stage, "tasks" | "project_id">> & {
+  /** The stage's planned cost (`stage_budgets.planned_cost`), written separately from the stage row. */
+  planned_cost?: number;
+};
 /** A task belongs to a stage and/or a room: pass `stage_id`, `room_id` or both when creating one. */
 export type TaskInput = Partial<Omit<Task, "project_id">>;
 export type RoomInput = Partial<Omit<Room, "project_id">>;
@@ -39,9 +42,31 @@ export const workRepo = {
         .order("sort_order", { referencedTable: "tasks" }),
     ) as Promise<Stage[]>;
   },
-  async saveStage(projectId: string, { id: stageId, ...input }: StageInput): Promise<void> {
-    if (stageId) await must(supabase.from("stages").update(input).eq("id", stageId));
-    else await must(supabase.from("stages").insert({ ...input, project_id: projectId }));
+  /** Planned cost per stage id (managers only: clients have no policy on `stage_budgets`). */
+  async listStageBudgets(projectId: string): Promise<Record<string, number>> {
+    const rows = (await must(supabase.from("stage_budgets").select("stage_id, planned_cost").eq("project_id", projectId))) as
+      { stage_id: string; planned_cost: number }[] | null;
+    return Object.fromEntries((rows ?? []).map((r) => [r.stage_id, Number(r.planned_cost)]));
+  },
+  /**
+   * Saves the stage, then its planned cost (a row in `stage_budgets`, which the database creates with the stage).
+   * A missing `planned_cost` leaves the budget alone.
+   */
+  async saveStage(projectId: string, { id: stageId, planned_cost, ...input }: StageInput): Promise<void> {
+    let id = stageId;
+    if (id) {
+      await must(supabase.from("stages").update(input).eq("id", id));
+    } else {
+      const created = (await must(
+        supabase
+          .from("stages")
+          .insert({ ...input, project_id: projectId })
+          .select("id")
+          .single(),
+      )) as { id: string } | null;
+      id = created?.id;
+    }
+    if (id && planned_cost !== undefined) await must(supabase.from("stage_budgets").update({ planned_cost }).eq("stage_id", id));
   },
   async deleteStage(stageId: string): Promise<void> {
     await must(supabase.from("stages").delete().eq("id", stageId));

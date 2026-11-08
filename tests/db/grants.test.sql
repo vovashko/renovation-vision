@@ -105,5 +105,16 @@ begin
   end if;
 end $$;
 
+-- Cost breakdown (T42): callable by signed-in members, never anonymously.
+do $$
+declare f text;
+begin
+  foreach f in array array['public.project_cost_breakdown(uuid)', 'public.mark_material_delivered(uuid, numeric, date)'] loop
+    if not has_function_privilege('authenticated', f, 'EXECUTE') or has_function_privilege('anon', f, 'EXECUTE') then
+      raise exception 'FAILED: % must be executable by authenticated and not by anon', f;
+    end if;
+  end loop;
+end $$;
+
 select 'grants tests passed';
 rollback;
