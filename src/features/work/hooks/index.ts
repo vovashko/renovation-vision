@@ -1,13 +1,15 @@
 // The work feature's hooks entry point: other features and routes import stages/rooms/mutations
 // from here (README → Architecture: cross-feature imports go through hooks/domain, never data/).
 // `useProject` belongs to `@/features/projects/hooks` — work only owns stages, tasks and rooms.
-export { useStages, useRooms, stagesQuery, roomsQuery } from "./queries";
+export { useStages, useRooms, useStageBudgets, stagesQuery, roomsQuery } from "./queries";
 export {
   useRoomTasks,
   useRoomMaterials,
   useRoomWarnings,
   useSaveMaterial,
   useDeleteMaterial,
+  useProjectMaterials,
+  useMarkMaterialDelivered,
   useSaveWarning,
   useDeleteWarning,
 } from "./room-view";

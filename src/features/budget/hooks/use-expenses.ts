@@ -12,6 +12,10 @@ import { budgetRepo, type ExpenseInput } from "../data/budget.repo";
 export const useExpenses = (projectId: string) =>
   useQuery({ queryKey: keys.expenses(projectId), queryFn: () => budgetRepo.listExpenses(projectId) });
 
+/** The per-stage and per-category breakdown (both roles). Refreshes with the expenses (`keys.costBreakdown` nests under them). */
+export const useCostBreakdown = (projectId: string) =>
+  useQuery({ queryKey: keys.costBreakdown(projectId), queryFn: () => budgetRepo.costBreakdown(projectId) });
+
 /** An image receipt is re-encoded to JPEG (HEIC converted, EXIF/GPS stripped); PDFs are uploaded as they are. */
 async function saveWithNormalizedReceipt(projectId: string, input: ExpenseInput) {
   const receipt = input.receiptFile;

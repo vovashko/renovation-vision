@@ -5,6 +5,9 @@
 const ROOM_DONE_TASKS_OPEN = /^(.+) cannot be marked Completed while tasks are open: (.+)$/;
 const ROOM_DONE_REOPEN_TASK = "Room is marked Completed — change its status before adding or re-opening tasks";
 
+// From public.mark_material_delivered (20261108000300_cost_breakdown.sql).
+const MATERIAL_HAS_EXPENSE = "This material already has an expense";
+
 export type KnownWorkError = { key: `work:errors.${string}`; params?: Record<string, string> };
 
 /** Matches a raw Postgres error message against the known stage/room/task trigger errors. */
@@ -12,6 +15,7 @@ export function matchWorkError(message: string): KnownWorkError | null {
   const roomTasksOpen = ROOM_DONE_TASKS_OPEN.exec(message);
   if (roomTasksOpen) return { key: "work:errors.roomDoneTasksOpen", params: { name: roomTasksOpen[1], tasks: roomTasksOpen[2] } };
   if (message === ROOM_DONE_REOPEN_TASK) return { key: "work:errors.roomDoneReopenTask" };
+  if (message === MATERIAL_HAS_EXPENSE) return { key: "work:errors.materialHasExpense" };
   return null;
 }
 

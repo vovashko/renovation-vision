@@ -7,6 +7,9 @@ import type { ProgressMode } from "@/lib/database.types";
 // Pure zod schemas for the stage, room and task forms. No React, no Supabase — see README →
 // Architecture. Validation messages are i18n keys; `FormField` translates them.
 
+/** A non-negative amount of money (`numeric(12,2)`), as `MoneyInput` emits it. */
+const moneyAmount = z.number({ message: "common:form.invalid" }).min(0, "common:form.invalid").max(9_999_999_999.99, "common:form.invalid");
+
 const STATUS_VALUES = ["done", "progress", "pending", "blocked"] as const satisfies readonly Status[];
 
 export const statusSchema = z.enum(STATUS_VALUES);
@@ -32,6 +35,8 @@ export const stageFormSchema = z
     end_date: z.string().min(1, "common:form.required"),
     client_note: z.string(),
     is_visible: z.boolean(),
+    // Planned cost of the stage (`stage_budgets.planned_cost`), as `MoneyInput` emits it; empty leaves it as it is.
+    planned_cost: moneyAmount.nullish(),
   })
   .refine((v) => v.end_date >= v.start_date, { message: "work:stageForm.endBeforeStart", path: ["end_date"] })
   .refine(statusMatchesProgress, { message: "work:stageForm.statusProgressMismatch", path: ["progress"] });
@@ -85,11 +90,27 @@ export const materialFormSchema = z.object({
   quantity: z.number({ message: "common:form.invalid" }).positive("common:form.invalid").max(999_999_999, "common:form.invalid"),
   unit: z.string().trim().min(1, "common:form.required").max(16, "common:form.invalid"),
   status: materialStatusSchema,
+  // Price per unit as `MoneyInput` emits it (null when empty: the saved price is left as it is).
+  unit_price: moneyAmount.nullish(),
   order_by_date: optionalDate,
   delivery_date: optionalDate,
 });
 
 export type MaterialFormValues = z.infer<typeof materialFormSchema>;
+
+/** "Mark delivered": the expense it creates. The amount starts as quantity × unit price and is editable. */
+export const markDeliveredSchema = z.object({
+  amount: z
+    .number()
+    .nullable()
+    .pipe(
+      z.number({ message: "common:form.required" }).positive("budget:sheet.amountPositive").max(9_999_999_999.99, "common:form.invalid"),
+    ),
+  spent_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "common:form.required"),
+});
+
+export type MarkDeliveredFormInput = z.input<typeof markDeliveredSchema>;
+export type MarkDeliveredFormValues = z.output<typeof markDeliveredSchema>;
 
 export const warningFormSchema = z.object({
   text: z.string().trim().min(1, "common:form.required").max(2000, "common:form.invalid"),

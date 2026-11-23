@@ -65,6 +65,22 @@
     "deleted": "Usunięto wydatek",
     "deleteConfirmTitle": "Usunąć ten wydatek?"
   },
+  "stageCosts": {
+    "heading": "Plan i wydatki według etapów",
+    "stage": "Etap",
+    "planned": "Planowane",
+    "spent": "Wydane",
+    "committed": "Zobowiązania",
+    "remaining": "Pozostało",
+    "total": "Razem",
+    "overBudget": "Ponad budżet",
+    "emptyTitle": "Brak etapów",
+    "emptyDescription": "Koszty planowane i wydane pojawią się tutaj po dodaniu etapów."
+  },
+  "categoryCosts": {
+    "heading": "Wydatki według rodzaju kosztu",
+    "empty": "Nic jeszcze nie wydano."
+  },
   "category": {
     "labour": "Robocizna",
     "materials": "Materiały",

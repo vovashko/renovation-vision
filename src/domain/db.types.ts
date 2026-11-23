@@ -925,6 +925,9 @@ isOneToOne: true
 "is_project_member":
 { Args: { "p_project": string }; Returns: boolean
                            },
+"mark_material_delivered":
+{ Args: { "p_amount": number,"p_material": string,"p_spent_on"?: string }; Returns: string
+                           },
 "mark_notifications_read":
 { Args: { "p_ids"?: (string)[] }; Returns: undefined
                            },
@@ -933,6 +936,9 @@ isOneToOne: true
                            },
 "notify_project_clients":
 { Args: { "p_body": string,"p_link"?: string,"p_project": string,"p_title": string }; Returns: undefined
+                           },
+"project_cost_breakdown":
+{ Args: { "p_project": string }; Returns: Json
                            },
 "project_visible_contacts":
 { Args: { "p_project": string }; Returns: {

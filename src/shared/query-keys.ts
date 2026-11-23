@@ -20,6 +20,8 @@ export const keys = {
   renders: (id: string) => ["renders", id] as const,
   documents: (id: string) => ["documents", id] as const,
   expenses: (id: string) => ["expenses", id] as const,
+  /** Planned/spent per stage and spent per category. Nests under `expenses`, so any expense or cost change refreshes it. */
+  costBreakdown: (id: string) => ["expenses", id, "breakdown"] as const,
   notifications: (id: string) => ["notifications", id] as const,
   activity: (id: string) => ["activity", id] as const,
   /** The signed-in user's own notifications (the bell); the unread count nests under it. */

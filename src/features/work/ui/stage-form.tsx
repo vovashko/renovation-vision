@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { MoneyInput } from "@/components/ui/money-input";
 import { FieldGroup } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { statuses, type Status } from "@/domain/status";
@@ -16,8 +17,10 @@ import { FormSheet, VisibleSwitch } from "@/shared/ui/form-sheet";
 import { FormField } from "@/shared/ui/form-field";
 import { useConfirm } from "@/shared/ui/use-confirm";
 import { useZodForm } from "@/shared/hooks/use-zod-form";
+import { useProject } from "@/features/projects/hooks";
 import { stageFormSchema, type StageFormValues } from "../domain/schemas";
 import { useDeleteStage, useSaveStage } from "../hooks/mutations";
+import { useStageBudgets } from "../hooks/queries";
 import { ProgressModeControl, TaskDerivedProgress } from "./stage-progress-mode";
 import type { ProgressMode, Room, Stage } from "@/lib/database.types";
 import type { StageInput } from "../data/work.repo";
@@ -31,6 +34,7 @@ const emptyStage: StageFormValues = {
   end_date: "",
   client_note: "",
   is_visible: true,
+  planned_cost: null,
 };
 
 /**
@@ -56,6 +60,8 @@ export function StageFormSheet({
   const confirm = useConfirm();
   const isNew = stage === "new";
   const form = useZodForm(stageFormSchema, emptyStage);
+  const { data: project } = useProject(projectId);
+  const { data: budgets } = useStageBudgets(projectId);
   const save = useSaveStage(projectId);
   const remove = useDeleteStage(projectId);
   const progress = form.watch("progress");
@@ -67,12 +73,30 @@ export function StageFormSheet({
   useEffect(() => {
     if (stage && stage !== "new") {
       const { name, progress_mode, status: s, progress: p, start_date, end_date, client_note, is_visible } = stage;
-      form.reset({ name, progress_mode, status: s, progress: p, start_date, end_date, client_note: client_note ?? "", is_visible });
+      form.reset({
+        name,
+        progress_mode,
+        status: s,
+        progress: p,
+        start_date,
+        end_date,
+        client_note: client_note ?? "",
+        is_visible,
+        planned_cost: budgets?.[stage.id] ?? null,
+      });
     } else if (isNew) {
       form.reset(emptyStage);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
+
+  // The planned cost loads separately from the stage: fill it in once it arrives, unless it's already being edited.
+  useEffect(() => {
+    if (stage && stage !== "new" && budgets && !form.formState.dirtyFields.planned_cost) {
+      form.reset({ ...form.getValues(), planned_cost: budgets[stage.id] ?? null }, { keepDirtyValues: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [budgets, stage]);
 
   const setStatus = (status: Status) => {
     form.setValue("status", status, { shouldValidate: true });
@@ -98,9 +122,11 @@ export function StageFormSheet({
     stage && stage !== "new" ? [...new Set(stage.tasks.map((t2) => rooms.find((r) => r.id === t2.room_id)?.name).filter(Boolean))] : [];
 
   const submit = form.handleSubmit((values) => {
+    const { planned_cost, ...rest } = values;
+    const base = { ...rest, planned_cost: planned_cost ?? undefined };
     const payload: StageInput = isNew
-      ? { ...values, key: slugify(values.name), sort_order: count + 1 }
-      : { ...values, id: (stage as Stage).id };
+      ? { ...base, key: slugify(values.name), sort_order: count + 1 }
+      : { ...base, id: (stage as Stage).id };
     save.mutate(payload, { onSuccess: onClose });
   });
 
@@ -165,6 +191,14 @@ export function StageFormSheet({
               </FormField>
             </>
           )}
+          <FormField
+            control={form.control}
+            name="planned_cost"
+            label={t("work:stageForm.plannedCost")}
+            description={t("work:stageForm.plannedCostHint")}
+          >
+            {(field) => <MoneyInput {...field} currency={project?.currency} />}
+          </FormField>
           <FormField control={form.control} name="client_note" label={t("work:stageForm.note")}>
             {(field) => <Textarea {...field} />}
           </FormField>

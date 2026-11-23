@@ -18,7 +18,8 @@ const projectInvalidation = (projectId: string) => [
 export function useSaveStage(projectId: string) {
   const { t } = useTranslation(["work"]);
   return useMutationWithToast((input: StageInput) => workRepo.saveStage(projectId, input), {
-    invalidate: [keys.stages(projectId), ...projectInvalidation(projectId)],
+    // The planned cost feeds the cost breakdown (nested under expenses).
+    invalidate: [keys.stages(projectId), keys.expenses(projectId), ...projectInvalidation(projectId)],
     success: t("work:stageForm.saved"),
     error: (error) => translateWorkError((key, params) => t(key as never, params), error),
   });

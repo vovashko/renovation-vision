@@ -49,3 +49,17 @@ export function materialDateInfo(m: {
       return m.delivery_date ? { kind: "delivered", date: m.delivery_date } : null;
   }
 }
+
+/** A material's price tag in cents-rounded money: quantity × unit price. */
+export function materialTotal(m: { quantity: number; unit_price: number }): number {
+  return Math.round(m.quantity * m.unit_price * 100) / 100;
+}
+
+/** The expense a delivered material creates by default (editable before saving). Null when there is nothing to charge. */
+export function deliveredExpenseAmount(m: { quantity: number; unit_price: number }): number | null {
+  const total = materialTotal(m);
+  return total > 0 ? total : null;
+}
+
+/** A material that already has an expense must not get a second one (the database refuses it too). */
+export const canCreateExpense = (m: { expense_id: string | null }): boolean => m.expense_id === null;

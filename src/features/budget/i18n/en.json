@@ -65,6 +65,22 @@
     "deleted": "Expense deleted",
     "deleteConfirmTitle": "Delete this expense?"
   },
+  "stageCosts": {
+    "heading": "Planned and spent by stage",
+    "stage": "Stage",
+    "planned": "Planned",
+    "spent": "Spent",
+    "committed": "Committed",
+    "remaining": "Remaining",
+    "total": "Total",
+    "overBudget": "Over budget",
+    "emptyTitle": "No stages yet",
+    "emptyDescription": "Planned and spent costs appear here once stages are added."
+  },
+  "categoryCosts": {
+    "heading": "Spent by type of cost",
+    "empty": "Nothing spent yet."
+  },
   "category": {
     "labour": "Labour",
     "materials": "Materials",
