@@ -42,7 +42,7 @@ vi.mock("@/lib/supabase/admin", () => ({
   },
 }));
 
-const { importRowsHandler, importRpcError } = await import("@/server/functions/import.server");
+const { importContactsHandler, importRowsHandler, importRpcError } = await import("@/server/functions/import.server");
 const { requireProjectRole, requireUser } = await import("@/server/middleware/auth");
 
 beforeEach(() => {
@@ -153,5 +153,42 @@ describe("the gates of importRows", () => {
     });
     h.projectRoles[`is_project_manager:${PROJECT_ID}`] = true;
     expect((await runServerMiddleware([managerOnly], { data: { projectId: PROJECT_ID } })).handlerCalled).toBe(true);
+  });
+});
+
+describe("importContactsHandler", () => {
+  const contactRows = [
+    { full_name: "Marek Nowak", kind: "crew", company: "", trade: "Site lead", phone: "+48600100200", whatsapp: "", email: "", notes: "" },
+  ];
+
+  it("calls import_contacts (no project) as the user and returns the counts", async () => {
+    const { rpc, context } = contextWith({ data: { inserted: 2, updated: 1, skipped: 3 }, error: null });
+    const result = await importContactsHandler({ rows: contactRows }, context);
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("import_contacts", { p_rows: contactRows });
+    expect(result).toEqual({ kind: "contacts", inserted: 2, updated: 1, skipped: 3 });
+  });
+
+  it("maps the 0-based row errors to `<row>.<field>` paths", async () => {
+    const details = JSON.stringify([
+      { row: 0, field: "phone", code: "invalid_phone" },
+      { row: 4, field: "email", code: "duplicate_in_file" },
+    ]);
+    const { context } = contextWith({ data: null, error: { code: "22023", message: "import_contacts: invalid rows", details } });
+    await expect(importContactsHandler({ rows: contactRows }, context)).rejects.toMatchObject({
+      status: 400,
+      reason: "import_invalid_rows",
+      issues: [
+        { path: "0.phone", message: "invalid_phone" },
+        { path: "4.email", message: "duplicate_in_file" },
+      ],
+    });
+  });
+
+  it("turns a non-staff refusal into 403", async () => {
+    const { context } = contextWith({ data: null, error: { code: "42501", message: "Only staff can import contacts" } });
+    const error = await importContactsHandler({ rows: contactRows }, context).catch((e) => e);
+    expect(error).toBeInstanceOf(ServerFnError);
+    expect(error).toMatchObject({ status: 403, reason: "import_forbidden" });
   });
 });

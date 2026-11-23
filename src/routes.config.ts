@@ -15,6 +15,7 @@ export const routes = rootRoute("__root.tsx", [
   layout("_authed", "_authed.tsx", [
     index("index.tsx"),
     route("/admin", [route("staff", "admin/staff.tsx")]),
+    route("/contacts", "contacts.tsx"),
     route("/settings", [
       index("settings/index.tsx"),
       route("profile", "settings/profile.tsx"),

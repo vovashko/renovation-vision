@@ -1,15 +1,18 @@
 {
   "button": {
     "stages": "Import",
-    "materials": "Import"
+    "materials": "Import",
+    "contacts": "Import contacts"
   },
   "title": {
     "stages": "Import stages and tasks",
-    "materials": "Import materials"
+    "materials": "Import materials",
+    "contacts": "Import contacts"
   },
   "description": {
     "stages": "Add stages with their tasks from a spreadsheet. Nothing is saved until every row is valid.",
-    "materials": "Add materials from a spreadsheet. Rooms, stages and suppliers are matched by name. Nothing is saved until every row is valid."
+    "materials": "Add materials from a spreadsheet. Rooms, stages and suppliers are matched by name. Nothing is saved until every row is valid.",
+    "contacts": "Add people to your address book from a spreadsheet. Nothing is saved until every row is valid."
   },
   "pick": {
     "label": "Spreadsheet file",
@@ -46,7 +49,14 @@
     "status": "Status",
     "stage": "Stage",
     "supplier": "Supplier",
-    "notes": "Notes"
+    "notes": "Notes",
+    "full_name": "Name",
+    "kind": "Kind",
+    "company": "Company",
+    "trade": "Trade",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "preview": {
     "title": "Check the rows",
@@ -59,7 +69,9 @@
     "rowField": "Row {{row}}, {{field}}",
     "moreRows": "and {{count}} more rows",
     "stageColumn": "Stage",
-    "tasksColumn": "Tasks"
+    "tasksColumn": "Tasks",
+    "summaryContacts_one": "{{count}} contact is ready to import. Contacts already in your address book (same email) are matched, not duplicated.",
+    "summaryContacts_other": "{{count}} contacts are ready to import. Contacts already in your address book (same email) are matched, not duplicated."
   },
   "issues": {
     "required": "is required",
@@ -79,7 +91,13 @@
     "room_not_found": "wasn't found in this project",
     "room_ambiguous": "matches more than one room",
     "too_many_rows": "is past the row limit",
-    "invalid": "is not valid"
+    "invalid": "is not valid",
+    "invalid_kind": "isn't a kind (client, crew, supplier, architect or other)",
+    "invalid_phone": "isn't a valid phone number (use +48 600 100 200)",
+    "invalid_whatsapp": "isn't a valid WhatsApp number (use +48 600 100 200)",
+    "invalid_email": "isn't a valid email address",
+    "duplicate_in_file": "appears more than once in the file",
+    "not_an_object": "is not a valid row"
   },
   "actions": {
     "back": "Back",
@@ -91,12 +109,17 @@
   },
   "done": {
     "stages": "Imported {{stages}} stages and {{tasks}} tasks.",
-    "materials": "Imported {{count}} materials."
+    "materials": "Imported {{count}} materials.",
+    "contacts": "Added {{inserted}}, updated {{updated}}, skipped {{skipped}}.",
+    "contactsHint": "Updated: an existing contact with the same email got its empty fields filled in. Skipped: nothing new to add."
   },
   "errors": {
     "notReady": "Fix the problems in the file first.",
     "rowsRejected": "The project rejected some rows. Nothing was imported.",
     "forbidden": "Only project managers can import.",
-    "rateLimited": "Too many requests. Try again in a minute."
-  }
+    "rateLimited": "Too many requests. Try again in a minute.",
+    "rowsRejectedContacts": "The address book rejected some rows. Nothing was imported.",
+    "forbiddenContacts": "Only managers can import contacts."
+  },
+  "contactsHelp": "Phone numbers need a country code (+48 600 100 200); a plain 9-digit number is read as Polish. A contact whose email is already in your address book isn't duplicated: only its empty fields are filled in, and nothing is overwritten. A row with no email is skipped when the same name and phone already exist."
 }

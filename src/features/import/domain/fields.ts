@@ -29,4 +29,23 @@ export const MATERIAL_FIELDS: FieldDef[] = [
   { key: "notes", required: false, aliases: ["notes", "note", "uwagi", "notatki", "notatka"] },
 ];
 
-export const FIELDS: Record<ImportKind, FieldDef[]> = { stages: STAGE_FIELDS, materials: MATERIAL_FIELDS };
+export const CONTACT_FIELDS: FieldDef[] = [
+  {
+    key: "full_name",
+    required: true,
+    aliases: ["name", "full name", "contact", "contact name", "imie i nazwisko", "imie nazwisko", "nazwisko", "nazwa", "kontakt"],
+  },
+  { key: "kind", required: false, aliases: ["kind", "type", "category", "rodzaj", "typ", "kategoria"] },
+  { key: "company", required: false, aliases: ["company", "firm", "organisation", "organization", "firma", "spolka"] },
+  {
+    key: "trade",
+    required: false,
+    aliases: ["trade", "role", "specialty", "speciality", "profession", "branza", "specjalizacja", "zawod", "rola", "fach"],
+  },
+  { key: "phone", required: false, aliases: ["phone", "telephone", "mobile", "tel", "telefon", "numer telefonu", "komorka"] },
+  { key: "whatsapp", required: false, aliases: ["whatsapp", "whats app", "wa"] },
+  { key: "email", required: false, aliases: ["email", "e mail", "mail", "email address", "adres email", "adres e mail"] },
+  { key: "notes", required: false, aliases: ["notes", "note", "uwagi", "notatki", "notatka", "komentarz"] },
+];
+
+export const FIELDS: Record<ImportKind, FieldDef[]> = { stages: STAGE_FIELDS, materials: MATERIAL_FIELDS, contacts: CONTACT_FIELDS };

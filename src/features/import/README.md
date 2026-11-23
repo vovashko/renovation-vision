@@ -1,6 +1,6 @@
 # Import (`features/import`)
 
-Spreadsheet import (T45) for **stages + tasks** (Progress page) and **materials** (Budget page). Managers only.
+Spreadsheet import (T45) for **stages + tasks** (Progress page) and **materials** (Budget page), and **contacts** (T46, the `/contacts` page). Managers only.
 
 - **Entry:** `ui/import-button.tsx` in the page-header actions of `routes/project/progress.tsx` (`kind="stages"`) and `routes/project/budget.tsx` (`kind="materials"`). It opens `ui/import-sheet.tsx`.
 - **Flow:** pick a file (CSV or XLSX, up to 5 MB) → match columns (automatic, English and Polish header names) → preview with per-row errors → import. Nothing is saved unless every row passes.
@@ -10,7 +10,7 @@ Spreadsheet import (T45) for **stages + tasks** (Progress page) and **materials*
 - **Materials file shape:** `Material` (required), `Quantity`, `Unit`, `Unit price`, `Status`, `Stage`, `Room`, `Supplier`, `Notes`. Stage, room and supplier are matched by name by the RPC. Decimal commas (`12,50`) and day-first dates (`01.03.2026`) are accepted.
 - **Templates:** `public/templates/{stages,materials}.{csv,xlsx}` (English headers) and `{stages,materials}.pl.{csv,xlsx}` (Polish headers, semicolon CSV with decimal commas).
 - **Limits:** 500 stages, 2000 materials (the RPCs' own limits), 5 MB.
-- **Not here yet:** **contacts import**. The `import_contacts` RPC was never built; it is deferred to T46 (contacts UI), which can reuse `domain/{parse,map}.ts` and add a `contacts` kind to `domain/fields.ts` and `domain/validate.ts`.
+- **Contacts (T46):** company-wide, so no project: `ContactsImportButton` on `/contacts` opens the wizard with `projectId` null. File shape: `Name` (required), `Kind` (client, crew, supplier, architect, other; Polish names accepted), `Company`, `Trade`, `Phone`, `WhatsApp`, `Email`, `Notes`. `domain/phone.ts` turns phones into E.164 (`+48` is added to a bare 9-digit number; anything else needs its `+` or `00`). Server: `importContacts` (`requireStaff` + `rateLimit`) → `public.import_contacts`, whose per-row errors are 0-based like `import_stages`. **Dedupe:** a row whose email is already in the address book never creates a duplicate: the existing contact only has its _empty_ company, trade, phone, WhatsApp and notes filled in (nothing is overwritten; counted "updated", or "skipped" when there was nothing to add); a row with no email is skipped when the same name and phone exist; the same email twice in a file is an error. Templates: `public/templates/contacts{,.pl}.{csv,xlsx}`.
 - **i18n namespace:** `import` (`useTranslation(["import", "common"])`)
 - **No `data/` layer:** all writes go through the server function, so there is no repository.
 

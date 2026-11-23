@@ -16,6 +16,7 @@ import { Route as loginRouteImport } from './routes/login'
 import { Route as mfaLayoutRouteImport } from './routes/mfa/layout'
 import { Route as resetPasswordRouteImport } from './routes/reset-password'
 import { Route as indexRouteImport } from './routes/index'
+import { Route as contactsRouteImport } from './routes/contacts'
 import { Route as mfaChallengeRouteImport } from './routes/mfa/challenge'
 import { Route as mfaEnrollRouteImport } from './routes/mfa/enroll'
 import { Route as adminStaffRouteImport } from './routes/admin/staff'
@@ -72,6 +73,11 @@ const resetPasswordRoute = resetPasswordRouteImport.update({
 const indexRoute = indexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => authedRoute,
+} as any)
+const contactsRoute = contactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
   getParentRoute: () => authedRoute,
 } as any)
 const mfaChallengeRoute = mfaChallengeRouteImport.update({
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/mfa': typeof mfaLayoutRouteWithChildren
   '/reset-password': typeof resetPasswordRoute
   '/mfa/': typeof mfaChallengeRoute
+  '/contacts': typeof contactsRoute
   '/mfa/enroll': typeof mfaEnrollRoute
   '/projects/': typeof projectsRoute
   '/admin/staff': typeof adminStaffRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof resetPasswordRoute
   '/': typeof indexRoute
   '/mfa': typeof mfaChallengeRoute
+  '/contacts': typeof contactsRoute
   '/mfa/enroll': typeof mfaEnrollRoute
   '/projects': typeof projectsRoute
   '/admin/staff': typeof adminStaffRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/reset-password': typeof resetPasswordRoute
   '/_authed/': typeof indexRoute
   '/mfa/': typeof mfaChallengeRoute
+  '/_authed/contacts': typeof contactsRoute
   '/mfa/enroll': typeof mfaEnrollRoute
   '/_authed/projects/': typeof projectsRoute
   '/_authed/admin/staff': typeof adminStaffRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
     | '/mfa'
     | '/reset-password'
     | '/mfa/'
+    | '/contacts'
     | '/mfa/enroll'
     | '/projects/'
     | '/admin/staff'
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/'
     | '/mfa'
+    | '/contacts'
     | '/mfa/enroll'
     | '/projects'
     | '/admin/staff'
@@ -354,6 +365,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authed/'
     | '/mfa/'
+    | '/_authed/contacts'
     | '/mfa/enroll'
     | '/_authed/projects/'
     | '/_authed/admin/staff'
@@ -436,6 +448,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof indexRouteImport
+      parentRoute: typeof authedRoute
+    }
+    '/_authed/contacts': {
+      id: '/_authed/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof contactsRouteImport
       parentRoute: typeof authedRoute
     }
     '/mfa/': {
@@ -642,6 +661,7 @@ const projectLayoutRouteWithChildren = projectLayoutRoute._addFileChildren(
 
 interface authedRouteChildren {
   indexRoute: typeof indexRoute
+  contactsRoute: typeof contactsRoute
   projectsRoute: typeof projectsRoute
   adminStaffRoute: typeof adminStaffRoute
   projectLayoutRoute: typeof projectLayoutRouteWithChildren
@@ -653,6 +673,7 @@ interface authedRouteChildren {
 
 const authedRouteChildren: authedRouteChildren = {
   indexRoute: indexRoute,
+  contactsRoute: contactsRoute,
   projectsRoute: projectsRoute,
   adminStaffRoute: adminStaffRoute,
   projectLayoutRoute: projectLayoutRouteWithChildren,

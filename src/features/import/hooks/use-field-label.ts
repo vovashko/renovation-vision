@@ -14,6 +14,13 @@ const KNOWN = [
   "stage",
   "supplier",
   "notes",
+  "full_name",
+  "kind",
+  "company",
+  "trade",
+  "phone",
+  "whatsapp",
+  "email",
 ] as const;
 
 /** The translated name of an importable field (`import:fields.*`); the key itself when unknown. */

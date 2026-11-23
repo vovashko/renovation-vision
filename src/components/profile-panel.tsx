@@ -28,7 +28,7 @@ function ProfileIdentity({ name, email, isManager }: { name: string; email: stri
  * "More" sheet).
  */
 export function ProfilePanel({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const { t } = useTranslation(["common", "admin"]);
+  const { t } = useTranslation(["common", "admin", "people"]);
   const { profile, email, signOut } = useAuth();
   const isManager = isStaff(profile?.account_type);
   const name = profile?.full_name ?? "";
@@ -44,12 +44,20 @@ export function ProfilePanel({ open, onOpenChange }: { open: boolean; onOpenChan
         <ProfileIdentity name={name} email={email} isManager={isManager} />
 
         {isManager && (
-          <Button asChild variant="tonal" className="gap-2">
-            <Link to="/admin/staff" onClick={() => onOpenChange(false)}>
-              <Icon name="manage_accounts" size={20} />
-              {t("admin:staff.profileLink")}
-            </Link>
-          </Button>
+          <>
+            <Button asChild variant="tonal" className="gap-2">
+              <Link to="/contacts" onClick={() => onOpenChange(false)}>
+                <Icon name="contacts" size={20} />
+                {t("people:contacts.profileLink")}
+              </Link>
+            </Button>
+            <Button asChild variant="tonal" className="gap-2">
+              <Link to="/admin/staff" onClick={() => onOpenChange(false)}>
+                <Icon name="manage_accounts" size={20} />
+                {t("admin:staff.profileLink")}
+              </Link>
+            </Button>
+          </>
         )}
 
         <Button variant="outline" onClick={signOut} className="mt-auto gap-2">

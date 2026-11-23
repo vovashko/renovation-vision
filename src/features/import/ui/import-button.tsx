@@ -5,8 +5,8 @@ import { Icon } from "@/components/ui/icon";
 import type { ImportKind } from "../domain/types";
 import { ImportSheet } from "./import-sheet";
 
-/** The page-header entry point: a button that opens the import wizard for stages or materials. */
-function ImportButton({ projectId, kind }: { projectId: string; kind: ImportKind }) {
+/** The page-header entry point: a button that opens the import wizard for stages, materials or contacts. */
+function ImportButton({ projectId, kind }: { projectId: string | null; kind: ImportKind }) {
   const { t } = useTranslation(["import"]);
   const [open, setOpen] = useState(false);
   return (
@@ -21,6 +21,10 @@ function ImportButton({ projectId, kind }: { projectId: string; kind: ImportKind
 
 const STAGES: ImportKind = "stages";
 const MATERIALS: ImportKind = "materials";
+const CONTACTS: ImportKind = "contacts";
 
 export const StagesImportButton = ({ projectId }: { projectId: string }) => <ImportButton projectId={projectId} kind={STAGES} />;
 export const MaterialsImportButton = ({ projectId }: { projectId: string }) => <ImportButton projectId={projectId} kind={MATERIALS} />;
+
+/** The contacts page's entry point: the address book is company-wide, so there is no project. */
+export const ContactsImportButton = () => <ImportButton projectId={null} kind={CONTACTS} />;

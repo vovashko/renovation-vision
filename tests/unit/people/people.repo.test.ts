@@ -207,3 +207,39 @@ describe("peopleRepo.listVisibleContacts", () => {
     expect(supabase.rpc).toHaveBeenCalledWith("project_visible_contacts", { p_project: "p1" });
   });
 });
+
+describe("the address book (T46)", () => {
+  beforeEach(() => vi.mocked(supabase.from).mockReset());
+
+  it("lists contacts by name", async () => {
+    const chain = makeChain({ data: [contact], error: null });
+    vi.mocked(supabase.from).mockReturnValue(chain as never);
+    expect(await peopleRepo.listContacts()).toEqual([contact]);
+    expect(supabase.from).toHaveBeenCalledWith("contacts");
+    expect(chain.order).toHaveBeenCalledWith("full_name");
+  });
+
+  it("assigns a contact to a project in a role, with client visibility", async () => {
+    const chain = makeChain({ data: null, error: null });
+    vi.mocked(supabase.from).mockReturnValue(chain as never);
+    await peopleRepo.assignContact("c1", { projectId: "p1", role: "poc", visibleToClient: true });
+    expect(supabase.from).toHaveBeenCalledWith("project_contacts");
+    expect(chain.insert).toHaveBeenCalledWith({ project_id: "p1", contact_id: "c1", role: "poc", visible_to_client: true });
+  });
+
+  it("never assigns the client role: that is the client card's job", async () => {
+    await expect(peopleRepo.assignContact("c1", { projectId: "p1", role: "client" as never, visibleToClient: true })).rejects.toMatchObject(
+      { hint: "client_role_not_allowed" },
+    );
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
+  it("keeps the SQLSTATE on a database error (a duplicate role)", async () => {
+    vi.mocked(supabase.from).mockReturnValue(
+      makeChain({ data: null, error: { message: "duplicate key", code: "23505" } as never }) as never,
+    );
+    await expect(peopleRepo.assignContact("c1", { projectId: "p1", role: "crew", visibleToClient: false })).rejects.toMatchObject({
+      code: "23505",
+    });
+  });
+});

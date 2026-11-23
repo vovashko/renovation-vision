@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { keys } from "@/shared/query-keys";
 import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
-import { importRows } from "@/server/functions/import";
+import { importContacts, importRows } from "@/server/functions/import";
 import { isServerFnError } from "@/server/errors";
 import { autoMap, applyMapping, missingRequired } from "../domain/map";
 import { ImportFileError, readSheetFile } from "../domain/parse";
@@ -30,6 +30,12 @@ const KNOWN_ISSUES = [
   "room_not_found",
   "room_ambiguous",
   "too_many_rows",
+  "invalid_kind",
+  "invalid_phone",
+  "invalid_whatsapp",
+  "invalid_email",
+  "duplicate_in_file",
+  "not_an_object",
 ] as const;
 
 /** The `import:issues.*` key for an issue code from the browser or the database; unknown codes fall back to "invalid". */
@@ -37,7 +43,8 @@ export const issueKey = (code: string) =>
   (KNOWN_ISSUES as readonly string[]).includes(code) ? (code as (typeof KNOWN_ISSUES)[number]) : "invalid";
 
 /** The state machine behind the import sheet: pick a file → map columns → preview → import. */
-export function useImportFlow(projectId: string, kind: ImportKind) {
+/** `projectId` is null for the company-wide contacts import. */
+export function useImportFlow(projectId: string | null, kind: ImportKind) {
   const { t } = useTranslation(["import", "common"]);
   const [step, setStep] = useState<ImportStep>("pick");
   const [fileName, setFileName] = useState("");
@@ -85,22 +92,29 @@ export function useImportFlow(projectId: string, kind: ImportKind) {
   const mutation = useMutationWithToast(
     async () => {
       if (!validation || validation.issues.length > 0 || validation.rows.length === 0) throw new Error(t("import:errors.notReady"));
-      const data =
-        validation.kind === "stages"
-          ? { projectId, kind: "stages" as const, rows: validation.rows }
-          : { projectId, kind: "materials" as const, rows: validation.rows };
+      const submit = async () => {
+        if (validation.kind === "contacts") return importContacts({ data: { rows: validation.rows } });
+        if (!projectId) throw new Error(t("import:errors.notReady"));
+        return validation.kind === "stages"
+          ? importRows({ data: { projectId, kind: "stages" as const, rows: validation.rows } })
+          : importRows({ data: { projectId, kind: "materials" as const, rows: validation.rows } });
+      };
       try {
-        return await importRows({ data });
+        return await submit();
       } catch (e) {
         if (isServerFnError(e) && e.issues?.length) setServerIssues(issuesToSheet(e.issues, validation.sources));
         throw e;
       }
     },
     {
-      invalidate: [keys.stages(projectId), keys.roomView(projectId), keys.project(projectId), keys.activity(projectId)],
+      invalidate: projectId
+        ? [keys.stages(projectId), keys.roomView(projectId), keys.project(projectId), keys.activity(projectId)]
+        : [keys.contacts],
       error: (e) => {
-        if (isServerFnError(e) && e.reason === "import_invalid_rows") return t("import:errors.rowsRejected");
-        if (isServerFnError(e) && e.reason === "import_forbidden") return t("import:errors.forbidden");
+        if (isServerFnError(e) && e.reason === "import_invalid_rows")
+          return kind === "contacts" ? t("import:errors.rowsRejectedContacts") : t("import:errors.rowsRejected");
+        if (isServerFnError(e) && e.reason === "import_forbidden")
+          return kind === "contacts" ? t("import:errors.forbiddenContacts") : t("import:errors.forbidden");
         if (isServerFnError(e) && e.code === "RATE_LIMITED") return t("import:errors.rateLimited");
         return t("common:errors.generic");
       },

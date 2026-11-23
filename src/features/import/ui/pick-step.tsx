@@ -48,6 +48,7 @@ export function PickStep({
   return (
     <div className="space-y-4">
       {kind === "stages" && <Note size="sm">{t("import:stagesHelp")}</Note>}
+      {kind === "contacts" && <Note size="sm">{t("import:contactsHelp")}</Note>}
       <Field>
         <FieldLabel htmlFor="import-file">{t("import:pick.label")}</FieldLabel>
         <FileInput

@@ -55,6 +55,30 @@ function PreviewTable({ validation }: { validation: AnyValidation }) {
       </Table>
     );
   }
+  if (validation.kind === "contacts") {
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t("import:fields.full_name")}</TableHead>
+            <TableHead>{t("import:fields.kind")}</TableHead>
+            <TableHead>{t("import:fields.phone")}</TableHead>
+            <TableHead>{t("import:fields.email")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {validation.rows.slice(0, PREVIEW_ROWS).map((c, i) => (
+            <TableRow key={i}>
+              <TableCell>{c.full_name}</TableCell>
+              <TableCell>{c.kind}</TableCell>
+              <TableCell>{c.phone}</TableCell>
+              <TableCell>{c.email}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  }
   return (
     <Table>
       <TableHeader>
@@ -89,9 +113,9 @@ export function PreviewStep({ validation, issues }: { validation: AnyValidation;
       {issues.length > 0 && <IssueList issues={issues} />}
       {issues.length === 0 && (
         <Note tone="success" size="sm">
-          {validation.kind === "stages"
-            ? t("import:preview.summaryStages", { stages: validation.rows.length, tasks })
-            : t("import:preview.summaryMaterials", { count: validation.rows.length })}
+          {validation.kind === "stages" && t("import:preview.summaryStages", { stages: validation.rows.length, tasks })}
+          {validation.kind === "materials" && t("import:preview.summaryMaterials", { count: validation.rows.length })}
+          {validation.kind === "contacts" && t("import:preview.summaryContacts", { count: validation.rows.length })}
         </Note>
       )}
       {validation.rows.length > 0 && <PreviewTable validation={validation} />}

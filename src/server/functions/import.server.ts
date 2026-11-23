@@ -10,14 +10,19 @@ import type { AuthContext } from "../middleware/auth";
 
 type PgError = { code?: string; message: string; details?: string | null };
 
-export type ImportInput = { projectId: string; kind: ImportKind; rows: unknown[] };
-export type ImportResult = { kind: ImportKind; inserted: number; insertedTasks: number };
+export type ImportInput = { projectId: string; kind: Exclude<ImportKind, "contacts">; rows: unknown[] };
+export type ImportResult = { kind: Exclude<ImportKind, "contacts">; inserted: number; insertedTasks: number };
+export type ImportContactsResult = { kind: "contacts"; inserted: number; updated: number; skipped: number };
 
 const RPC = { stages: "import_stages", materials: "import_materials" } as const;
 
 /** Turns a Postgres error from an import RPC into a ServerFnError. */
 export function importRpcError(error: PgError, kind: ImportKind): Error {
-  if (error.code === "42501") return new ServerFnError("FORBIDDEN", "You can't import into this project", { reason: "import_forbidden" });
+  if (error.code === "42501") {
+    return new ServerFnError("FORBIDDEN", kind === "contacts" ? "Only staff can import contacts" : "You can't import into this project", {
+      reason: "import_forbidden",
+    });
+  }
   if (error.code === "22023") {
     const rows = parseRpcDetail(error.details, kind);
     if (rows?.length) {
@@ -39,4 +44,12 @@ export async function importRowsHandler(data: ImportInput, context: AuthContext)
   return data.kind === "stages"
     ? { kind: "stages", inserted: counts.inserted_stages ?? 0, insertedTasks: counts.inserted_tasks ?? 0 }
     : { kind: "materials", inserted: counts.inserted ?? 0, insertedTasks: 0 };
+}
+
+/** Imports the rows into the address book as the signed-in staff account: one RPC call, all or nothing. */
+export async function importContactsHandler(data: { rows: unknown[] }, context: AuthContext): Promise<ImportContactsResult> {
+  const { data: result, error } = await context.supabase.rpc("import_contacts", { p_rows: data.rows as never });
+  if (error) throw importRpcError(error, "contacts");
+  const counts = (result ?? {}) as { inserted?: number; updated?: number; skipped?: number };
+  return { kind: "contacts", inserted: counts.inserted ?? 0, updated: counts.updated ?? 0, skipped: counts.skipped ?? 0 };
 }

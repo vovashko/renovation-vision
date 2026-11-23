@@ -15,7 +15,8 @@ export function ImportSheet({
   open,
   onOpenChange,
 }: {
-  projectId: string;
+  /** Null for the company-wide contacts import. */
+  projectId: string | null;
   kind: ImportKind;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -48,9 +49,20 @@ export function ImportSheet({
         {step === "preview" && validation && <PreviewStep validation={validation} issues={issues} />}
         {step === "done" && flow.result && (
           <Note tone="success">
-            {flow.result.kind === "stages"
-              ? t("import:done.stages", { stages: flow.result.inserted, tasks: flow.result.insertedTasks })
-              : t("import:done.materials", { count: flow.result.inserted })}
+            {flow.result.kind === "stages" && t("import:done.stages", { stages: flow.result.inserted, tasks: flow.result.insertedTasks })}
+            {flow.result.kind === "materials" && t("import:done.materials", { count: flow.result.inserted })}
+            {flow.result.kind === "contacts" && (
+              <>
+                <p>
+                  {t("import:done.contacts", {
+                    inserted: flow.result.inserted,
+                    updated: flow.result.updated,
+                    skipped: flow.result.skipped,
+                  })}
+                </p>
+                <p className="mt-1 text-body-sm">{t("import:done.contactsHint")}</p>
+              </>
+            )}
           </Note>
         )}
 
